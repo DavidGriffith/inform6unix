@@ -118,9 +118,11 @@ AUTOMAKE_OPTIONS = foreign check-news
 
 SUBDIRS = src lib include info html demos
 
-EXTRA_DIST = AUTHORS VERSION
+EXTRA_DIST = AUTHORS VERSION README.bugs README.glulx README.paths	\
+README.source
 
-EXTRA_DIRS = config contrib doc tutor
+
+EXTRA_DIRS = config contrib tutor
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs

@@ -1,9 +1,9 @@
 ## Automake template for Inform documentation.
 
-infodir = $(prefix)/info
-info_DATA = $(INFORM)
+docdir = $(prefix)/info
+doc_DATA = $(INFORM)
 
-EXTRA_DIST = $(info_DATA)
+EXTRA_DIST = $(doc_DATA)
 
 INFORM = inform inform-1 inform-2 inform-3 inform-4 inform-5 inform-6	\
 inform-7 inform-8 inform-9 inform-10 inform-11 inform-12 inform-13	\

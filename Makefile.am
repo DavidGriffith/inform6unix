@@ -1,6 +1,6 @@
 ## Master automake template for Inform.
 
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign check-news
 
 SUBDIRS = src lib include info html demos
 

@@ -1,9 +1,8 @@
 # Makefile for Inform demos.
 
-INFFILES = alice.inf balances.inf museum.inf ruins.inf ruinsplus.inf	\
-toyshop.inf
+INFFILES = alice.inf balances.inf ruins.inf ruinsplus.inf toyshop.inf
 
-ZFILES = alice.z5 balances.z5 museum.z5 ruins.z5 ruinsplus.z5 toyshop.z5
+ZFILES = alice.z5 balances.z5 ruins.z5 ruinsplus.z5 toyshop.z5
 
 EXTRA_DIST = $(INFFILES)
 
@@ -11,13 +10,20 @@ ETAGS_ARGS = $(ETAGS_INFORM) $(INFFILES)
 
 TAGS_DEPENDENCIES = $(INFFILES)
 
-INFORM = inform -E1 -Ux
+INFORM = $(top_builddir)/src/inform
+
+INCDIR = $(top_srcdir)/lib/
+MODDIR = $(top_builddir)/lib/
+
+INFFLAGS = -E1 -Ux +include_path=$(INCDIR) +module_path=$(MODDIR)
 
 SUFFIXES = .inf .z5
 
-.inf.z5:; $(INFORM) $<
+.inf.z5:; $(INFORM) $(INFFLAGS) $<
 
-zfiles: $(ZFILES)
+all: demos
+
+demos: $(ZFILES)
 
 CLEANFILES = $(ZFILES)
 

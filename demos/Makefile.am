@@ -1,8 +1,9 @@
 # Makefile for Inform demos.
 
-INFFILES = alice.inf balances.inf ruins.inf ruinsplus.inf toyshop.inf
+INFFILES = alice.inf balances.inf museum.inf ruins.inf ruinsplus.inf	\
+toyshop.inf
 
-ZFILES = alice.z5 balances.z5 ruins.z5 ruinsplus.z5 toyshop.z5
+ZFILES = alice.z5 balances.z5 museum.z5 ruins.z5 ruinsplus.z5 toyshop.z5
 
 EXTRA_DIST = $(INFFILES)
 

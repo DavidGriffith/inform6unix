@@ -1,10 +1,14 @@
-# Makefile for Inform demos.
+# Automake template for Inform demos.
 
-INFFILES = advent.inf alice.inf balances.inf museum.inf ruins.inf	\
+INFFILES = advent.inf adventureland.inf balances.inf museum.inf ruins.inf \
 ruinsplus.inf toyshop.inf
 
-ZFILES = advent.z5 alice.z5 balances.z5 museum.z5 ruins.z5 ruinsplus.z5	\
-toyshop.z5
+ZFILES = advent.z5 adventureland.z5 balances.z5 museum.z5 ruins.z5	\
+ruinsplus.z5 toyshop.z5
+
+zcodedir = $(datadir)/zcode
+
+zcode_DATA = $(ZFILES)
 
 EXTRA_DIST = $(INFFILES)
 
@@ -26,6 +30,8 @@ SUFFIXES = .inf .z5
 all: demos
 
 demos: $(ZFILES)
+
+$(ZFILES): $(INFORM)
 
 CLEANFILES = $(ZFILES)
 

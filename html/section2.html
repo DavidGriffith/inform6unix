@@ -1,0 +1,445 @@
+<HTML><HEAD><TITLE>Section 2: The language of data structures</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section1.html">Back</A><BR><A HREF="section3.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>2. The language of data structures</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<P>
+
+<HR><BLOCKQUOTE><H3>2.1. Directives and constants</H3></BLOCKQUOTE><P>
+Every example program so far has consisted only of a sequence of
+routines, each within beginning and end markers <TT>[</TT> and <TT>]</TT>.  Such routines
+have no way of communicating with each other, and therefore of sharing
+information with each other, except by making function calls back and forth.
+This arrangement is not really suited to a large program whose task may be
+to simulate something complicated (such as the world of an adventure game):
+it would be useful to have some kind of central registry of information
+which all routines have access to, as and when needed.
+<P>
+
+Information available to all routines in this way is said to be "global'',
+rather than "local'' to any one routine.  (As will appear in <A HREF="section3.html">Section 3</A>, there is
+also an intermediate possibility where information is available only to a
+cluster of routines working on roughly the same part of a program.)
+<P>
+
+This global information can be organised in a variety of ways.  Such organised
+groups are called "data structures''.  For example, a typical data structure
+might be a list of 10 values.  The term "data structure'' did not appear in
+<A HREF="section1.html">Section 1</A> because information was only ever held in variables, the simplest possible
+kind of structure (one value on its own).
+<P>
+
+Data structures are added to Inform programs using commands called "directives''
+in between definitions of routines.  It's important to distinguish between
+these, which direct Inform to do something now (usually, to create something)
+and the statements which occur inside routines, which are merely translated in
+some way but not acted on until the program has finished being compiled and is
+run.
+<P>
+
+In fact, one directive has already appeared: the one written <TT>[</TT>, which means
+"translate the following routine up to the next <TT>]</TT>''.  In all there are
+38 Inform directives, as follows:
+<PRE>
+Abbreviate  Array       Attribute  Class        Constant     Default
+Dictionary  End         Endif      Extend       Fake_action  Global
+Ifdef       Ifndef      Ifnot      Ifv3         Ifv5         Iftrue   
+Iffalse     Import      Include    Link         Lowstring    Message     
+Nearby      Object      Property   Release      Replace      Serial      
+Switches    Statusline  Stub       System_file  Trace        Verb        
+Version     [
+</PRE>
+
+Several of these are rather technical and will not be used by many
+programmers (such as <TT>Trace</TT>, <TT>Stub</TT>, <TT>Default</TT>, <TT>System_file</TT>, <TT>Abbreviate</TT>,
+<TT>Dictionary</TT>).  Others control fine points of what is compiled and what isn't
+(<TT>Ifdef</TT>, <TT>Ifnot</TT>, and so on; <TT>Message</TT>, <TT>Replace</TT>).  These not-very important
+directives are covered in Chapter II.
+<P>
+
+This leaves 9 central directives for creating data structures, and these are
+the ones which it is important to know about:
+<PRE>
+Array       Attribute   Class      Constant     Extend       Global
+Object      Property    Verb
+</PRE>
+
+It is conventional to write these with the initial letter capitalised: this
+makes directives look unlike statements.  <TT>Attribute</TT>, <TT>Class</TT>, <TT>Object</TT> and
+<TT>Property</TT> are the subject of <A HREF="section3.html">Section 3</A>.
+<P>
+
+<P>
+The simplest directive with a "global'' effect on the program -- an effect
+all over the program, that is, not just in one routine -- is <TT>Constant</TT>.
+The following program, an unsatisfying game of chance, shows a typical use
+of <TT>Constant</TT>.
+<PRE>
+    Constant MAXIMUM_SCORE = 100;
+
+    [ Main;
+      print "You have scored ", random(MAXIMUM_SCORE),
+      " points out of ", MAXIMUM_SCORE, ".^";
+    ];
+</PRE>
+
+The maximum score value is used twice in the routine <TT>Main</TT>.  Of course the
+program is the same as it would have been if the constant definition were not
+present, and <TT>MAXIMUM_SCORE</TT> were replaced by 100 in both places where it
+occurs.  The advantage of using <TT>Constant</TT> is that it makes it possible to
+change this value from 100 to, say, 50 with only a single change, and it
+makes the source code more legible to the reader by explaining what the
+significance of the number 100 is supposed to be.
+<P>
+
+If no value is specified for a constant, as in the line
+<PRE>
+    Constant DEBUG;
+</PRE>
+
+then the constant is created with value 0.
+<P>
+
+<HR><BLOCKQUOTE><H3>2.2. Global variables</H3></BLOCKQUOTE><P>
+As commented above, so far the only variables allowed have been "local
+variables'', each private to their own routines.  A "global variable'' is a
+variable which is accessible to all code in every routine.  Once a global
+variable has been declared, it is used in just the same way as a local
+variable.  The directive for declaring a global variable is <TT>Global</TT>:
+<PRE>
+    Global score = 36;
+</PRE>
+
+This creates a variable called <TT>score</TT>, which at the start of the program has
+the value 36.  <TT>score</TT> can be altered or used anywhere in the program after
+the line on which it is defined.
+<P>
+
+<HR><BLOCKQUOTE><H3>2.3. Arrays</H3></BLOCKQUOTE><P>
+An "array'' is an indexed collection of (global) variables, holding a set of
+numbers organised into a sequence. It allows general rules to be given for
+how a group of variables should be treated.  For instance, the directive
+<PRE>
+    Array pack_of_cards --&#62; 52;
+</PRE>
+
+creates a stock of 52 variables, referred to in the program as
+<PRE>
+    pack_of_cards--&#62;0   pack_of_cards--&#62;1   ...   pack_of_cards--&#62;51
+</PRE>
+
+There are two basic kinds of array: "word arrays'' (written using <TT>--&#62;</TT> as
+above) and "byte arrays'' (written using <TT>-&#62;</TT> similarly).  Whereas the
+entries of a word array can hold any number, the entries of a byte array can
+only be numbers in the range 0 to 255 inclusive.  (The only advantage of this is
+that it is more economical on memory, and beginners are advised to use word
+arrays instead.)
+<P>
+
+In addition to this, Inform provides arrays which have a little extra
+structure: they are created with the 0th entry holding the number of entries. 
+A word array with this property is called a <TT>table</TT>; a byte array with this
+property is a <TT>string</TT>.
+<P>
+
+For example, the array defined by
+<PRE>
+    Array continents table 5;
+</PRE>
+
+has six entries: <TT>continents--&#62;0</TT>, which holds the number 5, and five more
+entries, indexed 1 to 5.  (The program is free to change <TT>continents--&#62;0</TT>
+later but this will not change the size: the size of an array can never change.)
+As an example of using <TT>string</TT> arrays:
+<PRE>
+    Array password string "DANGER";
+    Array phone_number string "1978-345-2160";
+    ...
+    PrintString(password);
+    ...
+    PrintString(phone_number);
+    ...
+    [ PrintString the_array i;
+        for (i=1: i&#60;=the_array-&#62;0: i++)
+            print (char) the_array-&#62;i;
+    ];
+</PRE>
+
+The advantage of <TT>string</TT> arrays, then, is that one can write a general routine
+like <TT>PrintString</TT> which works for arrays of any size.
+<P>
+
+To recapitulate, Inform provides four kinds of array in all:
+<PRE>
+    --&#62;   -&#62;   table   string
+</PRE>
+
+There are also four different ways to set up an array with its initial contents
+(so the directive can take 16 forms in all).  In all of the examples above,
+the array entries will all contain 0 when the program begins.
+<P>
+
+Instead, we can give a list of constant values.  For example,
+<PRE>
+    Array primes --&#62; 2 3 5 7 11 13;
+</PRE>
+
+is a word array created with six entries, <TT>primes--&#62;0</TT> to <TT>primes--&#62;5</TT>,
+initially holding the values 2 to 13.
+<P>
+
+The third way to create an array gives some text as an initial value (because
+one common use for arrays is as "strings of characters'' or
+"text buffers'').  The two string arrays above were set up this way.
+As another example,
+<PRE>
+    Array players_name -&#62; "Frank Booth";
+</PRE>
+
+sets up the byte array <TT>players_name</TT> as if the directive had been
+<PRE>
+    Array players_name -&#62; 'F' 'r' 'a' 'n' 'k' ' ' 'B' 'o' 'o' 't' 'h';
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>  The fourth way to create an array is obsolete and is kept
+only so that old programs still work.  This is to give a list of values in
+between end-markers <TT>[</TT> and <TT>]</TT>, separated by commas or semi-colons.  Please
+don't use this any longer.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/warning.gif" ALT="!!"><TD><B>WARNING:</B><BR>
+It is up to the programmer to see that no attempt is made
+to read or write non-existent entries of an array.  (For instance,
+<TT>pack_of_cards--&#62;1000</TT>.)  Such mistakes are notorious for causing programs
+to fail in unpredictable ways, difficult to diagnose.  Here for example is
+an erroneous program:
+<PRE>
+    Array ten --&#62; 10;
+    Array fives --&#62; 5 10 15 20 25;
+    [ Main n;
+      for (n=1: n&#60;=10: n++) ten--&#62;n = -1;
+      print fives--&#62;0, "^";
+    ];
+</PRE>
+
+This program ought to print 5 (since that's the <I>0</I>-th entry in the array
+<TT>fives</TT>), but in fact it prints -1.  The problem is that the entries of <TT>ten</TT>
+are <TT>ten--&#62;0</TT> up to <TT>ten--&#62;9</TT>, not (as the program implicitly assumes)
+<TT>ten--&#62;1</TT> to <TT>ten--&#62;10</TT>.  So the value -1 was written to <TT>ten--&#62;10</TT>, an entry
+which does not exist.  At this point anything could have happened.  As it
+turned out, the value was written into the initial entry of the next array
+along, "corrupting'' the data there.
+<P>
+
+<HR><BLOCKQUOTE><H3>2.4. Example 7: Shuffling a pack of cards</H3></BLOCKQUOTE><P>
+This program simulates the shuffling of a pack of playing cards. 
+The cards are represented by numbers in the range 0 (the Ace of Hearts) to 51
+(the King of Spades).  The pack itself has 52 positions, from position 0 (on
+the top) to position 51 (on the bottom).  It is therefore represented by the
+array
+<PRE>
+    pack_of_cards--&#62;i
+</PRE>
+
+whose <TT>i</TT>-th entry is the card number at position <TT>i</TT>.  A new pack as produced
+by the factory, still in order, would therefore be represented with card <TT>i</TT> in
+position <TT>i</TT>: the pack would have the Ace of Hearts on top and the King of
+Spades on the bottom.
+<PRE>
+    Constant SHUFFLES = 100;
+    Array pack_of_cards --&#62; 52;
+
+    [ ExchangeTwo x y z;
+
+      !   Initially x and y are both zero
+
+      while (x==y)
+      {   x = random(52) - 1; y = random(52) - 1;
+      }
+
+      !   x and y are now randomly selected, different numbers
+      !   in the range 0 to 51
+
+      z = pack_of_cards--&#62;x;
+      pack_of_cards--&#62;x = pack_of_cards--&#62;y;
+      pack_of_cards--&#62;y = z;
+    ];
+
+    [ Card n;
+      switch(n%13)
+      {   0: print "Ace";
+          1 to 9: print n%13 + 1;
+          10: print "Jack";
+          11: print "Queen";
+          12: print "King";
+      }
+      print " of ";
+      switch(n/13)
+      {   0: print "Hearts";
+          1: print "Clubs";
+          2: print "Diamonds";
+          3: print "Spades";
+      }
+    ];
+
+    [ Main i;
+      !   Create the pack in "factory order":
+      for (i=0:i&#60;52:i++) pack_of_cards--&#62;i = i;
+      !   Exchange random pairs of cards for a while:
+      for (i=0:i&#60;SHUFFLES:i++) ExchangeTwo();
+      print "The pack has been shuffled to contain:^";
+      for (i=0:i&#60;52:i++)
+          print (Card) pack_of_cards--&#62;i, "^";
+    ];
+</PRE>
+
+Note the use of a "printing rule'' called <TT>Card</TT> to describe card number <TT>i</TT>.
+Note also that 100 exchanges of pairs of cards is only just enough to make
+the pack appear well shuffled.  Redefining <TT>SHUFFLES</TT> as 10000 makes the
+program take longer; redefining it as 10 makes the result very suspect.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The example code shuffles the pack in a simple way, but
+there are more efficient methods.  Here's one supplied
+by Dylan Thurston, giving perfect randomness in 51 exchanges.
+<PRE>
+        pack_of_cards--&#62;0 = 0;
+        for (i=1:i&#60;52:i++) 
+        {   j = random(i+1) - 1;
+            pack_of_cards--&#62;i = pack_of_cards--&#62;j; pack_of_cards--&#62;j = i;
+        }
+</PRE>
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>2.5. Seven special data structures</H3></BLOCKQUOTE><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> All Inform programs automatically contain seven special
+data structures, each being one of a kind: the object tree, the grammar,
+the table of actions, the release number, the serial code,
+the "statusline flag'' and the dictionary.  These data structures are
+tailor-made for adventure games and (except for the object tree) can
+be ignored for every other kind of program.  So they are mostly covered in
+Book Two.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL><P>
+<P>1. -- For the object tree (and the directives <TT>Object</TT> and <TT>Class</TT>),
+see <A HREF="section3.html">Section 3</A>.
+<P>2. -- For grammar (and the directives <TT>Verb</TT> and <TT>Extend</TT>), see Chapter V,
+<A HREF="section26.html">Section 26</A> and <A HREF="section27.html">Section 27</A>.
+<P>3. -- For actions (and the <TT>&#60;...&#62;</TT> and <TT>&#60;&#60;...&#62;&#62;</TT> statements and the <TT>##</TT>
+constant notation), see Chapter III, <A HREF="section9.html">Section 9</A>.
+<P>4. -- The release number (which is printed automatically by the
+library in an Inform-written adventure game) is 1 unless otherwise specified.
+The directive
+<PRE>
+    Release &#60;number&#62;;
+</PRE>
+
+<P> -- does this.  Conventionally release 1 would be the first
+published copy, and releases 2, 3, ... would be amended re-releases.
+See Chapter III, <A HREF="section7.html">Section 7</A>, for an example.
+<P>5. -- The serial number is set automatically to the date of compilation
+in the form 960822 ("22nd August 1996'').  This can be overridden if desired
+with the directive
+<PRE>
+    Serial "dddddd";
+</PRE>
+
+<P> -- where the text must be a string of 6 digits.
+<P>6. -- The "status line flag'' chooses between styles of "status line''
+at the top of an adventure game's screen display.  See Chapter IV, <A HREF="section18.html">Section 18</A>,
+for use of the <TT>Statusline</TT> directive.
+<P>7. -- The dictionary is automatically built by Inform.  It is a stock
+of all the English words which the game might want to recognise from what
+the player has typed: it includes any words written in constants like
+<TT>'duckling'</TT>, as well as any words given in <TT>name</TT> values or in grammar.
+For example
+<PRE>
+    if (first_word == 'herring') print "You typed the word herring!";
+</PRE>
+
+<P> -- is a legal statement.  Inform notices that <TT>herring</TT> -- because it is in
+single quotes -- is a word the program may one day need to be able to
+recognise, so it adds the word to the dictionary.
+Note that the constant <TT>'herring'</TT> is a dictionary word but the constant <TT>'h'</TT>
+is the ASCII value of lower-case H.  (Single-letter dictionary words are seldom
+needed, but can be written using an ugly syntax if need be: <TT>#n$h</TT> is the
+constant meaning "the dictionary word consisting only of the letter H''.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> 
+From this description, the dictionary appears to be something into which
+words are poured, never to re-emerge.  The benefit is felt when the <TT>read</TT>
+statement comes to try to parse some input text:
+<PRE>
+    read text_array parse_buffer;
+</PRE>
+
+It must be emphasized that the <TT>read</TT> statement performs only the simplest
+possible form of parsing, and should not be confused with the very much more
+elaborate parser included in the Inform library.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+What it does is to break down the line of input text into a sequence of
+words, in which commas and full stops count as separate words in their own
+right.  (An example is given in Chapter V, <A HREF="section24.html">Section 24</A>.) Before using <TT>read</TT>,
+the entry
+<PRE>
+    parse_buffer-&#62;0
+</PRE>
+
+should be set to the maximum number of words which parsing is wanted for.
+(Any further words will be ignored.)  The number of words actually parsed
+from the text is written in
+<PRE>
+    parse_buffer-&#62;1
+</PRE>
+
+and a block of data is written into the array for each of these words:
+<PRE>
+    parse_buffer--&#62;(n*2 - 1)
+</PRE>
+
+holds the dictionary value of the <TT>n</TT>-th word (if <TT>n</TT> counts 1, 2, 3, ...).  If
+the word isn't in the dictionary, this value is zero.
+<P>
+
+(In addition,
+<PRE>
+    parse_buffer-&#62;(n*4)
+    parse_buffer-&#62;(n*4 + 1)
+</PRE>
+
+are set to the number of letters in word <TT>n</TT>, and the offset of word <TT>n</TT> in the
+text array.)
+<P>
+
+For example,
+<PRE>
+    [ PleaseTypeYesOrNo i;
+      for (::)
+      {   buffer-&#62;0 = 60;
+          parse-&#62;0 = 1;
+          print "Please type ~yes~ or ~no~&#62; ";
+          read buffer parse;
+          if (parse--&#62;1 == 'yes') rtrue;
+          if (parse--&#62;1 == 'no')  rfalse;
+      }
+    ];
+</PRE>
+
+</SMALL><TR><TD><TD>
+<P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section1.html">Back</A> / <A HREF="section3.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

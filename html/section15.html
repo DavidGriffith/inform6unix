@@ -1,0 +1,140 @@
+<HTML><HEAD><TITLE>Section 15: Reading matter and consultation</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section14.html">Back</A><BR><A HREF="section16.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>15. Reading matter and consultation</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+Even at present... we still know very little about how access
+to printed materials affects human behaviour.
+<P>...Elizabeth Eisenstein, <I>The Printing Revolution
+in Early Modern Europe</I></BLOCKQUOTE>
+<BLOCKQUOTE>
+look up figure 18 in the engineering textbook<BR>
+</BLOCKQUOTE>
+
+is a difficult line for Inform to understand, because almost anything
+could appear in the first part: even its format depends on what the
+second part is.  This kind of request, and more generally
+<BLOCKQUOTE>
+look up <I><B>&#60;any words here&#62;</B></I> in <I><B>&#60;the object&#62;</B></I><BR>
+read about <I><B>&#60;any words here&#62;</B></I> in <I><B>&#60;the object&#62;</B></I><BR>
+consult <I><B>&#60;the object&#62;</B></I> about <I><B>&#60;any words here&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+cause the <TT>Consult object</TT> action.  Note that <TT>second</TT> is just zero:
+formally, there is no second noun attached to a <TT>Consult</TT> action.
+The object has to parse the <I><B>&#60;any words here&#62;</B></I> part itself, in a <TT>before</TT>
+rule for <TT>Consult</TT>.  The following variables are set up to make this
+possible:
+
+<P>
+
+<TT>consult_from</TT> holds the number of the first word in the <I><B>&#60;any...&#62;</B></I>
+clause;
+<P>
+
+<TT>consult_words</TT> holds the number of words in the <I><B>&#60;any...&#62;</B></I> clause
+(at least 1).
+<P>
+
+
+The words given are parsed using library routines like
+<TT>NextWord()</TT>, <TT>TryNumber(word-number)</TT> and so on: see <A HREF="section24.html">Section 24</A> for
+full details.  As usual, the <TT>before</TT> routine should return true
+if it has managed to deal with the action; returning false will
+make the library print "You discover nothing of interest in...''.
+<P>
+
+Little hints are placed here and there in the 'Ruins', written
+in the glyphs of an ancient dialect of Mayan.  Our explorer has,
+of course, come equipped with the latest and finest scholarship
+on the subject:
+<PRE>
+Object dictionary "Waldeck's Mayan dictionary"
+  with name "dictionary" "local" "guide" "book" "mayan"
+            "waldeck" "waldeck^s",
+       description "Compiled from the unreliable lithographs of the
+           legendary raconteur and explorer ~Count~ Jean Frederic
+           Maximilien Waldeck (1766??-1875), this guide contains
+           what little is known of the glyphs used in the local
+           ancient dialect.",
+       before
+       [ w1 w2 glyph other;  Consult:
+               if (consult_words&#62;2) jump GlyphHelp;
+               wn=consult_from;
+               w1 = NextWord(); ! First word of subject 
+               w2 = NextWord(); ! Second word (if any) of subject 
+               if (consult_words==1 &#38;&#38; w1=='glyph' or 'glyphs')
+                   jump GlyphHelp;
+               !  We want to recognise both "glyph q1" and "q1 glyph":
+               glyph=w1; other=w2;
+               if (w1=='glyph') { glyph=w2; other=w1; }
+               !  So now glyph holds the name, and other the other word
+               if (consult_words==2 &#38;&#38; other~='glyph') jump GlyphHelp;
+               switch(glyph)
+               {   'q1': "(This is one glyph you have memorised!)^^
+                          Q1: ~sacred site~.";
+                   'circle': "Circle: ~the Sun; also life, lifetime~.";
+                   ...
+                   default: "That glyph is so far unrecorded.";
+               }
+               !  All three of the ways the text can go wrong lead to
+               !  this message being produced:
+              .GlyphHelp; "Try ~look up &#60;name of glyph&#62; in book~.";
+       ],
+  has  proper;
+</PRE>
+
+
+Note that this understands any of the forms "q1'', "glyph q1'' or
+"q1 glyph'' but is careful to reject, for instance, "glyph q1 glyph''.
+(These aren't genuine Mayan glyphs, but some of the real ones have similar
+names, dating from when their syllabic equivalents weren't known: G8,
+the Lord of the Night, for instance.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex17"><B>EXERCISE 17:</B><BR>(link to <A HREF="answers1/answer17.html">the answer</A>)<TR><TD><TD> To mark the 500th anniversary of William Tyndale (the first
+English translator of the New Testament), prepare an edition of the
+four Gospels.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Ordinarily, a request by the player to "read'' something is translated
+into an <TT>Examine</TT> action.  But the "read'' verb is defined independently
+of the "examine'' verb in order to make it easy to separate the two
+requests.  For instance:
+<PRE>
+Attribute legible;
+...
+Object textbook "textbook"
+  with name "engineering" "textbook" "text" "book",
+       description "What beautiful covers and spine!",
+       before
+       [; Consult, Read:
+           "The pages are full of senseless equations.";
+       ],
+       has  legible;
+...
+[ ReadSub; &#60;&#60;Examine noun&#62;&#62;; ];
+Extend "read" first * legible                        -&#62; Read;
+</PRE>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+Note that "read" causes a <TT>Read</TT> action only for <TT>legible</TT> objects,
+and otherwise causes <TT>Examine</TT> in the usual way.  <TT>ReadSub</TT> is coded
+as a translation to <TT>Examine</TT> as well, so that if a <TT>legible</TT> object
+doesn't provide a <TT>Read</TT> rule then an <TT>Examine</TT> happens after all.
+</SMALL><TR><TD><TD>
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL> If you really need more elaborate topic-parsing (for, e.g.,
+"look up <I><B>&#60;something&#62;</B></I> in the catalogue'', where any object name might
+appear) then extending the grammar for <TT>look</TT> may be less trouble.
+For a good implementation see 'Encyclopaedia Frobozzica', by
+Gareth Rees.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section14.html">Back</A> / <A HREF="section16.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

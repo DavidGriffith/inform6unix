@@ -1,0 +1,267 @@
+<HTML><HEAD><TITLE>Section 21: Extending and redefining the Library</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section20.html">Back</A><BR><A HREF="chapter5.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>21. Extending and redefining the Library</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+A circulating library in a town is as an ever-green
+tree of diabolical knowledge!  It blossoms through the year!
+<P>...R. B. Sheridan (<B>1751</B>--<B>1816</B>), <I>The Rivals</I></BLOCKQUOTE>
+<P>
+
+
+Most large games will need to enrich the 'model world': for
+instance, by creating a new concept such as "magic amulets''.  The game
+might contain a dozen of these, each with the power to cast a different
+spell.  So it will need routines which can tell whether or not a given
+object is an amulet, and what to do when the spell is cast.
+<P>
+
+To do this, a game should make a class definition for amulets:
+called <TT>Amulet</TT>, say.  Then
+<PRE>
+    if (noun ofclass Amulet) ...
+</PRE>
+
+will test to see if <TT>noun</TT> is one of the amulets, for instance.
+<P>
+
+The amulet's spell will be represented by the property <TT>amulet_spell</TT>.
+Typical values for this might be:
+<PRE>
+    amulet_spell "The spell fizzles out with a dull phut! sound.",
+    amulet_spell
+    [;  if (location == thedark)
+        {   give real_location light;
+            "There is a burst of magical light!";
+        }
+    ],
+    amulet_spell HiddenVault,
+    amulet_spell
+    [;  return random(LeadRoom, SilverRoom, GoldRoom);
+    ],
+</PRE>
+
+Then the process of casting the spell for amulet <TT>X</TT> is a matter of
+sending the message
+<PRE>
+    X.amulet_spell();
+</PRE>
+
+which will reply with either: false, meaning nothing has happened;
+true, meaning that something did happen; or an object, a room to
+teleport the player to.  Here is a routine which deals with it all:
+<PRE>
+    [ CastSub destination;
+      if (noun ofclass Amulet)
+      {   if (~~(noun provides amulet_spell))
+              "[Ooops. Forgot to program this amulet_spell.]";
+          destination = noun.amulet_spell();
+          switch(destination)
+          {   false:   "Nothing happens.";
+              true:    ;
+              default: print "You are magically teleported to...^";
+                       PlayerTo(destination);
+          }
+      }
+      else "You only know how to cast spells with amulets.";
+    ];
+</PRE>
+<P>
+
+<P>
+An elaborate library extension will end up defining many classes,
+grammar, actions and verb definitions.  These may neatly be packaged
+up into an <TT>Include</TT> file and placed with the other library
+files.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> If this file contains the directive <TT>System_file;</TT> then it will
+even be possible for games to <TT>Replace</TT> routines from it
+(see below).
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The ordinary Library's own properties, such as <TT>description</TT>
+or <TT>e_to</TT>, are called "common properties''.  They are special for the
+following reason: if an object <TT>O</TT> does not give any value for common 
+property <TT>P</TT>, then <TT>O.P</TT> can still be looked up, though it can't be
+set to something else.  (If you tried this with a property of your
+own invention, such as <TT>amulet_spell</TT> above, an error would be printed
+out at run-time.)  The value of <TT>O.P</TT> is just the "default value''
+provided by the Library for property <TT>P</TT>: for example, the default
+value of <TT>cant_go</TT> is "You can't go that way.''
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> But you can change this default value during play, using the
+library's <TT>ChangeDefault</TT> routine.  For instance, at a late stage
+in the game:
+<PRE>
+ChangeDefault(cant_go, "You're a Master Adventurer now, and still
+                        you walk into walls!");
+</PRE>
+
+Of course this cannot change defaults for properties of your own
+invention, because they haven't got default values.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Common properties are also slightly faster to perform
+calculations with: the down side is that there's a strictly limited
+supply of them (63 in all), of which the library uses up half
+already.  To indicate that a property needs to be a common property,
+use the <TT>Property</TT> directive.  For example:
+<PRE>
+    Property door_to;
+    Property capacity 100;
+    Property cant_go "You can't go that way.";
+</PRE>
+
+In the latter cases we are giving default values: in the former case,
+the default value will just be 0.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+
+Major library extensions are rarely needed.
+More often, one would like simply to change the stock of
+standard messages, such as the "Nothing is on sale.'' which tends
+to be printed when the player asks to buy something, or the "Taken.''
+printed when something is picked up.
+<P>
+
+This facility is available as follows.  Provide a special
+object called <TT>LibraryMessages</TT>, which must be defined <I> between</I>
+the inclusion of the "Parser" and "VerbLib" library files.
+This object should have just one property, a <TT>before</TT> rule.  For
+example:
+<PRE>
+Object LibraryMessages
+  with before
+       [;  Jump: "You jump and float uselessly for a while in
+                  the zero gravity here on Space Station Alpha.";
+           SwitchOn:
+                 if (lm_n==3)
+                 {   print "You power up ", (the) lm_o, "."; }
+       ];
+</PRE>
+
+The object never physically appears in the game, of course.  The idea
+is that the <TT>before</TT> rule is consulted before any message is printed:
+if it returns false, the standard message is printed; if true, then
+nothing is printed, as it's assumed that this has already happened.
+<P>
+
+The <TT>Jump</TT> action only ever prints one message (usually "You jump on
+the spot.''), but more elaborate actions such as <TT>SwitchOn</TT> have
+several (the extreme case is <TT>Take</TT>, with 13).  <TT>lm_n</TT> holds the
+message number, which counts upwards from 1.  The messages and
+numbers are given in <A HREF="sectionA9.html">Appendix A9</A>.  New message numbers may possibly be
+added in future, but old ones will not be renumbered.
+<P>
+
+An especially useful library message to change is the prompt, normally
+set to <TT>"^&#62;"</TT> (new-line followed by <TT>&#62;</TT>).  This is printed under the
+action <TT>Prompt</TT> (actually a fake action existing for exactly this
+purpose).  In this way, the game's prompt can be made context-sensitive,
+or the "skipped line on screen each turn'' convention can be removed.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+This prompt is only used in ordinary game play, and not at such keyboard
+inputs as yes/no questions or the RESTART/RESTORE/QUIT game over
+choice.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex47"><B>EXERCISE 47:</B><BR>(link to <A HREF="answers1/answer47.html">the answer</A>)<TR><TD><TD> Infocom's game 'The Witness' has the prompt "What should you,
+the detective, do next?'' on turn one and "What next?'' subsequently.
+Implement this.
+
+<P>
+
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> An amusing way to see the system in action is to put
+<PRE>
+Object LibraryMessages
+  with before
+       [;  print "[", sw__var, ", ", lm_n, "] ";
+       ];
+</PRE>
+
+into your game (arcane note: <TT>sw__var</TT>, the "switch variable'', in
+this case holds the action number).  Another amusing effect is to
+simply write <TT>rtrue;</TT> for the <TT>before</TT> routine, which results in an
+alarmingly silent game -- blindfold Adventure, perhaps.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Note that <TT>LibraryMessages</TT> can be used as a sneaky way to add extra
+rules onto the back of actions, since there's nothing to stop you
+doing real processing in a call to it; or, more happily,
+to make messages more sensitive to game context, so that "Nothing is
+on sale.'' might become "That's not one of the goods on sale.''
+inside a shopping mall.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex48"><B>EXERCISE 48:</B><BR>(link to <A HREF="answers1/answer48.html">the answer</A>)<TR><TD><TD>
+Write an Inform game in Occitan (a dialect of medieval French
+spoken in Provence).
+
+<P>
+
+<P>
+The Library is itself written in Inform, and with experience it's not
+too hard to alter it if need be.  But this is an inconvenience and an
+inelegant way to carry on.  So here is the last resort in library
+modification: work out which routine is giving trouble, and <TT>Replace</TT>
+it.  For example, if the directive
+<PRE>
+Replace BurnSub;
+</PRE>
+
+is placed in your file <I> before the library files are included</I>,
+Inform ignores the definition of <TT>BurnSub</TT> in the library files.
+You then have to define a routine called <TT>BurnSub</TT> yourself.
+It would be normal to copy the definition of <TT>BurnSub</TT> out of the
+library files into your own code, and then modify that copy as needed.
+<P>
+
+The most popular routine to replace is <TT>DrawStatusLine</TT>: see <A HREF="section33.html">Section 33</A> for
+several examples.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Inform even allows you to <TT>Replace</TT> "hardware'' functions like <TT>random</TT>,
+which would normally be translated directly to machine opcodes.  Obviously,
+replacing something like <TT>child</TT> with a software routine will impose an
+appreciable speed penalty and slightly increase object code size.  Replacing
+<TT>random</TT> may however be useful when fixing the random number generator for
+game-testing purposes.
+</SMALL>
+<TR><TD><TD><P>
+
+</SMALL><TR><TD><TD>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>
+'Balances' contains a section of code (easily extractable to
+other games) implementing the 'Enchanter' trilogy's magic
+system by methods like the above.
+<BR>
+There are several formal library extension files in existence,
+mostly small: see the Inform home page on the WWW.
+<BR> "pluralobj.h''
+by Andrew Clover makes large-scale use of <TT>LibraryMessages</TT>
+to ensure that the library always uses words like "those''
+instead of "that'' when talking about objects with names like
+"a heap of magazines''.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section20.html">Back</A> / <A HREF="chapter5.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

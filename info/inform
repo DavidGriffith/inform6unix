@@ -1,0 +1,238 @@
+This is Info file inform.info, produced by Makeinfo-1.64 from the input
+file inform.texi.
+
+INFO-DIR-SECTION Programming & development tools
+START-INFO-DIR-ENTRY
+* Inform: (inform).		Inform game compiler.
+END-INFO-DIR-ENTRY
+
+This is the Inform Designer's Manual, third edition, 4 September 1996,
+as updated 16 May 1997.  It was converted to Info by Christopher J.
+Madsen <ac608@yfn.ysu.edu>.
+
+Copyright 1996,1997 Graham Nelson and Christopher J. Madsen
+
+Permission is granted to make and distribute copies of this manual
+provided that:
+ (a) distributed copies are not substantially different from those
+     archived by the author,
+ (b) this and other copyright messages are always retained in full, and
+ (c) no profit is involved.
+
+
+Indirect:
+inform-1: 598
+inform-2: 50867
+inform-3: 101565
+inform-4: 154861
+inform-5: 205014
+inform-6: 259234
+inform-7: 315161
+inform-8: 376792
+inform-9: 429808
+inform-10: 481873
+inform-11: 534516
+inform-12: 584749
+inform-13: 641915
+inform-14: 724717
+
+Tag Table:
+(Indirect)
+Node: Top598
+Node: Introduction10120
+Node: Programming Language19395
+Node: Routines19972
+Node: First Principles21340
+Node: Example 123848
+Node: Example 226742
+Node: Numbers and Variables29760
+Node: Arithmetic Expressions35181
+Node: Arguments and Return Values41373
+Node: Example 343876
+Node: Conditions44625
+Node: Example 449305
+Node: Code Blocks50867
+Node: Loops54951
+Node: Example 559196
+Node: Jumping Around60676
+Node: Printing Output63116
+Node: Example 673472
+Node: Random and Indirect74186
+Node: Accepting Input75895
+Node: Data Structures77898
+Node: Directives and Constants78427
+Node: Global Variables82598
+Node: Arrays83314
+Node: Example 787314
+Node: Special Data Structures89836
+Node: Objects94107
+Node: About Objects95435
+Node: Object Tree99210
+Node: Creating Objects101565
+Node: Using the Tree103591
+Node: Objects with Properties106757
+Node: Private Properties112111
+Node: Using Attributes113349
+Node: Classes and Inheritance115002
+Node: Messages118963
+Node: Access to Superclass Values123155
+Node: Philosophy125524
+Node: Sending Messages132326
+Node: Dynamic Objects134380
+Node: Common vs Individual139014
+Node: Using the Compiler140749
+Node: The Language of Inform141289
+Node: ICL141640
+Node: Controlling Compilation146808
+Node: Linking150833
+Node: Compiler Options154861
+Node: Error Messages164218
+Node: Fatal Errors164853
+Node: Errors167296
+Node: Warnings178814
+Node: Fundamentals183337
+Node: Getting Started183684
+Node: Messages and Classes195573
+Node: Actions and Reactions205014
+Node: The Model World220913
+Node: Places222124
+Node: Containers233600
+Node: Doors239878
+Node: Switchable Objects244617
+Node: Things to Enter248156
+Node: Reading Matter254174
+Node: Living Creatures259234
+Node: Light and Dark277868
+Node: Daemons282072
+Node: Player291138
+Node: Constants and Scoring300632
+Node: Extending the Library306388
+Node: Describing and Parsing315161
+Node: Describing Objects316002
+Node: Listing Objects329508
+Node: Parsing Nouns336326
+Node: Plural Names345106
+Node: Parsing Verbs350809
+Node: Grammar Tokens364164
+Node: Scope376792
+Node: Helping the Parser390886
+Node: Testing and Hacking396387
+Node: Debugging396791
+Node: Run-Time Limitations404633
+Node: Boxes410611
+Node: Assembly Language418064
+Node: Appendix429808
+Node: Operators430755
+Node: Statements433844
+Node: Directives435508
+Node: Grammar436717
+Node: Attributes441213
+Node: Properties450507
+Node: Objects and Routines470244
+Node: Actions and Fake Actions479199
+Node: Library Messages481873
+Node: Entry Points494893
+Node: Program Order501040
+Node: Lexicon503074
+Node: Answers534516
+Node: Answer 1540041
+Node: Answer 2540901
+Node: Answer 3541648
+Node: Answer 4542209
+Node: Answer 5542684
+Node: Answer 6543207
+Node: Answer 7543965
+Node: Answer 8544354
+Node: Answer 9545193
+Node: Answer 10545857
+Node: Answer 11546729
+Node: Answer 12547180
+Node: Answer 13548435
+Node: Answer 14549890
+Node: Answer 15550480
+Node: Answer 16550987
+Node: Answer 17551386
+Node: Answer 18552650
+Node: Answer 19553727
+Node: Answer 20554581
+Node: Answer 21555226
+Node: Answer 22556246
+Node: Answer 23557379
+Node: Answer 24558508
+Node: Answer 25559285
+Node: Answer 26561328
+Node: Answer 27562026
+Node: Answer 28563166
+Node: Answer 29564374
+Node: Answer 30566238
+Node: Answer 31566855
+Node: Answer 32568774
+Node: Answer 33569036
+Node: Answer 34569612
+Node: Answer 35571392
+Node: Answer 36574643
+Node: Answer 37574863
+Node: Answer 38576514
+Node: Answer 39576814
+Node: Answer 40577988
+Node: Answer 41578508
+Node: Answer 42578919
+Node: Answer 43579713
+Node: Answer 44580118
+Node: Answer 45580959
+Node: Answer 46581518
+Node: Answer 47581969
+Node: Answer 48582536
+Node: Answer 49582998
+Node: Answer 50583674
+Node: Answer 51584314
+Node: Answer 52584749
+Node: Answer 53585533
+Node: Answer 54586486
+Node: Answer 55587416
+Node: Answer 56592016
+Node: Answer 57592458
+Node: Answer 58593829
+Node: Answer 59596594
+Node: Answer 60597264
+Node: Answer 61597599
+Node: Answer 62597922
+Node: Answer 63598350
+Node: Answer 64598846
+Node: Answer 65599718
+Node: Answer 66600094
+Node: Answer 67602070
+Node: Answer 68603078
+Node: Answer 69604213
+Node: Answer 70604695
+Node: Answer 71606004
+Node: Answer 72607076
+Node: Answer 73609733
+Node: Answer 74611306
+Node: Answer 75611752
+Node: Answer 76612916
+Node: Answer 77613165
+Node: Answer 78613491
+Node: Answer 79614129
+Node: Answer 80614555
+Node: Answer 81614922
+Node: Answer 82615710
+Node: Answer 83618234
+Node: Answer 84620028
+Node: Answer 85621297
+Node: Answer 86622742
+Node: Answer 87624836
+Node: Answer 88625754
+Node: Answer 89626390
+Node: Answer 90627163
+Node: Answer 91627653
+Node: Answer 92628580
+Node: Answer 93629505
+Node: Answer 94630216
+Node: Answer 95632103
+Node: Answer 96633206
+Node: Index634442
+Node: Concept Index641915
+Node: Secondary Index724717
+
+End Tag Table

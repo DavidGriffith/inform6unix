@@ -1,0 +1,9 @@
+This directory contains various contributed files for Inform:
+
+    inform-mode.el	A GNU Emacs Inform mode, contributed by
+			Gareth Rees <Gareth.Rees@cl.cam.ac.uk>, and
+			currently maintained by Rupert Lane
+			<rupert@merguez.demon.co.uk>.
+
+    inform-hilite.el	GNU Emacs highlights for Inform mode,
+			contributed by me <zondo@pillock.freeserve.co.uk>.

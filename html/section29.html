@@ -1,0 +1,146 @@
+<HTML><HEAD><TITLE>Section 29: Helping the parser out of trouble</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section28.html">Back</A><BR><A HREF="chapter6.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>29. Helping the parser out of trouble</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+Once you begin programming the parser on a large scale, you soon
+reach the point where the parser's ordinary error messages no longer appear
+sensible.  The <TT>ParserError</TT> entry point can change the rules even
+at this last hurdle: it takes one argument, the error type, and should
+return true to tell the parser to shut up, because a better error
+message has already been printed, or false, to tell the parser to
+print its usual message.  The error types are all defined as
+constants:
+</SMALL>
+<TR><TD><TD><P>
+
+
+<BR><TABLE Border><TR><TD>  <TT>STUCK_PE</TT>     <TD>   I didn't understand that sentence.
+<TR><TD>  <TT>UPTO_PE </TT>     <TD>   I only understood you as far as...
+<TR><TD>  <TT>NUMBER_PE</TT>    <TD>   I didn't understand that number.
+<TR><TD>  <TT>CANTSEE_PE</TT>   <TD>   You can't see any such thing.
+<TR><TD>  <TT>TOOLIT_PE</TT>    <TD>   You seem to have said too little!
+<TR><TD>  <TT>NOTHELD_PE</TT>   <TD>   You aren't holding that!
+<TR><TD>  <TT>MULTI_PE</TT>     <TD>   You can't use multiple objects with that verb.
+<TR><TD>  <TT>MMULTI_PE</TT>    <TD>   You can only use multiple objects once on a line.
+<TR><TD>  <TT>VAGUE_PE</TT>     <TD>   I'm not sure what 'it' refers to.
+<TR><TD>  <TT>EXCEPT_PE</TT>    <TD>   You excepted something not included anyway!
+<TR><TD>  <TT>ANIMA_PE</TT>     <TD>   You can only do that to something animate.
+<TR><TD>  <TT>VERB_PE</TT>      <TD>   That's not a verb I recognise.
+<TR><TD>  <TT>SCENERY_PE</TT>   <TD>   That's not something you need to refer to...
+<TR><TD>  <TT>ITGONE_PE</TT>    <TD>   You can't see 'it' (the <I> whatever</I>) at the moment.
+<TR><TD>  <TT>JUNKAFTER_PE</TT> <TD>   I didn't understand the way that finished.
+<TR><TD>  <TT>TOOFEW_PE</TT>    <TD>   Only five of those are available.
+<TR><TD>  <TT>NOTHING_PE</TT>   <TD>   Nothing to do!
+<TR><TD>  <TT>ASKSCOPE_PE</TT>  <TD>   <I> whatever the scope routine prints</I>
+</TABLE>
+
+
+Each unsuccessful grammar line ends in one of these conditions.
+A verb may have many lines of grammar; so by the time the parser wants
+to print an error, all of them must have failed.  The error message
+it prints is the most 'interesting' one: meaning, lowest down this list.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The <TT>VAGUE_PE</TT> and <TT>ITGONE_PE</TT> apply to all pronouns
+(in English, "it'', "him'', "her'' and "them'').
+The variable <TT>vague_word</TT> contains
+the dictionary address of which is involved
+(<TT>'it'</TT>, <TT>'him'</TT>, etc.).
+</SMALL>
+<TR><TD><TD><P>
+
+You can find out the current setting of a pronoun using
+the library's <TT>PronounValue</TT> routine: for instance,
+<TT>PronounValue('it')</TT> would give the object which "it''
+currently refers to (possibly <TT>nothing</TT>).  Similarly
+<TT>SetPronoun('it', magic_ruby)</TT> would set "it'' to mean
+the magic ruby object.  (When something like a magic ruby
+suddenly appears in the middle of a turn, players will
+habitually call it "it''.)  A better way to adjust the
+pronouns is to call <TT>PronounNotice(magic_ruby)</TT>, which
+sets whatever pronouns are appropriate.  That is, it
+works out if the object is a thing or a person, of what
+number and gender, which pronouns apply to it in the parser's
+current language, and so on.  In code predating Inform 6.1
+you may see variables called <TT>itobj</TT>, <TT>himobj</TT> and
+<TT>herobj</TT> holding the English pronoun values: these still
+work properly, but please use the modern system in new
+games.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The Inform parser resolves ambiguous inputs with a
+complicated algorithm based on practical experience.  However,
+it can't have any expertise with newly-created verbs: here is
+how to provide it.  If you define a routine
+<PRE>
+ChooseObjects(object, code)
+</PRE>
+</SMALL>
+<TR><TD><TD><P>
+
+
+then it's called in two circumstances.  If <TT>code</TT> is 0 or 1,
+the parser is considering including the given object in an "all'':
+0 means the parser has decided against, 1 means it has decided
+in favour.  The routine should reply
+<BLOCKQUOTE>
+0<SAMP>            </SAMP> (or false) to say "carry on'';<BR>
+1<SAMP>            </SAMP> to force the object to be included; or<BR>
+2<SAMP>            </SAMP> to force the object to be excluded.<BR>
+</BLOCKQUOTE>
+
+It may want to decide using <TT>verb_word</TT> (the variable storing
+the current verb word, e.g., <TT>'take'</TT>) and <TT>action_to_be</TT>, which
+is the action which would happen if the current line of
+grammar were successfully matched.
+<P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The other circumstance is when <TT>code</TT> is 2.  This means the parser
+is sorting through a list of items (those in scope which best matched
+the input), trying to decide which single
+one is most likely to have been intended.  If it can't choose a best
+one, it will give up and ask the player.  <TT>ChooseObjects</TT> should
+then return a number from 0 to 9 (0 being the default) to give the
+object a score for how appropriate it is.
+<P>
+
+For instance, some designers would prefer "take all'' not to attempt
+to take <TT>scenery</TT> objects (which Inform, and the parsers in most of the
+Infocom games, will do).  Let us code this, and also teach the parser that
+edible things are more likely to be eaten than inedible ones:
+<PRE>
+[ ChooseObjects obj code;
+  if (code&#60;2) { if (obj has scenery) return 2; rfalse; }
+  if (action_to_be==##Eat &#38;&#38; obj has edible) return 3;
+  if (obj hasnt scenery) return 2;
+  return 1;
+];
+</PRE>
+
+Scenery is now excluded from "all'' lists; and is further
+penalised in that non-scenery objects are always preferred over
+scenery, all else being equal.  Most objects score 2 but
+edible things in the context of eating score 3, so "eat black''
+will now always choose a Black Forest gateau in preference to
+a black rod with a rusty iron star on the end.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex87"><B>EXERCISE 87:</B><BR>(link to <A HREF="answers2/answer87.html">the answer</A>)<TR><TD><TD> Allow "lock'' and "unlock'' to infer their second
+objects without being told, if there's an obvious choice (because
+the player's only carrying one key), but to issue a disambiguation
+question otherwise.  (Use <TT>Extend</TT>, not
+<TT>ChooseObjects</TT>.)
+
+<P>
+
+</SMALL><TR><TD><TD>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  See 'Balances' for a usage of <TT>ParserError</TT>.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section28.html">Back</A> / <A HREF="chapter6.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

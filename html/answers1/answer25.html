@@ -1,0 +1,55 @@
+<HTML><HEAD><TITLE>Answer to Exercise 25</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 25</B><TR><TD><TD>
+<P>
+
+<PRE>
+[ PrintTime x; print (x/60), ":", (x%60)/10, (x%60)%10; ];
+Object -&#62; alarm_clock "alarm clock"
+  with name "alarm" "clock",
+       number 480,
+       description
+       [;  print "The alarm is ";
+           if (self has general) print "on, "; else print "off, but ";
+           "the clock reads ", (PrintTime) the_time,
+           " and the alarm is set for ", (PrintTime) self.number, ".";
+       ],
+       react_after
+       [;  Inv:  if (self in player)   { new_line; &#60;&#60;Examine self&#62;&#62;; }
+           Look: if (self in location) { new_line; &#60;&#60;Examine self&#62;&#62;; }
+       ],
+       daemon
+       [;  if (the_time &#62;= self.number &#38;&#38; the_time &#60;= self.number+3
+               &#38;&#38; self has general) "^Beep! Beep! The alarm goes off.";
+       ],
+       grammar [; return 'alarm,'; ],
+       orders
+       [;  SwitchOn:  give self general; StartDaemon(self); "~Alarm set.~";
+           SwitchOff: give self ~general; StopDaemon(self); "~Alarm off.~";
+           SetTo:     self.number=noun; &#60;&#60;Examine self&#62;&#62;;
+           default: "~Commands are on, off or a time of day only, pliz.~";
+       ],
+       life
+       [;  Ask, Answer, Tell:
+              "[Try ~clock, something~ to address the clock.]";
+       ],
+  has  talkable;
+</PRE>
+
+and add a new verb to the grammar:
+<PRE>
+Verb "alarm," * "on"      -&#62; SwitchOn
+              * "off"     -&#62; SwitchOff
+              * TimeOfDay -&#62; SetTo;
+</PRE>
+
+(using the <TABLE Border><TR><TD><TT>TimeOfDay</TT></TABLE> token from the exercises of <A HREF="section27.html">Section 27</A>).  Note
+that since the word "alarm,'' can't be matched by anything the player types,
+this verb is concealed from ordinary grammar.  The orders we produce here
+are not used in the ordinary way (for instance, the action <TT>SwitchOn</TT> with
+no <TT>noun</TT> or <TT>second</TT> would never ordinarily be produced by the parser) but this
+doesn't matter: it only matters that the grammar and the <TT>orders</TT> property
+agree with each other.
+</TABLE>
+<HR>Back to <A HREF="../section16.html#ex25">the exercise in section 16</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,325 @@
+<HTML><HEAD><TITLE>Section 33: Descending into assembly language</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section32.html">Back</A><BR><A HREF="chapterA.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>33. Descending into assembly language</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dddbend.gif" ALT="/\/\/\"><TD bgcolor="#EEEEEE"><SMALL> Some dirty tricks require bypassing all of Inform's higher levels
+to program the Z-machine directly with assembly language.  There is an
+element of danger in this, in that some combinations of unusual opcodes
+might look ugly on some incomplete or wrongly-written interpreters:
+so if you're doing anything complicated, test it as widely as possible.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The best-researched and most reliable interpreters available by far are Mark
+Howell's Zip and Stefan Jokisch's Frotz: they are also faster than their
+only serious rival, the InfoTaskForce, a historically important work which
+is fairly thorough (and should give little trouble in practice) but which was
+written when the format was a little less well understood.  In some ports,
+ITF gets rarer screen effects wrong, and it lacks an "undo'' feature, so the
+Inform "undo'' verb won't work under ITF.
+(The other two publically-available interpreters are pinfocom and zterp,
+but these are unable to run Advanced games.  In the last resort, sometimes it's
+possible to use one of Infocom's own supplied interpreters with a different game
+from that it came with; but only sometimes, as they may have inconvenient
+filenames 'wired into them'.)
+<P>
+
+Interpreters conforming to the Z-Machine Standard, usually but not always
+derived from Frotz or Zip, are reliable and widely available.
+But remember that one source of unportability is inevitable.
+Your game may be running on a screen which is anything from a
+64 characters by 9 pocket organiser LCD display, up to a 132 by 48 window
+on a 21-inch monitor.
+<P>
+
+Anyone wanting to really push the outer limits (say, by implementing
+Space Invaders or NetHack) will need to refer to <I> The Z-Machine
+Standards Document</I>.  This is much more detailed (the
+definition of <TT>aread</TT> alone runs for two pages) and covers the whole range
+of assembly language.  However, this section does document all those features
+which can't be better obtained with higher-level code.
+<P>
+
+Lines of assembly language must begin with an <TT>@</TT> character and then the
+name of the "opcode'' (i.e., assembly language statement).  A number of
+arguments, or "operands'' follow (how many depends on the opcode): these
+may be any Inform constants, local or global variables or the stack pointer <TT>sp</TT>,
+but may not be compound expressions.  <TT>sp</TT> does not behave like a variable:
+writing a value to it pushes that value onto the stack, whereas reading
+the value of it (for instance, by giving it as an operand) pulls the top
+value off the stack.  Don't use <TT>sp</TT> unless you have to.  After the operands,
+some opcodes require a variable (or <TT>sp</TT>) to write a result into.
+The opcodes documented in this section are as follows:
+<PRE>
+@split_window    lines
+@set_window      window
+@set_cursor      line column
+@buffer_mode     flag
+@erase_window    window
+@set_colour      foreground background
+@aread           text parse time function &#60;result&#62;
+@read_char       1 time function &#60;result&#62;
+@tokenise        text parse dictionary
+@encode_text     ascii-text length from coded-text
+@output_stream   number table
+@input_stream    number
+@catch           &#60;result&#62;
+@throw           value stack-frame
+@save            buffer length filename &#60;result&#62;
+@restore         buffer length filename &#60;result&#62;
+</PRE>
+<P>
+
+
+<PRE>
+@split_window    lines
+</PRE>
+
+Splits off an upper-level window of the given number of lines
+in height from the main screen.  This upper window usually holds the
+status line and can be resized at any time: nothing visible happens
+until the window is printed to.  Warning: make the upper window
+tall enough to include all the lines you want to write to it, as it
+should not be allowed to scroll.
+<PRE>
+@set_window      window
+</PRE>
+
+The text part of the screen (the lower window) is "window 0'',
+the status line (the upper one) is window 1; this opcode selects
+which one text is to be printed into.  Each window has a "cursor
+position'' at which text is being printed, though it can only
+be set for the upper window.  Printing on the upper window
+overlies printing on the lower, is always done in a fixed-pitch font
+and does not appear in a printed transcript of the game.
+Note that before printing to the upper window, it is wise
+to use <TT>@buffer_mode</TT> to turn off word-breaking.
+<PRE>
+@set_cursor      line column
+</PRE>
+
+Places the cursor inside the upper window,
+where $(1,1)$ is the top left character.
+<PRE>
+@buffer_mode     flag
+</PRE>
+
+
+This turns on (<TT>flag=1</TT>) or off (<TT>flag=0</TT>) word-breaking for the
+current window (that is, the practice of printing new-lines only
+at the ends of words, so that text is neatly formatted).  It is
+wise to turn off word-breaking while printing to the upper window.
+<PRE>
+@erase_window    window
+</PRE>
+
+This opcode is unfortunately incorrectly implemented
+on some interpreters and so it can't safely be used to erase
+individual windows.  However, it can be used with <TT>window=-1</TT>,
+and then clears the entire screen.  Don't do this in
+reverse video mode, as a bad interpreter may (incorrectly) wipe the
+entire screen in reversed colours.
+<PRE>
+@set_colour      foreground background
+</PRE>
+
+If coloured text is available, set text to be
+foreground-against-background.  The colour numbers are borrowed
+from the IBM PC:
+<PRE>
+2 = black,  3 = red,      4 = green,  5 = yellow,
+6 = blue,   7 = magenta,  8 = cyan,   9 = white
+0 = the current setting,  1 = the default.
+</PRE>
+
+On many machines coloured text is not available: the opcode will
+then do nothing.
+<PRE>
+@aread           text parse time function &#60;result&#62;
+</PRE>
+
+The keyboard can be read in remarkably flexible ways.  This opcode
+reads a line of text from the keyboard, writing it into the <TT>text</TT>
+string array and 'tokenising' it into a word stream, with
+details stored in the <TT>parse</TT> string array (unless this is zero,
+in which case no tokenisation happens).  (See the end of <A HREF="section27.html">Section 27</A> for
+the format of <TT>text</TT> and <TT>parse</TT>.)
+While it is doing this, it calls <TT>function(time)</TT>
+every <TT>time</TT> tenths of a second while the user is thinking:
+the process ends if ever this function returns true.
+<TT>&#60;result&#62;</TT> is to be a variable, but the value
+written in it is only meaningful if you're using a "terminating
+characters table''.  Thus (by <TT>Replace</TT>ing the <TT>Keyboard</TT>
+routine in the library files) you could, say, move around all the characters every
+ten seconds of real time.
+Warning: not every interpreter supports this real-time feature, and
+most of those that do count in seconds instead of tenths of seconds.
+<P>
+
+
+<PRE>
+@read_char       1 time function &#60;result&#62;
+</PRE>
+
+results in the ASCII value of a single keypress.  Once again, the <TT>function</TT> is
+called every <TT>time</TT> tenths of a second and may stop this process early.
+Function keys return
+special values from 129 onwards, in the order: cursor up, down, left, right,
+function key f1, ..., f12, keypad digit 0, ..., 9.
+The first operand must be 1 (used by Infocom as a device number to identify
+the keyboard).
+<PRE>
+@tokenise        text parse dictionary
+</PRE>
+
+This takes the text in the <TT>text</TT> buffer (in the format produced by <TT>aread</TT>)
+and tokenises it (i.e. breaks it up into words, finds their addresses in the
+dictionary) into the <TT>parse</TT> buffer in the usual way but using the given
+<TT>dictionary</TT> instead of the game's usual one.  (See the <I> Z-Machine Standards
+Document</I> for the dictionary format.)
+<PRE>
+@encode_text     ascii-text length from coded-text
+</PRE>
+
+Translates an ASCII word to the internal (Z-encoded) text format
+suitable for use in a <TT>@tokenise</TT> dictionary.  The text begins at
+<TT>from</TT> in the <TT>ascii-text</TT> and is <TT>length</TT> characters long, which
+should contain the right length value (though in fact the interpreter
+translates the word as far as a 0 terminator).  The result is 6 bytes
+long and usually represents between 1 and 9 letters.
+<PRE>
+@output_stream   number table
+</PRE>
+
+Text can be output to a variety of different 'streams',
+possibly simultaneously.  If <TT>number</TT> is 0 this does nothing.
+$+n$ switches stream <I>n</I> on, $-n$ switches it off.
+The output streams are: 1 (the screen),
+2 (the game transcript), 3 (memory) and 4 (script of
+player's commands).  The <TT>table</TT> can be omitted except for stream
+3, when it's a <TT>table</TT> array holding the text printed; printing
+to this stream is never word-broken, whatever the state of
+<TT>@buffer_mode</TT>.
+<PRE>
+@input_stream    number
+</PRE>
+
+Switches the 'input stream' (the source of the player's commands).
+0 is the keyboard, and 1 a command file (the idea is that a list of
+commands produced by <TT>output_stream 4</TT> can be fed back in again).
+<PRE>
+@catch           &#60;result&#62;
+</PRE>
+
+The opposite of <TT>throw</TT>, <TT>catch</TT> preserves the "stack frame'' of the
+current routine: meaning, roughly, the current position of which routine
+is being run and which ones have called it so far.
+<PRE>
+@throw           value stack-frame
+</PRE>
+
+This causes the program to execute a return with <TT>value</TT>,
+but as if it were returning from the routine which was running
+when the <TT>stack-frame</TT> was caught (see <TT>catch</TT>).  Any routines
+which were called in the mean time and haven't returned yet
+(because each one called the next) are forgotten about.
+This is useful to get the program out of large recursive tangles
+in a hurry.
+<PRE>
+@save            buffer length filename &#60;result&#62;
+</PRE>
+
+Saves the byte array <TT>buffer</TT> (of size <TT>length</TT>) to a file,
+whose (default) name is given in the <TT>filename</TT> (a <TT>string</TT>
+array).  Afterwards, <TT>result</TT> holds 1 on success, 0 on failure.
+<P>
+
+
+<PRE>
+@restore          buffer length filename &#60;result&#62;
+</PRE>
+
+Loads in the byte array <TT>buffer</TT> (of size <TT>length</TT>) from a file,
+whose (default) name is given in the <TT>filename</TT> (a <TT>string</TT>
+array).  Afterwards, <TT>result</TT> holds the number of bytes successfully
+read.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/warning.gif" ALT="!!"><TD><B>WARNING:</B><BR>  
+Some of these features may not work well on obsolete interpreters
+which do not adhere to the Z-Machine Standard.  Standard
+interpreters are widely available, but if seriously worried
+you can test whether your game is running on a good interpreter:
+<PRE>
+    if (standard_interpreter == 0)
+    {   print "This game must be played on an interpreter obeying the
+               Z-Machine Standard.^";
+        @quit;
+    }
+</PRE>
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex90"><B>EXERCISE 90:</B><BR>(link to <A HREF="answers2/answer90.html">the answer</A>)<TR><TD><TD>  In a role-playing game campaign, you might want several
+scenarios, each implemented as a separate Inform game.  How could
+the character from one be saved and loaded into another?
+
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex91"><B>EXERCISE 91:</B><BR>(link to <A HREF="answers2/answer91.html">the answer</A>)<TR><TD><TD>  Design a title page for 'Ruins', displaying
+a more or less apposite quotation and waiting for a key to be
+pressed.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex92"><B>EXERCISE 92:</B><BR>(link to <A HREF="answers2/answer92.html">the answer</A>)<TR><TD><TD>  Change the status line so that it has the usual
+score/moves appearance except when a variable <TT>invisible_status</TT>
+is set, when it's invisible.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex93"><B>EXERCISE 93:</B><BR>(link to <A HREF="answers2/answer93.html">the answer</A>)<TR><TD><TD>  Alter the 'Advent' example game to display the number
+of treasures found instead of the score and turns on the status
+line.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex94"><B>EXERCISE 94:</B><BR>(link to <A HREF="answers2/answer94.html">the answer</A>)<TR><TD><TD>  (From code by Joachim Baumann.)  Put a compass rose
+on the status line, displaying the directions in which the room can be
+left.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex95"><B>EXERCISE 95:</B><BR>(link to <A HREF="answers2/answer95.html">the answer</A>)<TR><TD><TD> (Cf.
+ 'Trinity'.)
+Make the status line consist only of the name of the current
+location, centred in the top line of the
+screen.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex96"><B>EXERCISE 96:</B><BR>(link to <A HREF="answers2/answer96.html">the answer</A>)<TR><TD><TD> Implement an Inform version of the standard 'C'
+routine <TT>printf</TT>, taking the form
+<PRE>
+    printf(format, arg1, ...)
+</PRE>
+
+to print out the format string but with escape sequences like
+<TT>%d</TT> replaced by the arguments (printed in various ways).  For
+example,
+<PRE>
+    printf("The score is %e out of %e.", score, MAX_SCORE);
+</PRE>
+
+should print something like "The score is five out of ten.''
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  The assembly-language connoisseur will appreciate 'Freefall'
+by Andrew Plotkin and 'Robots' by
+Torbjorn Andersson
+although the present lack of on-line hints make these difficult games
+to win.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section32.html">Back</A> / <A HREF="chapterA.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

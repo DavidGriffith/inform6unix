@@ -1,0 +1,1735 @@
+<HTML><HEAD><TITLE>Section 1: The language of routines</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapter1.html">Back</A><BR><A HREF="section2.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>1. The language of routines</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<P>
+
+<HR><BLOCKQUOTE><H3>1.1. First principles</H3></BLOCKQUOTE><P>
+This chapter aims to introduce beginners to Inform as though it were a
+general-purpose programming language (rather than a tool for designing
+adventure games).  The examples given will be short programs performing
+simple calculations (rather than games).  To begin with, the Inform language
+is:
+<P>1. -- <B> Compiled.</B>
+<P> -- That is, the Inform compiler translates text written by the author
+(called the "source code'') into a program (called the "object code''
+since it is the object of the exercise).  This translation is only done
+once, but the resulting program can be run many times.
+<P>2. -- <B> Procedural.</B>
+<P> -- That is, a program is divided into
+a number of "routines'' (also called "functions'' or "procedures''), each
+being a list of orders to be obeyed (though these orders are traditionally
+called "statements'').  When the program is run, only one thing happens at
+a time: at any given moment, a single routine is being obeyed.
+<P>3. -- <B> Object-oriented.</B>
+<P> -- That is, the fabric of a typical Inform program will be woven around
+"objects'' being dealt with, which are regarded as being self-contained.
+For example, a program to simulate a warehouse might have objects
+representing lorries and containers; each object would have a position
+and contents at any given time.  The program would have general rules
+describing "lorry'' and "container'' as well as actual examples of each.
+A lorry would have the ability to receive a message telling it to do
+something, such as "load up with a container and leave the warehouse''.
+<P>4. -- <B> Portable.</B>
+<P> -- That is, once Inform has compiled the source code (having found no
+mistakes), the resulting program can be run on almost any model of
+computer.  It will exhibit exactly the same behaviour on each of them.
+It cannot depend on the "environment'': it cannot suddenly run out
+of memory and crash, for instance.
+<P>
+
+<P>
+The computer runs an Inform program (which need not be a game) with the aid
+of an "interpreter''.  There are at least 40 different interpreters
+available for this format (called the "Z-machine'' or "Infocom format'')
+and there may be a choice available for your model of computer: it is a good
+idea to get the most modern and accurate possible.  Look to see if they
+support the Z-Machine Standard, and if so, up to what revision number.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.2. Example 1: Hello World</H3></BLOCKQUOTE><P>
+Traditionally, all programming language tutorials begin by giving a program
+which does nothing but print "Hello world'' and stop.  Here is such a program
+in Inform:
+<PRE>
+    !  "Hello world" example program
+
+    [ Main;
+      print "Hello world^";
+    ];
+</PRE>
+
+The text after the exclamation mark is a "comment'', that is, it is text
+written in the margin by the author to remind himself of what is going on
+here.  Such text means nothing to Inform, which ignores anything on the
+same line and to the right of an exclamation mark.
+<P>
+
+Once commentary has been stripped out, Inform regards the source code as a
+list of things to look at, divided by semicolons <TT>;</TT>.  It treats line
+breaks, tab characters and spaces all as so-called "white space'': that
+is, a gap between two things whose size is unimportant.  Thus, exactly the
+same program would be produced by the source code
+<PRE>
+       [        
+          Main   ;
+    print
+             "Hello world^"          ;
+        ] 
+      ;
+</PRE>
+
+or, at the other extreme, by
+<PRE>
+    [ Main;print"Hello world^";];
+</PRE>
+
+Laying out programs legibly is a matter of forming good habits.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+The exception to the rule about ignoring white space is inside quoted text,
+where
+<PRE>
+Hello    world^
+</PRE>
+and
+<PRE>
+Hello world^
+</PRE>
+are genuinely different pieces of text and are treated as such.  Inform
+treats text inside quotation marks with much more care than its ordinary
+program material: for instance, an exclamation mark inside quotation marks
+will not cause the rest of its line to be thrown away as a comment.
+</SMALL>
+<TR><TD><TD><P>
+
+Every program must contain a routine called <TT>Main</TT>, and in this example it
+is the only routine.  When a program is set running, the first instruction
+obeyed is the first one in <TT>Main</TT>, and it carries on line by line from there.
+This process is called "execution''.  When the <TT>Main</TT> routine is finished,
+the program stops.
+<P>
+
+The routine has only one statement:
+<PRE>
+    print "Hello world^"
+</PRE>
+    
+Printing is the process of writing text onto the computer screen.  This
+statement prints the two words "Hello world'' and then skips the rest of
+the line (or "prints a new-line''): the <TT>^</TT> character, in quoted text,
+means "new-line''.  For example, the statement
+<PRE>
+    print "Blue^Red^Green^"
+</PRE>
+<P>
+
+prints up:
+<BLOCKQUOTE>
+    Blue<BR>
+    Red<BR>
+    Green<BR>
+</BLOCKQUOTE>
+
+<TT>print</TT> is one of 28 statements in the Inform language.  The full list is as
+follows:
+<PRE>
+box        break      continue   do       font      for         give
+if         inversion  jump       move     new_line  objectloop  print
+print_ret  quit       read       remove   restore   return      rfalse
+rtrue      save       spaces     string   style     switch      while
+</PRE>
+
+(Only about 20 of these are commonly used.)  <A HREF="section1.html">Section 1</A> covers all those not
+concerned with objects, which are left until <A HREF="section3.html">Section 3</A>.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.3. Example 2: Elsinore</H3></BLOCKQUOTE><P>
+The following source code has three routines, <TT>Main</TT>, <TT>Rosencrantz</TT> and
+<TT>Hamlet</TT>:
+<PRE>
+    [ Main;
+      print "Hello from Elsinore.^";
+      Rosencrantz();
+    ];
+    [ Rosencrantz;
+      print "Greetings from Rosencrantz.^";
+    ];
+    [ Hamlet;
+      print "The rest is silence.^";
+    ];
+</PRE>
+<P>
+
+The resulting program prints up
+<BLOCKQUOTE>
+    Hello from Elsinore.<BR>
+    Greetings from Rosencrantz.<BR>
+</BLOCKQUOTE>
+
+but the text "The rest is silence.'' is never printed.  Execution begins at
+<TT>Main</TT>, and "Hello from Elsinore'' is printed; next, the statement
+<TT>Rosencrantz()</TT> causes the <TT>Rosencrantz</TT> routine to be executed.  That
+continues until it ends with the close-routine marker <TT>]</TT>, whereupon
+execution goes back to <TT>Main</TT> just after the point where it left off: since
+there is nothing more to do in <TT>Main</TT>, the program finishes.  Thus,
+<TT>Rosencrantz</TT> is executed but <TT>Hamlet</TT> is not.
+<P>
+
+In fact, when the above program is compiled, Inform notices that
+<TT>Hamlet</TT> is never needed and prints out a warning to that effect.  The
+exact text produced by Inform varies from machine to machine, but will be
+something like this:
+<PRE>
+    RISC OS Inform 6.03 (May 11th 1996)
+    line 8: Warning: Routine "Hamlet" declared but not used
+    Compiled with 0 errors and 1 warning
+</PRE>
+
+Errors are mistakes in the program which cause Inform to refuse to compile
+it, but this is only a warning.  It alerts the programmer that a mistake
+may have been made (because presumably the programmer has simply forgotten
+to put in a statement calling <TT>Hamlet</TT>) but it doesn't prevent the
+compilation from taking place.  Note that the opening line of the routine
+<TT>Hamlet</TT> occurs on the 8th line of the program above.
+<P>
+
+Usually there are mistakes in a newly-written program and one goes through
+a cycle of running a first draft through Inform, receiving a batch of
+error messages, correcting the draft according to these messages, and trying
+again.  A typical error message would occur if, on line 3, we had mistyped
+<TT>Rosncrantz()</TT> for <TT>Rosencrantz()</TT>.  Inform would then have produced:
+<PRE>
+    RISC OS Inform 6.03 (May 11th 1996)
+    line 5: Warning: Routine "Rosencrantz" declared but not used
+    line 8: Warning: Routine "Hamlet" declared but not used
+    line 3: Error: No such constant as "Rosncrantz"
+    Compiled with 1 error and 2 warnings (no output)
+</PRE>
+
+The error message means that on line 3 Inform ran into a name which did
+not correspond to any known quantity (it isn't the name of any routine, in
+particular).  Note that Inform never produces the
+final story file if errors occur during compilation: this prevents it
+from producing damaged story files.  Note also that Inform now thinks the
+routine <TT>Rosencrantz</TT> is never used, since it didn't recognise the mistype
+in the way that a human reader would have done.  Warnings are sometimes
+produced by accident this way, so it is generally a good idea to worry
+about fixing errors first and warnings afterward.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.4. Numbers and variables</H3></BLOCKQUOTE><P>
+Internally -- that is, whatever the outward appearance -- all programs
+essentially manipulate numbers.  Inform understands "number'' to be a
+whole number in the range -32768 to +32767.  (Special programming would be
+required to represent larger numbers or fractions.)  There are three
+notations for writing numbers in Inform: here is an example of each.
+<PRE>
+    -4205
+    $3f08
+    $$1000111010110
+</PRE>
+
+
+The difference is the radix, or base, in which they are expressed.  The
+first is in decimal (base 10), the second hexadecimal (base 16, where
+the digits after 9 are written <TT>a</TT> to <TT>f</TT> or <TT>A</TT> to <TT>F</TT>) and the third
+binary (base 2).  Once Inform has read in a number, it forgets which
+notation was used: for instance, if the source code is altered so that
+<TT>$$10110</TT> is replaced by <TT>22</TT>, this makes no difference to the program
+produced.
+<P>
+
+A <TT>print</TT> statement can print numbers as well as text, though it always
+prints them back in ordinary decimal notation.  For example, the program
+<PRE>
+    [ Main;
+      print "Today's number is ", $3f08, ".^";
+    ];
+</PRE>
+<P>
+
+prints up
+<BLOCKQUOTE>
+    Today's number is 16136.<BR>
+</BLOCKQUOTE>
+
+since 16136 in base 10 is the same number as 3f08 in hexadecimal.
+<P>
+
+Inform recognises many other notations as "constants'', that is, values
+which are literally described in the source code.  A
+full list will appear later, but one other is that a single character
+between single quotation marks, for instance
+<PRE>
+    'x'
+</PRE>
+
+is a constant.  A "character'' is a single letter or typewriter-symbol,
+and all that the programmer needs to know is that each possible character
+has its own numerical value.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> For most characters, this numerical value is the standard ASCII
+value for the character: for instance, <TT>'x'</TT> has numerical value 120.
+(This is true even if Inform is being run on a model of computer which
+doesn't normally use the ASCII character set.)  Exotic characters such
+as <TT>'@ss'</TT> (the Inform notation for German sz) have non-standard codes:
+see the <I> Z-Machine Standards Document</I> if you really need to know.
+</SMALL>
+<TR><TD><TD><P>
+
+Finally, in this initial batch of constant notations, Inform provides
+two special constants:
+<PRE>
+true
+false
+</PRE>
+
+which are used to describe the truth or otherwise of possible conditions.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>true</TT> has the numerical value 1; <TT>false</TT> has the numerical value 0.
+</SMALL>
+<TR><TD><TD><P>
+
+Inform has a concept of "variable'' like that used in algebra, where it is
+easy but limiting to express facts using only numbers:
+<P><BLOCKQUOTE>34 - 34 = 0<P>11 - 11 = 0<P>694 - 694 = 0</BLOCKQUOTE>
+Although suggestive this fails to express the general case: that any number
+subtracted from itself leaves zero.  We express this fact symbolically
+in algebra by writing
+<BLOCKQUOTE>x - x = 0</BLOCKQUOTE>
+where
+x
+is a variable; the implication being "whatever value
+x
+actually is, the statement is still true".
+<P>
+
+Likewise, in Inform what seems to be a word of text may be a variable which
+represents a number: when the source code is compiled, Inform cannot know
+what numerical value this text represents.  When the program is run, it
+will always have a numerical value at any given time.  If <TT>oil_left</TT> is a
+variable, the statement
+<PRE>
+    print "There are ", oil_left, " gallons remaining.^";
+</PRE>
+
+is executed as if <TT>oil_left</TT> were replaced by whatever that value currently
+is.  Later on, the same statement may be executed again, producing different
+text because by that time <TT>oil_left</TT> has a different value.
+<P>
+
+Inform can only know that text (such as <TT>oil_left</TT>) represents a variable if
+the source code has "declared'' that it does.  Each routine can declare
+its own selection of variables on its opening line.  For example,
+in the program
+<PRE>
+    [ Main alpha b;
+      alpha = 2200;
+      b = 201;
+      print "Alpha is ", alpha, " while b is ", b, "^";
+    ];
+</PRE>
+
+the <TT>Main</TT> routine has two variables, <TT>alpha</TT> and <TT>b</TT>.  Like most names
+given in source code (called "identifiers''), variable names can be at
+most 32 characters long and may contain letters of the alphabet, decimal
+digits or the underscore <TT>_</TT> character (often used to imitate a space).  To
+prevent them looking too much like numbers, though, they may not start with a
+decimal digit.  (So <TT>a44</TT> is legal but <TT>44a</TT> is not.)
+For example:
+<PRE>
+    turns_still_to_play
+    chart45
+    X
+</PRE>
+
+are all possible variable names.  Inform ignores any difference between
+upper and lower case letters in such names, for example considering
+<TT>CHArt45</TT> as the same name as <TT>chArT45</TT>.
+<P>
+
+The <TT>=</TT> sign occurring twice in the above routine is an example of an
+"operator'': a notation usually made up of the symbols on the
+non-alphabetic keys on a typewriter and which means something is to be done
+with the items it is written next to.  In this context, <TT>=</TT> means "set
+equal to''.  When the statement <TT>alpha = 2200</TT> is executed at run time,
+the current value of the variable <TT>alpha</TT> becomes 2200 (and it keeps that
+value until another such statement changes it).
+<P>
+
+The variables <TT>alpha</TT> and <TT>b</TT> are called "local variables'' because they
+are local to <TT>Main</TT>: in effect, they are its private property.  The program
+<PRE>
+    [ Main alpha;
+      alpha = 2200;
+      Rival();
+    ];
+    [ Rival;
+      print alpha;
+    ];
+</PRE>
+
+causes an error on the <TT>print</TT> statement in <TT>Rival</TT>, since <TT>alpha</TT> does not
+exist there.  Indeed, <TT>Rival</TT> could even have defined a variable of its
+own also called <TT>alpha</TT> and this would have been a separate variable with
+a probably different value.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.5. Arithmetic expressions</H3></BLOCKQUOTE><P>
+
+The Inform language is rich with operators, making it concise but not always
+very readable.  Feeling comfortable with the operators is the main step
+towards being able to follow Inform source code.  Fortunately, these
+operators are based on the usual rules for writing arithmetic formulae,
+which gives them a headstart in familiarity.
+<P>
+
+Indeed, the most commonly used operators are "arithmetic'': they combine
+one or more numbers to give one resulting number.  Whenever a number is
+expected in a statement, a general "expression'' can be given instead:
+that is, a calculation giving a number as a result.  For example, the
+statement
+<PRE>
+    seconds = 60*minutes + 3600*hours
+</PRE>
+
+sets the variable <TT>seconds</TT> equal to 60 times the variable <TT>minutes</TT> plus
+3600 times the variable <TT>hours</TT>.  White space is not needed between operators
+and "operands'' (the numbers to be operated on): the spaces on either
+side of the <TT>+</TT> sign are only provided for legibility.
+<P>
+
+Ordinary arithmetic is carried out with the operators <TT>+</TT> (plus), <TT>-</TT>
+(minus), <TT>*</TT> (times) and <TT>/</TT> (divided by).
+<P>
+
+Usually dividing one integer by another leaves a remainder: for example,
+3 goes into 7 twice, with remainder 1.  In Inform notation,
+<BLOCKQUOTE>
+    <TT>7/3</TT> evaluates to 2<BR>
+    <TT>7%3</TT> evaluates to 1<BR>
+</BLOCKQUOTE>
+
+the <TT>%</TT> operator meaning "remainder after division'', usually called just
+"remainder''.  Dividing by zero is impossible and a program which tries to
+do this will go wrong.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+As a brief aside, this gives an example of how Inform can and can't help
+the programmer to spot mistakes.  The program
+<PRE>
+    [ Main;
+      print 73/0;
+    ];
+</PRE>
+
+produces an error when compiled:
+<PRE>
+    line 2: Error: Division of constant by zero
+    &#62;   print 73/0;
+</PRE>
+
+since Inform can see that it definitely involves doing something illegal.
+However, Inform fails to notice anything amiss with the equivalent program
+<PRE>
+    [ Main x;
+      x = 0;
+      print 73/x;
+    ];
+</PRE>
+
+and this program compiles correctly.  The resulting story file will
+"crash'' when it is run, that is, catastrophically halt.  The moral is
+that just because Inform compiles a program without errors, it does not
+follow that the program does what the programmer intends.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+In a complicated expression the order in which the operators work may affect
+the result.  As most human readers would, Inform works out both of
+<PRE>
+    23 + 2 * 700
+    2 * 700 + 23
+</PRE>
+
+to 1423, because the operator <TT>*</TT> has "precedence'' over <TT>+</TT> and so is
+acted on first.  Brackets may be used to overcome this:
+<PRE>
+    (23 + 2) * 700
+    2 * (700 + 23)
+</PRE>
+
+evaluate to 17500 and 1446 respectively.  Each operator has such a
+"precedence level''.  When two operators have the same precedence level
+(for example, <TT>+</TT> and <TT>-</TT> are of equal precedence) calculation is
+(almost always) "left associative'', that is, carried out left to right:
+the notation
+<PRE>
+    a - b - c
+</PRE>
+
+is equivalent to
+<PRE>
+    (a - b) - c
+</PRE>
+
+The standard rules for writing mathematics give <TT>+</TT> and <TT>-</TT> equal precedence,
+lower than that of <TT>*</TT> and <TT>/</TT> (which are also equal).  Inform agrees
+and also pegs <TT>%</TT> equal to <TT>*</TT> and <TT>/</TT>.
+<P>
+
+The final purely arithmetic operator is "unary minus''.  This is written
+as a minus sign <TT>-</TT> but is not the same as ordinary subtraction.  The
+expression:
+<PRE>
+    -credit
+</PRE>
+
+means the same thing as:
+<PRE>
+    0 - credit
+</PRE>
+
+The operator <TT>-</TT> is different from all those mentioned so far because it
+operates only on one number.  It has higher precedence than any of the
+five "binary'' operations above.  For example,
+<PRE>
+    -credit - 5
+</PRE>
+
+means <TT>(-credit) - 5</TT> and not <TT>-(credit - 5)</TT>.
+<P>
+
+One way to imagine precedence is to think of it as glue attached to the
+operator.  A higher level means stronger glue.  Thus, in
+<PRE>
+    23 + 2 * 700
+</PRE>
+
+the glue around the <TT>*</TT> is stronger than that around the <TT>+</TT>, so that 2
+and 700 belong bound to the <TT>*</TT>.
+<P>
+
+Some operators do not simply act on values but actually change the current
+values of variables: expressions containing these are called
+"assignments'' (because they assign values as well as working them out).
+One such operator is 'set equals':
+<PRE>
+    alpha = 72
+</PRE>
+
+sets the variable <TT>alpha</TT> equal to 72.  Just like <TT>+</TT> and the others, it
+also comes up with an answer: as it happens, this value is also 72.
+<P>
+
+The other two assignment operators are <TT>++</TT> and <TT>--</TT>, which will be
+familiar to any C programmer.  They are unary operators, and can be used
+in any of the following ways:
+<PRE>
+    variable++
+    ++variable
+    variable--
+    --variable
+</PRE>
+
+The first of these means "read off the value of <TT>variable</TT>, and afterwards
+increase that value by one''.  In <TT>++variable</TT> the "increment'' (or
+increase by 1) happens first, and then the value is read off.  <TT>--</TT> acts
+in a similar way but "decrements'' (decreases by 1).  These operators
+are provided as convenient shorthand forms, since their effect could
+usually be achieved in other ways (just using <TT>+</TT> and <TT>-</TT>).
+<P>
+
+For example, suppose the <TT>variable</TT> has value 12.  Then the result would be
+12, 13, 12 or 11 respectively; the value left in <TT>variable</TT> afterwards would
+be 13, 13, 11 or 11.
+<P>
+
+Note that expressions like
+<PRE>
+    500++        (4*alpha)--     34 = beta
+</PRE>
+
+are meaningless: the values of 500 and 34 cannot be altered, and Inform
+knows no way to adjust <TT>alpha</TT> so as to make <TT>4*alpha</TT> decrease by 1.
+All three will cause errors.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> "Bitwise operators'' are provided for manipulating binary
+numbers on a digit-by-digit basis, something which is often done in programs
+which are working with low-level data or data which has to be stored very
+compactly.  Inform provides <TT>&#38;</TT>, bitwise AND, |, bitwise OR and <TT>~</TT>, bitwise
+NOT.  For each digit, such an operator works out the value in the answer
+from the values in the operands.  Bitwise NOT acts on a single operand and
+results in the number whose <I>i</I>-th binary digit is the opposite of that in
+the operand (a 1 for a 0, a 0 for a 1).  Bitwise AND (and OR) acts on two numbers
+and sets the <I>i</I>-th digit to 1 if both operands have (either operand has)
+<I>i</I>-th digit set.  So, for example,
+<PRE>
+    $$10111100 &#38; $$01010001  ==  $$00010000
+</PRE>
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The remaining operators will be described as needed: the full table
+is laid out in <A HREF="sectionA1.html">Appendix A1</A>.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>1.6. Arguments and Return Values</H3></BLOCKQUOTE><P>
+
+As has already been said, in Inform jargon the word "function'' is
+synonymous with "routine''.  A function might be defined as a
+correspondence
+<BLOCKQUOTE>(x1, ..., xn) <TT>---&#62;</TT> f(x1, ..., xn)</BLOCKQUOTE>
+where a set of input numbers are fed in, and a single value comes out.  These
+input numbers are called "arguments''.  The value coming out is the
+"return value'', or is said to be "returned''.
+<P>
+
+All Inform routines are like this.  A number of arguments are fed in when the
+routine is "called'' (that is, set running) and there is always a single
+numerical result.  This result is called the "return value'' because it is
+returned to the rest of the program.  Some very simple routines conceal
+this.  For instance, consider <TT>Sonnet</TT>:
+<PRE>
+    [ Main;
+      Sonnet();
+    ];
+    [ Sonnet;
+      print "When to the sessions of sweet silent thought^";
+      print "I summon up remembrance of things past^";
+    ];
+</PRE>
+
+<TT>Sonnet</TT> is a routine which takes as input no arguments at all (it is an
+example of the $n=0$ case), so it is called with nothing in between the
+round brackets.  Although it does return a value (as it happens, this value
+is <TT>true</TT>) the statement <TT>Sonnet()</TT> simply calls the routine and throws the
+return value away.  If <TT>Main</TT> were instead given by
+<PRE>
+    [ Main;
+      print Sonnet();
+    ];
+</PRE>
+<P>
+    
+then the output would be
+<BLOCKQUOTE>
+    When to the sessions of sweet silent thought<BR>
+    I summon up remembrance of things past<BR>
+    1<BR>
+</BLOCKQUOTE>
+
+because the <TT>print</TT> statement in <TT>Main</TT> has been told to print the number
+resulting from a call to <TT>Sonnet</TT>.
+<P>
+
+Thus in Inform there is no such thing as a "void function'' or
+"procedure'': every routine returns a number even though this may
+immediately be thrown away as unwanted.
+<P>
+
+When a routine is called,
+<PRE>
+    Routine(arg1, ...)
+</PRE>
+
+the arguments given are substituted into the first variables declared for
+<TT>Routine</TT>, and execution begins running through <TT>Routine</TT>.  Usually, there
+can be any number of arguments from none up to 7, though a limit of 3
+applies if Inform has been told to compile an early-model story file
+(see <A HREF="section31.html">Section 31</A> for details).
+<P>
+
+If execution runs into the <TT>]</TT> end-of-routine marker, so that the routine is
+finished without having specified any definite return value, then this value
+is <TT>true</TT>.  (This is why the printed return value of <TT>Sonnet</TT> is 1: <TT>true</TT>
+has the value 1.)
+<P>
+
+<HR><BLOCKQUOTE><H3>1.7. Example 3: Cubes</H3></BLOCKQUOTE><P>
+A more typical, though less aesthetic, example than <TT>Sonnet</TT>:
+<PRE>
+    [ Main;
+      print Cube(1), " ";
+      print Cube(2), " ";
+      print Cube(3), " ";
+      print Cube(4), " ";
+      print Cube(5), "^";
+    ];
+    [ Cube x;
+      return x*x*x;
+    ];
+</PRE>
+<P>
+
+which, when executed, prints
+<BLOCKQUOTE>
+    1 8 27 64 125<BR>
+</BLOCKQUOTE>
+
+The expression <TT>Cube(3)</TT> is calculated by substituting the number 3 into the
+variable <TT>x</TT> when <TT>Cube</TT> is set running: the result of the expression is the
+number returned by <TT>Cube</TT>.
+<P>
+
+Any "missing arguments'' in a routine call are set equal to zero, so
+the call <TT>Cube()</TT> is legal and does the same as <TT>Cube(0)</TT>.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.8. Conditions: <TT>if</TT>, <TT>true</TT> and <TT>false</TT></H3></BLOCKQUOTE><P>
+
+Such routines are too simple, so far, even to express many mathematical
+functions, and more flexibility will be needed.
+<P>
+
+A "control construct'' is a kind of statement which controls whether or not,
+and if so how many times or in what order, other statements are executed. 
+The simplest of these is <TT>if</TT>:
+<BLOCKQUOTE>
+    <TT>if (</TT><I><B>&#60;condition&#62;</B></I><TT>) </TT><I><B>&#60;statement&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+which executes the <I><B>&#60;statement&#62;</B></I> only if the <I><B>&#60;condition&#62;</B></I>, when it is tested,
+turns out to be true.  For example, when the statement
+<PRE>
+    if (alpha == 3) print "Hello";
+</PRE>
+
+is executed, the word "Hello'' is printed only if the variable <TT>alpha</TT>
+currently has value 3.  It is important not to confuse the <TT>==</TT> operator
+(test whether or not equal to) with the <TT>=</TT> operator (set equal to).
+<P>
+
+Conditions are always given in (round) brackets.  The basic conditions are
+as follows:
+
+<BR><TABLE Border><TR><TD><TT>(a == b)</TT> <TD>            Number <TT>a</TT> equals number <TT>b</TT>
+<TR><TD><TT>(a ~= b)</TT> <TD>            Number <TT>a</TT> doesn't equal number <TT>b</TT>
+<TR><TD><TT>(a &#62;= b)</TT> <TD>            <TT>a</TT> is greater than or equal to <TT>b</TT>
+<TR><TD><TT>(a &#60;= b)</TT> <TD>            <TT>a</TT> is less than or equal to <TT>b</TT>
+<TR><TD><TT>(a &#62; b)</TT> <TD>             <TT>a</TT> is greater than <TT>b</TT>
+<TR><TD><TT>(a &#60; b)</TT> <TD>             <TT>a</TT> is less than <TT>b</TT>
+<TR><TD><TT>(o1 in o2)</TT> <TD>          Object <TT>o1</TT> possessed by <TT>o2</TT>
+<TR><TD><TT>(o1 notin o2)</TT> <TD>       Object <TT>o1</TT> not possessed by <TT>o2</TT>
+<TR><TD><TT>(o1 has a)</TT> <TD>          Object <TT>o1</TT> has attribute <TT>a</TT>
+<TR><TD><TT>(o1 hasnt a)</TT> <TD>        Object <TT>o1</TT> hasn't attribute <TT>a</TT>
+<TR><TD><TT>(o1 provides m)</TT> <TD>     Object <TT>o1</TT> provides property <TT>m</TT>
+<TR><TD><TT>(o1 ofclass c)</TT> <TD>      Object <TT>o1</TT> inherits from class <TT>c</TT>
+</TABLE>
+(The conditions relating to objects will be discussed later.) A useful
+extension to this set is provided by the special operator <TT>or</TT>, which gives
+alternative possibilities.  For example,
+<PRE>
+    if (alpha == 3 or 4) print "Scott";
+    if (alpha ~= 5 or 7 or 9) print "Amundsen";
+</PRE>
+
+where two or more values are given with the word <TT>or</TT> between.  <TT>Scott</TT> is
+printed if <TT>alpha</TT> has value either 3 or 4, and <TT>Amundsen</TT> if the value of
+<TT>alpha</TT> is not 5, is not 7 and is not 9.  <TT>or</TT> can be used with any of the
+conditions, and any number of alternatives can be given.  For example
+<PRE>
+    if (player in Forest or Village or Building) ...
+</PRE>
+
+often makes code much clearer than writing three separate conditions out; or
+<PRE>
+    if (x &#62; 100 or y) ...
+</PRE>
+
+can be convenient to check whether <TT>x</TT> is bigger than the minimum of 100
+or <TT>y</TT>.
+<P>
+
+Conditions can also be built up from simpler ones (just as long expressions
+are built up from single operators) using the three logical operators <TT>&#38;&#38;</TT>,
+|| and <TT>~~</TT> (pronounced "and'', "or'' and "not'').  For example,
+<PRE>
+    if (alpha == 1 &#38;&#38; (beta &#62; 10 || beta &#60; -10)) print "Lewis";
+    if (~~(alpha &#62; 6)) print "Clark";
+</PRE>
+
+"Lewis'' is printed if <TT>alpha</TT> equals 1 and <TT>beta</TT> is outside the range
+-10 to 10; "Clark'' is printed if <TT>alpha</TT> is less than or equal to 6.
+<P>
+
+The discussion above makes it look as if conditions are special kinds of
+expression which can only use certain operators (<TT>==</TT>, <TT>&#38;&#38;</TT>, <TT>or</TT> and so on).
+But this is not true: conditions are expressions like any other.  It's legal
+to write
+<PRE>
+    print (beta == 4);
+</PRE>
+<P>
+
+for instance, and this results in 1 being printed if beta equals 4, and 0
+otherwise.  Thus:
+<BLOCKQUOTE>
+    the result of a true condition is 1;<BR>
+    the result of a false condition is 0.<BR>
+</BLOCKQUOTE>
+
+This is why <TT>true</TT> and <TT>false</TT> are defined to be 1 and 0 respectively.
+Thus one might write code along the lines of
+<PRE>
+    betaisfour = (beta == 4);
+    ...
+    if (betaisfour == true) ...
+</PRE>
+
+though it would be easier to write
+<PRE>
+    betaisfour = (beta == 4);
+    ...
+    if (betaisfour) ...
+</PRE>
+
+because, just as conditions can be used as numbers, so numbers can be used as
+conditions.  Zero is considered to be "false'', and all other values are
+considered to be "true''.  Thus
+<PRE>
+    if (1) print "Magellan";
+    if (0) print "da Gama";
+</PRE>
+
+always results in "Magellan'', never "da Gama'', being printed.
+<P>
+
+One common use of variables is as "flags''.
+A flag can only hold the value 0 or 1, false or true according to some
+state of the program.  The fact that a number can be used as a condition
+allows natural-looking statements like
+<PRE>
+    if (lower_caves_explored) print "You've already been that way.";
+</PRE>
+
+where <TT>lower_caves_explored</TT> is a variable being used in the program as a
+flag.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Note that <TT>&#38;&#38;</TT> and || only work out what they absolutely
+need to in order to decide the truth.  That is,
+<PRE>
+    if (A &#38;&#38; B) ...
+</PRE>
+
+will work out <TT>A</TT> first.  If this is false, there's no need to work out <TT>B</TT>,
+and it never is worked out.  Only if <TT>A</TT> is true is <TT>B</TT> actually tested.
+This only matters when working out conditions like
+<PRE>
+    if (x==7 &#38;&#38; Routine(5)) ...
+</PRE>
+
+where it can be important to know that the <TT>Routine</TT> is never called if <TT>x</TT>
+has a value other than 7.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>1.9. Example 4: Factorials</H3></BLOCKQUOTE><P>
+The factorial of a positive integer n is defined as the product
+$$ 1 \times 2 \times 3 \times ... \times n $$
+so that, for example, the factorial of 4 is 24.  Here is an Inform routine
+to calculate factorials:
+<PRE>
+    [ Main;
+      print Factorial(7), "^";
+    ];
+    [ Factorial n;
+      if (n==1) return 1;
+      return n*Factorial(n-1);
+    ];
+</PRE>
+
+This calculates 7 factorial and comes up with 5040.  (Factorials grow rapidly
+and 8 factorial is already too large to hold in a standard Inform number,
+so calling <TT>Factorial(8)</TT> would give a wrong answer.)
+<P>
+
+The routine <TT>Factorial</TT> actually calls itself: this is called "recursion''. 
+Execution reaches "seven routines deep'' before starting to return back up.
+Each of these copies of <TT>Factorial</TT> runs with its own private copy of the
+variable <TT>n</TT>.
+<P>
+
+Recursion is hazardous.  If one calls the routine
+<PRE>
+    [ Disaster;
+      return Disaster();
+    ];
+</PRE>
+
+then despite the reassuring presence of the word <TT>return</TT>, execution is tied
+up forever, unable to finish evaluating the return value.  The first call to
+<TT>Disaster</TT> needs to make a second before it can finish; the second needs to
+make a third; and so on.  This is an example of a programming error which
+will prove disastrous when the program is run, yet will cause no errors when
+the source code is compiled.  (It can be proved that it is impossible to
+construct a compiler capable of detecting this general class of mistake. 
+Inform does not even try.)
+<P>
+
+<HR><BLOCKQUOTE><H3>1.10. Code blocks, <TT>else</TT> and <TT>switch</TT></H3></BLOCKQUOTE><P>
+
+A feature of all control constructs is that instead of just giving a
+<I><B>&#60;statement&#62;</B></I>, one can give a list of statements grouped together into a unit
+called a "code block''.  Such a group begins with an open brace <TT>{</TT> and
+ends with a close brace <TT>}</TT>.  For example,
+<PRE>
+    if (alpha &#62; 5)
+    {   print "The square of alpha is ";
+        print alpha*alpha;
+        print ".^";
+    }
+</PRE>
+<P>
+
+If <TT>alpha</TT> is 3, nothing is printed; if <TT>alpha</TT> is 9,
+<BLOCKQUOTE>
+    The square of alpha is 81.<BR>
+</BLOCKQUOTE>
+
+is printed.  (As usual the layout is a matter of convention: it is usual to
+write code blocks on margins indented inwards by some standard number of
+characters.)  In some ways, code blocks are like routines, and at first it
+may seem inconsistent to write routines between <TT>[</TT> and <TT>]</TT> brackets and
+code blocks between braces <TT>{</TT> and <TT>}</TT>.  However, code blocks cannot have
+private variables of their own and do not return values: and it is possible
+for execution to break out of code blocks again, or to jump from block to
+block, which is impossible with routines.
+<P>
+
+An <TT>if</TT> statement can optionally have the form
+<BLOCKQUOTE>
+    <TT>if (</TT><I><B>&#60;condition&#62;</B></I><TT>) </TT><I><B>&#60;statement1&#62;</B></I><TT> else </TT><I><B>&#60;statement2&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+in which case <I><B>&#60;statement1&#62;</B></I> is executed if the condition is true, and
+<I><B>&#60;statement2&#62;</B></I> if it is false.  For example,
+<PRE>
+    if (alpha == 5) print "Five."; else print "Not five.";
+</PRE>
+
+Note that the condition is only checked once.  The statement
+<PRE>
+    if (alpha == 5)
+    {   print "Five.";
+        alpha = 10;
+    }
+    else print "Not five.";
+</PRE>
+
+cannot ever print both "Five'' and then "Not five''.
+<P>
+
+The <TT>else</TT> clause has a snag attached: the problem of "hanging elses''.
+<PRE>
+    if (alpha == 1)
+        if (beta == 2)
+            print "Clearly if alpha=1 and beta=2.^";
+        else
+            print "Ambiguous.^";
+</PRE>
+
+is ambiguous as to which <TT>if</TT> statement the <TT>else</TT> attaches to.  The answer
+(in Inform 6, though this has changed since earlier versions of the language)
+is that an <TT>else</TT> always pairs to its nearest <TT>if</TT>, unless there is bracing
+to indicate the contrary.  Thus the <TT>else</TT> above pairs with the <TT>beta</TT>
+condition, not the <TT>alpha</TT> condition.
+<P>
+
+In any case it is much safer to use braces to express what is meant, as in:
+<PRE>
+    if (alpha == 1)
+    {   if (beta == 2)
+            print "Clearly if alpha=1 and beta=2.^";
+        else
+            print "Clearly if alpha=1 but beta not 2.^";
+    }
+</PRE>
+
+The <TT>if</TT>...<TT>else</TT>... construct is ideal for switching execution between two
+possible "tracks'', like railway signals, but it is a nuisance trying to
+divide between many different outcomes this way.  To follow the analogy, the
+construct <TT>switch</TT> is like a railway turntable.
+<PRE>
+    print "The train on platform 1 is going to ";
+    switch(DestinationOnPlatform(1))
+    {   1: print "Dover Priory.";
+        2: print "Bristol Parkway.";
+        3: print "Edinburgh Waverley.";
+    }
+</PRE>
+
+Each possible value must be a constant, so
+<PRE>
+    switch(alpha)
+    {   beta: print "The variables alpha and beta are equal!";
+    }
+</PRE>
+
+is illegal.
+<P>
+
+Any number of outcomes can be specified, and values can be grouped together
+to a common outcome.  For example,
+<PRE>
+    print "The mission STS-", num, " was flown on the Space Shuttle";
+    switch(num)
+    {   1 to 5, 9: print " Columbia.";
+        6 to 8:    print " Challenger.";
+        10 to 25:  if (num == 12) print " Discovery";
+                   print ", but it was given a flight number like 51-B.";
+        default:   print ".";
+    }
+</PRE>
+<P>
+
+will result in a true statement being printed (as long as <TT>num</TT> is between 1
+and, at time of writing, 78), if an incomplete one.  The <TT>default</TT> clause is
+executed if the original expression matches none of the other values, and it
+must always come last if given at all.  In this case, it means that if <TT>num</TT>
+is 62, then
+<BLOCKQUOTE>
+    The mission STS-62 was flown on the Space Shuttle.<BR>
+</BLOCKQUOTE>
+
+is printed.
+<P>
+
+Note that each clause is automatically a code block and needs no braces <TT>{</TT>
+to <TT>}</TT> to delimit it from the rest of the routine: this shorthand makes
+<TT>switch</TT> statements much more legible.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.11. <TT>while</TT>, <TT>do</TT>...<TT>until</TT>, <TT>for</TT>, <TT>break</TT>, <TT>continue</TT></H3></BLOCKQUOTE><P>
+
+The other four Inform control constructs are all "loops'', that is, ways to
+repeat the execution of a given statement (or code block). Discussion of one
+of the four, called <TT>objectloop</TT>, is deferred until <A HREF="section3.html">Section 3</A>.4.
+<P>
+
+The two basic forms of loop are <TT>while</TT> and <TT>do</TT>...<TT>until</TT>:
+<BLOCKQUOTE>
+    <TT>while (</TT><I><B>&#60;condition&#62;</B></I><TT>) </TT><I><B>&#60;statement&#62;</B></I><BR>
+    <TT>do </TT><I><B>&#60;statement&#62;</B></I><TT> until (</TT><I><B>&#60;condition&#62;</B></I><TT>)</TT><BR>
+</BLOCKQUOTE>
+
+The first repeatedly tests the condition and, provided it is still true,
+executes the statement.  (If the condition is not even true the first time,
+the statement is never executed.)  For example:
+<PRE>
+    [ SquareRoot n;
+      x = n;
+      while (x*x &#62; n) x=x-1;
+      return x;
+    ];
+</PRE>
+
+a (fairly chronic) method for finding square roots.  (If <TT>SquareRoot(200)</TT>
+is called, then <TT>x</TT> runs down through the values 200, 199, ..., 14, at which
+point <TT>x*x &#60;= n</TT> since $14\times 14 = 196$.)
+<P>
+
+The <TT>do</TT>...<TT>until</TT> loop repeats the given statement until the condition
+is found to be true.  (Even if the condition is already satisfied, like
+<TT>(true)</TT>, the statement is always executed the first time through.)
+<P>
+
+One particular kind of <TT>while</TT> loop is needed so often that there is an
+abbreviation for it, called <TT>for</TT>.  For example,
+<PRE>
+    counter = 1;
+    while (counter &#60;= 10)
+    {   print counter, " ";
+        counter++;
+    }
+</PRE>
+<P>
+
+which produces the output
+<BLOCKQUOTE>
+1 2 3 4 5 6 7 8 9 10<BR>
+</BLOCKQUOTE>
+
+(Recall that <TT>counter++</TT> adds 1 to the variable <TT>counter</TT>.)  Languages like
+BASIC make extensive use of this kind of loop.  For example, in BBC BASIC,
+the above loop would be written
+<PRE>
+    FOR counter = 1 TO 10
+        PRINT counter;" ";
+    NEXT
+</PRE>
+
+<TT>NEXT</TT> is a word which (slightly clumsily) means "the code block ends
+here'', and is therefore the equivalent of Inform's <TT>}</TT>.  The whole is used
+to mean "for values of the counter running through 1 to 10, do...'', hence
+the choice of the word <TT>FOR</TT>.
+<P>
+
+Inform (like the language C) uses a more flexible construct than this, but
+which is still called <TT>for</TT>.  It can produce any loop in the form
+<BLOCKQUOTE>
+    <I><B>&#60;start&#62;</B></I><BR>
+    <TT>while (</TT><I><B>&#60;condition&#62;</B></I><TT>)</TT><BR>
+    <TT>{   </TT>...<BR>
+    <TT>    </TT><I><B>&#60;update&#62;</B></I><BR>
+    <TT>}</TT><BR>
+</BLOCKQUOTE>
+
+where <I><B>&#60;start&#62;</B></I> and <I><B>&#60;update&#62;</B></I> are assignments.  The notation to achieve this
+is
+<BLOCKQUOTE>
+    <TT>for (</TT><I><B>&#60;start&#62;</B></I><TT> : </TT><I><B>&#60;condition&#62;</B></I><TT> : </TT><I><B>&#60;update&#62;</B></I><TT>) </TT>...<BR>
+</BLOCKQUOTE>
+
+For example, the loop described above is achieved by
+<PRE>
+    for (counter=1 : counter&#60;=10 : counter++)
+        print counter, " ";
+</PRE>
+
+Note that if the condition is false even the first time, the loop is never
+executed.  For instance,
+<PRE>
+    for (counter=1 : counter&#60;0 : counter++)
+        print "Banana";
+</PRE>
+
+prints nothing.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+At this point it is worth mentioning that several assignments can be combined
+into a single statement in Inform.  For example,
+<PRE>
+    i++, score=50, j++
+</PRE>
+
+(three assignments separated by commas) is a single statement.  This is never
+useful in ordinary code, where the assignments can be divided up by
+semicolons in the usual way.  In <TT>for</TT> loops it is useful, though:
+<PRE>
+    for (i=1, j=5: i&#60;=5: i++, j--) print i, " ", j, ", ";
+</PRE>
+
+produces the output "1 5, 2 4, 3 3, 4 2, 5 1,''.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+Any of the three parts of a <TT>for</TT> statement can be omitted.  If the
+condition is missed out, it is assumed to be always true, i.e. there is no
+check made to see if the loop should be ended and so the loop continues
+forever.
+<P>
+
+On the face of it, the following loops all repeat forever:
+<BLOCKQUOTE>
+    <TT>while (true) </TT><I><B>&#60;statement&#62;</B></I><BR>
+    <TT>do </TT><I><B>&#60;statement&#62;</B></I><TT> until (false)</TT><BR>
+    <TT>for (::) </TT><I><B>&#60;statement&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+But there is always an escape.  One way is to <TT>return</TT> from
+the current routine.  Another is to <TT>jump</TT> to a label outside
+the loop (<TT>jump</TT> will be covered in <A HREF="section1.html">Section 1</A>.13 below).  It's
+neater to use the statement <TT>break</TT>, which causes execution to
+"break out of'' the current innermost loop or <TT>switch</TT> statement:
+it can be read as "finish early''.  All these ways out are
+entirely "safe'', and there is no harm in leaving a loop only
+half-done.
+<P>
+
+The other simple statement used inside loops is <TT>continue</TT>.  This causes
+the current iteration to end immediately, but does not end the whole loop.
+For example,
+<PRE>
+    for (i=1: i&#60;=5: i++)
+    {   if (i==3) continue;
+        print i, " ";
+    }
+</PRE>
+
+will output "1 2 4 5''.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.12. Example 5: A number puzzle</H3></BLOCKQUOTE><P>
+The routine <TT>RunPuzzle</TT> is an interesting example of a loop which, though
+apparently simple enough, contains a trap for the unwary.
+<PRE>
+    [ RunPuzzle n count;
+
+      do
+      {   print n, " ";
+          n = NextNumber(n);
+          count++;
+      }
+      until (n==1);
+      print "1^(taking ", count, " steps to reach 1)^";
+    ];
+    [ NextNumber n;
+      if (n%2 == 0) return n/2;     ! If n is even, halve it
+      return 3*n + 1;               ! If n is odd, triple and add 1
+    ];
+</PRE>
+<P>
+    
+The call <TT>RunPuzzle(10)</TT>, for example, results in the output
+<BLOCKQUOTE>
+    10 5 16 8 4 2 1<BR>
+    (taking 6 steps to reach 1)<BR>
+</BLOCKQUOTE>
+
+The source code assumes that, no matter what the initial value of <TT>n</TT>, enough
+iteration will end up back at 1.  If this did not happen, the program would
+lock up into an infinite loop, printing numbers forever.
+<P>
+
+The routine is apparently very simple, so it would seem reasonable that by
+thinking carefully enough about it, we ought to be able to decide whether or
+not it is "safe'' to use (i.e., whether it can be guaranteed to finish or
+not).
+<P>
+
+And yet nobody knows whether this routine is "safe''.  The conjecture that
+all <TT>n</TT> eventually step down to 1 is at least fifty years old but has never
+been proved, having resisted all mathematical attack.  (Alarmingly,
+<TT>RunPuzzle(27)</TT> takes 111 iterations to fall back down to 1.)
+<P>
+
+<HR><BLOCKQUOTE><H3>1.13. <TT>quit</TT>, <TT>jump</TT> and the program state</H3></BLOCKQUOTE><P>
+There are four statements left which control the flow of execution. <TT>quit</TT>
+ends the program immediately (as if a return had taken place from the <TT>Main</TT>
+routine).  This drastic measure is best reserved for points in the program
+which have detected some error condition so awful that there is no point
+carrying on.  Better yet, do not use it at all.
+<P>
+
+The <TT>jump</TT> statement transfers execution to some other named place in the
+same routine.  (Some programming languages call this <TT>goto</TT>.  Since it can be
+and has been put to ugly uses, the construct itself was at one time frowned
+on as a vulgar construct leading programmers into sin.  Good use of control
+constructs will almost always avoid the need for <TT>jump</TT> and result in more
+legible programs.  But sin is universal.)
+<P>
+
+To use <TT>jump</TT> a notation is needed to mark particular places in the source
+code.  Such markers are called "labels''.  For example:
+<PRE>
+    [ Main i;
+      i=1;
+      .Marker;
+      print "I have now printed this ", i++, " times.^";
+      jump Marker;
+    ];
+</PRE>
+
+This program has one label, <TT>Marker</TT>.  A statement consisting only of a
+full stop and then an identifier means "put a label here and call it
+this''.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>  An Inform program has the ability to save a snapshot of its entire
+state and to restore back to that previous state.  This snapshot includes
+values of variables, the point where code is currently being executed, and
+so on.  Just as we cannot know if the universe is only six thousand years
+old, as creationists claim, having been endowed by God with a carefully
+faked fossil record; so an Inform program cannot know if it has been
+executing all along or if it was only recently restarted.  The statements
+required are <TT>save</TT> and <TT>restore</TT>:
+<BLOCKQUOTE>
+    <TT>save </TT><I><B>&#60;label&#62;</B></I><BR>
+    <TT>restore </TT><I><B>&#60;label&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+This is a rare example of an Inform feature which may depend on the host
+machine's state of health: for example, if all disc storage is full, then
+<TT>save</TT> will fail.  It should always be assumed that these statements may well
+fail.  A <TT>jump</TT> to the label provided occurs if the operation has been a
+success.  (This is irrelevant in the case of a <TT>restore</TT> since, if all has
+gone well, execution is now resuming from the successful branch of the <TT>save</TT>
+statement: because that is where execution was when the state was saved.)
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>1.14. Printing output</H3></BLOCKQUOTE><P>
+When text is printed, normally each character is printed exactly as specified
+in the source code.  Four characters, however, have special meanings.  As
+explained above <TT></TT> means "print a new-line''.  The character <TT>~</TT>, meaning
+"print a quotation mark'', is needed since quotation marks otherwise finish
+strings.  Thus,
+<PRE>
+    "~Look,~ says Peter. ~Socks can jump.~^Jane agrees."
+</PRE>
+<P>
+
+is printed as
+<BLOCKQUOTE>
+"Look,'' says Peter. "Socks can jump.''<BR>
+Jane agrees.<BR>
+</BLOCKQUOTE>
+
+The third remaining special character is <TT>@</TT>, which is used for accented
+characters and other unusual effects, as described below.  Finally, <TT>\</TT>
+is reserved for "folding lines'', and used to be needed in Inform 5
+when text spilled over more than one line.  (It's no longer needed but kept
+so that old programs still work.)  If you really want to print a <TT>~</TT>, a <TT>^</TT>,
+an <TT>@</TT> or a <TT>\</TT>, see below.
+<P>
+
+Text still spills over more than one line, even in the present golden age
+of Inform 6.  When a statement like
+<PRE>
+    print "Here in her hairs
+           the painter plays the spider, and hath woven
+           a golden mesh t'untrap the hearts of men
+           faster than gnats in cobwebs";
+</PRE>
+
+is read in by Inform, the line breaks are replaced with a single space each.
+Thus the text printed is: "Here in her hairs the painter plays the spider,
+and hath woven a golden mesh...'' and so on.  (There is one exception: if a
+line finishes with a <TT>^</TT> (new-line) character, then no space is added before
+the next line begins.)
+<P>
+
+<P>
+So far, only the <TT>print</TT> statement has been used for printing, to print both
+numbers and strings (that is, double-quoted pieces of text).  Since Inform is
+primarily a language for writing Adventure games, its business is text, and
+it provides many other facilities for printing.
+<BLOCKQUOTE>
+    <TT>new_line</TT><BR>
+</BLOCKQUOTE>
+
+is a statement which simply prints a new-line (otherwise known as a carriage
+return, as if the lever on the carriage of an old manual typewriter had been
+pulled to move it right back to the left margin and turn it forward one
+line).  This is equivalent to
+<BLOCKQUOTE>
+    <TT>print "^"</TT><BR>
+</BLOCKQUOTE>
+
+but is a convenient abbreviation.  Similarly,
+<BLOCKQUOTE>
+    <TT>spaces </TT><I><B>&#60;number&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+prints a sequence of that many spaces.
+<BLOCKQUOTE>
+    <TT>inversion</TT><BR>
+</BLOCKQUOTE>
+
+prints the version number of Inform which was used to compile the program
+(it might, for instance, print "6.01'').
+<BLOCKQUOTE>
+    <TT>box </TT><I><B>&#60;string1&#62;</B></I> ... <I><B>&#60;stringn&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+displays a reverse-video box in the centre of the screen, containing
+<BLOCKQUOTE>
+    string1<BR>
+    string2<BR>
+      ...<BR>
+    stringn<BR>
+</BLOCKQUOTE>
+
+and is usually used for popping up quotations: for example,
+<PRE>
+    box "Passio domini nostri" "Jesu Christi Secundum" "Joannem"
+</PRE>
+<P>
+
+displays
+<BLOCKQUOTE>
+    Passio domini nostri<BR>
+    Jesu Christi Secundum<BR>
+    Joannem<BR>
+</BLOCKQUOTE>
+
+(the opening line of the libretto to Arvo P\"art's 'St John Passion').
+<P>
+
+<P>
+Text is normally displayed in ordinary (or "Roman'') type.  Its actual
+appearance will vary from machine to machine running the program.  On many
+machines, it will be displayed using a "font'' which is variably-pitched, so
+that for example a "w'' will be wider on-screen than an "i''.  Such text is
+much easier to read, but makes it very difficult to print out diagrams.  The
+statement
+<PRE>
+    print "+------------+
+          ^+   Hello    +
+          ^+------------+^";
+</PRE>
+
+will print something quite irregular if the characters "-'', "+''
+and " '' (space) do not all have the same width.  Because one
+sometimes does want to print such a diagram (to represent a sketch-map,
+say, or to print out a table), the statement <TT>font</TT> is provided:
+<PRE>
+    font on
+    font off
+</PRE>
+
+<TT>font off</TT> switches into a fixed-pitch display style (in which all characters
+definitely have the same width); <TT>font on</TT> goes back to the original.
+<P>
+
+In addition to this, a few textual effects can be achieved.
+<PRE>
+    style roman
+</PRE>
+
+switches to ordinary Roman text (the default), and there are also
+<PRE>
+    style bold
+    style underline
+    style reverse
+</PRE>
+
+(<TT>reverse</TT> meaning "reverse colour'': e.g. yellow on blue if the normal text
+appearance is blue on yellow).  An attempt will be made to approximate these
+effects on any machine, but it may be that <TT>underline</TT> comes out as
+italicised text, for example, or that <TT>bold</TT> is rendered by printing ordinary
+Roman text but in a different colour.
+<P>
+
+<P>
+Inform programs are starting to be written which communicate in languages
+other than English: Italian, Dutch, German, French and Spanish games
+have all been attempted.  A comprehensive range of accented characters is
+available: these are reached with the aid of the escape character,
+<TT>@</TT>.
+<P>
+
+<P>
+Most accented characters are written as <TT>@</TT>, followed by an accent marker,
+then the letter on which the accent appears:
+
+<BR><TABLE Border><TR><TD><TT>@^</TT> <TD>  put a circumflex on the next letter: a,e,i,o,u,A,E,I,O or U
+<TR><TD><TT>@'</TT> <TD>  put an acute on the next letter: a,e,i,o,u,y,A,E,I,O,U or Y
+<TR><TD><TT>@'</TT> <TD>  put a grave on the next letter: a,e,i,o,u,A,E,I,O or U
+<TR><TD><TT>@:</TT> <TD>  put a diaeresis on the next letter: a,e,i,o,u,A,E,I,O or U
+<TR><TD><TT>@c</TT> <TD>  put a cedilla on the next letter: c or C
+<TR><TD><TT>@~</TT> <TD>  put a tilde on the next letter: a,n,o,A,N or O
+<TR><TD><TT>@\</TT> <TD>  put a slash on the next letter: o or O
+<TR><TD><TT>@o</TT> <TD>  put a ring on the next letter: a or A
+</TABLE>
+In addition, there are a few others:
+
+<BR><TABLE Border><TR><TD><TT>@ss</TT> <TD> German sz
+<TR><TD><TT>@&#60;&#60;</TT> <TD> continental European quotation marks
+<TR><TD><TT>@&#62;&#62;</TT> <TD> 
+<TR><TD><TT>@ae</TT> <TD> ligatures
+<TR><TD><TT>@AE</TT> <TD>
+<TR><TD><TT>@oe</TT> <TD>
+<TR><TD><TT>@OE</TT> <TD>
+<TR><TD><TT>@th</TT> <TD> Icelandic accents
+<TR><TD><TT>@et</TT> <TD>
+<TR><TD><TT>@Th</TT> <TD>
+<TR><TD><TT>@Et</TT> <TD> 
+<TR><TD><TT>@LL</TT> <TD> pound sign
+<TR><TD><TT>@!!</TT> <TD> Spanish (upside-down) exclamation mark
+<TR><TD><TT>@??</TT> <TD> Spanish (upside-down) question mark
+</TABLE>
+
+
+
+
+For instance,
+<PRE>
+    print "Les @oeuvres d'@Aesop en fran@ccais, mon @'el@`eve!";
+    print "Na@:ive readers of the New Yorker will re@:elect Mr Clinton.";
+    print "Carl Gau@ss first proved the Fundamental Theorem of Algebra.";
+</PRE>
+
+Accented characters can also be referred to as constants, like other
+characters.  Just as <TT>'x'</TT> represents the character lower-case-X, so
+<TT>'@^A'</TT> represents capital-A-circumflex.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+The <TT>@</TT> escape character has two other uses.  One gets around the problem
+that, so far, it is impossible to print an "<TT>@</TT>".  A double <TT>@</TT> sign,
+followed by a number, prints the character with this numerical code.
+The most useful cases are:
+
+<BR><TABLE Border><TR><TD><TT>@@92</TT> <TD>  comes out as "<TT>\</TT>''
+<TR><TD><TT>@@64</TT> <TD>  comes out as "<TT>@</TT>''
+<TR><TD><TT>@@94</TT> <TD>  comes out as "<TT>^</TT>''
+<TR><TD><TT>@@126</TT><TD>  comes out as "<TT>~</TT>''
+</TABLE>
+enabling us to print the four characters which can't be typed directly
+because they have other meanings.</SMALL><TR><TD><TD><P>
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>  The second use is more obscure.  Inform keeps a stock of 32
+pseudo-variables to hold text, numbered from 0 to 31.
+
+<BR><TABLE Border><TR><TD><TT>@00</TT> <TD> prints out as the current contents of string 0
+<TR><TD>...   <TD> ...
+<TR><TD><TT>@31</TT> <TD> prints out as the current contents of string 31
+</TABLE>
+and these variables are set with the <TT>string</TT> statement:
+<PRE>
+    string 0 "toadstool";
+</PRE>
+
+sets string 0 to the text of the word "toadstool''.  (There is a technical
+reason why these strings cannot be set equal to any text: only to literal
+text, as in the above example, or to strings previously declared using the
+<TT>Low_string</TT> directive.)</SMALL><TR><TD><TD><P>
+</SMALL>
+<TR><TD><TD><P>
+
+Finally, it is time to discuss <TT>print</TT>.  There are two forms, <TT>print</TT>
+and <TT>print_ret</TT>.  The only difference is that the second prints out an
+extra new-line character and returns from the current routine with the value
+<TT>true</TT>.  Thus, <TT>print_ret</TT> should be read as "print and then return'', and
+<PRE>
+    print_ret "That's enough of that.";
+</PRE>
+
+is equivalent to
+<PRE>
+    print "That's enough of that.^"; rtrue;
+</PRE>
+
+In fact, as an abbreviation, it can even be shortened to:
+<PRE>
+    "That's enough of that.";
+</PRE>
+
+Although Inform newcomers are often confused by the fact that this
+apparently innocent statement actually causes a return from the current
+routine, it's an abbreviation which very much pays off in adventure-writing
+situations.  Note that if the program:
+<PRE>
+    [ Main;
+      "Hello, and now for a number...";
+      print 45*764;
+    ];
+</PRE>
+
+is compiled, Inform will produce the warning message:
+<PRE>
+    line 3: Warning: This statement can never be reached.
+    &#62;   print 45*764;
+</PRE>
+
+
+because the bare string on line 2 is printed using <TT>print_ret</TT>: so the
+text is printed, then a new-line is printed, and then a <TT>return</TT> takes
+place immediately.  As the warning message indicates, there is no
+way the statement on line 3 can ever be executed.
+<P>
+
+So what can be printed?  The answer is a list of terms, separated by commas.
+For example,
+<PRE>
+    print "The value is ", value, ".";
+</PRE>
+
+contains three terms.  A term can take the following forms:
+
+<BR><TABLE Border><TR><TD><I><B>&#60;a numerical quantity&#62;</B></I>  <TD> printed as a (signed, decimal) number
+<TR><TD><I><B>&#60;text in double-quotes&#62;</B></I> <TD> printed as text
+<TR><TD><TT>(</TT><I><B>&#60;rule&#62;</B></I><TT>) </TT><I><B>&#60;quantity&#62;</B></I> <TD> printed according to some special rule
+</TABLE>
+Inform provides a stock of special printing rules built-in, and also allows
+the programmer to create new ones.  The most important rules are:
+
+<BR><TABLE Border><TR><TD><TT>(char)</TT>    <TD> print out the character which this is the numerical code for
+<TR><TD><TT>(string)</TT>  <TD> print this string out
+<TR><TD><TT>(address)</TT> <TD> print out the text at this array address
+<TR><TD>            <TD> (this is seldom used, and then mainly to print the
+<TR><TD>            <TD> text of a word entry in a game's dictionary)
+</TABLE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>print (string) ...</TT> requires a little explanation.
+<PRE>
+    x = "Hello!";
+    print (string) x;
+</PRE>
+
+prints out "Hello!'', whereas
+<PRE>
+    x = "Hello!";
+    print x;
+</PRE>
+
+prints a mysterious number.  This is because strings are
+internally represented by numbers (just as everything else is).
+</SMALL>
+<TR><TD><TD><P>
+
+The remaining stock of rules is provided for use in conjunction
+with the Library and is documented in Chapter V: briefly,
+
+<BR><TABLE Border><TR><TD><TT>(the)</TT>      <TD> print definite article then name of this object
+<TR><TD><TT>(The)</TT>      <TD> ditto, but capitalised
+<TR><TD><TT>(name)</TT>     <TD> ditto, but with no article
+<TR><TD><TT>(a)</TT>        <TD> ditto, but with the indefinite article
+<TR><TD><TT>(number)</TT>   <TD> print this number out in English
+<TR><TD><TT>(property)</TT> <TD> (for debugging) print the name of this property
+<TR><TD><TT>(object)</TT>   <TD> (ditto) print the hardware-name of this object
+</TABLE>
+Note that <TT>(the)</TT> in lower case does something different from <TT>(The)</TT>
+with an upper case T.  This is very unusual!  (Directive names, which will
+turn up in <A HREF="section2.html">Section 2</A>, variable names and so on are allowed to use upper
+case and the case is simply ignored, so that <TT>fRoG</TT> means the same
+as <TT>frog</TT>.  But statement keywords, like <TT>print</TT> or <TT>(name)</TT>, have
+to be in lower case -- except for <TT>(The)</TT>.)
+<P>
+
+To create a new rule, provide a routine with this name, and use the
+rule-name in brackets.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.15. Example 6: Printing in hexadecimal</H3></BLOCKQUOTE><P>
+
+The following pair of routines provides for printing out a number as a
+four-digit, unsigned hexadecimal number.  For example, so that
+<PRE>
+    print (hex) 16339;
+</PRE>
+
+prints "3fd3''.
+<PRE>
+    [ hex x y;
+      y = (x &#38; $ff00) / $100;
+      x = x &#38; $ff;
+      print (hdigit) y/$10, (hdigit) y, (hdigit) x/$10, (hdigit) x;
+    ];
+    [ hdigit x;
+      x = x % $10;
+      if (x&#60;10) print x; else print (char) 'a'+x-10;
+    ];
+</PRE>
+
+Once these routines have been defined, <TT>hex</TT> and <TT>hdigit</TT> are available
+anywhere in the same program for use as new printing rules.
+<P>
+
+<HR><BLOCKQUOTE><H3>1.16. Built-in functions 1: <TT>random</TT> and <TT>indirect</TT></H3></BLOCKQUOTE><P>
+
+Inform provides a small stock of functions ready-defined, but which are used
+much as other functions are.  All but two of these concern objects and will
+be left until chapter 3.
+<P>
+
+<P><TT>random</TT> has two forms:
+<BLOCKQUOTE>
+    <TT>random(N)</TT><BR>
+</BLOCKQUOTE>
+
+returns a uniformly random number in the range $1, 2, ..., N$.  <I>N</I> should always
+be a positive number (between 1 and 32767) for this to work properly.
+<BLOCKQUOTE>
+    <TT>random(</TT>two or more constant quantities, separated by commas<TT>)</TT><BR>
+</BLOCKQUOTE>
+    
+returns a uniformly random choice from this selection.  Thus,
+<PRE>
+    print (string) random("red", "blue", "green", "purple", "orange");
+</PRE>
+
+randomly prints the name of one of these five colours (each being equally
+likely to appear).  Likewise,
+<PRE>
+    print random(13, 17);
+</PRE>
+
+has a 50% chance of printing 13, and a 50% chance of printing 17.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> The other built-in function discussed here is <TT>indirect</TT>.
+<PRE>
+    indirect(function, arg1, arg2, ...)
+</PRE>
+
+calls the given function with given arguments.  Thus, this is equivalent to
+<PRE>
+    function(arg1, arg2, ...)
+</PRE>
+
+but has the additional virtue that the function can be given, not just as
+a literal function name, but as some calculated value:
+<PRE>
+    indirect(random(OneRoutine, OtherRoutine), 45);
+</PRE>
+
+has a 50% chance of calling <TT>OneRoutine(45)</TT>, and a 50% chance of calling
+<TT>OtherRoutine(45)</TT>.  <TT>indirect</TT> should be used with caution: if supplied with
+a numerical first argument which doesn't correspond to any function in the
+program, the program may resoundingly crash.  In any event, it is often
+best to achieve such effects using messages to objects.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>1.17. Accepting input</H3></BLOCKQUOTE><P>
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Inform programmers seldom need to take input from the keyboard, in practice,
+since in all game situations the Library's parser routines take care of all
+that.  However, for completeness this section covers the <TT>read</TT> statement
+which is the main route by which keyboard input is taken.  It will not make
+much sense to readers who have not yet read the rest of this book.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The syntax is
+<BLOCKQUOTE>
+    <TT>read </TT><I><B>&#60;text array&#62;</B></I> <I><B>&#60;parse buffer&#62;</B></I> <I><B>&#60;routine&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+where the <I><B>&#60;routine&#62;</B></I> is optional: if provided, it is called just before the
+input takes place so that the screen's top line or lines of data
+(the "status line'' present in many games) can be renewed.
+<P>
+
+What the statement does is to read in a single line of text (waiting until
+the user has finished typing a line and then pressed RETURN), copy this text
+into the text array and then try to comprehend it, writing the results of
+this comprehension exercise ("parsing'') into the parse buffer.
+<P>
+
+Before the statement is reached, the program should have entered the maximum
+number of characters which can be accepted (say, 60) into the 0th entry of
+the text array; the statement will then write the actual number typed into
+the 1st entry, and the characters themselves into entries 2 and onward.
+Thus,
+<PRE>
+    text_array -&#62; 0 = 60;
+    read text_array 0;
+    for (n = 0: n&#60; text_array-&#62;1: n++) print (char) text_array-&#62;(n+2);
+    new_line;
+</PRE>
+
+will read in a line of up to 60 characters, and then print it back again.
+(The array <TT>text_array</TT> must have been created first, and so must the
+local variable <TT>n</TT>, of course.)
+<P>
+
+Note that in this case, no "parse buffer'' has been given (0 was given in
+its place).  If, instead of 0, an array is given here, then the <TT>read</TT>
+statement makes an attempt to divide up the input text into individual
+words, and to match these words against the game's dictionary.  See <A HREF="section2.html">Section 2</A>.5
+for details.
+</SMALL><TR><TD><TD>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapter1.html">Back</A> / <A HREF="section2.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

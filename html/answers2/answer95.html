@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Answer to Exercise 95</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 95</B><TR><TD><TD>
+<P>
+
+
+The tricky part is working out the
+number of characters in the location name, and this is where
+<TT>@output_stream</TT> is so useful.  This time <TT>Replace</TT> with:
+<PRE>
+Array printed_text table 64;
+[ DrawStatusLine i j;
+  i = 0-&#62;33; if (i==0) i=80;
+  font off;
+  @split_window 1; @buffer_mode 0; @set_window 1;
+  style reverse; @set_cursor 1 1; spaces(i);
+  printed_text--&#62;0 = 64;
+  @output_stream 3 printed_text;
+  print (name) location;
+  @output_stream -3;
+  j=(i-(printed_text--&#62;0))/2;
+  @set_cursor 1 j; print (name) location; spaces(j-1);
+  style roman;
+  @buffer_mode 1; @set_window 0; font on;
+];
+</PRE>
+
+Note that the table can hold 128 characters (plenty for this purpose),
+and that these are stored in <TT>printed_text-&#62;2</TT> to <TT>printed_text-&#62;129</TT>;
+the length printed is held in <TT>printed_text--&#62;0</TT>.
+('Trinity' actually does this more crudely, storing away
+the width of each location name.)
+</TABLE>
+<HR>Back to <A HREF="../section33.html#ex95">the exercise in section 33</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,1285 @@
+<HTML><HEAD><TITLE>Section 3: The language of objects</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section2.html">Back</A><BR><A HREF="chapter2.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>3. The language of objects</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+Objects make up the substance of the world.  That is why
+they cannot be composite.
+<P>...Ludwig Wittgenstein (<B>1889</B>--<B>1951</B>), <I>Tractatus</I></BLOCKQUOTE>
+<P>
+
+<P>
+
+<HR><BLOCKQUOTE><H3>3.1. Objects and communication</H3></BLOCKQUOTE><P>
+The objects in a program are its constituent parts: little lumps of code
+and data.  The starting point of an "object-oriented language'' is that
+it's good design to tie up pieces of information in bundles with the pieces
+of program which deal with them.  But the idea goes further:
+<P><P>
+<P>1. -- An object is something you can communicate with.  (It's like a
+company where many people work in the same building, sharing the same
+address: to the outside world it behaves like a single person.)
+<P>2. -- Information inside the object can be kept concealed from the
+outside world (like a company's confidential files).  This is sometimes
+called "encapsulation''.
+<P>3. -- The outside world can only ask the object to do something, and
+has no business knowing how it will be done.  (The company might decide to change
+its stock-control system one day, but the outside world should never even
+notice that this has happened, even though internally it's a dramatic shift.)
+<P>
+
+<P> All three principles have been seen already for routines:
+(1) you can call a routine, but you can't call "only this part of a routine'';
+(2) the local variables of a routine are its own private property, and the
+rest of the program can't find out or alter their values; (3) as long as the
+routine still accomplishes the same task, it can be rewritten entirely and the
+rest of the program will carry on working as if no change had been made.
+<P>
+
+Why bother with all this?  There are two answers.  First and foremost,
+Inform was designed to make adventure games, where objects are the right
+idea for representing items and places in the game.  Secondly, the 'object'
+approach makes sense as a way of organising any large, complicated
+program.
+<P>
+
+<P>
+The other key idea is communication.  One can visualise the program as being
+a large group of companies, constantly writing letters to each other to
+request information or ask for things to be done.  In a typical "message'',
+one object <I>A</I> sends a detailed question or instruction to another object <I>B</I>,
+which replies with a simple answer.  (Again, we've seen this already for
+routines: one routine calls another, and the other sends back a return value.)
+<P>
+
+<P>
+Routines are only one of the four basic kinds of Inform object, which are:
+<P>
+<P> -- routines, declared using <TT>[</TT>...<TT>]</TT>;
+<P> -- strings in double-quotes <TT>"like so"</TT>;
+<P> -- collections of routines and global variables, declared using <TT>Object</TT>;
+<P> -- prototypes for such collections, called "classes'' and declared using
+<TT>Class</TT>.
+<P>
+These four kinds are called "metaclasses''.  If <TT>O</TT> is an object, then the
+function
+<PRE>
+    metaclass(O)
+</PRE>
+
+will always tell you what kind it is, which will be one of the four values
+<PRE>
+    Routine   String   Object   Class
+</PRE>
+
+For example,
+<PRE>
+    metaclass("Violin Concerto no. 1")
+</PRE>
+
+evaluates to <TT>String</TT>, whereas
+<PRE>
+    metaclass(Main)
+</PRE>
+
+should always be <TT>Routine</TT> (since <TT>Main</TT> should always be the name of the
+routine where an Inform program begins to run).  From <A HREF="section1.html">Section 1</A> we already know
+about metaclasses <TT>Routine</TT> and <TT>String</TT>, so it's the other two cases which
+this section will concentrate on.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Why only these four kinds?  Why are strings objects, and not (say)
+variables or dictionary words?  Object-oriented
+languages vary greatly in to what extreme they take the notion of object: in
+the dogmatic Smalltalk-80, every ingredient of any kind in a program
+is called an object: the program itself, the number 17, each variable and
+so on.  Inform is much more moderate.  Routines, <TT>Object</TT>s and classes
+are genuinely object-like, and it just so happens that it's convenient to
+treat strings as objects (as we shall see).  But Inform stops there.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>3.2. Built-in functions 2: the object tree</H3></BLOCKQUOTE><P>
+Routines, strings and (as we shall see) classes are scattered about in an
+Inform program, in no particular order, and nothing links them together.
+<TT>Object</TT> objects are special in that they are joined up in the "object tree''
+which grows through every Inform program.
+<P>
+
+In this tree, objects have a kind of family relationship to each other: each
+one has a parent, a child and a sibling.  (The analogy here is with family
+trees.)  Normally such a relation is another object in the tree, but instead
+it can be
+<PRE>
+    nothing
+</PRE>
+
+which means "no object at all''.  For example, consider the tree:
+<PRE>
+    Meadow 
+      ! 
+    Mailbox  -&#62;  Player
+      !            ! 
+    Note         Sceptre   -&#62;   Cucumber  -&#62;   Torch  -&#62;   Magic Rod          
+                                                 !
+                                               Battery
+</PRE>
+
+The <TT>Mailbox</TT> and <TT>Player</TT> are both children of the <TT>Meadow</TT>, which is their
+parent, but only the <TT>Mailbox</TT> is <I> the</I> child of the <TT>Meadow</TT>.
+The <TT>Magic Rod</TT> is the sibling of the <TT>Torch</TT>, which is the sibling of the
+<TT>Cucumber</TT>, and so on.
+<P>
+
+<P>
+Inform provides special functions for reading off positions in the tree:
+<TT>parent</TT>, <TT>sibling</TT> and <TT>child</TT> all do the obvious things, and in addition
+there's a function called <TT>children</TT> which counts up how many children an
+object has (where grandchildren don't count as children).  For instance,
+<PRE>
+    parent ( Mailbox )  == Meadow
+    children ( Player ) == 4
+    child ( Player )    == Sceptre
+    child ( Sceptre )   == nothing
+    sibling ( Torch )   == Magic Rod
+</PRE>
+
+
+It is a bad idea to apply these functions to the value <TT>nothing</TT> (since it is
+not an object, but a value representing the absence of one).  One can detect
+whether a quantity is a genuine object or not using <TT>metaclass</TT>, for
+<PRE>
+    metaclass(X)
+</PRE>
+
+is <TT>nothing</TT> for any value <TT>X</TT> which isn't an object: in particular,
+<PRE>
+    metaclass(nothing)  == nothing
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  Hopefully it's clear why the tree is useful for writing adventure
+games: it provides a way to simulate the vital idea of one thing being
+contained inside another.  But even in non-adventure game programs it can
+be a convenience.  For instance, it is an efficient way to hold
+tree structures and linked lists of information.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>3.3. Creating objects 1: setting up the tree</H3></BLOCKQUOTE><P>
+The object tree's initial state is created with the directive <TT>Object</TT>.  For
+example,
+<PRE>
+    Object "bucket" ...
+    Object -&#62; "starfish" ...
+    Object -&#62; "oyster" ...
+    Object -&#62; -&#62; "pearl" ...
+    Object -&#62; "sand" ...
+</PRE>
+
+(where the bulk of the definitions are here abbreviated to "<TT>...</TT>''),
+sets up the tree structure
+<PRE>
+           "bucket"
+              !
+          "starfish" --&#62; "oyster" --&#62; "sand"
+                            !
+                         "pearl"
+</PRE>
+
+The idea is that if no arrows <TT>-&#62;</TT> are given in the <TT>Object</TT> definition, then
+the object has no parent: if one <TT>-&#62;</TT> is given, then the object is a child of
+the last object to be defined with no arrows; if two are given, then it's a
+child of the last object defined with only one arrow; and so on.  (The list
+of definitions looks a little like the tree picture turned on its side.)
+<P>
+
+An object definition consists of a "head'' followed by a "body'', which is
+itself divided into "segments'' (though there the similarity with caterpillars
+ends).  The head takes the form:
+<BLOCKQUOTE>
+    <TT>Object </TT><I><B>&#60;arrows&#62;</B></I> <I><B>&#60;name&#62;</B></I> <TT>"textual name"</TT> <I><B>&#60;parent&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+but all of these four entries are optional.
+<P>1. -- The <I><B>&#60;arrows&#62;</B></I> are as described above.  Note that if one or more
+arrows are given, that automatically specifies what object this is the child
+of, so a <I><B>&#60;parent&#62;</B></I> cannot be given as well.
+<P>2. -- The <I><B>&#60;name&#62;</B></I> is what the object can be called inside the program;
+it's analogous to a variable name.
+<P>3. -- The <TT>"textual name"</TT> can be given if the object's name ever needs
+to be printed by the program when it is running.
+<P>4. -- The <I><B>&#60;parent&#62;</B></I> is an object which this new object is to be a child
+of.  (This is an alternative to supplying arrows.)
+<P><P>
+So much is optional that even the bare directive
+<PRE>
+    Object;
+</PRE>
+
+is allowed, though it makes a nameless and featureless object
+which is unlikely to be useful.
+<P>
+
+<HR><BLOCKQUOTE><H3>3.4. Statements for objects: move, remove, objectloop</H3></BLOCKQUOTE><P>
+The positions of objects in the tree are by no means fixed: they are created
+in a particular formation but are often shuffled around extensively during
+the program's execution.  (In an adventure game, where the objects represent
+items and rooms, objects are moved in the tree whenever the player picks
+something up or moves around.)  The statement
+<BLOCKQUOTE>
+    <TT>move </TT><I><B>&#60;object&#62;</B></I><TT> to </TT><I><B>&#60;object&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+moves the first-named object to become a child of the second-named one.  All
+of the first object's own children "move along with it'', i.e., remain its own
+children.  For instance, following the example in <A HREF="section3.html">Section 3</A>.2 above,
+<PRE>
+    move Cucumber to Mailbox;
+</PRE>
+
+results in the tree
+<PRE>
+    Meadow 
+      ! 
+    Mailbox  -----------&#62;  Player
+      !                      ! 
+    Cucumber  -&#62;  Note     Sceptre  -&#62;  Torch  -&#62;  Magic Rod          
+                                          !
+                                       Battery
+</PRE>
+
+It must be emphasized that <TT>move</TT> prints nothing on the screen, and indeed
+does nothing at all except to rearrange the tree.  When an object becomes the
+child of another in this way, it always becomes the "eldest'' child in the
+family-tree sense; that is, it is the new <TT>child()</TT> of its parent, pushing
+the previous children over into being its siblings.
+It is, however, illegal to move an object out of such a structure using
+<PRE>
+    move Torch to nothing;
+</PRE>
+
+because <TT>nothing</TT> is not an object as such.  The effect is instead achieved with
+<PRE>
+    remove Torch;
+</PRE>
+
+which would now result in
+<PRE>
+    Meadow                                               Torch
+      !                                                    !
+    Mailbox  -----------&#62;  Player                       Battery
+      !                      ! 
+    Cucumber  -&#62;  Note     Sceptre  -&#62;  Magic Rod
+</PRE>
+
+So the "object tree'' is often fragmented into many little trees.
+<P>
+
+<P>
+Since objects move around a good deal, it's useful to be able to test where
+an object currently is; the condition <TT>in</TT> is provided for this.  For
+example,
+<PRE>
+    Cucumber in Mailbox
+</PRE>
+
+is true if and only if the <TT>Cucumber</TT> is one of the <I> direct</I> children
+of the <TT>Mailbox</TT>.  (<TT>Cucumber in Mailbox</TT> is true, but <TT>Cucumber in Meadow</TT>
+is false.)  Note that
+<PRE>
+    X in Y
+</PRE>
+
+is only an abbreviation for
+<PRE>
+    parent(X) == Y
+</PRE>
+
+but it's worth having since it occurs so often.
+<P>
+
+<P>
+The one loop statement missed out in <A HREF="section1.html">Section 1</A> was <TT>objectloop</TT>.
+<BLOCKQUOTE>
+    <TT>objectloop(</TT><I><B>&#60;variable-name&#62;</B></I><TT>) </TT><I><B>&#60;statement&#62;</B></I><BR>
+</BLOCKQUOTE>
+
+runs through the <I><B>&#60;statement&#62;</B></I> once for each object in the tree, putting each
+object in turn into the variable.  For example,
+<PRE>
+    objectloop(x) print (name) x, "^";
+</PRE>
+
+prints out a list of the textual names of every object in the tree.  (Objects
+which aren't given any textual names in their descriptions come out as "?''.)
+More powerfully, any condition can be written in the brackets, as long as
+it begins with a variable name.
+<PRE>
+    objectloop(x in Mailbox) print (name) x, "^";
+</PRE>
+
+prints the names only of those objects which are direct children of the
+<TT>Mailbox</TT> object.
+<P>
+
+<HR><BLOCKQUOTE><H3>3.5. Creating objects 2: <TT>with</TT> properties</H3></BLOCKQUOTE><P>
+So far <TT>Object</TT>s are just tokens with names attached which can be shuffled
+around in a tree.  They become interesting when data and routines are
+attached to them, and this is what the body of an object definition is for.
+<P>
+
+The body contains up to four segments, which can occur in any order; each of
+the four is optional.  The segments are called
+<PRE>
+    with    has    class    private
+</PRE>
+
+<TT>class</TT> will be left until later.  The most important segment is <TT>with</TT>,
+which specifies things to be attached to the object.  For example,
+<PRE>
+    Object magpie "black-striped bird"
+      with wingspan, worms_eaten;
+</PRE>
+
+attaches two variables to the bird, one called <TT>wingspan</TT>, the other called
+<TT>worms_eaten</TT>.  Notice that when more than one variable is given, commas are
+used to separate them: and the object definition as a whole is ended by a
+semicolon, as always.  The values of the magpie's variables are referred to
+in the rest of the program as
+<PRE>
+    magpie.wingspan
+    magpie.worms_eaten
+</PRE>
+
+which can be used exactly the way normal (global) variables are used.  Note
+that the object has to be named along with the variable, since
+<PRE>
+    crested_glebe.wingspan
+    magpie.wingspan
+</PRE>
+
+are different variables.
+<P>
+
+Variables which are attached to objects in this way are called "properties''.
+More precisely, the name <TT>wingspan</TT> is said to be a property, and is said to be
+"provided'' by both the <TT>magpie</TT> and <TT>crested_glebe</TT> objects.
+<P>
+
+The presence of a property can be tested using the <TT>provides</TT> condition.
+For example,
+<PRE>
+    objectloop (x provides wingspan) ...
+</PRE>
+
+executes the code <TT>...</TT> for each object <TT>x</TT> in the game which is defined with
+a <TT>wingspan</TT> property.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Although the provision of a property can be tested, it cannot be
+changed while the program is running.  The value of <TT>magpie.wingspan</TT> may
+change, but not the fact that the magpie has a <TT>wingspan</TT>.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+When the above magpie definition is made, the initial values of
+<PRE>
+    magpie.wingspan
+    magpie.worms_eaten
+</PRE>
+
+are both 0.  To create the magpie with a given wingspan, we have to specify an
+initial value: we do this by giving it after the name, e.g.
+<PRE>
+    Object magpie "black-striped bird"
+      with wingspan 5, worms_eaten;
+</PRE>
+
+and now the program begins with <TT>magpie.wingspan</TT> equal to 5, and
+<TT>magpie.worms_eaten</TT> still equal to 0.  (For consistency perhaps there should be
+an equals sign before the 5, but if this were the syntax then Inform programs
+would be horribly full of equals signs.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  Properties can be arrays instead of global variables.  If two or more
+consecutive values are given for the same property, it becomes an array.  Thus,
+<PRE>
+    Object magpie "black-striped bird"
+      with name "magpie" "bird" "black-striped" "black" "striped",
+           wingspan 5, worms_eaten;
+</PRE>
+
+<TT>magpie.name</TT> is not a global variable (and cannot be treated as such: it
+doesn't make sense to add 1 to it), it is an <TT>--&#62;</TT> array.  This must be
+accessed using two special operators, <TT>.&#38;</TT> and <TT>.#</TT>.
+<PRE>
+    magpie.&#38;name
+</PRE>
+
+means "the array which is held in magpie's <TT>name</TT> property'', so that the
+actual name values are in the entries
+<PRE>
+    magpie.&#38;name--&#62;0
+    magpie.&#38;name--&#62;1
+       ...
+    magpie.&#38;name--&#62;4
+</PRE>
+
+The size of this array can be discovered with
+<PRE>
+    magpie.#name
+</PRE>
+
+which evaluates to the twice the number of entries, in this case, to 10.
+(Twice the number of entries because it is actually the number of byte
+array, <TT>-&#62;</TT>, entries: byte arrays take only half as much storage as word
+arrays.)
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>name</TT> is actually a special property created by Inform.  It has the
+unique distinction that textual values in double-quotes (like the five words
+given in <TT>magpie.name</TT> above) are entered into the game's dictionary, and not
+treated as ordinary strings.  (Normally one would use single-quotes for this.
+The rule here is anomalous and goes back to the misty origins of Inform 1.)
+If you prefer a consistent style, using single quotes:
+<PRE>
+    Object magpie "black-striped bird"
+      with name 'magpie' 'bird' 'black-striped' 'black' 'striped',
+           wingspan 5, worms_eaten;
+</PRE>
+
+works equally well (except that single-character names like "X'' then have to
+be written <TT>#n$X</TT>).
+</SMALL>
+<TR><TD><TD><P>
+
+<P> Finally, properties can also be routines.  In the definition
+<PRE>
+    Object magpie "black-striped bird"
+      with name "magpie" "bird" "black-striped" "black" "striped",
+           wingspan 5,
+           flying_strength
+           [;  return magpie.wingspan + magpie.worms_eaten;
+           ],
+           worms_eaten;
+</PRE>
+
+
+<TT>magpie.flying_strength</TT> is neither a variable nor an array, but a routine,
+given in square brackets as usual.  (Note that the Object directive continues
+where it left off after the routine-end marker, <TT>]</TT>.)  Routines which are
+written in as property values are called "embedded'' and are mainly used
+to receive messages (as we shall see).
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Embedded routines are unlike ordinary ones in two ways:
+<P>1. -- An embedded routine has no name of its own, since it is referred to
+as a property such as <TT>magpie.flying_strength</TT> instead.
+<P>2. -- If execution reaches the <TT>]</TT> end-marker of an embedded routine,
+then it returns <TT>false</TT>, not <TT>true</TT> (as a non-embedded routine would).  The
+reason for this will only become clear in Chapter III when <TT>before</TT> and <TT>after</TT>
+rules are discussed.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>3.6. <TT>private</TT> properties and encapsulation</H3></BLOCKQUOTE><P>
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+An optional system is provided for "encapsulating'' certain properties so
+that only the object itself has access to them.  These are defined by giving
+them in a segment of the object declaration called <TT>private</TT>.  For instance,
+<PRE>
+    Object sentry "sentry"
+      private pass_number 16339,
+      with    challenge
+              [ attempt;
+                  if (attempt == sentry.pass_number)
+                      "Approach, friend!";
+                  "Stand off, stranger.";
+              ];
+</PRE>
+
+
+makes the sentry provide two properties: <TT>challenge</TT>, which is public,
+and <TT>pass_number</TT>, which can be used only by the sentry's own embedded
+routines.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> This makes the <TT>provides</TT> condition slightly more interesting than it
+appeared in the previous section.  The answer to the question of whether
+or not
+<PRE>
+    sentry provides pass_number
+</PRE>
+
+depends on who's asking: this condition is true if it is tested in one of
+the sentry's own routines, and otherwise false.  A <TT>private</TT> property
+is so well hidden that nobody else can even know whether or not it exists.
+</SMALL>
+<TR><TD><TD><P>
+
+<HR><BLOCKQUOTE><H3>3.7. Attributes, <TT>give</TT> and <TT>has</TT></H3></BLOCKQUOTE><P>
+In addition to properties, objects have flag variables attached.  (Recall
+that flags are variables which are either true or false: the flag is either
+flying, or not.)  However, these are provided in a way which is quite
+different.  Unlike property names, attribute names have to be declared before
+use with a directive like:
+<PRE>
+    Attribute tedious;
+</PRE>
+
+
+Once this declaration is made, every object in the tree has a <TT>tedious</TT> flag
+attached, which is either true or false at any given time.  The state can be
+tested by the <TT>has</TT> condition:
+<PRE>
+    if (magpie has tedious) ...
+</PRE>
+
+tests whether the magpie's <TT>tedious</TT> flag is currently set, or not.
+<P>
+
+The magpie can be created already having attributes using the <TT>has</TT> segment
+in its declaration:
+<PRE>
+    Object magpie "black-striped bird"
+      with wingspan, worms_eaten
+      has  tedious;
+</PRE>
+
+The <TT>has</TT> segment contains a list of attributes (with no commas in between)
+which should be initially set.  In addition, an attribute can have a
+tilde <TT>~</TT> in front, indicating "this is definitely not held''.  This is
+usually what would have happened anyway, but class inheritance (see below)
+disturbs this.
+<P>
+
+Finally, the state of such a flag is changed in the running of the program
+using the <TT>give</TT> statement:
+<PRE>
+    give magpie tedious;
+</PRE>
+
+sets the magpie's <TT>tedious</TT> attribute, and
+<PRE>
+    give magpie ~tedious;
+</PRE>
+
+clears it again.  The give statement can take a list of attributes, too:
+<PRE>
+    give door ~locked open;
+</PRE>
+
+for example, meaning "take away <TT>locked</TT> and add on <TT>open</TT>''.
+<P>
+
+<HR><BLOCKQUOTE><H3>3.8. Classes and inheritance</H3></BLOCKQUOTE><P>
+
+Having covered routines and strings in <A HREF="section1.html">Section 1</A>, and <TT>Object</TT>s above, the fourth
+and final metaclass to discuss is that of "classes''.  A class is a kind of
+prototype object from which other objects are copied.  These other objects are
+sometimes called "instances'' or "members'' of the class, and are said
+to "inherit from'' it.
+<P>
+
+For example, clearly all birds ought to have wingspans, and the property
+<PRE>
+           flying_strength
+           [;  return magpie.wingspan + magpie.worms_eaten;
+           ],
+</PRE>
+
+(attached to the <TT>magpie</TT> in the example above) is using a formula which should
+work for any bird.  We might achieve this by using directives as follows:
+<PRE>
+    Class Bird
+      with wingspan 7,
+           flying_strength
+           [;  return self.wingspan + self.worms_eaten;
+           ],
+           worms_eaten;
+
+    Bird   "magpie"
+      with wingspan 5;
+    Bird   "crested glebe";
+    Bird   "Great Auk"
+      with wingspan 15;
+    Bird   "early bird"
+      with worms_eaten 1;
+</PRE>
+
+The first definition sets up a new class called <TT>Bird</TT>.  Every example of a
+<TT>Bird</TT> now automatically provides <TT>wingspan</TT>, a <TT>flying_strength</TT> routine and
+a count of <TT>worms_eaten</TT>.  Note that the four actual birds are created using
+the <TT>Bird</TT> class-name instead of the usual plain <TT>Object</TT> directive, but this
+is only a convenient short form for definitions such as:
+<PRE>
+    Object "magpie"
+      with wingspan 5
+     class Bird;
+</PRE>
+
+where <TT>class</TT> is the last of the four object definition segments.  It's just
+a list of classes which the object has to inherit from.
+<P>
+
+The <TT>Bird</TT> routine for working out <TT>flying_strength</TT> has to be written in such
+a way that it can apply to any bird.  It has to say "the flying strength of
+any bird is equal to its wingspan plus the number of worms it has eaten''.
+To do this, it has used the special value <TT>self</TT>, which means "whatever
+object is being considered at the moment''.  More of this in the next section.
+<P>
+
+Note also that the <TT>Bird</TT> <TT>with</TT> specifies a <TT>wingspan</TT> of 7.  This is the value
+which its members will inherit, unless their own definitions over-ride this,
+as the magpie and great Auk objects do.  Thus the initial position is:
+<PRE>
+    Bird            Value of wingspan    Value of worms_eaten
+    magpie                5                       0
+    crested glebe         7                       0
+    Great Auk             15                      0
+    early bird            7                       1
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> In rare cases, clashes between what a class says and what the object
+says are resolved differently: see <A HREF="section8.html">Section 8</A>.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+Inform has "multiple inheritance'', which means that any object can inherit
+from any number of classes.  Thus, an object has no single class; rather,
+it can be a member of several classes at once.
+<P>
+
+Every object is a member of at least one class, because the four "metaclasses''
+<TT>Routine</TT>, <TT>String</TT>, <TT>Object</TT> and <TT>Class</TT> are themselves classes.
+(Uniquely, <TT>Class</TT> is a member of itself.)  The magpie above is a member of
+both <TT>Bird</TT> and <TT>Object</TT>.
+<P>
+
+To complicate things further, classes can themselves inherit from other
+classes:
+<PRE>
+    Class BirdOfPrey
+     class Bird
+     with  wingspan 15,
+           people_eaten;
+
+    BirdOfPrey kestrel;
+</PRE>
+
+makes <TT>kestrel</TT> a member of both <TT>BirdOfPrey</TT> and of <TT>Bird</TT>.  Informally,
+<TT>BirdOfPrey</TT> is called a "subclass'' of <TT>Bird</TT>.
+<P>
+
+Given all this, it's impossible to have a function called <TT>class</TT>, analogous
+to <TT>metaclass</TT>, to say what class something belongs to.  Instead, there is a
+condition called <TT>ofclass</TT>:
+<PRE>
+    kestrel ofclass Class
+</PRE>
+
+is false, while
+<PRE>
+    kestrel ofclass BirdOfPrey
+    kestrel ofclass Bird
+    kestrel ofclass Object
+    "Canterbury" ofclass String
+</PRE>
+
+are all true.  This condition is especially handy for use with <TT>objectloop</TT>:
+<PRE>
+    objectloop (x ofclass Bird) move x to Aviary;
+</PRE>
+
+moves all the birds to the <TT>Aviary</TT>.
+<P>
+
+<HR><BLOCKQUOTE><H3>3.9. Messages</H3></BLOCKQUOTE><P>
+That completes the story of how to create objects, and it's time to begin
+communicating with them by means of messages.
+Every message has a sender, a receiver and some parameter values
+attached, and it always produces a reply (which is just a single value).  For
+instance,
+<PRE>
+    x = lamp.addoil(5, 80);
+</PRE>
+
+sends the message <TT>addoil</TT> with parameters 5 and 80 to the object <TT>lamp</TT>, and
+puts the reply value into <TT>x</TT>.  Just as properties like <TT>magpie.wingspan</TT>
+are variables attached to objects, so messages are received by routines
+attached to objects, and message-sending is very like making an ordinary
+Inform function call.  The "reply'' is what was called the return value
+in <A HREF="section1.html">Section 1</A>, and the "parameters'' used to be called function call arguments.
+But slightly more is involved, as will become apparent.
+<P>
+
+<P>
+What does the lamp object do to respond to this message?  First of all, it
+must do something.  If the programmer hasn't specified an <TT>addoil</TT> routine
+for the lamp, then an error message will be printed out when the program
+is run, along the lines of
+<PRE>
+    *** The object "lamp" does not provide the property "addoil" ***
+</PRE>
+
+Not only does <TT>lamp.addoil</TT> have to exist, but it has to hold one of the
+four kinds of object, or else <TT>nothing</TT>.  What happens next depends
+on the <TT>metaclass</TT> of <TT>lamp.addoil</TT>:
+
+<BR><TABLE Border><TR><TD><TT>metaclass</TT> <TD> What happens: <TD> The reply is:
+<TR><TD>          <TD>                 <TD> 
+<TR><TD><TT>Routine</TT> <TD> the routine is called with the <TD> the routine's return value
+<TR><TD>          <TD> the given parameters
+<TR><TD><TT>String</TT>  <TD> the string is printed, followed <TD> <TT>true</TT>
+<TR><TD>          <TD> by a new-line
+<TR><TD><TT>Object</TT>  <TD> nothing <TD> the object
+<TR><TD><TT>Class</TT>   <TD> nothing <TD> the class
+<TR><TD><TT>nothing</TT> <TD> nothing <TD> <TT>false</TT>, or 0, or <TT>nothing</TT>
+<TR><TD>          <TD>         <TD> (all different ways of writing 0)
+</TABLE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> If <TT>lamp.addoil</TT> is a list rather than a single value then the
+first entry is the one looked at, and the rest are ignored.
+</SMALL>
+<TR><TD><TD><P>
+
+For example,
+<PRE>
+    print kestrel.flying_strength();
+</PRE>
+
+will print out 15, by calling the <TT>flying_strength</TT> routine provided by the
+<TT>kestrel</TT> (the same one it inherited from <TT>Bird</TT>), which adds its wingspan of
+15 to the number of worms it has so far eaten (none), and then returns 15.
+(You can see all the messages being sent in a game as it runs
+with the debugging verb "messages'': see <A HREF="section30.html">Section 30</A> for details.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> For examples of all the other kinds of receiving property, here is
+roughly what happens when the Inform library tries to move the player northeast
+from the current room (the <TT>location</TT>) in an adventure game:
+<PRE>
+    x = location.ne_to();
+    if (x == nothing) "You can't go that way.";
+    if (x ofclass Object) move player to x;
+</PRE>
+
+This allows directions to be given with some flexibility in properties like
+<TT>ne_to</TT> and so on:
+<PRE>
+    Object Octagonal_Room "Octagonal Room"
+      with ...
+           ne_to "The north-east doorway is barred by an invisible wall!",
+           w_to  Courtyard,
+           e_to
+           [;  if (Amulet has worn)
+               {   print "A section of the eastern wall suddenly parts before
+                          you, allowing you into...^";
+                   return HiddenShrine;
+               }
+           ],
+           s_to
+           [;  if (random(5) ~= 1) return Gateway;
+               print "The floor unexpectedly gives way, dropping you through
+                      an open hole in the plaster...^";
+               return random(Maze1, Maze2, Maze3, Maze4);
+           ]; 
+</PRE>
+
+</SMALL>
+<TR><TD><TD><P>
+
+Two special variables help with the writing of message routines:
+<TT>self</TT> and <TT>sender</TT>.  <TT>self</TT> always has as value the <TT>Object</TT> which is
+receiving the message, while <TT>sender</TT> has as value the <TT>Object</TT> which sent it,
+or <TT>nothing</TT> if it wasn't sent from <TT>Object</TT> (but from some free-standing
+routine).  For example,
+<PRE>
+    pass_number
+    [;  if (~~(sender ofclass CIA_Operative))
+            "Sorry, you aren't entitled to know that.";
+        return 16339;
+    ];
+</PRE>
+<P>
+
+<HR><BLOCKQUOTE><H3>3.10. Access to superclass values</H3></BLOCKQUOTE><P>
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  A fairly common situation in Inform coding is that one has a general
+class of objects, say <TT>Treasure</TT>, and wants to create an instance of this class
+which behaves slightly differently.  For example, we might have
+<PRE>
+    Class  Treasure
+      with deposit
+           [;  if (self provides deposit_points)
+                   score = score + self.deposit_points;
+               else score = score + 5;
+               "You feel a sense of increased esteem and worth.";
+           ];
+</PRE>
+
+and we want to create an instance called <TT>Bat_Idol</TT> which (say) flutters
+away, resisting deposition, but only if the room is dark:
+<PRE>
+    Treasure Bat_Idol "jewelled bat idol"
+      with deposit
+           [;  if (location == thedark)
+               {   remove self;
+                   "There is a clinking, fluttering sound!";
+               }
+               ...
+           ];
+</PRE>
+
+In place of <TT>...</TT>, we have to copy out all of the previous code about
+depositing treasures.  This is clumsy: what we really want is a way of
+sending the deposit message to <TT>Bat_Idol</TT> but "as if it had not changed the
+value of deposit it inherited from <TT>Treasure</TT>''.  We achieve this with the
+so-called superclass operator, <TT>::</TT>.  (The term "superclass'' is borrowed
+from the Smalltalk-80 system, where it is more narrowly defined.)  Thus, in
+place of <TT>...</TT>, we could simply write:
+<PRE>
+    self.Treasure::deposit();
+</PRE>
+
+to send itself the <TT>deposit</TT> message again, but this time diverted to the
+property as provided by Treasure.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The <TT>::</TT> operator works on all property values, not just for message sending.
+In general,
+<PRE>
+    object.class::property
+</PRE>
+
+evaluates to the value of the given property which the class would normally
+pass on (or gives an error if the class doesn't provide that property or if
+the object isn't a member of that class).  Note that <TT>::</TT> exists as an operator
+in its own right, so it is perfectly legal to write, for example,
+<PRE>
+    x = Treasure::deposit; Bat_Idol.x();
+</PRE>
+
+To continue the avian theme, <TT>BirdOfPrey</TT> might have its
+own <TT>flying_strength</TT> routine:
+<PRE>
+           flying_strength
+           [;  return self.Bird::flying_strength() + self.people_eaten;
+           ],
+</PRE>
+
+reflecting the idea that, unlike other birds, these can gain strength by
+eating people.
+</SMALL><TR><TD><TD>
+<P>
+
+<HR><BLOCKQUOTE><H3>3.11. Philosophy</H3></BLOCKQUOTE><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>  This section is best skipped until the reader feels entirely happy
+with the rest of Chapter I.  It is aimed mainly at those worried
+about whether the ideas behind the apparently complicated system of classes and
+objects are sound.  (As Stephen Fry once put it, "Socialism is all very well
+in practice, but does it work in theory?'')  We begin with two definitions:
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL><P> -- <B> object</B>
+<P> -- a member of the program's object tree, or a routine in the
+program, or a literal string in the program.  (Routines and
+strings can't, of course, be moved around in the object tree, but
+the tests <TT>ofclass</TT> and <TT>provides</TT> can be applied to them, and
+they can be sent messages.)  Objects are part of the compiled
+program produced by Inform.
+<P> -- <B> class</B>
+<P> -- an abstract name for a set of objects in the game, which may have
+associated with it a set of characteristics shared by its objects.
+Classes themselves are frequently described by text in the program's
+source code, but are not part of the compiled program produced by Inform.
+<P>
+
+<P> Here are the full rules:
+<P>(1) -- Compiled programs are composed of objects, which may have variables
+attached called "properties''.
+<P>(2) -- Source code contains definitions of both objects and classes.
+<P>(3) -- Any given object in the program either is, or is not, a member of
+any given class.
+<P>(4) -- For every object definition in the source code, an object is made
+in the final program.  The definition specifies which classes this object is
+a member of.
+<P>(5) -- If an object <TT>X</TT> is a member of class <TT>C</TT>, then <TT>X</TT> "inherits''
+property values as given in the class definition of <TT>C</TT>.
+<P>
+
+<P> The details of how inheritance takes place are omitted here.
+But note that one of the things which can be inherited from class <TT>C</TT> is being
+a member of some other class, <TT>D</TT>.
+<P>
+<P>(6) -- For every class definition, an object is made in the final program
+to represent it, called its "class-object''.
+<P> For example, suppose we have a class definition like:
+<PRE>
+    Class Dwarf
+     with beard_colour;
+</PRE>
+
+The class <TT>Dwarf</TT> will generate a class-object in the final program, also
+called <TT>Dwarf</TT>.  This class-object exists in order to receive messages like
+<TT>create</TT> and <TT>destroy</TT> and, more philosophically, in order to represent
+the concept of "dwarfness'' within the simulated world.
+<P>
+
+It is important to remember that the class-object of a class is not normally
+a member of that class.  The concept of dwarfness is not itself a dwarf:
+the condition <TT>Dwarf ofclass Dwarf</TT> is false.  Individual dwarves provide
+a property called <TT>beard_colour</TT>, but the class-object of <TT>Dwarf</TT> does not:
+the concept of dwarfness has no single beard colour.
+<P>
+<P>(7) -- Classes which are automatically defined by Inform are called
+"metaclasses''.  There are four of these: <TT>Class</TT>, <TT>Object</TT>, <TT>Routine</TT>
+and <TT>String</TT>.
+<P>
+It follows by rule (6) that every Inform program contains the class-objects
+of these four, also called <TT>Class</TT>, <TT>Object</TT>, <TT>Routine</TT> and <TT>String</TT>.
+<P>
+<P>(8) -- Every object is a member of one, and only one, metaclass:
+<P>(8.1) -- The class-objects are members of <TT>Class</TT>, and no other class.
+<P>(8.2) -- Routines in the program (including those given as property
+values) are members of <TT>Routine</TT> and no other class.
+<P>(8.3) -- Static strings in the program (including those given as property
+values) are members of <TT>String</TT>, and of no other class.
+<P>(8.4) -- The objects defined in the source code are members of <TT>Object</TT>,
+and possibly also of other classes defined in the source code.
+<P>
+It follows from (8.1) that <TT>Class</TT> is the unique class whose class-object
+is one of its own members: the condition <TT>Class ofclass Class</TT> is true,
+whereas <TT>X ofclass X</TT> is false for every other class <TT>X</TT>.
+<P>
+
+There is one other unusual feature of metaclasses, and it is a rule provided
+for pragmatic reasons (see below) even though it is not very elegant:
+<P>
+<P>(9) -- Contrary to rules (5) and (8.1), the class-objects of the four
+metaclasses do not inherit from <TT>Class</TT>.
+<P>
+
+<P>
+This concludes the list of rules.  To see what they entail, one needs to
+know the definitions of the four metaclasses.  These definitions are never
+written out in any textual form inside Inform, as it happens, but here are
+definitions equivalent to what actually does happen.  (There is no such
+directive as <TT>Metaclass</TT>: none is needed, since only Inform itself can
+define metaclasses, but the definitions here pretend that there is.)
+<PRE>
+    Metaclass Object;
+</PRE>
+
+In other words, this is a class from which nothing is inherited.  So the
+ordinary objects described in the source code only have the properties which
+the source code says they have.
+<PRE>
+    Metaclass Class
+    with create    [; ... ],
+         recreate  [ instance; ... ],
+         destroy   [ instance; ... ],
+         copy      [ instance1 instance2; ... ],
+         remaining [; ... ];
+</PRE>
+
+So class-objects respond only to these five messages, which are described in
+detail in the next section, and provide no other properties: <B> except</B> that
+by rule (9), the class-objects <TT>Class</TT>, <TT>Object</TT>, <TT>Routine</TT> and <TT>String</TT>
+provide no properties at all.  The point is that these five messages are
+concerned with object creation and deletion at run time.  But Inform is a
+compiler and not, like Smalltalk-80 or other highly object-oriented
+languages, an interpreter.  We cannot create the program while it is actually
+running, and this is what it would mean to send requests for creation or
+deletion to <TT>Class</TT>, <TT>Object</TT>, <TT>Routine</TT> or <TT>String</TT>.  (We could write the
+above routines to allow the requests to be made, but to print out some error
+if they ever are: but it is more efficient to have rule (9) instead.)
+<PRE>
+    Metaclass Routine
+    with call      [ parameters...; ... ];
+</PRE>
+
+Routines therefore provide only <TT>call</TT>.  See the next section for how to use
+this.
+<PRE>
+    Metaclass String
+    with print     [; print_ret (string) self; ],
+         print_to_array [ array; ... ];
+</PRE>
+
+Strings therefore provide only <TT>print</TT> and <TT>print_to_array</TT>.  See the next
+section for how to use these.
+    
+<P>
+To demonstrate this, here is an Inform code representation of what happens
+when the message
+<PRE>
+     O.M(p1, p2, ...)
+</PRE>
+     
+is sent.
+<PRE>
+     if (~~(O provides M)) "Error: O doesn't provide M";
+     P = O.M;
+     switch(metaclass(P))
+     {   nothing, Object, Class: return P;
+         Routine:                return P.call(p1, p2, ...);
+         String:                 return P.print();
+     }
+</PRE>
+
+(The messages <TT>call</TT> and <TT>print</TT> are actually implemented by hand, so this
+is not actually a circular definition.  Also, this is simplified to remove
+details of what happens if <TT>P</TT> is an array.)
+</SMALL><TR><TD><TD>
+<P>
+
+<HR><BLOCKQUOTE><H3>3.12. Sending messages to routines, strings or classes</H3></BLOCKQUOTE><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> In the examples so far, messages have only been sent to proper
+<TT>Object</TT>s.  But it's a logical possibility to send messages to objects of the
+other three metaclasses too: the question is whether they are able to receive
+any.  The answer is yes, because Inform provides 8 properties for such objects,
+as follows.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The only thing you can do with a <TT>Routine</TT> is to call it.  Thus, if <TT>Explore</TT> is
+the name of a routine, then
+<PRE>
+    Explore.call(2, 4);      and      Explore(2, 4);
+</PRE>
+
+are equivalent expressions.  The message <TT>call(2,4)</TT> means "run this routine
+with parameters (2,4)''.  This is not quite redundant, because it can be used
+more flexibly than ordinary function calls:
+<PRE>
+    x = Explore; x.call(2, 4);
+</PRE>
+
+The <TT>call</TT> message replies with the routine's return value.
+<P>
+
+Two different messages can be sent to a <TT>String</TT>.  The first is <TT>print</TT>, which
+is provided because it logically ought to be, rather than because it is
+useful.  So, for example,
+<PRE>
+    ("You can see an advancing tide of bison!").print();
+</PRE>
+
+prints out the string, followed by a new-line; the <TT>print</TT> message replies
+<TT>true</TT>, or 1.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>print_to_array</TT> is more useful.  It copies out the text of the
+string into entries 2, 3, 4, ... of the supplied byte array, and writes the
+number of characters as a word into entries 0 and 1.  That is, if <TT>A</TT> has
+been declared as a suitably large array,
+<PRE>
+    ("A rose is a rose is a rose").print_to_array(A);
+</PRE>
+
+will cause the text of the string to be copied into the entries
+<PRE>
+    A-&#62;2, A-&#62;3, ..., A-&#62;27
+</PRE>
+
+with the value 26 written into
+<PRE>
+    A--&#62;0
+</PRE>
+
+And the reply value of the message is also 26, for convenience.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+Five different messages can be sent to objects of metaclass Class, i.e., to
+classes, and these are detailed in the next section.  (But an exception to this
+is that no messages at all can be sent to the four metaclasses <TT>Class</TT>,
+<TT>Object</TT>, <TT>Routine</TT> and <TT>String</TT>.)
+</SMALL><TR><TD><TD>
+<P>
+
+<HR><BLOCKQUOTE><H3>3.13. Creating and deleting objects</H3></BLOCKQUOTE><P>
+
+
+A vexed problem in all object-oriented systems is that it is often elegant
+to grow data structures organically, simply conjuring new objects out of
+mid-air and attaching them to the structure already built.  The problem
+is that since resources cannot be infinite, there will come a point
+where no new objects can be conjured up.  The program must be written so
+that it can cope with this, and this can present the programmer with
+some difficulty, since the conditions that will prevail when the program
+is being run may be hard to predict.
+<P>
+
+In an adventure-game setting, object creation is useful for something like
+a beach full of stones: if the player wants to pick up more and more stones,
+the game needs to create a new object for each stone brought into play.
+<P>
+
+Inform allows object creation, but it insists that the programmer must specify
+in advance what the maximum resources ever needed will be: for example, the
+maximum number of stones which can ever be in play.  Although this is
+a nuisance, the reward is that the resulting program is guaranteed to work
+correctly on every machine running it (or else to fail in the same way
+on every machine running it).
+<P>
+
+The model is this.  When a class is defined, a number <I>N</I> is specified, which
+is the maximum number of created instances of the class which the programmer
+will ever need at once.  When the program is running, "instances'' can be
+created (up to this limit); or deleted.  One can imagine the class having a
+stock of instances, so that creation consists of giving out one of the
+stock-pile and deletion consists of taking one back.
+<P>
+
+Classes can receive the following five messages:
+<P>
+
+<P><TT>remaining()</TT>
+<P> What is the current value of <I>N</I>?  That is, how many
+more instances can be created?
+<P><TT>create()</TT>
+<P> Replies with a newly created instance, or
+with <TT>nothing</TT> if no more can be created.
+<P><TT>destroy(I)</TT>
+<P> Destroys the instance <TT>I</TT>, which must previously have
+been created.
+<P><TT>recreate(I)</TT>
+<P> Re-initialises the instance <TT>I</TT>, as if it had been
+destroyed and then created again.
+<P><TT>copy(I, J)</TT>
+<P> Copies <TT>I</TT> to be equal to <TT>J</TT>, where both have to be
+instances of the class.
+<P>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Note that <TT>recreate</TT> and <TT>copy</TT> can be sent for any instances, not just
+instances which have previously been created.  For example,
+<PRE>
+    Plant.copy(Gilded_Branch, Poison_Ivy)
+</PRE>
+
+copies over all the <TT>Plant</TT> properties and attributes from <TT>Poison_Ivy</TT> to
+<TT>Gilded_Branch</TT>, but leaves all the rest alone.  Likewise,
+<PRE>
+    Treasure.recreate(Gilded_Branch)
+</PRE>
+
+only resets the properties to do with <TT>Treasure</TT>, leaving the <TT>Plant</TT> properties
+alone.
+</SMALL>
+<TR><TD><TD><P>
+
+Unless the definition of a class <TT>C</TT> is made in a special way, <TT>C.remaining()</TT>
+will always reply 0, <TT>C.destroy()</TT> will cause an error and <TT>C.create()</TT> will
+be refused.  This is because the magic number <I>N</I> for a class is normally 0.
+<P>
+
+The "special way'' is to give <I>N</I> in brackets after the class name.  For
+example, if the class definition for <TT>Leaf</TT> begins:
+<PRE>
+    Class Leaf(100) ...
+</PRE>
+
+then initially <TT>Leaf.remaining()</TT> will reply 100, and the first 100 <TT>create()</TT>
+messages will certainly be successful.  Others will only succeed if leaves
+have been destroyed in the mean time.  In all other respects <TT>Leaf</TT> is an
+ordinary class.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Object creation and destruction may need to be more sophisticated
+than this.  For example, we might have a data structure in which every object
+of class <TT>A</TT> is connected in some way with four objects of class <TT>B</TT>.  When a
+new <TT>A</TT> is created, four new <TT>B</TT>s need to be created for it; and when an <TT>A</TT> is
+destroyed, its four <TT>B</TT>s need to be destroyed.  In an adventure game setting,
+we might imagine that every Dwarf who is created has to carry an Axe of his own.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+When an object has been created (or recreated), but before it has been
+"given out'' to the program, a <TT>create</TT> message is sent to it (if it provides
+<TT>create</TT>).  This gives the object a chance to set itself up sensibly.
+Similarly, when an object is about to be destroyed, but before it actually is, a
+<TT>destroy</TT> message is sent to it (if it provides <TT>destroy</TT>).  For example:
+<PRE>
+    Class Axe(30);
+    Class Dwarf(7)
+     with beard_colour,
+          create
+          [ x; self.beard_colour = random("black", "red", "white", "grey");
+
+               !  Give this new dwarf an axe, if there are any to spare
+
+               x = Axe.create(); if (x ~= nothing) move x to self;
+          ],
+          destroy
+          [ x;
+               !  Destroy any axes being carried by this dwarf
+
+               objectloop (x in self &#38;&#38; x ofclass Axe) Axe.destroy(x);
+          ];
+</PRE>
+
+</SMALL><TR><TD><TD>
+<P>
+
+<HR><BLOCKQUOTE><H3>3.14. Footnote on common vs. individual properties</H3></BLOCKQUOTE><P>
+
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+The properties used in the sections above are all examples of
+"individual properties'', which some objects provide and others do not.
+There are also "common properties'' which, because they are inherited
+from the class <TT>Object</TT>, are held by every member of <TT>Object</TT>.
+An example is <TT>capacity</TT>.  The <TT>capacity</TT> can be read for an ordinary
+game object (say, a crate) even if it doesn't specify a
+<TT>capacity</TT> for itself, and the resulting "default'' value will
+be 100.  However, this is only a very weak form of inheritance --
+you can't change the crate's <TT>capacity</TT> value and the condition
+<TT>crate provides capacity</TT> evaluates to <TT>false</TT>.
+	
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The properties defined by the Inform library, such as
+<TT>capacity</TT>, are all common: mainly because common properties
+are marginally faster to access and marginally cheaper on memory.
+Only 62 are available, of which the library uses up 48.
+Individual properties, on the other hand, are practically
+unlimited. It is therefore worth declaring a common property only
+in those cases where it will be used very often in your program.
+You can declare common properties with the directive:
+<BLOCKQUOTE>
+<TT>Property </TT><I><B>&#60;name&#62;</B></I><TT>;</TT>
+</BLOCKQUOTE>
+
+which should be made after the inclusion of "Parser'' but before
+first use of the new name.  The class <TT>Object</TT> will now
+pass on this property, with value 0, to all its members.  This
+so-called "default value'' can optionally be specified.  For
+example, the library itself makes the declaration
+<BLOCKQUOTE>
+<TT>Property capacity 100;</TT>
+</BLOCKQUOTE>
+
+which is why all containers in a game which don't specify any particular
+<TT>capacity</TT> can hold up to 100 items.
+</SMALL><TR><TD><TD>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section2.html">Back</A> / <A HREF="chapter2.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,284 @@
+<HTML><HEAD><TITLE>Section A5: Library attributes</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA4.html">Back</A><BR><A HREF="sectionA6.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A5. Library attributes</H3></BLOCKQUOTE><TR><TD><TD>
+Here is a concise account of all the normal rules concerning
+all the library's attributes, except that: rules about how
+the parser sorts out ambiguities are far too complicated to
+include here, but should not concern designers anyway; and the
+definitions of 'scope' and 'darkness' are given in
+<A HREF="section28.html">Section 28</A> and <A HREF="section17.html">Section 17</A> respectively.  These rules are the result
+of pragmatism and compromise, but are all easily
+modifiable.
+<P>
+<P>
+
+<DT><B><TT>absent</TT></B><DD>
+
+A 'floating object' (one with a
+<TT>found_in</TT> property, which can appear in many different rooms)
+which is <TT>absent</TT> will in future no longer appear in the game.  Note that
+you cannot make a floating object disappear merely by giving it
+<TT>absent</TT>, but must explicitly <TT>remove</TT> it as well.
+<P>
+
+<DT><B><TT>animate</TT></B><DD>
+
+"Is alive (human or animal).''  Can be spoken to in "richard, hello'' style;
+matches the <TT>creature</TT> token in grammar; picks up "him'' or "her''
+(according to gender) rather than "it'', likewise "his''; an object the
+player is changed into becomes <TT>animate</TT>; some messages read "on whom'',
+etc., instead of "on which''; can't be taken; its subobjects "belong to''
+it rather than "are part of'' it; messages don't assume it can be
+"touched'' or "squeezed'' as an ordinary object can; the actions <TT>Attack</TT>,
+<TT>ThrowAt</TT> are diverted to <TT>life</TT> rather than rejected as being 'futile
+violence'.
+<P>
+
+<DT><B><TT>clothing</TT></B><DD>
+
+"Can be worn.''
+<P>
+
+<DT><B><TT>concealed</TT></B><DD>
+
+"Concealed from view but present.''
+The player object has this; an object which was the player until
+<TT>ChangePlayer</TT> happened loses this property; a <TT>concealed</TT> <TT>door</TT> can't be
+entered; does not appear in room descriptions.
+<P>
+
+<DT><B><TT>container</TT></B><DD>
+
+Affects scope and light; object lists
+recurse through it if <TT>open</TT> (or <TT>transparent</TT>); may be described as closed,
+open, locked, empty; a possession will give it a <TT>LetGo</TT> action if the
+player tries to remove it, or a <TT>Receive</TT> if something is put in; things can
+be taken or removed from it, or inserted into it, but only if it is <TT>open</TT>;
+likewise for "transfer'' and "empty''; room descriptions describe using
+<TT>when_open</TT> or <TT>when_closed</TT> if given; if there is no defined <TT>description</TT>,
+an <TT>Examine</TT> causes the contents to be searched (i.e. written out) rather
+than a message "You see nothing special about...''; <TT>Search</TT> only reveals
+the contents of <TT>container</TT>s, otherwise saying "You find nothing''.
+<P>
+
+<DT><B><TT>door</TT></B><DD>
+
+"Is a door or bridge.''  Room descriptions
+describe using <TT>when_open</TT> or <TT>when_closed</TT> if given; and an <TT>Enter</TT>
+action becomes a <TT>Go</TT> action.  If a <TT>Go</TT> has to go through this
+object, then: if <TT>concealed</TT>, the player "can't go that way'';
+if not <TT>open</TT>, then the player is told either that this cannot
+be ascended or descended (if the player tried "up'' or
+"down''), or that it is in the way (otherwise);
+but if neither, then its <TT>door_to</TT> property is consulted to
+see where it leads; finally, if this is zero, then it is said
+to "lead nowhere'' and otherwise the player actually moves to
+the location.
+<P>
+
+<DT><B><TT>edible</TT></B><DD>
+
+"Can be eaten'' (and thus removed from game).
+<P>
+
+<DT><B><TT>enterable</TT></B><DD>
+
+Affects scope and light; only an <TT>enterable</TT> on the floor can be
+entered.  If an <TT>enterable</TT> is also a <TT>container</TT> then it can
+only be entered or exited if it is <TT>open</TT>.
+<P>
+
+<DT><B><TT>female</TT></B><DD>
+
+This object has a feminine name.  In games written in English,
+this makes her a female person, though in other languages it might
+be inanimate.  The parser uses this information when considering
+pronouns like "her''.  (In English, anything <TT>animate</TT> is assumed
+to be male unless <TT>female</TT> or <TT>neuter</TT> is set.)
+<P>
+
+<DT><B><TT>general</TT></B><DD>
+
+A general-purpose attribute, defined by
+the library but never looked at or altered by it.  This is left
+free to mean something different for each object: often used by
+programmers for something like "the puzzle for this object has been
+solved''.
+<P>
+
+<DT><B><TT>light</TT></B><DD>
+
+"Is giving off light.''  (See <A HREF="section17.html">Section 17</A>.)  Also: the parser understands
+"lit'', "lighted'', "unlit'' using this; inventories will
+say "(providing light)'' of it, and so will room descriptions if the
+current <TT>location</TT> is ordinarily dark; it will never be automatically
+put away into the player's <TT>SACK_OBJECT</TT>, as it might plausibly be
+inflammable or the main light source.
+<P>
+
+<DT><B><TT>lockable</TT></B><DD>
+
+Can be locked or unlocked by a player
+holding its key object, which is given by the property <TT>with_key</TT>;
+if a <TT>container</TT> and also <TT>locked</TT>, may be called "locked'' in
+inventories.
+<P>
+
+<DT><B><TT>locked</TT></B><DD>
+
+Can't be opened.   If a <TT>container</TT>
+and also <TT>lockable</TT>, may be called "locked'' in inventories.
+<P>
+
+<DT><B><TT>male</TT></B><DD>
+
+This object has a masculine name.  In games written in English,
+this makes him a male person, though in other languages it might
+be inanimate.  The parser uses this information when considering
+pronouns like "him''.  (In English, anything <TT>animate</TT> is assumed
+to be male unless <TT>female</TT> or <TT>neuter</TT> is set.)
+<P>
+
+<DT><B><TT>moved</TT></B><DD>
+
+"Has been or is being held by the player.''  Objects
+(immediately) owned by the player after <TT>Initialise</TT> has run are given
+it; at the end of each turn, if an item is newly held by the player
+and is <TT>scored</TT>, it is given <TT>moved</TT> and <TT>OBJECT_SCORE</TT> points are
+awarded; an object's <TT>initial</TT> message only appears in room
+descriptions if it is un<TT>moved</TT>.
+<P>
+
+<DT><B><TT>neuter</TT></B><DD>
+
+This object's name is neither masculine nor feminine.  (In English,
+anything without <TT>animate</TT> is assumed neuter, because only people and
+higher animals have gender.  Anything <TT>animate</TT> is assumed male
+unless <TT>female</TT> or <TT>neuter</TT> is set.  A robot, for instance, might be
+an <TT>animate</TT> object worth making <TT>neuter</TT>.)
+<P>
+
+<DT><B><TT>on</TT></B><DD>
+
+"Switched on.''  A <TT>switchable</TT> object with this
+is described by <TT>with_on</TT> in room descriptions; it will be called
+"switched on'' by <TT>Examine</TT>.
+<P>
+
+<DT><B><TT>open</TT></B><DD>
+
+"Open door or container.''  Affects scope and light; lists (such as
+inventories) recurse through an <TT>open</TT> <TT>container</TT>; if a <TT>container</TT>, called
+"open'' by some descriptions; things can be taken or removed from an <TT>open</TT>
+<TT>container</TT>; similarly inserted, transferred or emptied.  A <TT>container</TT> can
+only be entered or exited if it is both <TT>enterable</TT> and <TT>open</TT>.  An <TT>open</TT>
+<TT>door</TT> can be entered.  Described by <TT>when_open</TT> in room descriptions.
+<P>
+
+<DT><B><TT>openable</TT></B><DD>
+
+Can be opened or closed, unless <TT>locked</TT>.
+<P>
+
+<DT><B><TT>pluralname</TT></B><DD>
+
+This single object's name is in the plural.  For instance, an
+object called "seedless grapes'' should have <TT>pluralname</TT> set.
+The library will then use the pronoun "them'' and the indefinite
+article "some'' automatically.
+<P>
+
+<DT><B><TT>proper</TT></B><DD>
+
+Its short name is a proper noun, and never preceded
+by "the'' or "The''.  The player's object must have this (so something
+changed into will be given it).
+<P>
+
+<DT><B><TT>scenery</TT></B><DD>
+
+Not listed by the library in room descriptions; "not portable'' to be
+taken; "you are unable to'' pull, push, or turn it.
+<P>
+
+<DT><B><TT>scored</TT></B><DD>
+
+The player gets <TT>OBJECT_SCORE</TT> points for picking
+it up for the first time; or, if a room, <TT>ROOM_SCORE</TT> points for visiting
+it for the first time.
+<P>
+
+<DT><B><TT>static</TT></B><DD>
+
+"Fixed in place'' if player tries to take, remove,
+pull, push or turn.
+<P>
+
+<DT><B><TT>supporter</TT></B><DD>
+
+"Things can be put on top of it.''  Affects scope and light;
+object lists recurse through it; a possession will give it a
+<TT>LetGo</TT> action if the player tries to remove it, or a <TT>Receive</TT>
+if something is put in; things can be taken or removed from it,
+or put on it; likewise for transfers; a player inside it is said
+to be "on'' rather than "in'' it; room descriptions list
+its contents in separate paragraphs if it is itself listed.
+<P>
+
+<DT><B><TT>switchable</TT></B><DD>
+
+Can be switched on or off; listed
+as such by <TT>Examine</TT>; described using <TT>when_on</TT> or <TT>when_off</TT>
+in room descriptions.
+<P>
+
+<DT><B><TT>talkable</TT></B><DD>
+
+Player can talk to this object in
+"thing, do this'' style.  This is useful for microphones and
+the like, when <TT>animate</TT> is inappropriate.
+<P>
+
+<DT><B><TT>transparent</TT></B><DD>
+
+"Contents are visible.''  Affects scope and light;
+a <TT>transparent</TT> container is treated as if it were <TT>open</TT> for
+printing of contents.
+<P>
+
+<DT><B><TT>visited</TT></B><DD>
+
+"Has been or is being visited by the player.''
+Given to a room immediately after a <TT>Look</TT> first
+happens there: if this room is <TT>scored</TT> then <TT>ROOM_SCORE</TT> points
+are awarded.  Affects whether room descriptions are abbreviated
+or not.
+<P>
+
+<DT><B><TT>workflag</TT></B><DD>
+
+Temporary flag used by Inform internals,
+also available to outside routines; can be used to select items
+for some lists printed by <TT>WriteListFrom</TT>.
+<P>
+
+<DT><B><TT>worn</TT></B><DD>
+
+"Item of clothing being worn.''  Should
+only be an object being immediately carried by player.
+Affects inventories; doesn't count towards the limit of
+<TT>MAX_CARRIED</TT>; won't be automatically put away into the
+<TT>SACK_OBJECT</TT>; a <TT>Drop</TT> action will cause a <TT>Disrobe</TT> action first;
+so will <TT>PutOn</TT> or <TT>Insert</TT>.
+<P>
+
+<P>
+Note that very few attributes sensibly apply to rooms: only really
+<TT>light</TT>, <TT>scored</TT> and <TT>visited</TT>, together with <TT>general</TT> if you
+choose to use it.  Note also that an object cannot be both a
+<TT>container</TT> and a <TT>supporter</TT>; and that the old attribute <TT>autosearch</TT>,
+which was in earlier releases, has been withdrawn as obsolete.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA4.html">Back</A> / <A HREF="sectionA6.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Answer to Exercise 27</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 27</B><TR><TD><TD>
+<P>
+
+
+<PRE>
+Object replicator "replicator"
+  with name "replicator",
+       grammar [;  return 'rc,'; ],
+       orders
+       [;  Give:
+               if (noun in self)
+                   "The replicator serves up a cup of ",
+                   (name) noun, " which you drink eagerly.";
+               "~That is not something I can replicate.~";
+           default: "The replicator is unable to oblige.";
+       ],
+       life
+       [;  Ask, Answer, Tell: "The replicator has no conversation skill.";
+       ],
+  has  talkable;
+Object -&#62; "Earl Grey tea"    with name "earl" "grey" "tea";
+Object -&#62; "Aldebaran brandy" with name "aldebaran" "brandy";
+Object -&#62; "distilled water"  with name "distilled" "water";
+...
+Verb "rc,"    * held      -&#62; Give;
+</PRE>
+
+The point to note here is that the <TABLE Border><TR><TD><TT>held</TT></TABLE> token means 'held by the
+replicator' here, as the <TT>actor</TT> is the replicator, so this is a neat way of
+getting a 'one of the following phrases' token into the grammar.
+</TABLE>
+<HR>Back to <A HREF="../section16.html#ex27">the exercise in section 16</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,69 @@
+<HTML><HEAD><TITLE>Section A8: Library actions</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA7.html">Back</A><BR><A HREF="sectionA9.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A8. Library actions</H3></BLOCKQUOTE><TR><TD><TD>
+The actions implemented by the library are in three groups.  Group 1 consists
+of actions associated with 'meta'-verbs, which are not subject to game
+rules.  (If you want a room where the
+game can't be saved, as for instance 'Spellbreaker' cunningly does, you'll
+have to tamper with <TT>SaveSub</TT> directly, using a <TT>Replace</TT>d routine.)
+<PRE>
+1a. Quit, Restart, Restore, Verify, Save, ScriptOn, ScriptOff, Pronouns,
+    Score, Fullscore, LMode1, LMode2, LMode3, NotifyOn, NotifyOff,
+    Version, Places, Objects.
+</PRE>
+
+
+(<TT>Lmode1</TT>, <TT>Lmode2</TT> and <TT>Lmode3</TT> switch between "brief'', "verbose''
+and "superbrief'' room description styles.)
+In addition, but only if <TT>DEBUG</TT> is defined, so that the debugging suite
+is present, group 1 contains
+<PRE>
+1b. TraceOn, TraceOff, TraceLevel, ActionsOn, ActionsOff, RoutinesOn,
+    RoutinesOff, TimersOn, TimersOff, CommandsOn, CommandsOff, CommandsRead,
+    Predictable, XPurloin, XAbstract, XTree, Scope, Goto, Gonear.
+</PRE>
+
+Group 2 contains actions which sometimes get as far as the 'after' stage,
+because the library sometimes does something when processing them.
+<PRE>
+2. Inv, InvTall, InvWide, Take, Drop, Remove, PutOn, Insert, Transfer,
+   Empty, Enter, Exit, GetOff, Go, GoIn, Look, Examine, Search, Give, Show,
+   Unlock, Lock, SwitchOn, SwitchOff, Open, Close, Disrobe, Wear, Eat.
+</PRE>
+
+Group 3 contains the remaining actions, which never reach 'after' because
+the library simply prints a message and stops at the 'during' stage.
+<PRE>
+3. Yes, No, Burn, Pray, Wake, WakeOther [person], Consult,
+   Kiss, Think, Smell, Listen, Taste, Touch, Dig,
+   Cut, Jump [jump on the spot], JumpOver, Tie, Drink,
+   Fill, Sorry, Strong [swear word], Mild [swear word], Attack, Swim,
+   Swing [something], Blow, Rub, Set, SetTo, WaveHands [ie, just "wave"],
+   Wave [something], Pull, Push, PushDir [push something in a direction],
+   Turn, Squeeze, LookUnder [look underneath something],
+   ThrowAt, Answer, Buy, Ask, AskFor, Sing, Climb, Wait, Sleep.
+</PRE>
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The actions <TT>PushDir</TT> and <TT>Go</TT> (while the player is inside an
+<TT>enterable</TT> object) have special rules: see <A HREF="section14.html">Section 14</A>.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The library also defines 8 fake actions:
+<PRE>
+LetGo, Receive, ThrownAt, Order, TheSame, PluralFound, Miscellany, Prompt
+</PRE>
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+<TT>LetGo</TT>, <TT>Receive</TT> and <TT>ThrownAt</TT> are used to allow the <TT>second</TT>
+noun of <TT>Insert</TT>, <TT>PutOn</TT>, <TT>ThrowAt</TT>, <TT>Remove</TT> actions to intervene;
+<TT>Order</TT> is used to process actions through somebody's <TT>life</TT> routine;
+<TT>TheSame</TT> and <TT>PluralFound</TT> are defined by the parser as ways for the
+program to communicate with it; <TT>Miscellany</TT> and <TT>Prompt</TT> are defined
+as slots for <TT>LibraryMessages</TT>.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA7.html">Back</A> / <A HREF="sectionA9.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,44 @@
+<HTML><HEAD><TITLE>Answer to Exercise 29</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 29</B><TR><TD><TD>
+<P>
+
+
+<PRE>
+Object Zen "Zen" Flight_Deck
+  with name "zen" "flight" "computer",
+       initial "Square lights flicker unpredictably across a hexagonal
+                fascia on one wall, indicating that Zen is on-line.",
+       grammar [;  return -'zen,'; ],
+       orders
+       [;  Show: "The main screen shows a starfield,
+                  turning through ", noun, " degrees.";
+           Go:  "~Confirmed.~  The ship turns to a new bearing.";
+           SetTo: if (noun==0) "~Confirmed.~  The ship comes to a stop.";
+               if (noun&#62;12) "~Standard by ", (number) noun,
+                            " exceeds design tolerances.~";
+               "~Confirmed.~  The ship's engines step to
+                standard by ", (number) noun, ".";
+           Take: if (noun~=force_wall) "~Please clarify.~";
+                "~Force wall raised.~";
+           Drop: if (noun~=blasters)   "~Please clarify.~";
+              "~Battle-computers on line.
+                Neutron blasters cleared for firing.~";
+           NotUnderstood: "~Language banks unable to decode.~";
+           default: "~Information. That function is unavailable.~";
+       ],
+  has  talkable proper static;
+Object -&#62; force_wall "force wall"     with name "force" "wall" "shields";
+Object -&#62; blasters "neutron blasters" with name "neutron" "blasters";
+...
+Verb "zen,"   * "scan" number "orbital"        -&#62; Show
+              * "set" "course" "for" Planet    -&#62; Go
+              * "speed" "standard" "by" number -&#62; SetTo
+              * "raise" held                   -&#62; Take
+              * "clear" held "for" "firing"    -&#62; Drop;
+</PRE>
+
+Dealing with <TT>Ask</TT>, <TT>Answer</TT> and <TT>Tell</TT> are left to the reader.
+</TABLE>
+<HR>Back to <A HREF="../section16.html#ex29">the exercise in section 16</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

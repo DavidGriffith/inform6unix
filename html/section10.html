@@ -1,0 +1,305 @@
+<HTML><HEAD><TITLE>Section 10: Places, scenery, directions and the map</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapter4.html">Back</A><BR><A HREF="section11.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>10. Places, scenery, directions and the map</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+It was a long cylinder of parchment, which he unrolled and spread out
+on the floor, putting a stone on one end and holding the other.
+I saw a drawing on it, but it made no sense.
+<P>...John Christopher (<B>1922</B>--), <I>The White Mountains</I></BLOCKQUOTE>
+<P>
+
+
+Back to 'Ruins': what lies at the foot of the stone steps?  We'll now
+add four rooms, connected together:
+<PRE>
+  Square Chamber  <-->  Web
+       |       
+    Corridor
+       |       
+     Shrine
+</PRE>
+with the Square Chamber lying underneath the original Forest location.
+For instance, here's the Square Chamber's definition:
+<PRE>
+Object Square_Chamber "Square Chamber"
+  with name "lintelled" "lintel" "lintels" "east" "south" "doorways",
+       description
+          "A sunken, gloomy stone chamber, ten yards across.  A shaft
+           of sunlight cuts in from the steps above, giving the chamber
+           a diffuse light, but in the shadows low lintelled doorways to
+           east and south lead into the deeper darkness of the Temple.",
+       u_to Forest, e_to Web, s_to Corridor,
+  has  light;
+</PRE>
+
+Like the Forest, this place has <TT>light</TT>, however dim.  (If it didn't, the
+player would never see it, since it would be dark, and the player hasn't yet
+been given a lamp or torch of some kind.)  Now although this is a room,
+and can't be referred to by the player in the way that a manipulable object
+can, it still can have a <TT>name</TT> property.  These <TT>name</TT> words are those which
+Inform knows "you don't need to refer to'', and it's a convention of the
+genre that the designer should signpost off the game in this way.  (Note
+that they'll only be looked at if what the player types is unrecognised,
+so the word "east'' is understood quite normally; but a reference to
+"east lintel'' will get the "don't need to refer to'' treatment.)
+This room is unfurnished, so:
+<PRE>
+Object -&#62; "carved inscriptions"
+  with name "carved" "inscriptions" "carvings" "marks" "markings" "symbols"
+            "moving" "scuttling" "crowd" "of",
+       initial
+          "Carved inscriptions crowd the walls, floor and ceiling.",
+       description "Each time you look at the carvings closely, they seem
+           to be still.  But you have the uneasy feeling when you look
+           away that they're scuttling, moving about.  Their meaning
+           is lost on you.",
+  has  static;
+</PRE>
+
+This is part of the fittings, hence the <TT>static</TT> attribute, which means it
+can't be taken or moved.  As we went out of our way to describe a shaft
+of sunlight, we'll include that as well:
+<PRE>
+Object -&#62; sunlight "shaft of sunlight"
+  with name "shaft" "of" "sunlight" "sun" "light" "beam" "sunbeam" "ray"
+            "rays" "sun^s",
+       description "The shaft of sunlight glimmers motes of dust in the
+           air, making it seem almost solid."
+  has  scenery;
+</PRE>
+
+(The <TT></TT> symbol in <TT>"sun^s"</TT> means an apostrophe, so the word is "sun's''.)
+Being <TT>scenery</TT> makes the object not only static but also not described
+by the game unless actually examined by the player.  A true perfectionist
+might add a <TT>before</TT> rule:
+<PRE>
+       before
+       [;  Examine, Search: ;
+           default: "It's only an insubstantial shaft of sunlight.";
+       ],
+</PRE>
+
+so that the player can look at or through the sunlight, but any other
+request involving them will be turned down.  Note that a <TT>default</TT>
+rule, if given, means "any action except those already mentioned''.
+<P>
+
+We can't actually get into the Square Chamber yet, though.  Just because
+there is a map connection up from here to the Forest, it doesn't follow
+that there's a corresponding connection down.  So we must add a <TT>d_to</TT>
+to the Forest, and while we're at it:
+<PRE>
+       d_to Square_Chamber,
+       u_to "The trees are spiny and you'd cut your hands to ribbons
+             trying to climb them.",
+       cant_go "The rainforest-jungle is dense, and you haven't hacked
+           through it for days to abandon your discovery now.  Really,
+           you need a good few artifacts to take back to civilization
+           before you can justify giving up the expedition.",
+</PRE>
+
+The property <TT>cant_go</TT> contains what is printed when the player tries to go
+in a nonexistent direction, and replaces "You can't go that way''.
+As is often the case with properties, instead of giving an actual
+message you can instead give a routine to print one out, to vary what's
+printed with the circumstances.  The Forest needs a <TT>cant_go</TT> because
+in real life one could go in every direction from there: what we're
+doing is explaining the game rules to the player: go underground, find some
+ancient treasure, then get out to win.  The Forest's <TT>u_to</TT> property is
+a string, not a room; this means that attempts to go up result only in
+that string being printed.
+<P>
+
+Rooms also have rules of their own.  We might add the following <TT>before</TT>
+rule to the Square Chamber:
+<PRE>
+       before
+       [;  Insert:
+               if (noun==mushroom &#38;&#38; second==sunlight)
+               {   remove mushroom;
+                  "You drop the mushroom on the floor, in the glare of
+                   the shaft of sunlight.  It bubbles obscenely,
+                   distends and then bursts into a hundred tiny insects
+                   which run for the darkness in every direction.  Only
+                   tiny crumbs of fungus remain.";
+               }
+       ],
+</PRE>
+
+The variables <TT>noun</TT> and <TT>second</TT> hold the first and second nouns
+supplied with an action.  Rooms have <TT>before</TT> and <TT>after</TT> routines just as
+objects do, and they apply to anything which happens in the given room. 
+This particular rule could easily enough have been part of the definition of
+the mushroom or the sunlight, and in general a room's rules are best used
+only for geographical fixtures.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Sometimes the room may be a different one after the action has
+taken place.  The <TT>Go</TT> action, for instance, is offered to the <TT>before</TT>
+routine of the room which is being left, and the <TT>after</TT> routine of the
+room being arrived in.  For example:
+<PRE>
+       after
+       [; Go: if (noun==d_obj)
+              print "You feel on the verge of a great discovery...^";
+       ],
+</PRE>
+
+will print the message when its room is entered via the "down" direction.
+Note that since the message is printed with the <TT>print</TT> command,
+there is no "return true'' from this routine, so it returns false:
+and so the usual game rules resume after the printing of the message.
+</SMALL>
+<TR><TD><TD><P>
+
+
+Some objects are present in many rooms at once.  The 'Ruins', for
+instance, are misty:
+<PRE>
+Object low_mist "low mist"
+  with name "low" "swirling" "mist",
+       initial "A low mist swirls about your feet.",
+       description "The mist carries a rich aroma of broth.",
+       found_in  Square_Chamber  Forest,
+       before
+       [; Examine, Search: ;
+          Smell:   &#60;&#60;Examine self&#62;&#62;;
+          default: "The mist is too insubstantial.";
+       ],
+  has  static;
+</PRE>
+
+The <TT>found_in</TT> property gives a list of places in which the mist
+is found (so far just the Square Room and the Forest).
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> If the rainforest contained many misty rooms, it would be tedious to
+give the full list and even worse to have to alter it as the mist drifted
+about in the course of the game.  Fortunately <TT>found_in</TT> can contain a
+routine instead of a list.  This can look at the current <TT>location</TT> and say
+whether or not the object should be put in it when the room is entered, e.g.,
+<PRE>
+Object Sun "Sun",
+  with ...
+       found_in
+       [; if (location has light) rtrue;
+       ],
+  has  scenery;
+</PRE>
+
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>found_in</TT> is only consulted when the player's location changes,
+so if the mist has to dramatically lift or move then it needs to be moved
+or removed 'by hand'.  A good way to lift the mist forever is to <TT>remove</TT>
+it, and then give it the <TT>absent</TT> attribute, which prevents it from
+manifesting itself whatever <TT>found_in</TT> says.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+Some pieces of scenery afflict the other four senses.  The mist smells
+of broth, which means that if the player types "smell'' in a place
+where the mist is, then she should be told about the broth.  For this,
+a <TT>react_before</TT> rule attached to the mist is ideal:
+<PRE>
+       react_before
+       [;  Smell: if (noun==0) &#60;&#60;Smell low_mist&#62;&#62;;
+       ],
+</PRE>
+
+
+This is called a "react'' rule because the mist is reacting to the
+fact that a <TT>Smell</TT> action is taking place nearby.  <TT>noun</TT> is compared
+with zero to see if the player has indeed just typed "smell'' (not,
+say, "smell crocus'').  Thus, when the action <TT>Smell</TT> takes place
+near the mist, it is converted into <TT>Smell low_mist</TT>; whereas the
+action <TT>Smell crocus</TT> would be left alone.
+
+<P>
+
+The five senses all have actions in Inform: <TT>Look</TT>, <TT>Listen</TT>,
+<TT>Smell</TT>, <TT>Taste</TT> and <TT>Touch</TT>.  Of these, <TT>Look</TT> never has a noun
+attached (because <TT>Examine</TT> is provided for close-ups), <TT>Smell</TT> and
+<TT>Listen</TT> may or may not have while <TT>Taste</TT> and <TT>Touch</TT> always
+have.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex5"><B>EXERCISE 5:</B><BR>(link to <A HREF="answers1/answer5.html">the answer</A>)<TR><TD><TD>  (Cf. 'Spellbreaker'.)  Make an orange cloud descend on the
+player, which can't be seen through or walked out
+of.
+<P>
+
+<P>
+
+Directions (such as "north") are objects called <TT>n_obj</TT>, <TT>s_obj</TT>
+and so on: in this case, <TT>in_obj</TT>.  (They are not to be confused with the
+property names <TT>n_to</TT> and so on.)  Moreover, you can change these
+directions: as far as Inform is concerned, a direction is any object in
+the special object <TT>compass</TT>.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex6"><B>EXERCISE 6:</B><BR>(link to <A HREF="answers1/answer6.html">the answer</A>)<TR><TD><TD> In the first millenium A.D., the Mayan peoples of the
+Yucat\'an Peninsula had 'world colours' white (<I> sac</I>), red (<I> chac</I>),
+yellow (<I> kan</I>) and black (<I> chikin</I>) for what we call the compass
+bearings north, east, south, west (for instance west is associated
+with 'sunset', hence black, the colour of night). Implement this.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex7"><B>EXERCISE 7:</B><BR>(link to <A HREF="answers1/answer7.html">the answer</A>)<TR><TD><TD> (Cf. 'Trinity'.)  How can the entire game map
+be suddenly east-west reflected?
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex8"><B>EXERCISE 8:</B><BR>(link to <A HREF="answers1/answer8.html">the answer</A>)<TR><TD><TD>  Even when the map is reflected, there may be many
+room descriptions referring to "east'' and "west'' by name.  Reflect
+these too.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The ordinary Inform directions all have the <TT>number</TT>
+property defined (initially set to zero): this is to provide a
+set of scratch variables useful, for instance, when coding mazes.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> If the constant <TT>WITHOUT_DIRECTIONS</TT> is defined before
+inclusion of the library files, then 10 of the default direction
+objects are not defined by the library.  The designer is expected to
+define alternative ones (and put them in the <TT>compass</TT> object);
+otherwise the game will be rather static.  (The "in" and "out"
+directions are still created, because they're needed for getting
+into and out of enterable
+objects.)
+
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  'Advent' has a very tangled-up map in places (see the
+mazes) and a well-constructed exterior of forest and valley
+giving an impression of space with remarkably few rooms.  The
+mist object uses <TT>found_in</TT> to the full, and see also the
+stream (a single object representing every watercourse in the game).
+Bedquilt and the Swiss Cheese room offer classic confused-exit
+puzzles.
+<BR>
+For a simple movement rule using <TT>e_to</TT>, see the Office in
+'Toyshop'.
+<BR>
+The library extension "smartcantgo.h'' by David Wagner
+provides a system for automatically printing out "You can only go
+east and north.''-style messages.
+<BR> 'A Scenic View', by Richard Barnett, demonstrates
+a system for providing examinable scenery much more concisely
+(without defining so many objects).
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapter4.html">Back</A> / <A HREF="section11.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

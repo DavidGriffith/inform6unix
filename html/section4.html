@@ -1,0 +1,404 @@
+<HTML><HEAD><TITLE>Section 4: The language of Inform</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapter2.html">Back</A><BR><A HREF="section5.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>4. The language of Inform</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<HR><BLOCKQUOTE><H3>4.1. ICL</H3></BLOCKQUOTE><P>
+
+The Inform compiler is quite configurable: it has a number of settings
+which can be altered to suit the convenience of the user.  Many of these
+settings are "switches'', which usually have just two possible states,
+off or on.  However, some can be set to a single-digit number.
+<P>
+
+The other numerical settings are "memory settings'', which control
+how much of your computer's memory Inform uses while running (too low and
+it may not be able to compile games of the size you desire; too high and
+it may choke any other programs in the computer for space).
+<P>
+
+Finally, there are "path variables'', which contain text and are used
+to sort out filenames for the files Inform uses or creates.  The usage
+of these variables varies widely from machine to machine, or rather, from
+one operating system to another.
+<P>
+
+If Inform seems to work adequately for you already, this section can
+safely be ignored until the day comes to compile a really big project.
+Times like that call for the ability to conveniently change many settings
+at once, and a tiny language called "ICL'' is provided for you to supply
+detailed specifications.
+<P>
+
+<P> On many systems, though not usually the Apple Macintosh,
+the user sets Inform running by typing a command at the "command line'',
+that is, in response to a prompt printed by the computer.  For example,
+under RISC OS one would press function key f12 from the desktop and be
+given the prompt <TT>*</TT>, to which one might reply
+<PRE>
+inform ruins
+</PRE>
+
+On computers with more doggedly windowed interfaces, there will be a
+higher-level interface of some kind provided with Inform, which should
+come with its own brief documentation.
+<P>
+
+The usual way to alter switches on the command line is to give a word of
+options after the <TT>inform</TT> command, introduced by a minus sign.  The
+switches are all single letters, and by default are mostly off.  For
+example, the <TT>-x</TT> switch causes Inform to print a row of hash signs as it
+compiles:
+<PRE>
+inform -x shell
+RISC OS Inform 6.01 (April 25th 1996)
+::###############################################################
+</PRE>
+
+One hash sign is printed for every 100 textual lines of source code compiled.
+(On my own machine, an Acorn Risc PC 700, about 10 hashes are printed
+every second: that is, the compilation speed is about 1000 lines per second.)
+Although <TT>-x</TT> is provided to indicate that a slow compilation is continuing
+normally, many designers use it to get a feeling for how large their games
+are, and it's a morale boost when the row of hashes spills over onto a
+second screen line.
+<P>
+
+Inform has documentation built-in on the subject of switches and other
+ICL features, which may vary from machine to machine.  Running Inform with
+no filename will print this "help information''.  In addition, <TT>-h1</TT>
+will print details of filenaming conventions in use on your machine, and
+<TT>-h2</TT> will print a list of switches and their settings.
+<P>
+
+The full command line syntax is
+<BLOCKQUOTE>
+<TT>inform</TT> <I><B>&#60;ICL commands&#62;</B></I> <I><B>&#60;source file&#62;</B></I> <I><B>&#60;output file&#62;</B></I>
+</BLOCKQUOTE>
+
+where only the <I><B>&#60;source file&#62;</B></I> is mandatory.  By default, the full names to
+give the source and output files are derived in a way suitable for the
+machine Inform is running on: on a PC, for instance, <TT>advent</TT> may be
+understood as asking to compile <TT>advent.inf</TT> to <TT>advent.z5</TT>.  This is called
+"filename translation''.  No detailed information on filenaming rules
+is given here, because it varies so much from machine to machine: see the
+<TT>-h1</TT> on-line documentation.  Note however that a filename can contain
+spaces if it is written in double-quotes.
+<P>
+
+<P>
+One possible ICL command is to give a filename in brackets: e.g.,
+<BLOCKQUOTE>
+<TT>inform -x (skyfall_setup) ...</TT>
+</BLOCKQUOTE>
+
+sets the <TT>-x</TT> switch, then runs through the text file <TT>skyfall_setup</TT>
+executing each line as an ICL command.  As an example, this file might
+read as follows:
+<PRE>
+   ! Setup file for "Skyfall"
+
+   -d                   ! Contract double spaces
+   $max_objects=1000    ! 500 of them snowflakes
+   (usual_setup)        ! include my favourite settings, too
+   +module_path=mods    ! keep modules in the "mods" directory
+</PRE>
+
+Note that ICL can include comments after <TT>!</TT>, just as in Inform.
+Otherwise, an ICL file has one command per line (with no dividing
+semicolons), and the possibilities are as follows:
+<P>
+<P><TT>-&#60;switches&#62;</TT><P>
+set these switches; or unset any switch preceded by a tilde <TT>~</TT>.
+(For example, <TT>-a~bc</TT> sets <TT>a</TT>, unsets <TT>b</TT> and sets <TT>c</TT>.)
+<P><TT>$list</TT><P>
+list current memory settings
+<P><TT>$?&#60;name&#62;</TT><P>
+ask for information on what this memory setting is for
+<P><TT>$small</TT><P>
+set the whole collection of memory settings to suitable levels for a small
+game
+<P><TT>$large</TT><P>
+ditto, for a slightly larger game
+<P><TT>$huge</TT><P>
+ditto, for a reasonably big one
+<P><TT>$&#60;name&#62;=&#60;quantity&#62;</TT><P>
+alter the named memory setting to the given level
+<P><TT>+&#60;name&#62;=&#60;filename&#62;</TT><P>
+set the named pathname variable to the given filename, which
+should be one or more filenames of directories, separated by commas
+<P><TT>compile &#60;filename&#62; &#60;filename&#62;</TT><P>
+compile the first-named file, containing source code, writing
+the output program to the (optional) second-named file
+<P><TT>(&#60;filename&#62;)</TT><P>
+execute this ICL file (files may call each other in this way)
+<P>
+<P>
+
+<HR><BLOCKQUOTE><H3>4.2. Controlling what is compiled</H3></BLOCKQUOTE><P>
+Several directives instruct Inform to "compile this part next'' or "only
+compile this...''.  First,
+<PRE>
+    Include "filename";
+</PRE>
+
+instructs Inform to compile the whole of the source code in the given
+file, and only carry on compiling from here once that is complete.  It is
+exactly equivalent to removing the <TT>Include</TT> directive and replacing it
+with the whole file <TT>"filename"</TT>.  (The rules for how Inform interprets
+<TT>"filename"</TT> vary from machine to machine: run Inform with the <TT>-h1</TT>
+switch for information.)  Note that you can write
+<PRE>
+    Include "&#62;shortname";
+</PRE>
+
+to mean "the file called <TT>"shortname"</TT> which is in the same
+directory that the present file came from''.  This is convenient
+if all the files making up the source code of your game are
+housed together.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+Next, there are a number of "conditional compilation'' directives.
+They take the general form of a condition:
+<PRE>
+    Ifdef &#60;name&#62;;          Is the name defined as having some meaning?
+    Ifndef &#60;name&#62;;         Is the name undefined?
+    Iftrue &#60;condition&#62;;    Is this condition true?
+    Iffalse &#60;condition&#62;;   Is this condition false?
+</PRE>
+
+followed by a chunk of Inform and then either
+<PRE>
+    Ifnot;
+</PRE>
+
+and another chunk of Inform, or just
+<PRE>
+    Endif;
+</PRE>
+
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+At this point it is perhaps worth mentioning that (most) directives can
+also be interspersed with statements in routine declarations, provided
+they are preceded by a <TT>#</TT> sign.  For example:
+<PRE>
+    [ MyRoutine;
+    #Iftrue MAX_SCORE &#62; 1000;
+      print "My, what a long game we're in for!^";
+    #Ifnot;
+      print "Let's have a quick game, then.^";
+    #Endif;
+      PlayTheGame();
+    ];
+</PRE>
+
+which actually only compiles one of the two <TT>print</TT> statements, according to
+what the value of the constant <TT>MAX_SCORE</TT> is.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Four more arcane directives control conditional compilation.
+<PRE>
+    Default &#60;name&#62; &#60;value&#62;;
+</PRE>
+
+defines <I><B>&#60;name&#62;</B></I> as a constant if it wasn't already the name of something:
+so it's equivalent to the manoeuvre
+<PRE>
+    Ifndef &#60;name&#62;;
+    Constant &#60;name&#62; = &#60;value&#62;;
+    Endif;
+</PRE>
+
+Similarly,
+<PRE>
+    Stub &#60;name&#62; &#60;number&#62;;
+</PRE>
+
+defines a routine with this name and number of local variables, if it isn't
+already the name of something: so it's equivalent to
+<PRE>
+    Ifndef &#60;name&#62;;
+    [ &#60;name&#62; x1 x2 ... x&#60;number&#62;;
+    ];
+    Endif;
+</PRE>
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Large blocks of code intended to be used in many different games, such as
+the files which make up the Inform library, should be marked somewhere with
+the directive
+<PRE>
+    System_file;
+</PRE>
+
+If this is done, it is possible for an outside program including the file
+to use <TT>Replace</TT>.  The idea is that a sequence like:
+<PRE>
+    Replace DoSomething;
+    ...
+    Include "SomeLibrary";
+    ...
+    [ DoSomething; "Tarantaraa!"; ];
+</PRE>
+
+allows a routine <TT>DoSomething</TT>, which would normally be defined in the
+<TT>Include</TT> file <TT>"SomeLibrary"</TT>, to be defined in this file instead.  The
+definition in the <TT>Include</TT> file is simply ignored.  In this way, one can
+override the library routines without actually having to modify the library
+source code.  To recap, the rule here is that a routine's definition is
+ignored if both (a) it occurs in a declared "system file'', and (b)
+its name has been given in a <TT>Replace</TT> directive.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+One way to follow what is being compiled is to use the <TT>Message</TT> directive.
+The compiler can be made to print messages at compile time using:
+<PRE>
+     Message "information"
+     Message error "error message"
+     Message fatalerror "fatal error message"
+     Message warning "warning message"
+</PRE>
+
+For example,
+<PRE>
+    Ifndef VN_1610;
+    Message fatalerror "This code can only be compiled by Inform 6.1";
+    Endif;
+</PRE>
+
+(By a special rule, the condition <TT>VN_1610</TT>-is-defined is true if and only
+if the version number is 6.10 or more; similarly for other four-digit
+numbers beginning with a 1.)  Informational messages are simply printed: e.g.,
+<PRE>
+    Message "Library extension by Boris J. Parallelopiped";
+</PRE>
+
+just prints out this line (with a carriage return).
+<P>
+
+<HR><BLOCKQUOTE><H3>4.3. Using the linker</H3></BLOCKQUOTE><P>
+The process of "linking'' is as follows.  A game being compiled (called the
+"external'' program) may <TT>Link</TT> one or more pre-compiled sections of code
+called "modules''. 
+Suppose the game Jekyll has a subsection called Hyde.  Then these two
+methods of making Jekyll are, nearly, equivalent:
+<P>(i) --  Putting <TT>Include "Hyde";</TT> in the source code for <TT>"Jekyll"</TT>,
+and compiling <TT>"Jekyll"</TT>.
+<P>(ii) --  Compiling <TT>"Hyde"</TT> with the <TT>-M</TT> ("module'') switch set,
+then putting <TT>Link "Hyde";</TT> into the same point in the source code for
+<TT>"Jekyll"</TT>, and compiling <TT>"Jekyll"</TT>.
+<P>
+Option (ii) is much faster as long as <TT>"Hyde"</TT> does not change very often,
+since its ready-compiled module can be left lying around while <TT>"Jekyll"</TT>
+is being developed.
+<P>
+
+Because "linking the library'' is by far the most common use of the
+linker, this is made simple.  All you have to do is compile your
+game with the <TT>-U</TT> switch set, or, equivalently, to begin your source code
+with
+<PRE>
+    Constant USE_MODULES;
+</PRE>
+
+(This assumes that you already have pre-compiled copies of the two library
+modules: if not, you'll need to make them with
+<PRE>
+    inform -M library.parserm
+    inform -M library.verblibm
+</PRE>
+
+(where <TT>library.parserm</TT> should be replaced with the filename for your
+copy of the library file "parserm'', and likewise for "verblibm'').)
+Note that it is essential not to make any <TT>Attribute</TT> or <TT>Property</TT>
+declarations <I> before</I> the <TT>Include "Parser"</TT> line in the source
+code, though <I> after</I> that point is fine.  (Library 6/2 and later
+will print an error message if you make this mistake, but under 6/1
+it can be a source of mysterious problems.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> You can also write your own library modules, or indeed
+subdivide a large game into many modular parts.  But there are certain
+restrictions to the possibilities.  (Real experts may want to look at
+the <I> Technical Manual</I> here.)  Here's a brief list of these:
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL><P> 1.<SAMP>            </SAMP> 
+The module must make the same <TT>Property</TT> and <TT>Attribute</TT> directives
+as the main program.  Including the library file <TT>"linklpa.h"</TT>
+("link library properties and attributes'') declares the library's
+stock, so it would be sensible to begin a module with
+<PRE>
+    Include "linklpa";
+</PRE>
+
+and then include a similar file defining all the extra common properties
+and attributes which are needed by the program (if any).
+<P>
+
+<P> 2.<SAMP>            </SAMP> 
+The module cannot contain grammar (i.e., use <TT>Verb</TT> or <TT>Extend</TT> directives)
+or create fake actions.
+<P>
+
+<P> 3.<SAMP>            </SAMP> 
+The module can only use global variables defined outside the module
+if they are explicitly declared before use using the <TT>Import</TT> directive.
+For example,
+<PRE>     
+    Import global frog;
+</PRE>
+
+allows the rest of the module's source code to refer to the variable
+<TT>frog</TT> (which must be defined in the outside program).  Note that
+the Include file <TT>"linklv.h"</TT> ("link library variables'') imports all
+the library variables, so it would be sensible to include this.
+<P>
+
+<P> 4.<SAMP>            </SAMP> 
+An object in the module can't inherit from a class defined outside
+the module.  (But an object outside can inherit from a class inside.)
+<P>
+
+<P> 5.<SAMP>            </SAMP> 
+Certain constant values in the module must be known at
+module-compile-time (and must not, for instance, be a symbol only defined
+outside the module).  For instance: the size of an array must be
+known now, not later; the number of duplicate members of a <TT>Class</TT>;
+and the quantities being compared in an <TT>Iftrue</TT> or <TT>Iffalse</TT>.
+<P>
+
+<P> 6.<SAMP>            </SAMP> 
+The module can't: define the <TT>Main</TT> routine; use the <TT>Stub</TT> or <TT>Default</TT>
+directives; or define an object whose parent object is not also in the
+same module.
+<P>
+
+<P> These restrictions are mild in practice.  As an example,
+here is a short module to play with:
+<PRE>
+    Include "linklpa";        ! Make use of the properties, attributes
+    Include "linklv";         ! and variables from the Library
+
+    [ LitThings x;
+      objectloop (x has light)
+          print (The) x, " is currently giving off light.^";
+    ];
+</PRE>
+
+It should be possible to compile this <TT>-M</TT> and then to <TT>Link</TT> it into
+another game, making the routine <TT>LitThings</TT> exist in that game.
+</SMALL><TR><TD><TD>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapter2.html">Back</A> / <A HREF="section5.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

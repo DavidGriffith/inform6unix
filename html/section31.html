@@ -1,0 +1,177 @@
+<HTML><HEAD><TITLE>Section 31: Limitations on the run-time format</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section30.html">Back</A><BR><A HREF="section32.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>31. Limitations on the run-time format</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>How wide the limits stand
+<BR>Between a splendid and an happy land.
+<BR><P>...Oliver Goldsmith (<B>1728</B>--<B>1774</B>), <I>The Deserted Village</I></BLOCKQUOTE>
+<P>
+
+
+
+The Infocom run-time format is well-designed, and has three major
+advantages: it is compact, widely portable and can be quickly executed.
+Nevertheless, like any rigidly defined format it imposes limitations.
+These are not by any means pressing.  Inform itself has a flexible enough
+memory-management system not to impose artificial limits on numbers of
+objects and the like.
+<P>
+
+Games can be compiled to several "versions'' of the run-time format.
+Unless told otherwise Inform compiled to what used to be called
+Advanced games (version 5).  It can still compile Standard games
+(version 3) but doing so imposes genuine restrictions, and there is little
+point any more.  Stepping up to the new version 8, on the other hand,
+allows much larger games to be compiled.  Other versions exist but
+are not useful to present-day game designers, so the real decision
+is V5 versus V8.
+<P>
+<P>
+
+
+<I> Memory.</I><SAMP>      </SAMP> This is the only serious restriction.  The maximum size
+of a game (in K) is given by:
+<PRE>
+V3     V4     V5     V6     V7     V8
+128    256    256    512    320    512
+</PRE>
+Because games are encoded in a very compressed form, and because the
+centralised library of Inform is efficient in terms of not duplicating code,
+even 128K allows for a game at least half as large again as a typical
+old-style Infocom game.  The default format (V5) will hold a game as large
+and complex as the final edition of 'Curses', substantially bigger than any
+Infocom game, with room to spare.  V6, the late Infocom graphical format,
+should be avoided for text games, as it is much more difficult to
+interpret.  The V8 format allows quite gargantuan games (one could implement,
+say, a merging of the 'Zork' and 'Enchanter' trilogies in it) and is
+recommended as the standard size for games too big to fit in V5.
+
+<P>
+<P>
+
+
+<I> Grammar.</I><SAMP>      </SAMP> The number of verbs is limited only by memory.
+Each can have up to 20 grammar lines (one can recompile Inform with
+<TT>MAX_LINES_PER_VERB</TT> defined to a higher setting to increase this)
+and a line contains at most 6 tokens.  (Using general parsing routines
+will prevent either restriction from biting.)
+<P>
+<P>
+
+
+<I> Vocabulary.</I><SAMP>      </SAMP> There is no theoretical limit.  Typical games have
+vocabularies of between 1000 and 2000 words, but doubling that would
+pose no problem.
+<P>
+<P>
+
+
+<I> Dictionary resolution.</I><SAMP>      </SAMP> Dictionary words are truncated to their
+first 9 letters (except that non-alphabetic characters, such as hyphens,
+count as 2 "letters'' for this purpose).  They must begin with an
+alphabetic character and upper and lower case letters are considered equal.
+(In V3, the truncation is to 6
+letters.)
+
+<P>
+<P>
+
+
+<I> Attributes, properties, names.</I><SAMP>      </SAMP> 48 attributes and 63 common properties
+are available, and each property can hold 64 bytes of data.  Hence, for
+example, an object can have up to 32 names.  These restrictions are harmless
+in practice: except in V3, where the numbers in question are 32, 31, 8
+and 4, which begins to bite.  Note that the number of different individual
+properties is unlimited.
+
+
+
+<P>
+<P>
+
+
+<I> Special effects.</I><SAMP>      </SAMP> V3 games cannot have special effects such
+as bold face and underlining.  (See the next two sections.)
+<P>
+<P>
+
+
+<I> Objects.</I><SAMP>      </SAMP> Limited only by memory: except in V3, where the limit
+is 255.
+<P>
+<P>
+
+
+<I> Memory management.</I><SAMP>      </SAMP> The Z-machine does not allow dynamic allocation
+or freeing of memory: one must statically define an array to a suitable maximum
+size and live within it.  This restriction greatly
+increases the portability of the format, and the designer's confidence that
+the game's behaviour is genuinely independent of the machine it's running on:
+memory allocation at run-time is a fraught process
+on many machines.
+
+<P>
+<P>
+
+
+<I> Global variables.</I><SAMP>      </SAMP> There can only be 240 of these, and the Inform
+compiler uses 5 as scratch space, while the library uses slightly over 100;
+but since a typical game uses only a dozen of its own, code being almost
+always object-oriented, the restriction is never felt.  An
+unlimited number of <TT>Array</TT> statements is permitted and array entries do
+not, of course, count towards the 240.
+<P>
+<P>
+
+
+<I> "Undo''.</I><SAMP>      </SAMP> No "undo'' verb is available in V3.
+<P>
+<P>
+
+
+<I> Function calls.</I><SAMP>      </SAMP> A function can be called with at most 7
+arguments.  (Or, in V3 and V4, at most
+3.)
+<P>
+<P>
+
+
+<I> Recursion and stack usage.</I><SAMP>      </SAMP> The limit on this is rather
+technical (see the <I> Z-Machine Standards Document</I>).  Roughly speaking,
+recursion is permitted to a depth of 90 routines in almost all circumstances
+(and often much deeper).  Direct usage of the stack via assembly language
+must be modest.
+
+<P>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  If memory does become short, there is a standard mechanism for
+saving about 8-10% of the memory.  Inform does not usually trouble to,
+since there's very seldom the need, and it makes the compiler run about 10%
+slower.  What you need to do is define abbreviations and then run the
+compiler in its "economy'' mode (using the switch <TT>-e</TT>).  For instance, the
+directive
+<PRE>
+Abbreviate " the ";
+</PRE>
+
+(placed before any text appears) will cause the string " the '' to be
+internally stored as a single 'letter', saving memory every time it occurs
+(about 2500 times in 'Curses', for instance).  You can have up to 64
+abbreviations.  When choosing abbreviations, avoid proper nouns and
+instead pick on short combinations of a space and common two- or
+three-letter blocks.  Good choices include <TT>" the "</TT>, <TT>"The"</TT>, <TT>", "</TT>,
+<TT>"and"</TT>, <TT>"you"</TT>, <TT>" a "</TT>, <TT>"ing"</TT>, <TT>" to"</TT>.
+You can even get Inform to work out by itself what a good stock of
+abbreviations would be: but be warned, this makes the compiler run
+about 29000% slower.
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section30.html">Back</A> / <A HREF="section32.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

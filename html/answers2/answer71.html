@@ -1,0 +1,44 @@
+<HTML><HEAD><TITLE>Answer to Exercise 71</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 71</B><TR><TD><TD>
+<P>
+
+Again, the first question is how to store the
+number dialled: in this case, into a <TT>string</TT> array.  The token
+is:
+<PRE>
+Constant MAX_PHONE_LENGTH = 30;
+Array dialled_number string MAX_PHONE_LENGTH;
+[ PhoneNumber f a l ch pp i;
+  pp=1; if (NextWordStopped()==-1) return 0;
+  do
+  {   a=WordAddress(wn-1); l=WordLength(wn-1);
+      for (i=0:i&#60;l:i++)
+      {   ch=a-&#62;i;
+          if (ch&#60;'0'  ch&#62;'9')
+          {   if (ch~='-') { f=1; if (i~=0) return -1; } }
+          else
+          {   if (pp&#60;MAX_PHONE_LENGTH)
+                  dialled_number-&#62;(pp++)=ch-'0';
+          }
+      }
+  } until (f==1  NextWordStopped()==-1);
+  if (pp==1) return -1;
+  dialled_number-&#62;0 = pp-1;
+  return 0;
+];
+</PRE>
+
+To demonstrate this in use,
+<PRE>
+[ DialPhoneSub i;
+  print "You dialled &#60;";
+  for (i=1:i&#60;=dialled_number-&#62;0:i++) print dialled_number-&#62;i;
+  "&#62;";
+];
+Verb "dial"  * PhoneNumber -&#62; DialPhone;
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section27.html#ex71">the exercise in section 27</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

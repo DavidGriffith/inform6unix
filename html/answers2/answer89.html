@@ -1,0 +1,29 @@
+<HTML><HEAD><TITLE>Answer to Exercise 89</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 89</B><TR><TD><TD>
+<P>
+
+Note the magic line of assembly code here, which only works for
+Advanced games:
+<PRE>^^{``Invisiclues''}
+[ GiveHint hint keypress;
+  print (string) hint; new_line; new_line;
+  @read_char 1 0 0 keypress;
+  if (keypress == 'H' or 'h') rfalse;
+  rtrue;
+];
+</PRE>
+
+And a typical menu item using it:
+<PRE>
+ if (menu_item==1)
+ {   print "(Press ENTER to return to menu, or H for another hint.)^^";
+     if (GiveHint("(1/3)  What kind of bird is it, exactly?")==1) return 2;
+     if (GiveHint("(2/3)  Magpies are attracted by shiny items.")==1) return 2;
+     "(3/3)  Wave at the magpie with the kitchen foil.";
+ }
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section32.html#ex89">the exercise in section 32</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

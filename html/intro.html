@@ -1,0 +1,207 @@
+<HTML><HEAD><TITLE>Introduction</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="contents.html">Back</A><BR><A HREF="chapter1.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>Introduction</H3>
+</BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>I will build myself a copper tower
+<BR>With four ways out and no way in
+<BR>But mine the glory, mine the power...
+<BR><P>...Louis MacNeice (<B>1907</B>--<B>1963</B>), <I>Flight of the Heart</I></BLOCKQUOTE>
+<P>
+
+
+Inform is a system for creating adventure games, and this is the book to
+read about it.
+<P>
+
+Infocom format 'story files' (adventure games, that is) can be played on
+almost any computer, from personal organisers to mainframes, with the aid of
+'interpreter' programs.  The task of the Inform 'compiler' is to translate a
+textual description of a game into a story file.  The result will play
+identically on any machine of any model.
+<P>
+
+Inform is a suite of software, called the 'library', as well as a compiler.
+Without the library, it would be a major undertaking to write a description
+of even the smallest game.  The library has two ingredients: the parser, a
+program for translating written English inputs into a form games can more
+easily understand, and the "world model'', a complex web of rules common
+to all adventure games.  Given these, the designer only needs to describe
+things and give any exceptional rules that apply.  ("There is a bird here,
+which is a normal item except that you can't pick it up.'')
+<P>
+
+The library is rich in detail.  The parser recognises over 80 distinct verbs
+and a vocabulary of about 300 words even before any rooms or objects are
+created, and is programmable and highly flexible.  It can handle ambiguities,
+clarify its input by asking questions ("Which key do you mean...?'') and can
+cope properly with plurals, vagueness, conversation, pronouns and the player
+becoming someone else in mid-game.  It can be configured to languages other
+than English.  The world-model includes rooms, items, vehicles, duplicates,
+containers, doors, things on top of other things, light and darkness,
+switching things on and off, opening, closing and locking things, looking
+up information in books, entering things, scoring and so forth.
+<P>
+
+<P>
+<P>
+
+Just as Inform has two strands -- compiler and library -- so this manual has
+two parts: Programming and Designing.  In Book One, small computer programs
+are written to perform simple calculations, never using the library.  Subsections
+listed <I> in slanted text</I> on the detailed contents page become technical
+but the rest is pitched at newcomers and can be skim-read by anyone with
+prior experience of a programming language such as C or Pascal.  Book Two
+is entirely about making games.
+<P>
+
+Newcomers are invited to work through <A HREF="section1.html">Section 1</A> and <A HREF="section7.html">Section 7</A>, the "getting started''
+sections in Books One and Two, before reading much more of either.
+<P>
+
+<P>
+In trying to be both a tutorial and reference work, this book aims itself
+in style halfway between the two extremes of manual, Tedium and Gnawfinger's
+<I> Elements of Batch Processing in COBOL-66</I>, third edition, and Mr Blobby's
+<I> Blobby Book of Computer Fun</I>.  (This makes some sections both leaden
+<I> and</I> patronising.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Passages which divert the main story, usually to
+tell an unexpurgated truth which may confuse or bore a newcomer, are marked
+with a warning triangle <IMG SRC="icons/dbend.gif" ALT="/\"> or two, and set in smaller type.
+</SMALL>
+<TR><TD><TD><P>
+
+ Examples of program are set in <TT>typewriter</TT> font.
+Mundane or irrelevant passages in
+longer examples are sometimes replaced with a line reading just "<TT>...</TT>''
+<P>
+
+To keep Book Two from clogging up with examples, many are set as
+"exercises'', with "answers'' given in full at the back of the book.
+Harder exercises are marked with triangles and some are very hard indeed.
+I emphasize that the exercises are often intended as a way of presenting answers
+to deliberately difficult questions, to assist experts: the curse of Adventure
+design-languages is the feature which is ideal for the simple but too inflexible
+to cope with the complicated.  For a list of exercises with page references to
+question and answer, see under "exercises'' in the Index.
+<P>
+
+A better tutorial than attempting the exercises, then, is probably to make
+a simple game, as demonstrated in Chapter III, and then add an example of each
+new feature as you work through Chapters IV and V.
+<P>
+
+Many sections end with a 'References' paragraph referring to yet
+more examples which can be found in Inform's demonstration games.  All of these
+have publically available source code (see the Inform home page): those most
+frequently referred to are 'Advent' (a full version of the original
+mainframe 'Adventure', which contains a good deal of "everyday Inform''),
+'Adventureland' (a version of Scott Adams's primitive classic),
+'Alice Through The Looking-Glass' (a heavily annotated game, developed in
+the course of Gareth Rees's WWW tutorial for Inform), 'Balances' (a short
+story consisting of puzzles which stretch the parser's abilities) and
+'Toyshop' (hardly a game: more an incoherent collection of unusual
+objects).  In addition, the little game 'Ruins' is developed
+in the course of Chapters III and IV of this manual.
+<P>
+
+Finally, the "game'' called 'Museum of Inform' simulates a museum whose
+exhibits are solutions to the exercises in this manual.
+<P>
+
+<P>
+Copyright on Inform, the program and its source code, its example games
+and documentation (including this book) is retained by Graham Nelson, who
+asserts the moral right to be identified as the author under the Copyrights,
+Designs and Patents Act 1988.  Having said this, I am happy for it to be freely
+distributed to anybody who wants a copy, provided that: (a) distributed copies
+are not substantially different from those archived by the author, (b) this and
+other copyright messages are always retained in full, and (c) no profit is
+involved.  (Exceptions to these rules must be negotiated directly with the
+author.)  However, a story file produced with the Inform compiler (and
+libraries) then belongs to its author, and may be sold for profit if desired,
+provided that its game banner contains the information that it was compiled by
+Inform, and the Inform version number.
+<P>
+
+The Internet source for Inform material (executables of the compiler for
+different machines, source code, the library files and example games)
+is the German National Research Centre for Computer Science, where Volker
+Blasius maintains an archive at the anonymous FTP site <TT>ftp.gmd.de</TT>.
+Inform can be found at:
+<BLOCKQUOTE><A HREF="ftp://ftp.gmd.de/if-archive/infocom/compilers/inform"><TT>ftp://ftp.gmd.de/if-archive/infocom/compilers/inform6</TT></A></BLOCKQUOTE>
+
+Another useful resource is the Inform 6 home page on the 'World Wide Web',
+which includes Gareth Rees's 'Alice' tutorial, located at:
+<BLOCKQUOTE><A HREF="http://www.gnelson.demon.co.uk/inform.html"><TT>http://www.gnelson.demon.co.uk/inform.html</TT></A></BLOCKQUOTE>
+This manual describes Inform release 6.13 (or later), using
+library release 6/5 (or later).  Earlier Inform 6 compilers and
+libraries are very similar but Inform 5.5 and 5/12 are very different.
+<P>
+<P>
+
+This manual has evolved from seven earlier publications, once rather makeshift
+and sometimes defensive ("Inform is an easel, not a painting'').  There were
+specifications of the run-time code format and literary critiques of games
+gone by: like an oven manual padded out with both a cookery book and a
+detailed plan of the gas mains.  This book contains just the instructions
+for the oven.
+<P>
+
+So there are four 'companion volumes'.  <I> The Craft of Adventure</I> is
+an essay on the design of adventure games;  <I> The Z-Machine Standards
+Document</I> minutely covers the run-time format and Inform assembly
+language, its lowest level; and <I> The Inform Technical Manual</I> documents
+Inform's internal working in great detail, and includes a formal context-free
+grammar for the Inform language.  The <I> Inform Translator's Manual</I>
+describes how to write a language definition file for games which speak
+languages other than English.
+<P>
+
+<P>
+Some of the ideas of Inform came from an incremental multi-player
+game called Tera, on the Cambridge University mainframe, written by
+Dilip Sequeira and the author in 1990 (whose compiler was called Teraform);
+in turn, this stole a little from David Seal and Jonathan Thackray's
+game assembler; which dates back to the close of the 1970s and was written for
+'Acheton', perhaps the first worthwhile game written outside America.
+Still, much of the Inform kernel derives ultimately from the <I> IEEE Computer</I>
+article 'Zork: A Computerized Fantasy Simulation Game' by P. David Lebling,
+Marc S. Blank and Timothy A. Anderson; and more was suggested by
+Richard Tucker and Gareth Rees, among others.
+<P>
+
+The list of those who have helped the project along is legion: I should like
+to thank them all, porters, users and critics alike, but especially Volker
+Blasius, Paul David Doherty, Mark Howell, the ever avuncular Bob Newell, Robert
+Pelak, Gareth Rees,
+J&#248;rund Rian,
+Dilip Sequeira, Richard Tucker,
+Christopher Wichura and John Wood.
+<P>
+
+One final word.  I should like to dedicate this book, impertinently perhaps,
+to our illustrious predecessors: Will Crowther, Don Woods and
+the authors of Infocom, Inc.
+<P>
+<TR><TD><TD align="right"><I>Graham Nelson</I>
+<TR><TD><TD align="right"><I>Oxford</I>
+<TR><TD><TD align="right"><I>April 1993 -- May 1997</I>
+<P>
+
+<BLOCKQUOTE>
+<BR>And if no piece of chronicle we prove,
+<BR>We'll build in sonnets pretty rooms;
+<BR>As well a well wrought urn becomes
+<BR>The greatest ashes, as half-acre tombs.
+<BR><P>...John Donne (<B>1571</B>?--<B>1631</B>), <I>The Canonization</I></BLOCKQUOTE>
+<P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="contents.html">Back</A> / <A HREF="chapter1.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

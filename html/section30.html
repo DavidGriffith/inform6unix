@@ -1,0 +1,200 @@
+<HTML><HEAD><TITLE>Section 30: Debugging verbs and tracing</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapter6.html">Back</A><BR><A HREF="section31.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>30. Debugging verbs and tracing</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+If builders built buildings the way programmers write programs,
+the first woodpecker that came along would destroy civilisation.
+<P>...old computing adage</BLOCKQUOTE>
+<P>
+
+
+Infocom claimed to have fixed nearly 2000 bugs in the course of writing
+'Sorcerer', which is a relatively simple game today. Adventure games are
+exhausting programs to test and debug because of the huge number of states
+they can get into, many of which did not occur to the author.  (For
+instance, if the player solves the "last'' puzzle first, do the other
+puzzles still work properly?  Are they still fair?)  The main source of
+error is simply the designer not noticing that some states are possible. The
+Inform library can't help with this, but it does contain features to help
+the tester to quickly reproduce states (by moving objects around freely, for
+instance) and to see what the current state actually is (by displaying the
+tree of objects, for instance).
+<P>
+
+Inform provides a small suite of debugging verbs,
+which will be added to any game compiled with the <TT>-D</TT> switch.
+If you prefer, you can include them manually by writing
+<PRE>
+Constant DEBUG;
+</PRE>
+<TT>DEBUG</TT>
+somewhere in the program before the library files are included.
+(Just in case you forget having done this, the letter <TT>D</TT> appears
+in the game banner to stop you releasing such a version by accident.)
+<P>
+
+You then get the following verbs, which can be used at any time in play:
+<PRE>
+showobj &#60;anything&#62;
+purloin &#60;anything&#62;
+abstract &#60;anything&#62; to &#60;anything&#62;
+tree               tree &#60;anything&#62;
+scope              scope &#60;anything&#62;
+showverb &#60;verb&#62;
+goto &#60;number&#62;      gonear &#60;anything&#62;
+actions    actions on    actions off
+routines   routines on   routines off
+messages   messages on   messages off
+timers     timers on     timers off
+trace      trace on      trace off    trace &#60;1 to 5&#62;
+recording  recording on  recording off
+replay
+random
+</PRE>
+
+"showobj'' is very informative about the current state of an object.
+You can "purloin" any item or items in your game at any time, wherever
+you are.  This clears <TT>concealed</TT> for anything it takes, if necessary.
+You can likewise "abstract" any item to any other item (meaning:
+move it to the other item).  To get a listing of the objects in the game
+and how they contain each other, use "tree", and to see the possessions of
+one of them alone, use "tree <I><B>&#60;that&#62;</B></I>".  The command "scope'' prints a
+list of all the objects currently in scope, and can optionally be given
+the name of someone else you want a list of the scope for (e.g., "scope
+pirate'').  "showverb'' will display the grammar being used when the
+given verb is parsed.  Finally, you can go anywhere, but since rooms don't
+have names understood by the parser, you have to give either the object number,
+which you can find out from the "tree'' listing, or the name of some object in
+the room you want to go to (this is what "gonear'' does).
+
+
+
+
+<P>
+
+Turning on "actions" gives a trace of all the actions which take place in
+the game (the parser's, the library's or yours); turning on "routines"
+traces every object routine (such as <TT>before</TT> or <TT>life</TT>) that is ever
+called, except for <TT>short_name</TT> (as this would look chaotic, especially on
+the status line).  It also describes all messages sent in the game, which is
+why it can also be written as "messages''.
+Turning on "timers'' shows the state of all active timers
+and daemons each turn.
+
+<P>
+
+The commands you type can be transcribed to a file with the
+"recording'' verb, and run back through with the "replay'' verb.
+(This may not work under some implementations of the ITF interpreter.)
+If you're going to use such recordings, you will need to fix the random
+number generator, and the "random'' verb should render this
+deterministic: i.e., after any two uses of "random'', the same stream
+of random numbers results.  Random number generation is poor on some
+machines: you may want to <TT>Replace</TT> the random-number generator in
+software instead.
+<P>
+
+<P>
+A source-level debugger for Inform, called Infix, has been planned
+for some years, and may possibly be coming to fruition soon.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> For the benefit of such tools, Inform (if compiling with the
+<TT>-k</TT> option set) produces a file of "debugging information''
+(cross-references of the game file with the source code),
+and anyone interested in writing an Inform utility program may want
+to know the format of this file: see the <I> Technical Manual</I> for
+details.
+</SMALL>
+<TR><TD><TD><P>
+
+
+On most interpreters, though, run-time crashes can be mysterious, since
+the interpreters were written on the assumption that they would only ever
+play Infocom game files (which are largely error-free).  A Standard
+interpreter is better here and will usually tell you why and where the
+problem is; given a game file address you can work back to the problem
+point in the source either with Mark Howell's txd (disassembler)
+or by running Inform with the assembler trace option on.
+<P>
+
+Here are all the ways I know to crash an interpreter at run-time (with
+high-level Inform code, that is; if you insist on using
+assembly language or the <TT>indirect</TT> function you're raising the stakes),
+arranged in decreasing order of likelihood:
+
+
+<P> --  Writing to a property which an object hasn't got;
+<P> --  Dividing by zero, possibly by calling <TT>random(0)</TT>;
+<P> --  Giving a string or numerical value for a property which can
+only legally hold a routine, such as <TT>before</TT>, <TT>after</TT> or <TT>life</TT>;
+<P> --  Applying <TT>parent</TT>, <TT>child</TT> or <TT>children</TT> to the <TT>nothing</TT>
+object;
+<P> --  Using <TT>print object</TT> on the <TT>nothing</TT> object, or for some
+object which doesn't exist (use <TT>print (name)</TT>, <TT>print (the)</TT> etc., instead
+as these are safeguarded);
+<P> --  Using <TT>print (string)</TT> or <TT>print (address)</TT> to
+print from an address outside the memory map of the game file, or an address
+at which no string is present (this will result in random text appearing,
+possibly including unprintable characters, which might crash the
+terminal);
+<P> --  Running out of stack space in a recursive loop.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+There are times when it's hard to work out what the parser is up to and why
+(actually, most times are like this).  The parser is written in levels, the
+lower levels of which are murky indeed.  Most of the interesting things
+happen in the middle levels, and these are the ones for which tracing is
+available.  The levels which can be traced are:
+{
+<BR><TABLE Border><TR><TD>  Level 1  <TD>   Grammar lines
+<TR><TD>  Level 2  <TD>   Individual tokens
+<TR><TD>  Level 3  <TD>   Object list parsing
+<TR><TD>  Level 4  <TD>   Resolving ambiguities and making choices of object(s)
+<TR><TD>  Level 5  <TD>   Comparing text against an individual object
+</TABLE>
+"trace" or "trace on" give only level 1 tracing.  Be warned: "trace five"
+can produce reams of text when you try anything at all complicated: but you
+do sometimes want to see it, to get a list of exactly everything that is in
+scope and when.  There are two levels lower than that but they're too busy
+doing dull spade-work to waste time on looking at <TT>parser_trace</TT>.  There's
+also a level 0, but it consists mostly of making arrangements for level 1,
+and isn't very interesting.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL>
+Finally, though this is a drastic measure, you can always compile your game
+<TT>-g</TT> ('debugging code') which gives a listing of every routine ever
+called and their parameters.  This produces an enormous mel&#232;e of output. 
+More usefully you can declare a routine with an asterisk <TT>*</TT> as its first
+local variable, which produces such tracing only for that one routine.
+For example,
+<PRE>
+[ ParseNoun * obj n m;
+</PRE>
+
+results in the game printing out lines like
+<PRE>
+[ParseName, obj=26, n=0, m=0]
+</PRE>
+
+every time the routine is called.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  A simple debugging verb called "xdeterm'' is defined in the
+<TT>DEBUG</TT> version of 'Advent', to make the game deterministic (i.e.,
+not dependant on what the random number generator produces).
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapter6.html">Back</A> / <A HREF="section31.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,132 @@
+<HTML><HEAD><TITLE>Section 17: The light and the dark</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section16.html">Back</A><BR><A HREF="section18.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>17. The light and the dark</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+
+The library maintains light by itself, and copes with events like:
+<BLOCKQUOTE>
+a total eclipse of the sun;<BR>
+fusing all the lights in the house;<BR>
+your lamp going out;<BR>
+a dwarf stealing it and running away;<BR>
+dropping a lit match which you were seeing by;<BR>
+putting your lamp into an opaque box and shutting the lid;<BR>
+black smoke filling up the glass jar that the lamp is in;<BR>
+the dwarf with your lamp running back into your now-dark room.<BR>
+</BLOCKQUOTE>
+
+The point of this list is to demonstrate that light versus darkness is
+tricky to get right, and best left to the library.  Your code
+needs only to do something like
+<PRE>
+give lamp light;
+remove match;
+give glass_jar ~transparent;
+move dwarf to Dark_Room;
+</PRE>
+
+and can leave the library to sort out the consequences.  As the above
+suggests, the <TT>light</TT> attribute means that an object is giving off light,
+or that a room is currently lit, e.g. because it is outdoors in day-time.
+If you simply never want to have darkness, a
+sneaky way of doing it is to put the line
+<PRE>
+give player light;
+</PRE>
+
+in <TT>Initialise</TT>.  The game works as if the player herself were glowing
+enough to provide light to see by.  So there's never darkness near the
+player.
+<P>
+<P>
+
+The definition of "when there is light" is complicated, involving
+recursion both up and down.  Remember that the parent of the player
+object may not be a room; it may be, say, a red car whose parent is a
+room.<P>
+<P>
+
+<B> Definition.</B><SAMP>      </SAMP>
+
+There is light exactly when the parent of the player 'offers light'.
+An object 'offers light' if:
+<BLOCKQUOTE>
+it itself has the <TT>light</TT> attribute set, <B> or</B><BR>
+any of its immediate possessions 'have light', <B> or</B><BR>
+it is see-through and its parent offers light;<BR>
+</BLOCKQUOTE>
+
+while an object 'has light' if:
+<BLOCKQUOTE>
+it currently has the <TT>light</TT> attribute set, <B> or</B><BR>
+it is see-through and one of its immediate possessions has light, <B> or</B><BR>
+any of the things it "adds to scope'' (see Chapter V) have light.<BR>
+</BLOCKQUOTE>
+
+The process of checking this stops as soon as light is discovered.  The
+routines
+<BLOCKQUOTE>
+<TT>OffersLight(object)</TT> and <TT>HasLightSource(object)</TT>
+</BLOCKQUOTE>
+
+return true or false and might occasionally be useful.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> So light is cast up and down the tree of objects.  In certain
+contrived circumstances this might be troublesome: perhaps an opaque box,
+whose outside is fluorescent but whose interior is dark, and which contains
+an actor who needs not to have other contents of the box in scope...
+The dilemma could be solved by putting an inner box in the outer one.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex32"><B>EXERCISE 32:</B><BR>(link to <A HREF="answers1/answer32.html">the answer</A>)<TR><TD><TD>  How would you code a troll who is afraid of the dark, and needs
+to be bribed but will only accept a light source... so that the troll will
+be as happy with a goldfish bowl containing a fluorescent jellyfish as he
+would be with a lamp?
+<P>
+
+
+Each turn, light is reconsidered.  The presence or absence of light affects
+the <TT>Look</TT>, <TT>Search</TT>, <TT>LookUnder</TT> and <TT>Examine</TT> actions, and
+(since this is a common puzzle) also the <TT>Go</TT> action: you can provide
+a routine called
+<PRE>
+DarkToDark()
+</PRE>
+
+and if you do then it will be called when the player goes from one dark
+room into another dark one (just before the room description for the new
+dark room, probably "Darkness'', is printed).  If you want, you can take
+the opportunity to kill the player off or extract some other forfeit.
+If you provide no such routine, then the player can move about freely
+(subject to any rules which apply in the places concerned).
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> When the player is in darkness, the current <TT>location</TT> becomes
+<TT>thedark</TT>, a special object which acts like a room and has the short name
+"Darkness''.  You can change the <TT>initial</TT>, <TT>description</TT> or <TT>short_name</TT>
+properties for this.  For example, your <TT>Initialise</TT> routine might set
+<PRE>
+    thedark.short_name = "Creepy, nasty darkness";
+</PRE>
+
+See <A HREF="section18.html">Section 18</A> for how 'Ruins' makes darkness menacing.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex33"><B>EXERCISE 33:</B><BR>(link to <A HREF="answers1/answer33.html">the answer</A>)<TR><TD><TD> Implement a pet moth which escapes if it's ever
+taken into darkness.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  For a <TT>DarkToDark</TT> routine which discourages wandering about caves
+in the dark, see 'Advent'.
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section16.html">Back</A> / <A HREF="section18.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

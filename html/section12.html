@@ -1,0 +1,123 @@
+<HTML><HEAD><TITLE>Section 12: Doors</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section11.html">Back</A><BR><A HREF="section13.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>12. Doors</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+Standing in front of you to the north, however, is a door surpassing
+anything you could have imagined. For starters, its massive lock is
+wrapped in a dozen six-inch thick iron chains. In addition, a certain
+five-headed monster...
+<P>...Marc Blank and P. David Lebling, <I>'Enchanter'</I></BLOCKQUOTE>
+<BLOCKQUOTE>
+<BR>O for doors to be open and an invite with gilded edges
+<BR>To dine with Lord Lobcock and Count Asthma.
+<BR><P>...W. H. Auden (<B>1907</B>--<B>1973</B>), <I>Song</I></BLOCKQUOTE>
+<P>
+
+
+A useful kind of object is a <TT>door</TT>.  This need not literally be a door:
+it might be a rope-bridge or a ladder, for instance.  To set up a <TT>door</TT>:
+
+<P>(a) --  give the object the <TT>door</TT> attribute;
+<P>(b) --  set its <TT>door_to</TT> property to the destination;
+<P>(c) --  set its <TT>door_dir</TT> property to the direction which that would be,
+such as <TT>n_to</TT>;
+<P>(d) --  make the room's map connection in that direction point to the
+door itself.
+
+\PAR
+For example, here is a closed and locked door, blocking the
+way into the 'Ruins' shrine:
+<PRE>
+Object Corridor "Stooped Corridor"
+  with description "A low, square-cut corridor, running north to south,
+           stooping you over.",
+       n_to Square_Chamber,
+       s_to StoneDoor;
+Object -&#62; StoneDoor "stone door"
+  with description "It's just a big stone door.",
+       name "door" "massive" "big" "stone" "yellow",
+       when_closed
+           "Passage south is barred by a massive door of yellow stone.",
+       when_open
+           "The great yellow stone door to the south is open.",
+       door_to Shrine,
+       door_dir s_to,
+       with_key stone_key
+  has  static door openable lockable locked;
+</PRE>
+
+Note that the door is <TT>static</TT> -- otherwise the player could pick it up and
+walk away with it!  The properties <TT>when_closed</TT> and <TT>when_open</TT> give
+descriptions appropriate for the door in these two states.
+
+<P>
+
+Doors are rather one-way: they are only really present on one side.  If
+a door needs to be accessible (openable and lockable from either side),
+a neat trick is to make it present in both locations and to fix the
+<TT>door_to</TT> and <TT>door_dir</TT> to the right way round for whichever side the player
+is on.  Here, then, is a two-way door:
+<PRE>
+Object -&#62; StoneDoor "stone door"
+  with description "It's just a big stone door.",
+       name "door" "massive" "big" "stone" "yellow",
+       when_closed
+           "The passage is barred by a massive door of yellow stone.",
+       when_open
+           "The great yellow stone door is open.",
+       door_to
+       [;  if (location==Corridor) return Shrine; return Corridor; ],
+       door_dir
+       [;  if (location==Shrine) return n_to; return s_to; ],
+       with_key stone_key,
+       found_in  Corridor  Shrine,
+  has  static door openable lockable locked;
+</PRE>
+
+where <TT>Corridor</TT> has <TT>s_to</TT> set to <TT>StoneDoor</TT>, and <TT>Shrine</TT> has
+<TT>n_to</TT> set to <TT>StoneDoor</TT>.  The door can now be opened, closed, entered,
+locked or unlocked from either side.  We could also make <TT>when_open</TT>
+and <TT>when_closed</TT> into routines to print different descriptions of the
+door on each side.
+<P>
+
+At first sight, it isn't obvious why doors have the <TT>door_dir</TT>
+
+property.  Why does a door need to know which way it faces?  The point is
+that two different actions cause the player to go through the door.
+Suppose the door is in the south wall.  The player may type "go south'',
+which directly causes the action <TT>Go s_obj</TT>.  Or the player may "enter
+door'' or "go through door'', causing <TT>Enter the_door</TT>.  Provided the
+door is actually open, the <TT>Enter</TT> action then looks at the door's
+<TT>door_dir</TT> property, finds that the door faces south and generates
+the action <TT>Go s_obj</TT>.  Thus, however the player tries to go through
+the door, it is the <TT>Go</TT> action that finally results.
+<P>
+
+This has an important consequence: if you put <TT>before</TT> and <TT>after</TT>
+routines on the <TT>Enter</TT> action for the <TT>StoneDoor</TT>, they only apply to
+a player typing "enter door" and not to one just typing "south".  So
+one safe way is to trap the <TT>Go</TT> action.  A neater method is to
+put some code into a <TT>door_to</TT> routine.  If a <TT>door_to</TT>
+routine returns 0 instead of a room, then the player is told that
+the door "leads nowhere'' (like the famous broken bridge of Avignon).
+If <TT>door_to</TT> returns 1, or 'true', then the library stops the action
+on the assumption that something has happened and the player has been
+told already.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex13"><B>EXERCISE 13:</B><BR>(link to <A HREF="answers1/answer13.html">the answer</A>)<TR><TD><TD> Create a plank bridge across a chasm, which collapses if
+the player walks across it while carrying
+anything.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  'Advent' is especially rich in two-way doors: the steel grate
+in the streambed, two bridges (one of crystal, the other of rickety
+wood) and a door with rusty hinges.  See also the iron gate in 'Balances'.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section11.html">Back</A> / <A HREF="section13.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,19 @@
+<HTML><HEAD><TITLE>Answer to Exercise 4</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 4</B><TR><TD><TD>
+<P>
+Put any validation rules desired into the <TT>GamePreRoutine</TT>.
+For example, the following will filter out any stray <TT>Drop</TT> actions for
+unheld objects:
+
+<PRE>
+[ GamePreRoutine;
+  if (action==Drop &#38;&#38; noun notin player)
+      "You aren't holding ", (the) noun, ".";
+  rfalse;
+];
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section9.html#ex4">the exercise in section 9</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

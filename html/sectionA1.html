@@ -1,0 +1,80 @@
+<HTML><HEAD><TITLE>Section A1: Inform operators</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapterA.html">Back</A><BR><A HREF="sectionA2.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A1. Inform operators</H3></BLOCKQUOTE><TR><TD><TD>
+In the table, "Level'' refers to precedence level: thus <TT>*</TT>, on level 6,
+has precedence over <TT>+</TT>, down on level 5, but both subordinate to unary <TT>-</TT>,
+up on level 8.  The "associativity'' of an operator is the way it
+brackets up if the formula doesn't specify this: for instance, <TT>-</TT> is left
+associative because
+<PRE>
+    a - b - c
+</PRE>
+
+is understood as
+<PRE>
+    (a - b) - c
+</PRE>
+
+with brackets going on the left.  With some Inform operators, you're not
+allowed to be vague like this; these are the ones whose associative is
+listed as "none''.  Thus
+<PRE>
+    a == b == c
+</PRE>
+
+will produce an error insisting that brackets be written into the program
+to make clear what the meaning is.  Given the table (and sufficient patience)
+all expressions can be broken down into order: for instance
+<PRE>
+    a * b .&#38; c --&#62; d / - f
+</PRE>
+
+is calculated as
+<PRE>
+    ( a*((b.&#38;c)--&#62;d) ) / (-f)
+</PRE>
+
+
+<BR><TABLE Border>
+<TR><TD>0 <TD> <TT>,</TT>       <TD> binary <TD> left    <TD> separating values to work out 
+<TR><TD>1 <TD> <TT>=</TT>       <TD> binary <TD> right   <TD>  set equal to
+<TR><TD>2 <TD>&#38;&#38; <TD> binary <TD> left    <TD>  logical AND
+<TR><TD>2 <TD>||<TD> binary <TD> left    <TD>  logical OR
+<TR><TD>2 <TD> <TT>~~</TT>      <TD> unary  <TD> (pre)   <TD> logical NOT
+<TR><TD>3 <TD> <TT>==</TT>      <TD>  binary <TD> none   <TD>  equal to?
+<TR><TD>3 <TD> <TT>~=</TT>      <TD>  binary <TD> none   <TD>  not equal to?
+<TR><TD>3 <TD> <TT>&#62;</TT>       <TD>  binary <TD> none   <TD>  greater than?
+<TR><TD>3 <TD> <TT>&#62;=</TT>      <TD>  binary <TD> none   <TD>  greater than or equal to?
+<TR><TD>3 <TD> <TT>&#60;</TT>       <TD>  binary <TD> none   <TD>  less than?
+<TR><TD>3 <TD> <TT>&#60;=</TT>      <TD>  binary <TD> none   <TD>  less than or equal to?
+<TR><TD>3 <TD> <TT>has</TT>     <TD>  binary <TD> none   <TD>  object has this attribute?
+<TR><TD>3 <TD> <TT>hasnt</TT>   <TD>  binary <TD> none   <TD>  object hasn't this attribute?
+<TR><TD>3 <TD> <TT>in</TT>      <TD>  binary <TD> none   <TD>  first obj a child of second?
+<TR><TD>3 <TD> <TT>notin</TT>   <TD>  binary <TD> none   <TD>  first obj not a child of second?
+<TR><TD>3 <TD> <TT>ofclass</TT> <TD>  binary <TD> none   <TD>  obj inherits from class?
+<TR><TD>3 <TD> <TT>provides</TT> <TD> binary <TD> none   <TD>  obj provides this property?
+<TR><TD>4 <TD> <TT>or</TT>      <TD>  binary <TD> left   <TD>  separating alternative values
+<TR><TD>5 <TD> <TT>+</TT>       <TD>  binary <TD> left   <TD>  16-bit signed addition
+<TR><TD>5 <TD> <TT>-</TT>       <TD>  binary <TD> left   <TD>  16-bit signed subtraction
+<TR><TD>6 <TD> <TT>*</TT>       <TD>  binary <TD> left   <TD>  16-bit signed multiplication
+<TR><TD>6 <TD> <TT>/</TT>       <TD>  binary <TD> left   <TD>  16-bit signed integer division
+<TR><TD>6 <TD> <TT>%</TT>       <TD>  binary <TD> left   <TD>  16-bit signed remainder
+<TR><TD>6 <TD> &#38;    <TD>  binary <TD> left   <TD>  bitwise AND
+<TR><TD>6 <TD> |      <TD>  binary <TD> left   <TD>  bitwise OR
+<TR><TD>6 <TD> <TT>~</TT>       <TD>  unary  <TD> (pre)  <TD>  bitwise NOT
+<TR><TD>7 <TD> <TT>-&#62;</TT>      <TD>  binary <TD> left   <TD>  byte array entry
+<TR><TD>7 <TD> <TT>--&#62;</TT>     <TD>  binary <TD> left   <TD>  word array entry
+<TR><TD>8 <TD> <TT>-</TT>       <TD>  unary  <TD> (pre)  <TD>  16-bit (signed!) negation
+<TR><TD>9 <TD> <TT>++</TT>      <TD>  unary  <TD> (pre/post) <TD> increment
+<TR><TD>9 <TD> <TT>--</TT>      <TD>  unary  <TD> (pre/post) <TD> decrement
+<TR><TD>10 <TD> <TT>.</TT>&#38; <TD>  binary <TD> left   <TD>  property address
+<TR><TD>10 <TD> <TT>.#</TT>      <TD>  binary <TD> left   <TD>  property length
+<TR><TD>11 <TD> <TT>(...)</TT>   <TD>  binary <TD> left   <TD>  function call on right hand side
+<TR><TD>12 <TD> <TT>.</TT>       <TD>  binary <TD> left   <TD>  property value
+<TR><TD>13 <TD> <TT>::</TT>      <TD>  binary <TD> left   <TD>  "superclass'' operator
+<TR><TD>14 <TD> <TT>(...)</TT>   <TD>  binary <TD> left   <TD>  function call on left hand side
+</TABLE>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapterA.html">Back</A> / <A HREF="sectionA2.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,1396 @@
+This is Info file inform.info, produced by Makeinfo-1.64 from the input
+file inform.texi.
+
+This is the Inform Designer's Manual, third edition, 4 September 1996,
+as updated 16 May 1997.  It was converted to Info by Christopher J.
+Madsen <ac608@yfn.ysu.edu>.
+
+Copyright 1996,1997 Graham Nelson and Christopher J. Madsen
+
+Permission is granted to make and distribute copies of this manual
+provided that:
+ (a) distributed copies are not substantially different from those
+     archived by the author,
+ (b) this and other copyright messages are always retained in full, and
+ (c) no profit is involved.
+
+
+File: inform,  Node: Library Messages,  Next: Entry Points,  Prev: Actions and Fake Actions,  Up: Appendix
+
+Library message numbers
+=======================
+
+Answer
+    ``There is no reply.''
+Ask
+    ``There is no reply.''
+Attack
+    ``Violence isn't the answer to this one.''
+Blow
+    ``You can't usefully blow that/those.''
+Burn
+    ``This dangerous act would achieve little.''
+Buy
+    ``Nothing is on sale.''
+Climb
+    ``I don't think much is to be achieved by that.''
+Close
+    1. ``That's/They're not something you can close.''
+    2. ``That's/They're already closed.''
+    3. ``You close <x1>.''
+Consult
+    ``You discover nothing of interest in <x1>.''
+Cut
+    ``Cutting that/those up would achieve little.''
+Dig
+    ``Digging would achieve nothing here.''
+Disrobe
+    1. ``You're not wearing that/those.''
+    2. ``You take off <x1>.''
+Drink
+    ``There's nothing suitable to drink here.''
+Drop
+    1. ``The <x1> is/are already here.''
+    2. ``You haven't got that/those.''
+    3. ``(first taking <x1> off)''
+    4. ``Dropped.''
+Eat
+    1. ``That's/They're plainly inedible.''
+    2. ``You eat <x1>. Not bad.''
+EmptyT
+    1. <x1> `` can't contain things.''
+    2. <x1> `` is/are closed.''
+    <x1> `` is/are empty already.''
+Enter
+    1. ``But you're already on/in <x1>.''
+    2. ``That's/They're not something you can enter.''
+    3. ``You can't get into the closed <x1>.''
+    4. ``You can only get into something freestanding.''
+    5. ``You get onto/into <x1>.''
+Examine
+    1. ``Darkness, noun. An absence of light to see by.''
+    2. ``You see nothing special about <x1>.''
+    3. ``<x1> is/are currently switched on/off.''
+Exit
+    1. ``But you aren't in anything at the moment.''
+    2. ``You can't get out of the closed <x1>.''
+    3. ``You get off/out of <x1>.''
+Fill
+    ``But there's no water here to carry.''
+FullScore
+    1. ``The score is/was made up as follows:^''
+    2. ``finding sundry items''
+    3. ``visiting various places''
+    4. ``total (out of MAX_SCORE)''
+GetOff
+    ``But you aren't on <x1> at the moment.''
+Give
+    1. ``You aren't holding <x1>.''
+    2. ``You juggle <x1> for a while, but don't achieve much.''
+    3. ``<x1> doesn't/don't seem interested.''
+Go
+    1. ``You'll have to get off/out of <x1> first.''
+    2. ``You can't go that way.''
+    3. ``You are unable to climb <x1>.''
+    4. ``You are unable to descend <x1>.''
+    5. ``You can't, since <x1> is/are in the way.''
+    6. ``You can't, since <x1> leads nowhere.''
+Insert
+    1. ``You need to be holding <x1> before you
+         can put it/them into something else.''
+    2. ``That/Those can't contain things.''
+    3. ``<x1> is/are closed.''
+    4. ``You'll need to take it/them off first.''
+    5. ``You can't put something inside itself.''
+    6. ``(first taking it/them off)^''
+    7. ``There is no more room in <x1>.''
+    8. ``Done.''
+    9. ``You put <x1> into <second>.''
+Inv
+    1. ``You are carrying nothing.''
+    2. ``You are carrying''
+Jump
+    ``You jump on the spot, fruitlessly.''
+JumpOver
+    ``You would achieve nothing by this.''
+Kiss
+    ``Keep your mind on the game.''
+Listen
+    ``You hear nothing unexpected.''
+LMode1
+    `` is now in its normal ~brief~ printing mode, which gives
+       long descriptions of places never before visited and short
+       descriptions otherwise.''
+LMode2
+    `` is now in its ~verbose~ mode, which always gives long
+       descriptions of locations (even if you've been there before).''
+LMode3
+    `` is now in its ~superbrief~ mode, which always gives short
+       descriptions of locations (even if you haven't been there before).''
+Lock
+    1. ``That doesn't/They don't seem to be something you can lock.''
+    2. ``That's/They're locked at the moment.''
+    3. ``First you'll have to close <x1>.''
+    4. ``That doesn't/Those don't seem to fit the lock.''
+    5. ``You lock <x1>.''
+Look
+    1. `` (on <x1>)''
+    2. `` (in <x1>)''
+    3. `` (as <x1>)''
+    4. ``^On <x1> is/are <list>''
+    5. ``[On/In <x1>] you/You can also see <list> [here].''
+    6. ``[On/In <x1>] you/You can see <list> [here].''
+LookUnder
+    1. ``But it's dark.''
+    ``You find nothing of interest.''
+Mild
+    ``Quite.''
+ListMiscellany
+    1. `` (providing light)''
+    2. `` (which is/are closed)''
+    3. `` (closed and providing light)''
+    4. `` (which is/are empty)''
+    5. `` (empty and providing light)''
+    6. `` (which is/are closed and empty)''
+    7. `` (closed, empty and providing light)''
+    8. `` (providing light and being worn''
+    9. `` (providing light''
+   10. `` (being worn''
+   11. `` (which is/are ''
+   12. ``open''
+   13. ``open but empty''
+   14. ``closed''
+   15. ``closed and locked''
+   16. `` and empty''
+   17. `` (which is/are empty)''
+   18. `` containing ''
+   19. `` (on ''
+   20. ``, on top of ''
+   21. `` (in ''
+   22. ``, inside ''
+Miscellany
+    1. ``(considering the first sixteen objects only)^''
+    2. ``Nothing to do!''
+    3. `` You have died ''
+    4. `` You have won ''
+    5. (The RESTART/RESTORE/QUIT and possibly FULL
+        and AMUSING query, printed after the game is over.)
+    6. ``[Your interpreter does not provide undo. Sorry!]''
+    7. ``Undo failed. [Not all interpreters provide it.]''
+    8. ``Please give one of the answers above.''
+    9. ``^It is now pitch dark in here!''
+   10. ``I beg your pardon?''
+   11. ``[You can't ``undo'' what hasn't been done!]''
+   12. ``[Can't ``undo'' twice in succession. Sorry!]''
+   13. ``[Previous turn undone.]''
+   14. ``Sorry, that can't be corrected.''
+   15. ``Think nothing of it.''
+   16. ````Oops'' can only correct a single word.''
+   17. ``It is pitch dark, and you can't see a thing.''
+   18. ``yourself'' (the short name of the selfobj object)
+   19. ``As good-looking as ever.''
+   20. ``To repeat a command like ``frog, jump'', just say
+         ``again'', not ``frog, again''.''
+   21. ``You can hardly repeat that.''
+   22. ``You can't begin with a comma.''
+   23. ``You seem to want to talk to someone, but I can't see whom.''
+   24. ``You can't talk to <x1>.''
+   25. ``To talk to someone, try ``someone, hello'' or some such.''
+   26. ``(first taking not_holding)''
+   27. ``I didn't understand that sentence.''
+   28. ``I only understood you as far as wanting to ''
+   29. ``I didn't understand that number.''
+   30. ``You can't see any such thing.''
+   31. ``You seem to have said too little!''
+   32. ``You aren't holding that!''
+   33. ``You can't use multiple objects with that verb.''
+   34. ``You can only use multiple objects once on a line.''
+   35. ``I'm not sure what ``<pronoun>'' refers to.''
+   36. ``You excepted something not included anyway!''
+   37. ``You can only do that to something animate.''
+   38. ``That's not a verb I recognise.''
+   39. ``That's not something you need to refer to in the
+         course of this game.''
+   40. ``You can't see ``<pronoun>'' (<value>) at the moment.''
+   41. ``I didn't understand the way that finished.''
+   42. ``None/only <x1> of those is/are available.''
+   43. ``Nothing to do!''
+   44. ``There are none at all available!''
+   45. ``Who do you mean, ''
+   46. ``Which do you mean, ''
+   47. ``Sorry, you can only have one item here. Which exactly?''
+   48. ``Whom do you want [<actor>] to <command>?''
+   49. ``What do you want [<actor>] to <command>?''
+   50. ``Your score has just gone up/down by <x1> point/points.''
+   51. ``(Since something dramatic has happened, your list of
+         commands has been cut short.)''
+   52. ``Type a number from 1 to <x1>, 0 to redisplay or press ENTER.''
+   53. ``[Please press SPACE.]''
+No
+    see `Yes'
+NotifyOff
+    ``Score notification off.''
+NotifyOn
+    ``Score notification on.''
+Objects
+    1. ``Objects you have handled:^''
+    2. ``None.''
+    3. ``   (worn)''
+    4. ``   (held)''
+    5. ``   (given away)''
+    6. ``   (in <x1>)'' [without article]
+    7. ``   (in <x1>)'' [with article]
+    8. ``   (inside <x1>)''
+    9. ``   (on <x1>)''
+   10. ``   (lost)''
+Open
+    1. ``That's/They're not something you can open.''
+    2. ``It seems/They seem to be locked.''
+    3. ``That's/They're already open.''
+    4. ``You open <x1>, revealing <children>''
+    5. ``You open <x1>.''
+Order
+    ``<x1> has/have better things to do.''
+Places
+    ``You have visited: ''
+Pray
+    ``Nothing practical results from your prayer.''
+Prompt
+    1. ``^>''
+Pronouns
+    1. ``At the moment, ''
+    2. ``means ''
+    3. ``is unset ''
+    4. ``no pronouns are known to the game.''
+Pull
+    1. ``It is/Those are fixed in place.''
+    2. ``You are unable to.''
+    3. ``Nothing obvious happens.''
+    4. ``That would be less than courteous.''
+Push
+    see `Pull'
+PushDir
+    1. ``Is that the best you can think of?''
+    2. ``That's not a direction.''
+    3. ``Not that way you can't.''
+PutOn
+    1. ``You need to be holding <x1> before you
+         can put it/them on top of something else.''
+    2. ``You can't put something on top of itself.''
+    3. ``Putting things on <x1> would achieve nothing.''
+    4. ``You lack the dexterity.''
+    5. ``(first taking it/them off)^''
+    6. ``There is no more room on <x1>.''
+    7. ``Done.''
+    8. ``You put <x1> on <second>.''
+Quit
+    1. ``Please answer yes or no.''
+    2. ``Are you sure you want to quit? ''
+Remove
+    1. ``It is/They are unfortunately closed.''
+    2. ``But it isn't/they aren't there now.''
+    3. ``Removed.''
+Restart
+    1. ``Are you sure you want to restart? ''
+    2. ``Failed.''
+Restore
+    1. ``Restore failed.''
+    2. ``Ok.''
+Rub
+    ``You achieve nothing by this.''
+Save
+    1. ``Save failed.''
+    2. ``Ok.''
+Score
+    ``You have so far/In that game you scored <score> out of
+      a possible MAX_SCORE, in <turns> turn/turns''
+ScriptOn
+    1. ``Transcripting is already on.''
+    2. ``Start of a transcript of''
+ScriptOff
+    1. ``Transcripting is already off.''
+    2. ``^End of transcript.''
+Search
+    1. ``But it's dark.''
+    2. ``There is nothing on <x1>.''
+    3. ``On <x1> is/are <list of children>.''
+    4. ``You find nothing of interest.''
+    5. ``You can't see inside, since <x1> is/are closed.''
+    6. ``<x1> is/are empty.''
+    7. ``In <x1> is/are <list of children>.''
+Set
+    ``No, you can't set that/those.''
+SetTo
+    ``No, you can't set that/those to anything.''
+Show
+    1. ``You aren't holding <x1>.''
+    2. ``<x1> is/are unimpressed.''
+Sing
+    ``Your singing is abominable.''
+Sleep
+    ``You aren't feeling especially drowsy.''
+Smell
+    ``You smell nothing unexpected.''
+Sorry
+    ``Oh, don't apologise.''
+Squeeze
+    1. ``Keep your hands to yourself.''
+    2. ``You achieve nothing by this.''
+Strong
+    ``Real adventurers do not use such language.''
+Swim
+    ``There's not enough water to swim in.''
+Swing
+    ``There's nothing sensible to swing here.''
+SwitchOff
+    1. ``That's/They're not something you can switch.''
+    2. ``That's/They're already off.''
+    3. ``You switch <x1> off.''
+SwitchOn
+    1. ``That's/They're not something you can switch.''
+    2. ``That's/They're already on.''
+    3. ``You switch <x1> on.''
+Take
+    1. ``Taken.''
+    2. ``You are always self-possessed.''
+    3. ``I don't suppose <x1> would care for that.''
+    4. ``You'd have to get off/out of <x1> first.''
+    5. ``You already have that/those.''
+    6. ``That seems/Those seem to belong to <x1>.''
+    7. ``That seems/Those seem to be a part of <x1>.''
+    8. ``That isn't/Those aren't available.''
+    9. ``<x1> isn't/aren't open.''
+   10. ``That's/They're hardly portable.''
+   11. ``That's/They're fixed in place.''
+   12. ``You're carrying too many things already.''
+   13. ``(putting <x1> into SACK_OBJECT to make room)''
+Taste
+    ``You taste nothing unexpected.''
+Tell
+    1. ``You talk to yourself a while.''
+    2. ``This provokes no reaction.''
+Touch
+    1. ``Keep your hands to yourself!''
+    2. ``You feel nothing unexpected.''
+    3. ``If you think that'll help.''
+Think
+    ``What a good idea.''
+Tie
+    ``You would achieve nothing by this.''
+ThrowAt
+    1. ``Futile.''
+    2. ``You lack the nerve when it comes to the crucial moment.''
+Turn
+    see `Pull'
+Unlock
+    1. ``That doesn't seem to be something you can unlock.''
+    2. ``It's/They're unlocked at the moment.''
+    3. ``That doesn't/Those don't seem to fit the lock.''
+    4. ``You unlock <x1>.''
+VagueGo
+    ``You'll have to say which compass direction to go in.''
+Verify
+    1. ``The game file has verified as intact.''
+    2. ``The game file did not verify properly, and may be corrupted
+         (or you may be running it on a very primitive interpreter which
+         is unable properly to perform the test).''
+Wait
+    ``Time passes.''
+Wake
+    ``The dreadful truth is, this is not a dream.''
+WakeOther
+    ``That seems unnecessary.''
+Wave
+    1. ``But you aren't holding that/those.''
+    2. ``You look ridiculous waving <x1>.''
+WaveHands
+    ``You wave, feeling foolish.''
+Wear
+    1. ``You can't wear that/those!''
+    2. ``You're not holding that/those!''
+    3. ``You're already wearing that/those!''
+    4. ``You put on <x1>.''
+Yes
+    ``That was a rhetorical question.''
+
+
+File: inform,  Node: Entry Points,  Next: Program Order,  Prev: Library Messages,  Up: Appendix
+
+Entry points and meaningful constants
+=====================================
+
+   Entry points are routines which you can provide, if you choose to,
+and which are called by the library routines to give you the option of
+changing the rules.  All games `must' define an Initialise routine,
+which is obliged to set the location variable to a room; the rest are
+optional.
+
+AfterLife
+     When the player has died (a condition signalled by the variable
+     deadflag being set to a non-zero value other than 2, which
+     indicates winning), this routine is called: by setting deadflag=0
+     again it can resurrect the player.
+
+AfterPrompt
+     Called just after the prompt is printed: therefore, called after
+     all the printing for this turn is definitely over.  A useful
+     opportunity to use box to display quotations without them
+     scrolling away.
+
+Amusing
+     Called to provide an `afterword' for players who have won: for
+     instance, it might advertise some features which a successful
+     player might never have noticed.  (But only if you have defined
+     the constant AMUSING_PROVIDED in your own code.)
+
+BeforeParsing
+     Called after the parser has read in some text and set up the
+     buffer and parse tables, but has done nothing else yet (except to
+     set the word marker wn to 1).  The routine can do anything it
+     likes to these tables, and can leave the word marker anywhere;
+     there is no meaningful return value.
+
+ChooseObjects(obj,c)
+     When c is 0, the parser is processing an "all" and has decided to
+     exclude obj from it; when c is 1, it has decided to include it.
+     Returning 1 forces inclusion, returning 2 forces exclusion and
+     returning 0 lets the parser's decision stand.  When c is 2, the
+     parser wants help in resolving an ambiguity: using the
+     action_to_be variable the routine must decide how appropriate obj
+     is for the given action and return a score of 0 to 9 accordingly.
+     See *Note Helping the Parser::.
+
+DarkToDark
+     Called when a player goes from one dark room into another one; a
+     splendid excuse to kill the player off.
+
+DeathMessage
+     Prints up "You have died" style messages, for deadflag values of 3
+     or more.  (If you choose ever to set deadflag to such.)
+
+GamePostRoutine
+     A kind of super-after rule, which applies to all actions in the
+     game, whatever they are: use only in the last resort.
+
+GamePreRoutine
+     A kind of super-before rule, which applies to all actions in the
+     game, whatever they are: use only in the last resort.
+
+Initialise
+     A compulsory routine, which must set location and is convenient for
+     miscellaneous initialising, perhaps for random settings.
+
+InScope
+     An opportunity to place extra items in scope during parsing, or to
+     change the scope altogether.  If et_flag is 1 when this is called,
+     the scope is being worked out for each_turn reasons; otherwise for
+     everyday parsing.
+
+LookRoutine
+     Called at the end of every Look description.
+
+NewRoom
+     Called when the room changes, before any description of it is
+     printed.  This happens in the course of ordinary movements or use
+     of PlayerTo, but may not happen if the game uses move to shift the
+     player object directly.
+
+ParseNoun(obj)
+     To do the job of parsing the name property (if parse_name hasn't
+     done it already).  This takes one argument, the object in
+     question, and returns a value as if it were a parse_name routine.
+
+ParseNumber(text,n)
+     An opportunity to parse numbers in a different (or additional)
+     way.  The text to be parsed is a byte array of length n starting
+     at text.
+
+ParserError(pe)
+     The chance to print different parser error messages (like "I don't
+     understand that sentence").  pe is the parser error number (*note
+     Helping the Parser::.).
+
+PrintRank
+     Completes the printing of the score.  You might want to change
+     this, so as to make the ranks something like "junior astronaut" or
+     "master catburglar" or whatever suits your game.
+
+PrintVerb(v)
+     A chance to change the verb printed out in a parser question (like
+     "What do you want to (whatever)?") in case an unusual verb via
+     UnknownVerb has been constructed.  v is the dictionary address of
+     the verb.  Returns true (or 1) if it has printed something.
+
+PrintTaskName(n)
+     Prints the name of task n (such as "driving the car").
+
+TimePasses
+     Called after every turn (but not, for instance, after a command
+     like "score" or "save").  It's much more elegant to use timers and
+     daemons, or each_turn routines for individual rooms -- using this
+     is a last resort.
+
+UnknownVerb
+     Called by the parser when it hits an unknown verb, so that you can
+     transform it into a known one.
+
+The following constants, if defined in a game, change settings made by
+the library.  Those described as "To indicate that..." have no
+meaningful value; one simply defines them by, e.g., the directive
+Constant DEBUG;.
+
+AMUSING_PROVIDED
+     To indicate that an Amusing routine is provided.
+
+DEBUG
+     To indicate that the special "debugging" verbs are to be included.
+
+Headline
+     Style of game and copyright message.
+
+MAX_CARRIED
+     Maximum number of (direct) possessions the player can carry.
+
+MAX_SCORE
+     Maximum game score.
+
+MAX_TIMERS
+     Maximum number of timers or daemons active at any one time
+     (defaults to 32).
+
+NO_PLACES
+     To indicate that the "places" and "objects" verbs should not be
+     allowed.
+
+NUMBER_TASKS
+     Number of `tasks' to perform.
+
+OBJECT_SCORE
+     Score for picking up a scored object for the first time.
+
+ROOM_SCORE
+     Score for visiting up a scored room for the first time.
+
+SACK_OBJECT
+     Object which acts as a `rucksack', into which the game
+     automatically tidies away things for the player.
+
+Story
+     Story name, conventionally in CAPITAL LETTERS.
+
+TASKS_PROVIDED
+     To indicate that "tasks" are provided.
+
+WITHOUT_DIRECTIONS
+     To indicate that the standard compass directions are to be omitted.
+
+
+File: inform,  Node: Program Order,  Next: Lexicon,  Prev: Entry Points,  Up: Appendix
+
+What order the program should be in
+===================================
+
+   This section summarises Inform's "this has to be defined before that
+can be" rules.
+
+  1. The three library files, Parser, Verblib and Grammar must be
+     included in that order.
+
+       a. Before inclusion of Parser: you must define the constants
+          Story and Headline; the constant DEBUG must be defined here,
+          if anywhere; similarly for Replace directives; but you may
+          not yet define global variables, objects or routines.  If you
+          are linking in the library (using USE_MODULES) then you may
+          not use the Attribute or Property directive in this part of
+          the program.
+
+       b. Between Parser and Verblib: if a `sack object' is to be
+          included, it should be defined here, and the constant
+          SACK_OBJECT set to it; the LibraryMessages object should be
+          defined here, if at all; likewise the task_scores array.
+
+       c. Before inclusion of Verblib: the constants
+
+                       MAX_CARRIED, MAX_SCORE, NUMBER_TASKS, OBJECT_SCORE,
+                       ROOM_SCORE, AMUSING_PROVIDED and TASKS_PROVIDED
+
+          must be defined before this (if ever).
+
+       d. Before inclusion of Grammar: Verb and Extend directives
+          cannot be used.
+
+       e. After inclusion of Grammar: It's too late to define any entry
+          point routines.
+
+  2. Any Switches directive must come before the definition of any
+     constants.
+
+  3. If an object begins inside another, it must be defined after its
+     parent.
+
+  4. Global variables must be declared earlier in the program than the
+     first reference to them.
+
+  5. Attributes and classes must be declared earlier than their first
+     usage in an object definition.
+
+  6. General parsing and scope routines must be defined before being
+     quoted in grammar tokens.
+
+  7. Nothing can be defined after the End directive.
+
+
+File: inform,  Node: Lexicon,  Prev: Program Order,  Up: Appendix
+
+A short Inform lexicon
+======================
+
+   This brief dictionary of Inform jargon defines terms used in the
+manual, generally excepting language features set in computer type.
+Cross-references are italicised.  Everything here is in the body of the
+text somewhere and can be found via the index.
+
+action
+     A single attempted action by the /player/, such as taking a lamp,
+     generated either by the /parser/ or in code.  It is stored as
+     three numbers, the first being the /action number/, the others
+     being the /noun/ and /second noun/ (if any: otherwise 0).
+
+action number
+     A number identifying which kind of action is under way, e.g., Take,
+     which can be written as a /constant/ by prefacing its name with ##.
+
+action routine
+     The /routine/ of code executed when an /action/ has been allowed
+     to take place.  What marks it out as the routine in question is
+     that its name is the name of the /action/ with Sub appended, as
+     for instance TakeSub.
+
+actor
+     The /parser/ can interpret what the /player/ types as either a
+     request for the player's own character to do something, in which
+     case the actor is the player's object, or to request somebody else
+     to do something, in which case the actor is the person being
+     spoken to.  This affects the parser significantly because the
+     person speaking and the person addressed may be able to see
+     different things.
+
+additive
+     An additive /property/ is one whose value accumulates into a list
+     held in a /word array/, rather than being over-written as a single
+     value, during /inheritance/ from /classes/.
+
+Advanced game
+     The default Inform /format/ of /story file/, also known as Version
+     5.  It can be extended (see /version/) if needed.  /Standard
+     games/ should no longer be used unless necessary.
+
+alias
+     A single /attribute/ or /common property/ may be used for two
+     different purposes, with different names, provided care is
+     exercised to avoid clashes: the two names are called aliases.  The
+     /library/ uses this: for instance, time_out is an alias for daemon.
+
+ambiguity
+     Arises when the /player/ has typed something vague like "fish" in
+     circumstances when many nearby objects might be called that.  The
+     /parser/ then resolves this, possibly in conjunction with the
+     program.
+
+argument
+     A parameter specified in a /routine/ call, such as 7 in the call
+     AwardPoints(7).
+
+array
+     An indexed collection of global variables.  There are four kinds,
+     /byte arrays/ ->, /word arrays/ -->, /strings/ and /tables/.
+
+assembly language
+     The /Z-machine/ runs a sequence of low-level instructions, or
+     assembly lines (also called opcodes).  These can be programmed
+     directly as Inform /statements/ by prefixing them with @, but only
+     a few are documented in this manual, in *Note Assembly Language::,
+     the rest being in the `Z-machine Standards Document'.
+
+assembler error
+     A very low-level /error/ caused by a malformed line of /assembly
+     language/.
+
+assignment
+     A /statement/ which sets the value of a /global/ or /local
+     variable/, or /array/ entry.
+
+attribute
+     An /object/ can be created as having certain attributes, which are
+     simple off-or-on states (or flags), which can then be given,
+     tested for or taken away by the program.  For example, light
+     represents the state "is giving off light".
+
+block of code
+     See /code block/.
+
+box
+     A rectangle of text, usually displayed in reverse video onto the
+     screen and with text such as a quotation inside (*note Boxes::.).
+
+byte
+     An 8-bit cell of memory, capable of holding numbers between 0 and
+     255.
+
+byte address
+     The whole lower part of the /memory map/ of the /Z-machine/ can be
+     regarded as a /byte array/, and a byte address is an index into
+     this.  E.g., byte address 0 refers to the lowest byte in the
+     machine (which always holds the /version/ number).  /Dictionary/
+     words are internally stored as byte addresses.
+
+byte array
+     An /array/ indexed with the -> /operator/ whose entries are only 1
+     byte each: they can therefore hold numbers between 0 and 255, or
+     ASCII characters, but not strings or object numbers.
+
+character
+     A single letter `A' or symbol `*', written as a /constant/ using
+     the notation 'A', and internally stored as its ASCII code.  Can be
+     printed using print (char).
+
+child
+     See /object tree/.
+
+class
+     A template for an /object/ definition, giving certain properties
+     and attributes which are /inherited/ by any objects defined as
+     being of this class.  Classes also exist as objects in their own
+     right and belong to a /metaclass/ called Class.
+
+code block
+     A collection of /statements/ can be grouped together into a block
+     using braces { and } so that they count as a single unit for if
+     statements, what is to be done inside a for loop, etc.
+
+common property
+     Any /property/ set by the /class/ Object is passed on to every
+     /object/ and is called a "common property": for example,
+     description.  All others are /individual properties/.  New
+     properties can be declared as common with the Property directive.
+     They behave similarly except that: (a) values of common properties
+     can be read even from an /object/ not providing them, the result
+     being a special default value, which can be altered using
+     ChangeDefault; (b) they are faster and slightly more economical of
+     memory to use; (c) there are a limited number of them.
+
+compass
+     The compass /object/, created by the /library/ but never tangible
+     to the /player/ during the game, is used to hold the currently
+     valid /direction objects/.
+
+compiler
+     The Inform program itself, which transmutes Inform programs (or
+     source code) into the /story file/ which is played with the use of
+     an /interpreter/ at /run-time/.
+
+condition
+     A state of affairs which either is, or isn't, true at any given
+     moment, such as x == y, often written in round brackets ( and ).
+     The central operator == is also called the condition.  A numerical
+     value given with no operator is considered true if it is non-zero
+     and otherwise false.
+
+constant
+     An explicitly written-out number, such as 34 or $$10110111; or the
+     internal name of an object, such as brass_lamp, whose value is its
+     /object number/; or the internal name of an array, whose value is
+     its /byte address/; or a word defined by either the /library/ or
+     Inform code as meaning a particular value; or a /character/,
+     written 'X' and whose value is its ASCII code; or a /dictionary
+     word/, written 'word' and whose value is its /byte address/; or an
+     /action/, written ##Action and whose value is its /action number/;
+     or a /routine/ written #r$Routine whose value is its /packed
+     address/; or the name of a /property/ or /attribute/ or /class/.
+
+containment
+     See /object tree/.
+
+cursor
+     An invisible notional position at which text is being printed in
+     the upper /window/, when the windows are split; the origin is
+     (1,1) in the top left.
+
+daemon
+     A /routine/ attached to an /object/ which, once started, is run
+     once during the end sequence of every /turn/ until explicitly
+     stopped.  Used to manage events happening as time passes by, or to
+     notice changes in the state of the game which require some
+     activity.
+
+default value
+     See /property/.
+
+description
+     The usually quite long piece of text attached to an /object/; if
+     it's a /room/, then this is the long description printed out when
+     the room is first visited; otherwise it will usually be printed
+     when the object is examined by the /player/.
+
+dictionary
+     A list kept inside the /Z-machine/ of all the words ordinarily
+     understood by the game, such as "throw" and "mauve", usually
+     between about 300 and 2000 words long.  Inform automatically puts
+     this list together from all the name values of objects and all
+     usages of constants like 'word'.  Dictionary words are stored to a
+     resolution of 9 characters (6 for /Standard games/), written
+     'thus' (provided they have more than one letter; otherwise #n$x
+     for the word "x"; except as values of the special name property)
+     and are internally referred to by numbers which are their /byte
+     addresses/ inside the list.
+
+direct containment
+     See /object tree/.
+
+direction object
+     An object representing both the abstract idea of a direction and
+     the wall which is in that direction: for instance, n_obj
+     represents "northness" and the north wall of the current /room/.
+     Typing "go north" causes the /parser/ to generate the /action/ Go
+     n_obj.  The current direction objects are exactly those currently
+     inside the compass object and they can be dynamically changed.
+     The door_dir property of a direction object holds its
+     corresponding direction property.
+
+direction property
+     The /library/ creates 12 direction properties: n_to, s_to, etc.,
+     u_to, d_to, in_to and out_to.  These are used to give /map/
+     connections from /rooms/ and indicate directions which doors and
+     /direction objects/ correspond to.
+
+directive
+     A line of Inform code which instructs the /compiler/ to do
+     something, such as to define a new /constant/; it takes immediate
+     effect and does not correspond to anything happening at
+     /run-time/.  These are not normally written inside /routines/ but
+     can be if prefaced by a # character.
+
+eldest child
+     See /object tree/.
+
+embedded routine
+     A /routine/ defined as the /property/ value of an /object/, which
+     is defined without a name of its own, and which by default returns
+     `false' rather than `true'.
+
+encapsulation
+     When an /object/ declares a /property/ as being private, its value
+     is unavailable anywhere else in the program: it can be read or
+     written to only by that one object itself.  This close concealment
+     of data is called encapsulation.
+
+entry point
+     A /routine/ in an Inform program which is directly called by the
+     /library/ to intervene in the normal operation of the game (if the
+     routine so wishes).  Provision of entry points is optional, except
+     for Initialise, which must always occur in every game.
+
+error
+     When the /compiler/ finds something in the program which it can't
+     make sense of, it produces an error (which will eventually prevent
+     it from generating a /story file/, so that it cannot generate an
+     illegal /story file/ which would fail at /run-time/).  If the
+     error is /fatal/ the compiler stops at once.
+
+examine message
+     See /description/.
+
+expression
+     A general piece of Inform code which determines a numerical value.
+     It may be anything from a single /constant/ to a bracketed
+     calculation of /variable/, /property/ or /array/ values, such as
+     3+(day_list-->(calendar.number)).
+
+fake action
+     A form of /action/ which has no corresponding /action routine/ and
+     will have no effect after the before-processing stage of
+     considering an action is over.  A fake action is never generated
+     by the /parser/ and can only be triggered by a <...> statement.
+     The /library/ makes use of this but other Inform code is advised
+     not to.
+
+fake fake action
+     A form of /action/ which does have an /action routine/ and is
+     processed exactly as ordinary actions are, but which is never
+     generated by the /parser/, only by the program, which can use it
+     to pass a message to an /object/.
+
+fatal error
+     An /error/ found by the /compiler/ which causes it to give up
+     immediately; for instance, a disc being full or memory running out
+     are fatal.
+
+format
+     See /version/.
+
+function
+     See /routine/.
+
+fuse
+     See /timer/.
+
+global variable
+     A variable which can be used by every routine in the program.
+
+grammar
+     A list of /lines/ which is attached to a particular /verb/.  The
+     /parser/ decodes what the /player/ has typed by trying to match it
+     against each line in turn of the grammar attached to the /verb/
+     which the first word of the player's input corresponds to.
+
+hardware function
+     A function which is used just like any other /routine/ but which is
+     not defined anywhere in the /library/ or /program/: the /compiler/
+     provides it automatically, usually converting the apparent call to
+     a routine into a single line of /assembly language/.
+
+importing
+     When compiling a /module/, Inform needs to be told of any global
+     variables it is using which are defined only in the outside program
+     (compiled on a different occasion).  Such a variable is said to be
+     "imported" using the Import global directive.
+
+indirect containment
+     See /object tree/.
+
+individual property
+     Opposite of /common property/.
+
+inheritance
+     The process in which /property/ values and /attribute/ settings
+     specified in a /class/ definition are passed on to an /object/
+     defined as having that class.
+
+internal name
+     See /name/.
+
+interpreter
+     A program for some particular model of computer, for example the
+     IBM PC, which reads in the /story file/ of a game and allows
+     someone to play it.  A different interpreter is needed for each
+     model of computer (though generic source codes exist which make it
+     relatively easy to produce these).
+
+inventory
+     1. Verb, imperative: a demand for a list of the items one is
+     holding; 2.  noun: the list itself.  (When Crowther and Woods were
+     writing the original `Advent', they were unable to think of a good
+     imperative verb and fell back on the barely sensible "take
+     inventory", which was soon corrupted into the not at all sensible
+     "inventory", thence "inv" and finally "i".)
+
+library
+     The `operating system' for the /Z-machine/: a large segment of
+     Inform code, written out in three /library files/, which manages
+     the model world, provides the /parser/ and consults the game's
+     program now and then to give it a chance to make interesting
+     things happen.
+
+library files
+     The three files parser, verblib and grammar containing the source
+     code of the /library/.  These are normally Included in the code for
+     every Inform game.
+
+library routine
+     A /routine/ provided by the /library/ which is `open to the public'
+     in that the designer's program is allowed to call and make use of
+     it.
+
+line
+     One possible pattern which the /parser/ might match against what
+     the /player/ has typed beyond the initial /verb/ word.  A
+     /grammar/ line consists of a sequence of /tokens/, each of which
+     must be matched in sequence, plus an /action/ which will be
+     generated if the line successfully matches.
+
+linking
+     The process of assimilating a previously-compiled /module/ into the
+     game now being compiled, in order to save compilation time.
+
+local variable
+     A variable attached to a particular /routine/ (or, more precisely,
+     a particular call to a routine: if a routine calls itself, then
+     the parent and child incarnation have independent copies of the
+     local variables) whose value is inaccessible to the rest of the
+     program.  Also used to hold the /arguments/ of the call.
+
+long
+     A /property/ whose values must always be stored as /words/, or
+     /word arrays/, rather than /bytes/ or /byte arrays/.  A safely
+     ignorable concept since except for /Standard games/ all properties
+     are long.
+
+logical machine
+     See /Z-machine/.
+
+low string
+     A string which can be used as the value of a /variable string/,
+     printed with the @ escape character.  Must be declared with
+     Lowstring.
+
+map
+     The geographical design of the game, divided into areas called
+     /rooms/ with connections between them in different directions.
+     The /story file/ doesn't contain an explicit map table but stores
+     the information implicitly in the definition of the room /objects/.
+
+memory map
+     Internally, the /Z-machine/ contains a large /array/ in whose
+     values the entire story file and all its data structures are
+     stored.  Particular cells low down in this array are indexed by
+     /byte addresses/, and /routines/ and /strings/ which are lodged
+     higher up are referred to by /packed addresses/.  The organisation
+     of this array (which ranges of indices correspond to what) is
+     called the memory map.
+
+message
+     A way to communicate with an /object/, specifying the object to
+     call, the /property/ being addressed (in effect, the "kind of
+     message being sent") and possibly other parameters.  A single
+     value is returned as a reply.
+
+metaclass
+     There are four fundamental /classes/ of /object/, such that every
+     object belongs to exactly one of the four.  These are Object,
+     Class, Routine and String, and are called metaclasses.  (Since
+     they are examples of classes, they themselves have metaclass
+     Class.)
+
+meta-verb
+     A /verb/ whose actions are always commands from the /player/ to
+     the game, rather than requests for something to happen in the
+     model world: for instance, "quit" is meta but "take" is not.
+
+module
+     A previously-compiled but incomplete segment of game, which is
+     kept in order for it to be /linked/ into a later compilation.  It
+     can be linked many times once created, saving much compilation
+     time.  (For example, almost the whole Library can be reduced to
+     two modules.)
+
+multiple object
+     The /parser/ matches a /token/ with a multiple object when the
+     /player/ has either explicitly referred to more than one /object/
+     (e.g. "drop lamp and basket") or implicitly done so (e.g. "drop
+     everything" when this amounts to more than 1 item); though the
+     match is only made if the token will allow it.
+
+names
+     An /object/ has three kinds of name: 1. its internal name, a word
+     such as brass_lamp, which is a /constant/ referring to it within
+     the program; 2. its short name, such as "dusty old brass lamp" or
+     "Twopit Room", which is printed in /inventories/ or before a /room
+     description/; 3.  /dictionary words/ which appear as values of its
+     name property, such as "dusty", "brass", etc., which the /player/
+     can type to refer to it.
+
+noun
+     The first parameter (usually an /object/ but possibly a number)
+     which the /parser/ has matched in a /line/ of /grammar/ is the
+     noun for the /action/ which is generated.  It is stored in the
+     noun variable (not to be confused with the noun token).
+
+object
+     1. The physical substance of the game's world is divided up into
+     indivisible objects, such as `a brass lamp' or `a meadow'.  These
+     contain each other in a hierarchy called the /object tree/.  An
+     object may be defined with an initial location (another object)
+     and must have an /internal name/ and a /short name/; attached to
+     it throughout the game are variables called /attributes/ and
+     /properties/ which reflect its current state.  The definition of
+     an object may make it /inherit/ initial settings for this state
+     from one or more /classes/.  2. More generally, classes themselves
+     and even /routines/ and /strings/ are abstractly considered
+     objects.  Objects in sense (1) above, "concrete objects", are
+     members of the /metaclass/ Object, while classes belong to Class,
+     routines to Routine and strings to String.
+
+object number
+     /Objects/ are automatically numbered from 1 upwards, in order of
+     definition, and the /internal name/ of an object is in fact a
+     /constant/ whose value is this number.
+
+object tree
+     The hierarchy of containment between /objects/ of metaclass Object,
+     i.e., of concretely existing objects.  Each has a `parent', though
+     this may be `nothing' (to indicate that it is uncontained, as for
+     instance /rooms/ are) and possibly some `children' (the objects
+     directly contained within it).  The `child' of an object is the
+     `eldest' of these children, the one most recently moved within it
+     or, if none have been moved into it since the start of play, the
+     first one defined as within it.  The `sibling' of this child is
+     then the next eldest, or may be `nothing' if there is no next
+     eldest.  Note that if A is inside B which is itself inside C, then
+     C `directly contains' B but only `indirectly contains' A: and we
+     do not call A one of the children of C.
+
+obsolete usage
+     A point in the program using Inform syntax which was correct under
+     some previous version of the /compiler/ but is no longer correct
+     (usually because there is a neater way to express the same idea).
+     Inform often allows these but, if so, issues /warnings/.
+
+opcodes
+     See /assembly language/.
+
+operator
+     A symbol in an /expression/ which acts on one or more
+     sub-expressions, combining their values to produce a result.  This
+     may be arithmetic, as in + or /, or to do with array or property
+     value indexing, as in -> or .&.  Note that /condition/ operators
+     such as == are not formally expression operators.
+
+order
+     An instruction by the /player/ for somebody else to do something.
+     For instance, "policeman, give me your hat" is an order.  The
+     order is parsed as if an /action/ but is then processed in the
+     other person's /object/ definition.
+
+packed address
+     A number encoding the location of a /routine/ or /string/ within
+     the /memory map/ of the /Z-machine/.
+
+parent
+     See /object tree/.
+
+parser
+     That part of the /library/ which, once per turn, issues the
+     /prompt/; asks the /player/ to type something; looks at the
+     initial /verb/ word; tries to match the remaining words against
+     one of the /lines/ of /grammar/ for this verb and, if successful,
+     generates the resulting /action/.
+
+player
+     1. the person sitting at the keyboard at /run-time/, who is playing
+     the game; 2. his character inside the model world of the game.
+     (There is an important difference - one has access to the "undo"
+     verb.  The other actually dies.)
+
+private property
+     See /encapsulation/.
+
+prompt
+     The text printed to invite the /player/ to type: usually just >.
+
+property
+     1. The value of a variable attached to a particular /object/,
+     accessible throughout the program, which can be a single /word/,
+     an /embedded routine/ or an /array/ of values; 2. a named class of
+     such variables, such as description, which may or may not be
+     /provided/ by any given object.  Properties can be /encapsulated/
+     for privacy.  All properties are either /common/ or /individual/
+     (the latter unless otherwise declared).
+
+provision
+     If a /property/, such as description, is given in the definition of
+     an /object/ (or in the definition of a /class/ which the object
+     belongs to) then the object is said to "provide" that property.
+
+resolution
+     See /dictionary/.
+
+return value
+     See /routine/.
+
+room
+     The geography of a game is subdivided into parcels of area called
+     rooms, within which it is (usually) assumed that the /player/ has
+     no particular location but can reach all corners of easily and
+     without giving explicit instruction to do so.  For instance, "the
+     summit of Scafell Pike" might be such an area, while "the summit
+     of Ben Nevis" (being a large L-shaped ridge) would probably be
+     divided into three or four.  These rooms fit together into the
+     /map/ and each is implemented as an /object/.
+
+room description
+     See /description/.
+
+routine
+     An Inform program is always executed in routines, each of which is
+     "called" (possibly with /arguments/) and must return a particular
+     /word/ value, though this is sometimes disguised from the
+     programmer because (for example) the /statement/ return; actually
+     returns true (1) and the statement ExplodeBomb(); makes the call
+     to the routine but throws away the return value subsequently.
+     Routines are permitted to call themselves (if the programmer wants
+     to risk it) and have their own /local variables/.  Calling a
+     routine is analogous to sending a /message/ to an /object/, and
+     indeed routines are abstractly considered objects in their own
+     right, belonging to /metaclass/ Routine.
+
+rule
+     /Embedded routines/ given as values of a /property/ like before or
+     after are sometimes loosely called rules, because they encode
+     exceptional rules of the game such as "the 10-ton weight cannot be
+     picked up".  However, there is no formal concept of `rule'.
+
+run-time
+     The time when an /interpreter/ is running the /story file/, i.e.,
+     when someone is actually playing the game, as distinct from
+     `compile-time' (when the /compiler/ is at work making the story
+     file).  Some errors (such as an attempt to divide a number by
+     zero) can only be detected at run-time.
+
+scope
+     To say that an /object/ is in scope to a particular /actor/ is
+     roughly to say that it is visible, and can sensibly be referred to.
+
+second noun
+     The second parameter (usually an /object/ but possibly a number)
+     which the /parser/ has matched in a /line/ of /grammar/ is the
+     second noun for the /action/ generated.  It is stored in the
+     second variable.
+
+see-through
+     An /object/ is called this if it has transparent, or is an open
+     container, or is a supporter.  Roughly this means `if the object is
+     visible, then its /children/ are visible'.  (This criterion is
+     often applied in the /scope/ (and `light') rules inside the
+     /library/.)
+
+sender
+     When a /message/ is sent from one /object/ to another, the
+     originator is called the "sender".  Whenever a message is being
+     received, the variable sender holds this object's identity.
+
+short name
+     See /name/.
+
+sibling
+     See /object tree/.
+
+statement
+     A single instruction for the game to carry out at /run-time/; a
+     /routine/ is a collection of statements.  These include
+     /assignments/ and /assembly language/ but not /directives/.
+
+status line
+     The region at the top of the screen which, in play, usually shows
+     the current score and location, and which is usually printed in
+     reversed colours for contrast.
+
+story file
+     The output of the /compiler/ is a single file containing
+     everything about the game produced, in a /format/ which is
+     standard.  To be played, the file must be run with an
+     /interpreter/.  Thus only one file is needed for every Inform game
+     created, and only one auxiliary program must be written for every
+     model of computer which is to run such games.  In this way story
+     files are absolutely portable across different computers.
+
+Standard game
+     An old /format/ (version 3) of /story file/ which should no longer
+     be used unless absolutely necessary (to run on very small
+     computers) since it imposes tiresome restrictions.
+
+string
+     1. a literal piece of text such as "Mary had a fox" (which is a
+     /constant/ internally represented by a number, its /packed
+     address/, and may be created as a /low string/), abstractly
+     considered an /object/ of /metaclass/ String; 2. a form of /byte
+     array/ in which the 0th entry holds the number of entries (so
+     called because such an array is usually used as a list of
+     /characters/, i.e. a string variable); 3. see /variable string/.
+
+switch
+     1. certain /objects/ are `switchable', meaning they can be turned
+     off or on by the /player/; 2. options set by the programmer when
+     the /compiler/ starts are called switches; 3. a switch /statement/
+     is one which switches execution, like a railway turntable, between
+     different lines according to the current value of an /expression/.
+
+synonym
+     Two or more words which refer to the same /verb/ are called
+     synonyms (for example, "wear" and "don").
+
+table
+     A form of /word array/ in which the 0th entry holds the number of
+     entries.
+
+timer
+     A /routine/ attached to a particular /object/ which, once set,
+     will be run after a certain number of /turns/ have passed by.
+     (Sometimes called a `fuse'.)
+
+token
+     A particle in a /line/ of /grammar/, which the /parser/ tries to
+     match with one or more words from what the /player/ has typed.  For
+     instance, the token held can only be matched by an /object/ the
+     /actor/ is holding.
+
+tree
+     See /object tree/.
+
+turn
+     The period in play between one typed command and another.
+
+untypeable word
+     A /dictionary word/ which contains at least one space, full stop or
+     comma and therefore can never be recognised by the /parser/ as one
+     of the words typed by the /player/.
+
+variable
+     A named value which can be set or compared so that it varies at
+     /run-time/.  It must be declared before use (the /library/
+     declares many such).  Variables are either /local/ or /global/;
+     entries in /arrays/ (or the /memory map/) and /properties/ of
+     /objects/ behave like global variables.
+
+variable string
+     (Not the same as a /string/ (3) variable.)  There are 32 of these,
+     which can only be set (to a /string/ (1) which must have been
+     defined as a /low string/) or printed out (using the @ escape
+     character).
+
+vehicle
+     An /object/ which the /player/ character can travel around in.
+
+verb
+     1. a collection of /synonymous/ one-word English verbs for which
+     the /parser/ has a /grammar/ of possible /lines/ which a command
+     starting with one of these verbs might take; 2. one of the
+     one-word English verbs.
+
+version
+     The /compiler/ can produce 6 different formats of /story file/,
+     from Version 3 (or /Standard/) to Version 8.  By default it
+     produces Version 5 (or /Advanced/) which is the most portable.
+
+warning
+     When the /compiler/ finds something in the program which it
+     disapproves of (for example, an /obsolete usage/) or thinks might
+     be a mistake, it issues a warning message.  This resembles an
+     /error/ but does not prevent successful compilation; a working
+     /story file/ can still be produced.
+
+window
+     (Except in /Standard games/) the screen is divided into two
+     windows, an upper, fixed window usually containing the /status
+     line/ and the lower, scrolling window usually holding the text of
+     the game.  One can divert printing to the upper window and move a
+     /cursor/ about in it.
+
+word
+     1. an English word in the game's /dictionary/; 2. almost all
+     numbers are stored in 16-bit words of memory which unlike /bytes/
+     can hold any /constant/ value, though they take twice as much
+     storage space up.
+
+word array
+     An /array/ indexed with the --> /operator/ whose entries are
+     /words/: they can therefore hold any /constant/ values.
+
+youngest child
+     See /object tree/.
+
+Z-machine
+     The imaginary computer which the /story file/ is a program for.
+     One romantically pretends that this is built from circuitboards
+     and microchips (using terms like `hardware') though in fact it is
+     merely simulated at /run-time/ by an /interpreter/ running on some
+     (much more sophisticated) computer.  Z is for `Zork'.

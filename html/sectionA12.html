@@ -1,0 +1,860 @@
+<HTML><HEAD><TITLE>Section A12: A short Inform lexicon</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA11.html">Back</A><BR><A HREF="index.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A12. A short Inform lexicon</H3></BLOCKQUOTE><TR><TD><TD>
+This brief dictionary of Inform jargon defines terms used in the manual,
+generally excepting language features set in <TT>computer</TT> type.
+Cross-references are italicised.
+<P>
+
+<B>action</B> -- 
+A single attempted action by the <I>player</I>, such as taking a lamp,
+generated either by the <I>parser</I> or in code.  It is stored as
+three numbers, the first being the <I>action number</I>, the others
+being the <I>noun</I> and <I>second noun</I> (if any: otherwise 0).
+<P>
+
+<B>action number</B> -- 
+A number identifying which kind of action is under way, e.g., <TT>Take</TT>,
+which can be written as a <I>constant</I> by prefacing its name with
+<TT>##</TT>.
+<P>
+
+<B>action routine</B> -- 
+The <I>routine</I> of code executed when an <I>action</I> has been
+allowed to take place.  What marks it out as the routine in
+question is that its name is the name of the <I>action</I> with
+<TT>Sub</TT> appended, as for instance <TT>TakeSub</TT>.
+<P>
+
+<B>actor</B> -- 
+The <I>parser</I> can interpret what the <I>player</I> types as either a
+request for the player's own character to do something, in which
+case the actor is the player's object, or to request somebody else
+to do something, in which case the actor is the person being
+spoken to.  This affects the parser significantly because the
+person speaking and the person addressed may be able to see
+different things.
+<P>
+
+<B>additive</B> -- 
+An additive <I>property</I> is one whose value accumulates into a
+list held in a <I>word array</I>, rather than being over-written as
+a single value, during <I>inheritance</I> from <I>classes</I>.
+<P>
+
+<B>Advanced game</B> -- 
+The default Inform <I>format</I> of <I>story file</I>, also known as
+Version 5.  It can be extended (see <I>version</I>) if needed.
+<I>Standard games</I> should no longer be used unless necessary.
+<P>
+
+<B>alias</B> -- 
+A single <I>attribute</I> or <I>common property</I> may be used for two
+different purposes, with different names, provided care is exercised
+to avoid clashes: the two names are called aliases.  The <I>library</I>
+uses this: for instance, <TT>time_out</TT> is an alias for <TT>daemon</TT>.
+<P>
+
+<B>ambiguity</B> -- 
+Arises when the <I>player</I> has typed something vague like "fish''
+in circumstances when many nearby objects might be called that.  The
+<I>parser</I> then resolves this, possibly in conjunction with the program.
+<P>
+
+<B>argument</B> -- 
+A parameter specified in a <I>routine</I> call, such as <TT>7</TT> in the call
+<TT>AwardPoints(7)</TT>.
+<P>
+
+<B>array</B> -- 
+An indexed collection of global variables.  There are four kinds,
+<I>byte arrays</I> <TT>-&#62;</TT>, <I>word arrays</I> <TT>--&#62;</TT>, <I>strings</I> and
+<I>tables</I>.
+<P>
+
+<B>assembly language</B> -- 
+The <I>Z-machine</I> runs a sequence of low-level instructions,
+or assembly lines (also called opcodes).  These can be programmed
+directly as Inform <I>statements</I> by prefixing them with <TT>@</TT>, but
+only a few are documented in this manual, in <A HREF="section33.html">Section 33</A>, the rest
+being in the 'Z-machine Standards Document'.
+<P>
+
+<B>assembler error</B> -- 
+A very low-level <I>error</I> caused by a malformed line of
+<I>assembly language</I>.
+<P>
+
+<B>assignment</B> -- 
+A <I>statement</I> which sets the value of a <I>global</I> or \W{local
+variable}, or <I>array</I> entry.
+<P>
+
+<B>attribute</B> -- 
+An <I>object</I> can be created as having certain attributes, which
+are simple off-or-on states (or flags), which can then be
+given, tested for or taken away by the program.  For example,
+<TT>light</TT> represents the state "is giving off light''.
+<P>
+
+<B>block of code</B> -- 
+See <I>code block</I>.
+<P>
+
+<B>box</B> -- 
+A rectangle of text, usually displayed in reverse video onto the
+screen and with text such as a quotation inside (see <A HREF="section32.html">Section 32</A>).
+<P>
+
+<B>byte</B> -- 
+An 8-bit cell of memory, capable of holding numbers between 0
+and 255.
+<P>
+
+<B>byte address</B> -- 
+The whole lower part of the <I>memory map</I> of the <I>Z-machine</I>
+can be regarded as a <I>byte array</I>, and a byte address is an
+index into this.  E.g., byte address 0 refers to the lowest byte
+in the machine (which always holds the <I>version</I> number).
+<I>Dictionary</I> words are internally stored as byte addresses.
+<P>
+
+<B>byte array</B> -- 
+An <I>array</I> indexed with the <TT>-&#62;</TT> <I>operator</I> whose entries are
+only 1 byte each: they can therefore hold numbers between 0 and 255,
+or ASCII characters, but not strings or object numbers.
+<P>
+
+<B>character</B> -- 
+A single letter 'A' or symbol '*', written as a <I>constant</I> using
+the notation <TT>'A'</TT>, and internally stored as its ASCII code.  Can
+be printed using <TT>print (char)</TT>.
+<P>
+
+<B>child</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>class</B> -- 
+A template for an <I>object</I> definition, giving certain properties
+and attributes which are <I>inherited</I> by any objects defined as
+being of this class.  Classes also exist as objects in their own
+right and belong to a <I>metaclass</I> called <TT>Class</TT>.
+<P>
+
+<B>code block</B> -- 
+A collection of <I>statements</I> can be grouped together into a block
+using braces <TT>{</TT> and <TT>}</TT> so that they count as a single unit for
+<TT>if</TT> statements, what is to be done inside a <TT>for</TT> loop, etc.
+<P>
+
+<B>common property</B> -- 
+Any <I>property</I> set by the <I>class</I> <TT>Object</TT> is passed on to
+every <I>object</I> and is called a "common property'': for example,
+<TT>description</TT>.  All others are <I>individual properties</I>.  New
+properties can be declared as common with the <TT>Property</TT> directive.
+They behave similarly except that:
+(a) values of common properties can be read even from an <I>object</I>
+not providing them, the result being a special default value, which
+can be altered using <TT>ChangeDefault</TT>;
+(b) they are faster and slightly more economical of memory to use;
+(c) there are a limited number of them.
+<P>
+
+<B>compass</B> -- 
+The <TT>compass</TT> <I>object</I>, created by the <I>library</I> but never
+tangible to the <I>player</I> during the game, is used to hold the currently
+valid <I>direction objects</I>.
+<P>
+
+<B>compiler</B> -- 
+The Inform program itself, which transmutes Inform programs (or
+source code) into the <I>story file</I> which is played with the use
+of an <I>interpreter</I> at <I>run-time</I>.
+<P>
+
+<B>condition</B> -- 
+A state of affairs which either is, or isn't, true at any given
+moment, such as <TT>x == y</TT>, often written in round brackets <TT>(</TT> and <TT>)</TT>.
+The central operator <TT>==</TT> is also called the condition.  A numerical
+value given with no operator is considered true if it is non-zero
+and otherwise false.
+<P>
+
+<B>constant</B> -- 
+An explicitly written-out number, such as <TT>34</TT> or <TT>$$10110111</TT>; or the
+internal name of an object, such as <TT>brass_lamp</TT>, whose value is its
+<I>object number</I>; or the internal name of an array, whose value is its
+<I>byte address</I>; or a word defined by either the <I>library</I> or Inform code
+as meaning a particular value; or a <I>character</I>, written <TT>'X'</TT> and
+whose value is its ASCII code; or a <I>dictionary word</I>, written <TT>'word'</TT>
+and whose value is its <I>byte address</I>; or an <I>action</I>, written <TT>##Action</TT>
+and whose value is its <I>action number</I>; or a <I>routine</I> written <TT>#r$Routine</TT>
+whose value is its <I>packed address</I>; or the name of a <I>property</I> or
+<I>attribute</I> or <I>class</I>.
+<P>
+
+<B>containment</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>cursor</B> -- 
+An invisible notional position at which text is being printed in the upper
+<I>window</I>, when the windows are split; the origin is $(1,1)$ in the top
+left.
+<P>
+
+<B>daemon</B> -- 
+A <I>routine</I> attached to an <I>object</I> which, once started, is run once during
+the end sequence of every <I>turn</I> until explicitly stopped.  Used to manage
+events happening as time passes by, or to notice changes in the state of the
+game which require some activity.
+<P>
+
+<B>default value</B> -- 
+See <I>property</I>.
+<P>
+
+<B>description</B> -- 
+The usually quite long piece of text attached to an <I>object</I>; if it's a
+<I>room</I>, then this is the long description printed out when the room is
+first visited; otherwise it will usually be printed when the object is
+examined by the <I>player</I>.
+<P>
+
+<B>dictionary</B> -- 
+A list kept inside the <I>Z-machine</I> of all the words ordinarily understood
+by the game, such as "throw'' and "mauve'', usually between about 300 and
+2000 words long.  Inform automatically puts this list together from all the
+<TT>name</TT> values of objects and all usages of constants like <TT>'word'</TT>. 
+Dictionary words are stored to a resolution of 9 characters (6 for
+<I>Standard games</I>), written <TT>'thus'</TT> (provided they have more than one
+letter; otherwise <TT>#n$x</TT> for the word "x''; except as values of the special
+<TT>name</TT> property) and are internally referred to by numbers which are their
+<I>byte addresses</I> inside the list.
+<P>
+
+<B>direct containment</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>direction object</B> -- 
+An object representing both the abstract idea of a direction and the wall
+which is in that direction: for instance, <TT>n_obj</TT> represents "northness''
+and the north wall of the current <I>room</I>.  Typing "go north'' causes the
+<I>parser</I> to generate the <I>action</I> <TT>Go n_obj</TT>.  The current direction
+objects are exactly those currently inside the <TT>compass</TT> object and they
+can be dynamically changed.  The <TT>door_dir</TT> property of a direction object
+holds its corresponding direction property.
+<P>
+
+<B>direction property</B> -- 
+The <I>library</I> creates 12 direction properties: <TT>n_to</TT>, <TT>s_to</TT>, etc., <TT>u_to</TT>,
+<TT>d_to</TT>, <TT>in_to</TT> and <TT>out_to</TT>.  These are used to give <I>map</I> connections from
+<I>rooms</I> and indicate directions which doors and <I>direction objects</I>
+correspond to.
+<P>
+
+<B>directive</B> -- 
+A line of Inform code which instructs the <I>compiler</I> to do something, such as
+to define a new <I>constant</I>; it takes immediate effect and does not correspond
+to anything happening at <I>run-time</I>.  These are not normally written inside
+<I>routines</I> but can be if prefaced by a <TT>#</TT> character.
+<P>
+
+<B>eldest child</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>embedded routine</B> -- 
+A <I>routine</I> defined as the <I>property</I> value of an <I>object</I>, which
+is defined without a name of its own, and which by default returns 'false'
+rather than 'true'.
+<P>
+
+<B>encapsulation</B> -- 
+When an <I>object</I> declares a <I>property</I> as being <TT>private</TT>, its value
+is unavailable anywhere else in the program: it can be read or written to
+only by that one object itself.  This close concealment of data is called
+encapsulation.
+<P>
+
+<B>entry point</B> -- 
+A <I>routine</I> in an Inform program which is directly called by the <I>library</I>
+to intervene in the normal operation of the game (if the routine so wishes).  
+Provision of entry points is optional, except for <TT>Initialise</TT>, which must
+always occur in every game.
+<P>
+
+<B>error</B> -- 
+When the <I>compiler</I> finds something in the program which it can't make sense
+of, it produces an error (which will eventually prevent it from generating a
+<I>story file</I>, so that it cannot generate an illegal <I>story file</I> which
+would fail at <I>run-time</I>).  If the error is <I>fatal</I> the compiler stops
+at once.
+<P>
+
+<B>examine message</B> -- 
+See <I>description</I>.
+<P>
+
+<B>expression</B> -- 
+A general piece of Inform code which determines a numerical value.  It may
+be anything from a single <I>constant</I> to a bracketed calculation of
+<I>variable</I>, <I>property</I> or <I>array</I> values, such as
+<TT>3+(day_list--&#62;(calendar.number))</TT>.
+<P>
+
+<B>fake action</B> -- 
+A form of <I>action</I> which has no corresponding <I>action routine</I> and will
+have no effect after the <TT>before</TT>-processing stage of considering an action
+is over.  A fake action is never generated by the <I>parser</I> and can only be
+triggered by a <TT>&#60;</TT>...<TT>&#62;</TT> statement.  The <I>library</I> makes use of this but
+other Inform code is advised not to.
+<P>
+
+<B>fake fake action</B> -- 
+A form of <I>action</I> which does have an <I>action routine</I> and is processed
+exactly as ordinary actions are, but which is never generated by the
+<I>parser</I>, only by the program, which can use it to pass a message to an
+<I>object</I>.
+<P>
+
+<B>fatal error</B> -- 
+An <I>error</I> found by the <I>compiler</I> which causes it to give up immediately;
+for instance, a disc being full or memory running out are fatal.
+<P>
+
+<B>format</B> -- 
+See <I>version</I>.
+<P>
+
+<B>function</B> -- 
+See <I>routine</I>.
+<P>
+
+<B>fuse</B> -- 
+See <I>timer</I>.
+<P>
+
+<B>global variable</B> -- 
+A variable which can be used by every routine in the program.
+<P>
+
+<B>grammar</B> -- 
+A list of <I>lines</I> which is attached to a particular <I>verb</I>.  The <I>parser</I>
+decodes what the <I>player</I> has typed by trying to match it against each line
+in turn of the grammar attached to the <I>verb</I> which the first word of the
+player's input corresponds to.
+<P>
+
+<B>hardware function</B> -- 
+A function which is used just like any other <I>routine</I> but which is
+not defined anywhere in the <I>library</I> or <I>program</I>: the <I>compiler</I>
+provides it automatically, usually converting the apparent call to a
+routine into a single line of <I>assembly language</I>.
+<P>
+
+<B>importing</B> -- 
+When compiling a <I>module</I>, Inform needs to be told of any global
+variables it is using which are defined only in the outside program
+(compiled on a different occasion).  Such a variable is said to be
+"imported'' using the <TT>Import global</TT> directive.
+<P>
+
+<B>indirect containment</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>individual property</B> -- 
+Opposite of <I>common property</I>.
+<P>
+
+<B>inheritance</B> -- 
+The process in which <I>property</I> values and <I>attribute</I> settings specified
+in a <I>class</I> definition are passed on to an <I>object</I> defined as having
+that class.
+<P>
+
+<B>internal name</B> -- 
+See <I>name</I>.
+<P>
+
+<B>interpreter</B> -- 
+A program for some particular model of computer, for example the IBM PC, which
+reads in the <I>story file</I> of a game and allows someone to play it.  A
+different interpreter is needed for each model of computer (though generic
+source codes exist which make it relatively easy to produce these).
+<P>
+
+<B>inventory</B> -- 
+1. Verb, imperative: a demand for a list of the items one is holding; 2.
+noun: the list itself.  (When Crowther and Woods were writing the original
+'Advent', they were unable to think of a good imperative verb and fell
+back on the barely sensible "take inventory'', which was soon corrupted
+into the not at all sensible "inventory'', thence "inv'' and finally
+"i''.)
+<P>
+
+<B>library</B> -- 
+The 'operating system' for the <I>Z-machine</I>: a large segment of Inform
+code, written out in three <I>library files</I>, which manages the model world,
+provides the <I>parser</I> and consults the game's program now and then to
+give it a chance to make interesting things happen.
+<P>
+
+<B>library files</B> -- 
+The three files <TT>parser</TT>, <TT>verblib</TT> and <TT>grammar</TT> containing the source
+code of the <I>library</I>.  These are normally <TT>Include</TT>d in the code for
+every Inform game.
+<P>
+
+<B>library routine</B> -- 
+A <I>routine</I> provided by the <I>library</I> which is 'open to the public'
+in that the designer's program is allowed to call and make use of it.
+<P>
+
+<B>line</B> -- 
+One possible pattern which the <I>parser</I> might match against what the
+<I>player</I> has typed beyond the initial <I>verb</I> word.  A <I>grammar</I> line
+consists of a sequence of <I>tokens</I>, each of which must be matched
+in sequence, plus an <I>action</I> which will be generated if the line
+successfully matches.
+<P>
+
+<B>linking</B> -- 
+The process of assimilating a previously-compiled <I>module</I> into the
+game now being compiled, in order to save compilation time.
+<P>
+
+<B>local variable</B> -- 
+A variable attached to a particular <I>routine</I> (or, more precisely,
+a particular call to a routine: if a routine calls itself, then the parent
+and child incarnation have independent copies of the local variables) whose
+value is inaccessible to the rest of the program.  Also used to hold the
+<I>arguments</I> of the call.
+<P>
+
+<B>long</B> -- 
+A <I>property</I> whose values must always be stored as <I>words</I>, or
+<I>word arrays</I>, rather than <I>bytes</I> or <I>byte arrays</I>.  A safely
+ignorable concept since except for <I>Standard games</I> all properties are
+long.
+<P>
+
+<B>logical machine</B> -- 
+See <I>Z-machine</I>.
+<P>
+
+<B>low string</B> -- 
+A string which can be used as the value of a <I>variable string</I>, printed
+with the <TT>@</TT> escape character.  Must be declared with <TT>Lowstring</TT>.
+<P>
+
+<B>map</B> -- 
+The geographical design of the game, divided into areas called <I>rooms</I>
+with connections between them in different directions.  The <I>story file</I>
+doesn't contain an explicit map table but stores the information implicitly
+in the definition of the room <I>objects</I>.
+<P>
+
+<B>memory map</B> -- 
+Internally, the <I>Z-machine</I> contains a large <I>array</I> in whose values
+the entire story file and all its data structures are stored.  Particular
+cells low down in this array are indexed by <I>byte addresses</I>, and
+<I>routines</I> and <I>strings</I> which are lodged higher up are referred to by
+<I>packed addresses</I>.  The organisation of this array (which ranges of
+indices correspond to what) is called the memory map.
+<P>
+
+<B>message</B> -- 
+A way to communicate with an <I>object</I>, specifying the object to call,
+the <I>property</I> being addressed (in effect, the "kind of message being
+sent'') and possibly other parameters.  A single value is returned as
+a reply.
+<P>
+
+<B>metaclass</B> -- 
+There are four fundamental <I>classes</I> of <I>object</I>, such that every object
+belongs to exactly one of the four.  These are <TT>Object</TT>, <TT>Class</TT>, <TT>Routine</TT>
+and <TT>String</TT>, and are called metaclasses.  (Since they are examples of
+classes, they themselves have metaclass <TT>Class</TT>.)
+<P>
+
+<B>meta-verb</B> -- 
+A <I>verb</I> whose actions are always commands from the <I>player</I> to the game,
+rather than requests for something to happen in the model world: for
+instance, "quit'' is meta but "take'' is not.
+<P>
+
+<B>module</B> -- 
+A previously-compiled but incomplete segment of game, which is kept in
+order for it to be <I>linked</I> into a later compilation.  It can be
+linked many times once created, saving much compilation time.  (For
+example, almost the whole Library can be reduced to two modules.)
+<P>
+
+<B>multiple object</B> -- 
+The <I>parser</I> matches a <I>token</I> with a multiple object when the <I>player</I>
+has either explicitly referred to more than one <I>object</I> (e.g. "drop
+lamp and basket'') or implicitly done so (e.g. "drop everything'' when
+this amounts to more than 1 item); though the match is only made if the
+token will allow it.
+<P>
+
+<B>names</B> -- 
+An <I>object</I> has three kinds of name: 1. its internal name, a word such
+as <TT>brass_lamp</TT>, which is a <I>constant</I> referring to it within the program;
+2. its short name, such as "dusty old brass lamp'' or "Twopit Room'',
+which is printed in <I>inventories</I> or before a <I>room description</I>; 3.
+<I>dictionary words</I> which appear as values of its <TT>name</TT> property, such
+as <TT>"dusty"</TT>, <TT>"brass"</TT>, etc., which the <I>player</I> can type to refer to it.
+<P>
+
+<B>noun</B> -- 
+The first parameter (usually an <I>object</I> but possibly a number) which
+the <I>parser</I> has matched in a <I>line</I> of <I>grammar</I> is the noun for
+the <I>action</I> which is generated.  It is stored in the <TT>noun</TT> variable
+(not to be confused with the <TT>noun</TT> token).
+<P>
+
+<B>object</B> -- 
+1. The physical substance of the game's world is divided up into indivisible
+objects, such as 'a brass lamp' or 'a meadow'.  These contain each other
+in a hierarchy called the <I>object tree</I>.  An object may be defined with an
+initial location (another object) and must have an <I>internal name</I> and
+a <I>short name</I>; attached to it throughout the game are variables called
+<I>attributes</I> and <I>properties</I> which reflect its current state.  The
+definition of an object may make it <I>inherit</I> initial settings for this
+state from one or more <I>classes</I>.  2. More generally, classes themselves
+and even <I>routines</I> and <I>strings</I> are abstractly considered objects.
+Objects in sense (1) above, "concrete objects'', are members of the
+<I>metaclass</I> <TT>Object</TT>, while classes belong to <TT>Class</TT>, routines to
+<TT>Routine</TT> and strings to <TT>String</TT>.
+<P>
+
+<B>object number</B> -- 
+<I>Objects</I> are automatically numbered from 1 upwards, in order of
+definition, and the <I>internal name</I> of an object is in fact a <I>constant</I>
+whose value is this number.
+<P>
+
+<B>object tree</B> -- 
+The hierarchy of containment between <I>objects</I> of metaclass <TT>Object</TT>,
+i.e., of concretely existing objects.  Each has a 'parent',
+though this may be 'nothing' (to indicate that it is uncontained, as for
+instance <I>rooms</I> are) and possibly some 'children' (the objects directly
+contained within it).  The 'child' of an object is the 'eldest' of these
+children, the one most recently moved within it or, if none have been moved
+into it since the start of play, the first one defined as within it.  The
+'sibling' of this child is then the next eldest, or may be 'nothing' if
+there is no next eldest.  Note that if <I>A</I> is inside <I>B</I> which is itself
+inside <I>C</I>, then <I>C</I> 'directly contains' <I>B</I> but only 'indirectly
+contains' <I>A</I>: and we do not call <I>A</I> one of the children of <I>C</I>.
+<P>
+
+<B>obsolete usage</B> -- 
+A point in the program using Inform syntax which was correct under some
+previous version of the <I>compiler</I> but is no longer correct (usually
+because there is a neater way to express the same idea).  Inform often
+allows these but, if so, issues <I>warnings</I>.
+<P>
+
+<B>opcodes</B> -- 
+See <I>assembly language</I>.
+<P>
+
+<B>operator</B> -- 
+A symbol in an <I>expression</I> which acts on one or more sub-expressions,
+combining their values to produce a result.  This may be arithmetic, as
+in <I>+</I> or <I>/</I>, or to do with array or property value indexing, as in
+<TT>-&#62;</TT> or <TT>.&#38;</TT>.  Note that <I>condition</I> operators such as <TT>==</TT> are not
+formally expression operators.
+<P>
+
+<B>order</B> -- 
+An instruction by the <I>player</I> for somebody else to do something.  For
+instance, "policeman, give me your hat'' is an order.  The order is
+parsed as if an <I>action</I> but is then processed in the other person's
+<I>object</I> definition.
+<P>
+
+<B>packed address</B> -- 
+A number encoding the location of a <I>routine</I> or <I>string</I> within
+the <I>memory map</I> of the <I>Z-machine</I>.
+<P>
+
+<B>parent</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>parser</B> -- 
+That part of the <I>library</I> which, once per turn, issues the <I>prompt</I>;
+asks the <I>player</I> to type something; looks at the initial <I>verb</I> word; tries
+to match the remaining words against one of the <I>lines</I> of <I>grammar</I> for
+this verb and, if successful, generates the resulting <I>action</I>.
+<P>
+
+<B>player</B> -- 
+1. the person sitting at the keyboard at <I>run-time</I>, who is playing
+the game; 2. his character inside the model world of the game.  (There is an
+important difference - one has access to the "undo'' verb.  The other
+actually dies.)
+<P>
+
+<B>private property</B> -- 
+See <I>encapsulation</I>.
+<P>
+
+<B>prompt</B> -- 
+The text printed to invite the <I>player</I> to type: usually just <TT>&#62;</TT>.
+<P>
+
+<B>property</B> -- 
+1. The value of a variable attached to a particular <I>object</I>, accessible
+throughout the program, which can be a single <I>word</I>, an \W{embedded
+routine} or an <I>array</I> of values; 2. a named class of such variables,
+such as <TT>description</TT>, which may or may not be <I>provided</I> by any given
+object.  Properties can be <I>encapsulated</I> for privacy.  All properties
+are either <I>common</I> or <I>individual</I> (the latter unless otherwise
+declared).
+<P>
+
+<B>provision</B> -- 
+If a <I>property</I>, such as <TT>description</TT>, is given in the definition of
+an <I>object</I> (or in the definition of a <I>class</I> which the object belongs
+to) then the object is said to "provide'' that property.
+<P>
+
+<B>resolution</B> -- 
+See <I>dictionary</I>.
+<P>
+
+<B>return value</B> -- 
+See <I>routine</I>.
+<P>
+
+<B>room</B> -- 
+The geography of a game is subdivided into parcels of area called rooms,
+within which it is (usually) assumed that the <I>player</I> has no particular
+location but can reach all corners of easily and without giving explicit
+instruction to do so.  For instance, "the summit of Scafell Pike'' might be
+such an area, while "the summit of Ben Nevis'' (being a large L-shaped
+ridge) would probably be divided into three or four.  These rooms fit
+together into the <I>map</I> and each is implemented as an <I>object</I>.
+<P>
+
+<B>room description</B> -- 
+See <I>description</I>.
+<P>
+
+<B>routine</B> -- 
+An Inform program is always executed in routines, each of which is "called''
+(possibly with <I>arguments</I>) and must return a particular <I>word</I> value,
+though this is sometimes disguised from the programmer because (for example)
+the <I>statement</I> <TT>return;</TT> actually returns <TT>true</TT> (1) and the statement
+<TT>ExplodeBomb();</TT> makes the call to the routine but throws away the return
+value subsequently.  Routines are permitted to call themselves (if the
+programmer wants to risk it) and have their own <I>local variables</I>.
+Calling a routine is analogous to sending a <I>message</I> to an <I>object</I>,
+and indeed routines are abstractly considered objects in their own right,
+belonging to <I>metaclass</I> <TT>Routine</TT>.
+<P>
+
+<B>rule</B> -- 
+<I>Embedded routines</I> given as values of a <I>property</I> like <TT>before</TT> or
+<TT>after</TT> are sometimes loosely called rules, because they encode exceptional
+rules of the game such as "the 10-ton weight cannot be picked up''. 
+However, there is no formal concept of 'rule'.
+<P>
+
+<B>run-time</B> -- 
+The time when an <I>interpreter</I> is running the <I>story file</I>, i.e., when
+someone is actually playing the game, as distinct from 'compile-time' (when
+the <I>compiler</I> is at work making the story file).  Some errors (such as
+an attempt to divide a number by zero) can only be detected at run-time.
+<P>
+
+<B>scope</B> -- 
+To say that an <I>object</I> is in scope to a particular <I>actor</I> is
+roughly to say that it is visible, and can sensibly be referred to.
+<P>
+
+<B>second noun</B> -- 
+The second parameter (usually an <I>object</I> but possibly a number) which the
+<I>parser</I> has matched in a <I>line</I> of <I>grammar</I> is the second noun for
+the <I>action</I> generated.  It is stored in the <TT>second</TT> variable.
+<P>
+
+<B>see-through</B> -- 
+An <I>object</I> is called this if it has <TT>transparent</TT>, or is an open
+<TT>container</TT>, or is a <TT>supporter</TT>.  Roughly this means 'if the object is
+visible, then its <I>children</I> are visible'.  (This criterion is often
+applied in the <I>scope</I> (and 'light') rules inside the <I>library</I>.)
+<P>
+
+<B>sender</B> -- 
+When a <I>message</I> is sent from one <I>object</I> to another, the originator
+is called the "sender''.  Whenever a message is being received, the
+variable <TT>sender</TT> holds this object's identity.
+<P>
+
+<B>short name</B> -- 
+See <I>name</I>.
+<P>
+
+<B>sibling</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>statement</B> -- 
+A single instruction for the game to carry out at <I>run-time</I>; a
+<I>routine</I> is a collection of statements.  These include <I>assignments</I>
+and <I>assembly language</I> but not <I>directives</I>.
+<P>
+
+<B>status line</B> -- 
+The region at the top of the screen which, in play, usually shows the
+current score and location, and which is usually printed in reversed colours
+for contrast.
+<P>
+
+<B>story file</B> -- 
+The output of the <I>compiler</I> is a single file containing everything about
+the game produced, in a <I>format</I> which is standard.  To be played, the
+file must be run with an <I>interpreter</I>.  Thus only one file is needed for
+every Inform game created, and only one auxiliary program must be written
+for every model of computer which is to run such games.  In this way
+story files are absolutely portable across different computers.
+<P>
+
+<B>Standard game</B> -- 
+An old <I>format</I> (version 3) of <I>story file</I> which should no longer be
+used unless absolutely necessary (to run on very small computers) since it
+imposes tiresome restrictions.
+<P>
+
+<B>string</B> -- 
+1. a literal piece of text such as <TT>"Mary had a fox"</TT> (which is a
+<I>constant</I> internally represented by a number, its <I>packed address</I>,
+and may be created as a <I>low string</I>), abstractly considered an <I>object</I>
+of <I>metaclass</I> <TT>String</TT>; 2. a form of <I>byte array</I> in
+which the 0th entry holds the number of entries (so called because such an
+array is usually used as a list of <I>characters</I>, i.e. a string variable);
+3. see <I>variable string</I>.
+<P>
+
+<B>switch</B> -- 
+1. certain <I>objects</I> are 'switchable', meaning they can be turned off or
+on by the <I>player</I>; 2. options set by the programmer when the <I>compiler</I>
+starts are called switches; 3. a <TT>switch</TT> <I>statement</I> is one which
+switches execution, like a railway turntable, between different lines
+according to the current value of an <I>expression</I>.
+<P>
+
+<B>synonym</B> -- 
+Two or more words which refer to the same <I>verb</I> are called synonyms (for
+example, "wear'' and "don'').
+<P>
+
+<B>table</B> -- 
+A form of <I>word array</I> in which the 0th entry holds the number of entries.
+<P>
+
+<B>timer</B> -- 
+A <I>routine</I> attached to a particular <I>object</I> which, once set, will be
+run after a certain number of <I>turns</I> have passed by.  (Sometimes called
+a 'fuse'.)
+<P>
+
+<B>token</B> -- 
+A particle in a <I>line</I> of <I>grammar</I>, which the <I>parser</I> tries
+to match with one or more words from what the <I>player</I> has typed.  For
+instance, the token <TT>held</TT> can only be matched by an <I>object</I> the
+<I>actor</I> is holding.
+<P>
+
+<B>tree</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>turn</B> -- 
+The period in play between one typed command and another.
+<P>
+
+<B>untypeable word</B> -- 
+A <I>dictionary word</I> which contains at least one space, full stop or
+comma and therefore can never be recognised by the <I>parser</I> as one of the
+words typed by the <I>player</I>.
+<P>
+
+<B>variable</B> -- 
+A named value which can be set or compared so that it varies at <I>run-time</I>.
+It must be declared before use (the <I>library</I> declares many such).
+Variables are either <I>local</I> or <I>global</I>; entries in <I>arrays</I> (or the
+<I>memory map</I>) and <I>properties</I> of <I>objects</I> behave like global
+variables.
+<P>
+
+<B>variable string</B> -- 
+(Not the same as a <I>string</I> (3) variable.)  There are 32 of these, which
+can only be set (to a <I>string</I> (1) which must have been defined as a
+<I>low string</I>) or printed out (using the <TT>@</TT> escape character).
+<P>
+
+<B>vehicle</B> -- 
+An <I>object</I> which the <I>player</I> character can travel around in.
+<P>
+
+<B>verb</B> -- 
+1. a collection of <I>synonymous</I> one-word English verbs for which the
+<I>parser</I> has a <I>grammar</I> of possible <I>lines</I> which a command starting
+with one of these verbs might take; 2. one of the one-word English verbs.
+<P>
+
+<B>version</B> -- 
+The <I>compiler</I> can produce 6 different formats of <I>story file</I>, from
+Version 3 (or <I>Standard</I>) to Version 8.  By default it produces Version 5
+(or <I>Advanced</I>) which is the most portable.
+<P>
+
+<B>warning</B> -- 
+When the <I>compiler</I> finds something in the program which it disapproves
+of (for example, an <I>obsolete usage</I>) or thinks might be a mistake, it
+issues a warning message.  This resembles an <I>error</I> but does not prevent
+successful compilation; a working <I>story file</I> can still be produced.
+<P>
+
+<B>window</B> -- 
+(Except in <I>Standard games</I>) the screen is divided into two windows, an
+upper, fixed window usually containing the <I>status line</I> and the lower,
+scrolling window usually holding the text of the game.  One can divert
+printing to the upper window and move a <I>cursor</I> about in it.
+<P>
+
+<B>word</B> -- 
+1. an English word in the game's <I>dictionary</I>; 2. almost all numbers are
+stored in 16-bit words of memory which unlike <I>bytes</I> can hold any
+<I>constant</I> value, though they take twice as much storage space up.
+<P>
+
+<B>word array</B> -- 
+An <I>array</I> indexed with the <TT>--&#62;</TT> <I>operator</I> whose entries are
+<I>words</I>: they can therefore hold any <I>constant</I> values.
+<P>
+
+<B>youngest child</B> -- 
+See <I>object tree</I>.
+<P>
+
+<B>Z-machine</B> -- 
+The imaginary computer which the <I>story file</I> is a program for.  One
+romantically pretends that this is built from circuitboards and microchips
+(using terms like 'hardware') though in fact it is merely simulated at
+<I>run-time</I> by an <I>interpreter</I> running on some (much more sophisticated)
+computer.  Z is for 'Zork'.
+</SMALL><TR><TD><TD>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA11.html">Back</A> / <A HREF="index.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,14 @@
+<HTML><HEAD><TITLE>Answer to Exercise 40</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 40</B><TR><TD><TD>
+<P>
+
+Because you don't know what order daemons will run in.  A
+'fatigue' daemon which makes the player drop something might come
+after the 'mid-air' daemon has run for this turn.  Whereas <TT>each_turn</TT>
+happens after daemons and timers have run their course, and can fairly
+assume no further movements will take place this
+turn.
+</TABLE>
+<HR>Back to <A HREF="../section18.html#ex40">the exercise in section 18</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

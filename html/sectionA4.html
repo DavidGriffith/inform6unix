@@ -1,0 +1,118 @@
+<HTML><HEAD><TITLE>Section A4: Grammar</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA3.html">Back</A><BR><A HREF="sectionA5.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A4. Grammar</H3></BLOCKQUOTE><TR><TD><TD>
+A 'verb' is a set of possible initial words in keyboard command, which are
+treated synonymously (for example, "wear'' and "don'') together with
+a 'grammar'.  A grammar is a list of 'lines' which the parser tries to match,
+one at a time, and accepts the first one which matches.  The directive
+<BLOCKQUOTE>
+Verb [<TT>meta</TT>] <I><B>&#60;verb-word-1&#62;</B></I> ... <I><B>&#60;verb-word-<I>n</I>&#62;</B></I> <I><B>&#60;grammar&#62;</B></I>
+</BLOCKQUOTE>
+
+creates a new verb.  If it is said to be <TT>meta</TT> then it will count as 'out
+of the game': for instance "score'' or "save''.  New synonyms can be added
+to an old verb with:
+<BLOCKQUOTE>
+Verb <I><B>&#60;new-word-1&#62;</B></I> ... <I><B>&#60;new-word-<I>n</I>&#62;</B></I> <TT>=</TT> <I><B>&#60;existing-verb-word&#62;</B></I>
+</BLOCKQUOTE>
+
+An old verb can be modified with the directive
+<BLOCKQUOTE>
+Extend [<TT>only</TT>] <I><B>&#60;existing-word-1&#62;</B></I> ... <I><B>&#60;existing-word-<I>n</I>&#62;</B></I> [<I><B>&#60;priority&#62;</B></I>] <I><B>&#60;grammar&#62;</B></I>
+</BLOCKQUOTE>
+
+If <TT>only</TT> is specified, the existing words given (which must all be from the same
+existing verb) are split off into a new independent copy of the verb.
+If not, the directive extends the whole existing verb.
+The priority can be <TT>first</TT> (insert
+this grammar at the head of the list), <TT>last</TT> (insert it at the end) or <TT>replace</TT>
+(throw away the old list and use this instead); the default is <TT>last</TT>.
+<P>
+
+A line is a list of 'tokens' together with the action generated if each
+token matches so that the line is accepted.  The syntax of a line is
+<BLOCKQUOTE>
+<TT>*</TT> <I><B>&#60;token-1&#62;</B></I> <I><B>&#60;token-2&#62;</B></I> ...<I><B>&#60;token-<I>n</I>&#62;</B></I> <TT>-&#62;</TT> <I><B>&#60;action&#62;</B></I>
+</BLOCKQUOTE>
+
+where
+0 &#60;= n &#60;= 31.
+The action is named without initial <TT>##</TT> signs and if
+an action which isn't in the standard library set is named then an action
+routine (named with the action name followed by <TT>Sub</TT>) must be defined
+somewhere in the game.
+<P>
+
+A grammar line can optionally be followed by the word
+<TT>reverse</TT>.  This signals that the action to be generated has
+two parameters, but which have been parsed in the wrong
+order and need to swapped over.  (Note that a <TT>topic</TT> is
+not a parameter, and nor is a preposition.)
+<P>
+
+<P>
+
+A token matches a single particle of what has been typed.  The possible
+tokens are:
+
+<BR><TABLE Border><TR><TD> <TABLE Border><TR><TD><TT>"</TT><I><B>&#60;word&#62;</B></I><TT>"</TT></TABLE> <TD>    that literal word only
+<TR><TD> <TABLE Border><TR><TD><TT>noun</TT></TABLE>          <TD>    any object in scope
+<TR><TD> <TABLE Border><TR><TD><TT>held</TT></TABLE>          <TD>    object held by the player
+<TR><TD> <TABLE Border><TR><TD><TT>multi</TT></TABLE>         <TD>    one or more objects in scope
+<TR><TD> <TABLE Border><TR><TD><TT>multiheld</TT></TABLE>     <TD>    one or more held objects
+<TR><TD> <TABLE Border><TR><TD><TT>multiexcept</TT></TABLE>   <TD>    one or more in scope, except the other
+<TR><TD> <TABLE Border><TR><TD><TT>multiinside</TT></TABLE>   <TD>    one or more in scope, inside the other
+<TR><TD> <TABLE Border><TR><TD><I><B>&#60;attribute&#62;</B></I></TABLE>  <TD>    any object in scope which has the attribute
+<TR><TD> <TABLE Border><TR><TD><TT>creature</TT></TABLE>      <TD>    an object in scope which is <TT>animate</TT>
+<TR><TD> <TABLE Border><TR><TD><TT>noun = </TT><I><B>&#60;Routine&#62;</B></I></TABLE> <TD>    any object in scope passing the given test
+<TR><TD> <TABLE Border><TR><TD><TT>scope = </TT><I><B>&#60;Routine&#62;</B></I></TABLE> <TD>    an object in this definition of scope
+<TR><TD> <TABLE Border><TR><TD><TT>number</TT></TABLE>        <TD>    a number only
+<TR><TD> <TABLE Border><TR><TD><I><B>&#60;Routine&#62;</B></I></TABLE>    <TD>    refer to this general parsing routine
+<TR><TD> <TABLE Border><TR><TD><TT>topic</TT></TABLE>         <TD>    any text at all
+<TR><TD> <TABLE Border><TR><TD><TT>special</TT></TABLE>       <TD>    any single word or number
+</TABLE>
+<P>
+
+Two or more literal words (only) can be written with slash
+signs <TT>/</TT> between them as alternatives.  E.g., <TT>"in"/"on"</TT>
+matches either the word "in'' or the word "on''.
+<P>
+
+For the <TABLE Border><TR><TD><TT>noun = </TT><I><B>&#60;Routine&#62;</B></I></TABLE> token,
+the test routine must decide whether or not the
+object in the <TT>noun</TT> variable is acceptable and return true or false.
+<P>
+
+For the <TABLE Border><TR><TD><TT>scope = </TT><I><B>&#60;Routine&#62;</B></I></TABLE> token,
+the routine must look at the variable <TT>scope_stage</TT>.
+If this is 1, then it must decide whether or not to allow a multiple object
+(such as "all'') here and return true or false.  If 2, then the routine may
+put objects into scope by calling either <TT>PlaceInScope(obj)</TT> to put just <TT>obj</TT>
+in, or <TT>ScopeWithin(obj)</TT> to put the contents of <TT>obj</TT> into scope.  It must
+then return either true (to prevent any other objects from entering scope) or
+false (to let the parser put in all the usual objects).  If <TT>scope_stage=3</TT>,
+it must print a suitable message to tell the player that this token was
+misunderstood.
+<P>
+
+A general parsing routine can match any text it likes.  It should use <TT>wn</TT>,
+the variable holding the number of the word currently being parsed (counting
+from the verb being word 1) and the routine <TT>NextWord()</TT> to read the next
+word and move <TT>wn</TT> on by 1.  The routine returns:
+<BLOCKQUOTE>
+-1<SAMP>      </SAMP> if the user's input isn't understood,<BR>
+0<SAMP>      </SAMP> if it's understood but doesn't refer to anything,<BR>
+1<SAMP>      </SAMP> if there is a numerical value resulting, or<BR>
+<I>n</I><SAMP>      </SAMP> if object <I>n</I> is understood.<BR>
+</BLOCKQUOTE>
+
+In the case of a number, the actual value should be put into the variable
+<TT>parsed_number</TT>.
+On an unsuccessful match (returning -1) it doesn't matter what the final
+value of <TT>wn</TT> is.  Otherwise it should be left pointing to the next
+thing <I> after</I> what the routine understood.
+<P>
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA3.html">Back</A> / <A HREF="sectionA5.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

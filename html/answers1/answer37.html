@@ -1,0 +1,41 @@
+<HTML><HEAD><TITLE>Answer to Exercise 37</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 37</B><TR><TD><TD>
+<P>
+
+<PRE>
+Object tiny_claws "sound of tiny claws" thedark
+  with article "the",
+       name "tiny" "claws" "sound" "of" "scuttling" "scuttle"
+            "things" "creatures" "monsters" "insects",
+       initial "Somewhere, tiny claws are scuttling.",
+       before
+       [;  Listen: "How intelligent they sound, for mere insects.";
+           Touch, Taste: "You wouldn't want to.  Really.";
+           Smell: "You can only smell your own fear.";
+           Attack: "They easily evade your flailing about in the dark.";
+           default: "The creatures evade you, chittering.";
+       ],
+       each_turn [; StartDaemon(self); ],
+       number 0,
+       daemon
+       [;  if (location~=thedark) { self.number=0; StopDaemon(self); rtrue; }
+           switch(++(self.number))
+           {   1: "^The scuttling draws a little nearer, and your breathing
+                    grows loud and hoarse.";
+               2: "^The perspiration of terror runs off your brow.  The
+                    creatures are almost here!";
+               3: "^You feel a tickling at your extremities and kick outward,
+                    shaking something chitinous off.  Their sound alone
+                    is a menacing rasp.";
+               4: deadflag=1;
+                  "^Suddenly there is a tiny pain, of a hypodermic-sharp fang
+                    at your calf.  Almost at once your limbs go into spasm,
+                    your shoulders and knee-joints lock, your tongue swells...";
+           }
+       ];
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section18.html#ex37">the exercise in section 18</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

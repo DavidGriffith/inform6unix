@@ -1,0 +1,1373 @@
+This is Info file inform.info, produced by Makeinfo-1.64 from the input
+file inform.texi.
+
+This is the Inform Designer's Manual, third edition, 4 September 1996,
+as updated 16 May 1997.  It was converted to Info by Christopher J.
+Madsen <ac608@yfn.ysu.edu>.
+
+Copyright 1996,1997 Graham Nelson and Christopher J. Madsen
+
+Permission is granted to make and distribute copies of this manual
+provided that:
+ (a) distributed copies are not substantially different from those
+     archived by the author,
+ (b) this and other copyright messages are always retained in full, and
+ (c) no profit is involved.
+
+
+File: inform,  Node: Code Blocks,  Next: Loops,  Prev: Example 4,  Up: Routines
+
+Code blocks, else and switch
+----------------------------
+
+   A feature of all control constructs is that instead of just giving a
+<statement>, one can give a list of statements grouped together into a
+unit called a "code block".  Such a group begins with an open brace {
+and ends with a close brace }.  For example,
+
+    if (alpha > 5)
+    {   print "The square of alpha is ";
+        print alpha*alpha;
+        print ".^";
+    }
+
+If alpha is 3, nothing is printed; if alpha is 9,
+
+         The square of alpha is 81.
+
+is printed.  (As usual the layout is a matter of convention: it is
+usual to write code blocks on margins indented inwards by some standard
+number of characters.)  In some ways, code blocks are like routines,
+and at first it may seem inconsistent to write routines between [ and ]
+brackets and code blocks between braces { and }.  However, code blocks
+cannot have private variables of their own and do not return values:
+and it is possible for execution to break out of code blocks again, or
+to jump from block to block, which is impossible with routines.
+
+   An if statement can optionally have the form
+
+         if (<condition>) <statement1> else <statement2>
+
+in which case <statement1> is executed if the condition is true, and
+<statement2> if it is false.  For example,
+
+    if (alpha == 5) print "Five."; else print "Not five.";
+
+Note that the condition is only checked once.  The statement
+
+    if (alpha == 5)
+    {   print "Five.";
+        alpha = 10;
+    }
+    else print "Not five.";
+
+cannot ever print both "Five" and then "Not five".
+
+   The else clause has a snag attached: the problem of "hanging elses".
+
+    if (alpha == 1)
+        if (beta == 2)
+            print "Clearly if alpha=1 and beta=2.^";
+        else
+            print "Ambiguous.^";
+
+is ambiguous as to which if statement the else attaches to.  The answer
+(in Inform 6, though this has changed since earlier versions of the
+language) is that an else always pairs to its nearest if, unless there
+is bracing to indicate the contrary.  Thus the else above pairs with
+the beta condition, not the alpha condition.
+
+   In any case it is much safer to use braces to express what is meant,
+as in:
+
+    if (alpha == 1)
+    {   if (beta == 2)
+            print "Clearly if alpha=1 and beta=2.^";
+        else
+            print "Clearly if alpha=1 but beta not 2.^";
+    }
+
+The if...else... construct is ideal for switching execution between two
+possible "tracks", like railway signals, but it is a nuisance trying to
+divide between many different outcomes this way.  To follow the
+analogy, the construct switch is like a railway turntable.
+
+    print "The train on platform 1 is going to ";
+    switch(DestinationOnPlatform(1))
+    {   1: print "Dover Priory.";
+        2: print "Bristol Parkway.";
+        3: print "Edinburgh Waverley.";
+    }
+
+Each possible value must be a constant, so
+
+    switch(alpha)
+    {   beta: print "The variables alpha and beta are equal!";
+    }
+
+is illegal.
+
+   Any number of outcomes can be specified, and values can be grouped
+together to a common outcome.  For example,
+
+    print "The mission STS-", num, " was flown on the Space Shuttle";
+    switch(num)
+    {   1 to 5, 9: print " Columbia.";
+        6 to 8:    print " Challenger.";
+        10 to 25:  if (num == 12) print " Discovery";
+                   print ", but it was given a flight number like 51-B.";
+        default:   print ".";
+    }
+
+will result in a true statement being printed (as long as num is
+between 1 and, at time of writing, 78), if an incomplete one.  The
+default clause is executed if the original expression matches none of
+the other values, and it must always come last if given at all.  In
+this case, it means that if num is 62, then
+
+         The mission STS-62 was flown on the Space Shuttle.
+
+is printed.
+
+   Note that each clause is automatically a code block and needs no
+braces { to } to delimit it from the rest of the routine: this
+shorthand makes switch statements much more legible.
+
+
+File: inform,  Node: Loops,  Next: Example 5,  Prev: Code Blocks,  Up: Routines
+
+while, do...until, for, break, continue
+---------------------------------------
+
+   The other four Inform control constructs are all "loops", that is,
+ways to repeat the execution of a given statement (or code block).
+Discussion of one of the four, called objectloop, is deferred until
+*Note Using the Tree::.
+
+   The two basic forms of loop are while and do...until:
+
+         while (<condition>) <statement>
+         do <statement> until (<condition>)
+
+The first repeatedly tests the condition and, provided it is still true,
+executes the statement.  (If the condition is not even true the first
+time, the statement is never executed.)  For example:
+
+    [ SquareRoot n;
+      x = n;
+      while (x*x > n) x=x-1;
+      return x;
+    ];
+
+a (fairly chronic) method for finding square roots.  (If SquareRoot(200)
+is called, then x runs down through the values 200, 199, ..., 14, at
+which point x*x <= n since 14 * 14 = 196.)
+
+   The do...until loop repeats the given statement until the condition
+is found to be true.  (Even if the condition is already satisfied, like
+(true), the statement is always executed the first time through.)
+
+   One particular kind of while loop is needed so often that there is an
+abbreviation for it, called for.  For example,
+
+    counter = 1;
+    while (counter <= 10)
+    {   print counter, " ";
+        counter++;
+    }
+
+which produces the output
+
+     1 2 3 4 5 6 7 8 9 10
+
+(Recall that counter++ adds 1 to the variable counter.)  Languages like
+BASIC make extensive use of this kind of loop.  For example, in BBC
+BASIC, the above loop would be written
+
+    FOR counter = 1 TO 10
+        PRINT counter;" ";
+    NEXT
+
+NEXT is a word which (slightly clumsily) means "the code block ends
+here", and is therefore the equivalent of Inform's }.  The whole is used
+to mean "for values of the counter running through 1 to 10, do...",
+hence the choice of the word FOR.
+
+   Inform (like the language C) uses a more flexible construct than
+this, but which is still called for.  It can produce any loop in the
+form
+
+         <start>
+         while (<condition>)
+         {   ...
+             <update>
+         }
+
+where <start> and <update> are assignments.  The notation to achieve
+this is
+
+         for (<start> : <condition> : <update>) ...
+
+For example, the loop described above is achieved by
+
+    for (counter=1 : counter<=10 : counter++)
+        print counter, " ";
+
+Note that if the condition is false even the first time, the loop is
+never executed.  For instance,
+
+    for (counter=1 : counter<0 : counter++)
+        print "Banana";
+
+prints nothing.
+
+!!  At this point it is worth mentioning that several assignments can
+be combined into a single statement in Inform.  For example,
+
+    i++, score=50, j++
+
+(three assignments separated by commas) is a single statement.  This is
+never useful in ordinary code, where the assignments can be divided up
+by semicolons in the usual way.  In for loops it is useful, though:
+
+    for (i=1, j=5: i<=5: i++, j--) print i, " ", j, ", ";
+
+produces the output "1 5, 2 4, 3 3, 4 2, 5 1,".
+
+   Any of the three parts of a for statement can be omitted.  If the
+condition is missed out, it is assumed to be always true, i.e. there is
+no check made to see if the loop should be ended and so the loop
+continues forever.
+
+   On the face of it, the following loops all repeat forever:
+
+         while (true) <statement>
+         do <statement> until (false)
+         for (::) <statement>
+
+But there is always an escape.  One way is to return from the current
+routine.  Another is to jump to a label outside the loop (jump will be
+covered in *Note Jumping Around:: below).  It's neater to use the
+statement break, which causes execution to "break out of" the current
+innermost loop or switch statement: it can be read as "finish early".
+All these ways out are entirely "safe", and there is no harm in leaving
+a loop only half-done.
+
+   The other simple statement used inside loops is continue.  This
+causes the current iteration to end immediately, but does not end the
+whole loop.  For example,
+
+    for (i=1: i<=5: i++)
+    {   if (i==3) continue;
+        print i, " ";
+    }
+
+will output "1 2 4 5".
+
+
+File: inform,  Node: Example 5,  Next: Jumping Around,  Prev: Loops,  Up: Routines
+
+Example 5: A number puzzle
+--------------------------
+
+   The routine RunPuzzle is an interesting example of a loop which,
+though apparently simple enough, contains a trap for the unwary.
+
+    [ RunPuzzle n count;
+
+      do
+      {   print n, " ";
+          n = NextNumber(n);
+          count++;
+      }
+      until (n==1);
+      print "1^(taking ", count, " steps to reach 1)^";
+    ];
+    [ NextNumber n;
+      if (n%2 == 0) return n/2;     ! If n is even, halve it
+      return 3*n + 1;               ! If n is odd, triple and add 1
+    ];
+
+   The call RunPuzzle(10), for example, results in the output
+
+         10 5 16 8 4 2 1
+         (taking 6 steps to reach 1)
+
+The source code assumes that, no matter what the initial value of n,
+enough iteration will end up back at 1.  If this did not happen, the
+program would lock up into an infinite loop, printing numbers forever.
+
+   The routine is apparently very simple, so it would seem reasonable
+that by thinking carefully enough about it, we ought to be able to
+decide whether or not it is "safe" to use (i.e., whether it can be
+guaranteed to finish or not).
+
+   And yet nobody knows whether this routine is "safe".  The conjecture
+that all n eventually step down to 1 is at least fifty years old but
+has never been proved, having resisted all mathematical attack.
+(Alarmingly, RunPuzzle(27) takes 111 iterations to fall back down to 1.)
+
+
+File: inform,  Node: Jumping Around,  Next: Printing Output,  Prev: Example 5,  Up: Routines
+
+quit, jump and the program state
+--------------------------------
+
+   There are four statements left which control the flow of execution.
+quit ends the program immediately (as if a return had taken place from
+the Main routine).  This drastic measure is best reserved for points in
+the program which have detected some error condition so awful that
+there is no point carrying on.  Better yet, do not use it at all.
+
+   The jump statement transfers execution to some other named place in
+the same routine.  (Some programming languages call this goto.  Since
+it can be and has been put to ugly uses, the construct itself was at
+one time frowned on as a vulgar construct leading programmers into sin.
+Good use of control constructs will almost always avoid the need for
+jump and result in more legible programs.  But sin is universal.)
+
+   To use jump a notation is needed to mark particular places in the
+source code.  Such markers are called "labels".  For example:
+
+    [ Main i;
+      i=1;
+      .Marker;
+      print "I have now printed this ", i++, " times.^";
+      jump Marker;
+    ];
+
+This program has one label, Marker.  A statement consisting only of a
+full stop and then an identifier means "put a label here and call it
+this".
+
+!!!! An Inform program has the ability to save a snapshot of its entire
+state and to restore back to that previous state.  This snapshot
+includes values of variables, the point where code is currently being
+executed, and so on.  Just as we cannot know if the universe is only
+six thousand years old, as creationists claim, having been endowed by
+God with a carefully faked fossil record; so an Inform program cannot
+know if it has been executing all along or if it was only recently
+restarted.  The statements required are save and restore:
+
+         save <label>
+         restore <label>
+
+This is a rare example of an Inform feature which may depend on the host
+machine's state of health: for example, if all disc storage is full,
+then save will fail.  It should always be assumed that these statements
+may well fail.  A jump to the label provided occurs if the operation
+has been a success.  (This is irrelevant in the case of a restore
+since, if all has gone well, execution is now resuming from the
+successful branch of the save statement: because that is where
+execution was when the state was saved.)
+
+
+File: inform,  Node: Printing Output,  Next: Example 6,  Prev: Jumping Around,  Up: Routines
+
+Printing output
+---------------
+
+   When text is printed, normally each character is printed exactly as
+specified in the source code.  Four characters, however, have special
+meanings.  As explained above ^ means "print a new-line".  The
+character ~, meaning "print a quotation mark", is needed since
+quotation marks otherwise finish strings.  Thus,
+
+    "~Look,~ says Peter. ~Socks can jump.~^Jane agrees."
+
+is printed as
+
+     "Look," says Peter. "Socks can jump."
+     Jane agrees.
+
+   The third remaining special character is @, which is used for
+accented characters and other unusual effects, as described below.
+Finally, \ is reserved for "folding lines", and used to be needed in
+Inform 5 when text spilled over more than one line.  (It's no longer
+needed but kept so that old programs still work.)  If you really want
+to print a ~, a ^, an @ or a \, see below.
+
+   Text still spills over more than one line, even in the present
+golden age of Inform 6.  When a statement like
+
+    print "Here in her hairs
+           the painter plays the spider, and hath woven
+           a golden mesh t'untrap the hearts of men
+           faster than gnats in cobwebs";
+
+is read in by Inform, the line breaks are replaced with a single space
+each.  Thus the text printed is: "Here in her hairs the painter plays
+the spider, and hath woven a golden mesh..." and so on.  (There is one
+exception: if a line finishes with a ^ (new-line) character, then no
+space is added before the next line begins.)
+
+   So far, only the print statement has been used for printing, to
+print both numbers and strings (that is, double-quoted pieces of text).
+Since Inform is primarily a language for writing Adventure games, its
+business is text, and it provides many other facilities for printing.
+
+         new_line
+
+is a statement which simply prints a new-line (otherwise known as a
+carriage return, as if the lever on the carriage of an old manual
+typewriter had been pulled to move it right back to the left margin and
+turn it forward one line).  This is equivalent to
+
+         print "^"
+
+but is a convenient abbreviation.  Similarly,
+
+         spaces <number>
+
+prints a sequence of that many spaces.
+
+         inversion
+
+prints the version number of Inform which was used to compile the
+program (it might, for instance, print "6.01").
+
+         box <string1> ... <stringn>
+
+displays a reverse-video box in the centre of the screen, containing
+
+         string1
+         string2
+           ...
+         stringn
+
+and is usually used for popping up quotations: for example,
+
+    box "Passio domini nostri" "Jesu Christi Secundum" "Joannem"
+
+displays
+
+         Passio domini nostri
+         Jesu Christi Secundum
+         Joannem
+
+(the opening line of the libretto to Arvo Part's `St John Passion').
+
+Text is normally displayed in ordinary (or "Roman") type.  Its actual
+appearance will vary from machine to machine running the program.  On
+many machines, it will be displayed using a "font" which is
+variably-pitched, so that for example a "w" will be wider on-screen
+than an "i".  Such text is much easier to read, but makes it very
+difficult to print out diagrams.  The statement
+
+    print "+------------+
+          ^+   Hello    +
+          ^+------------+^";
+
+will print something quite irregular if the characters "-", "+" and " "
+(space) do not all have the same width.  Because one sometimes does
+want to print such a diagram (to represent a sketch-map, say, or to
+print out a table), the statement font is provided:
+
+    font on
+    font off
+
+font off switches into a fixed-pitch display style (in which all
+characters definitely have the same width); font on goes back to the
+original.
+
+   In addition to this, a few textual effects can be achieved.
+
+    style roman
+
+switches to ordinary Roman text (the default), and there are also
+
+    style bold
+    style underline
+    style reverse
+
+(reverse meaning "reverse colour": e.g. yellow on blue if the normal
+text appearance is blue on yellow).  An attempt will be made to
+approximate these effects on any machine, but it may be that underline
+comes out as italicised text, for example, or that bold is rendered by
+printing ordinary Roman text but in a different colour.
+
+Inform programs are starting to be written which communicate in
+languages other than English: Italian, Dutch, German, French and
+Spanish games have all been attempted.  A comprehensive range of
+accented characters is available: these are reached with the aid of the
+escape character, @.
+
+Most accented characters are written as @, followed by an accent marker,
+then the letter on which the accent appears:
+     @^ put a circumflex on the next letter: a,e,i,o,u,A,E,I,O or U
+     @' put an acute on the next letter: a,e,i,o,u,y,A,E,I,O,U or Y
+     @` put a grave on the next letter: a,e,i,o,u,A,E,I,O or U
+     @: put a diaeresis on the next letter: a,e,i,o,u,A,E,I,O or U
+     @c put a cedilla on the next letter: c or C
+     @~ put a tilde on the next letter: a,n,o,A,N or O
+     @" put a slash on the next letter: o or O
+     @o put a ring on the next letter: a or A
+
+In addition, there are a few others:
+     @ss German sz
+     @<< continental European quotation marks
+     @>>
+     @ae ligatures
+     @AE
+     @oe
+     @OE
+     @th       Icelandic accents
+     @et
+     @Th
+     @Et
+     @LL pound sign
+     @!! Spanish (upside-down) exclamation mark
+     @?? Spanish (upside-down) question mark
+
+For instance,
+
+    print "Les @oeuvres d'@Aesop en fran@ccais, mon @'el@`eve!";
+    print "Na@:ive readers of the New Yorker will re@:elect Mr Clinton.";
+    print "Carl Gau@ss first proved the Fundamental Theorem of Algebra.";
+
+Accented characters can also be referred to as constants, like other
+characters.  Just as 'x' represents the character lower-case-X, so
+'@^A' represents capital-A-circumflex.
+
+!!  The @ escape character has two other uses.  One gets around the
+problem that, so far, it is impossible to print an "@".  A double @
+sign, followed by a number, prints the character with this numerical
+code.  The most useful cases are:
+           @@92      comes out as "\"
+           @@64      comes out as "@"
+           @@94      comes out as "^"
+           @@126     comes out as "~"
+
+enabling us to print the four characters which can't be typed directly
+because they have other meanings.
+
+!!!! The second use is more obscure.  Inform keeps a stock of 32
+pseudo-variables to hold text, numbered from 0 to 31.
+           @00       prints out as the current contents of string 0
+           ...       ...
+           @31       prints out as the current contents of string 31
+
+and these variables are set with the string statement:
+
+    string 0 "toadstool";
+
+sets string 0 to the text of the word "toadstool".  (There is a
+technical reason why these strings cannot be set equal to any text:
+only to literal text, as in the above example, or to strings previously
+declared using the Low_string directive.)
+
+   Finally, it is time to discuss print.  There are two forms, print
+and print_ret.  The only difference is that the second prints out an
+extra new-line character and returns from the current routine with the
+value true.  Thus, print_ret should be read as "print and then return",
+and
+
+    print_ret "That's enough of that.";
+
+is equivalent to
+
+    print "That's enough of that.^"; rtrue;
+
+In fact, as an abbreviation, it can even be shortened to:
+
+    "That's enough of that.";
+
+Although Inform newcomers are often confused by the fact that this
+apparently innocent statement actually causes a return from the current
+routine, it's an abbreviation which very much pays off in
+adventure-writing situations.  Note that if the program:
+
+    [ Main;
+      "Hello, and now for a number...";
+      print 45*764;
+    ];
+
+is compiled, Inform will produce the warning message:
+
+    line 3: Warning: This statement can never be reached.
+    >   print 45*764;
+
+because the bare string on line 2 is printed using print_ret: so the
+text is printed, then a new-line is printed, and then a return takes
+place immediately.  As the warning message indicates, there is no way
+the statement on line 3 can ever be executed.
+
+   So what can be printed?  The answer is a list of terms, separated by
+commas.  For example,
+
+    print "The value is ", value, ".";
+
+contains three terms.  A term can take the following forms:
+      <a numerical quantity>       printed as a (signed, decimal) number
+      <text in double-quotes>      printed as text
+      (<rule>) <quantity>          printed according to some special rule
+
+   Inform provides a stock of special printing rules built-in, and also
+allows the programmer to create new ones.  The most important rules are:
+    (char)    print out the character which this is the numerical code for
+    (string)  print this string out
+    (address) print out the text at this array address
+              (this is seldom used, and then mainly to print the
+               text of a word entry in a game's dictionary)
+
+!! print (string) ... requires a little explanation.
+
+    x = "Hello!";
+    print (string) x;
+
+prints out "Hello!", whereas
+
+    x = "Hello!";
+    print x;
+
+prints a mysterious number.  This is because strings are internally
+represented by numbers (just as everything else is).
+
+   The remaining stock of rules is provided for use in conjunction with
+the Library and is documented in Chapter V: briefly,
+         (the)      print definite article then name of this object
+         (The)      ditto, but capitalised
+         (name)     ditto, but with no article
+         (a)        ditto, but with the indefinite article
+         (number)   print this number out in English
+         (property) (for debugging) print the name of this property
+         (object)   (ditto) print the hardware-name of this object
+
+Note that (the) in lower case does something different from (The) with
+an upper case T.  This is very unusual!  (Directive names, which will
+turn up in *Note Data Structures::, variable names and so on are
+allowed to use upper case and the case is simply ignored, so that fRoG
+means the same as frog.  But statement keywords, like print or (name),
+have to be in lower case -- except for (The).)
+
+   To create a new rule, provide a routine with this name, and use the
+rule-name in brackets.
+
+
+File: inform,  Node: Example 6,  Next: Random and Indirect,  Prev: Printing Output,  Up: Routines
+
+Example 6: Printing in hexadecimal
+----------------------------------
+
+   The following pair of routines provides for printing out a number as
+a four-digit, unsigned hexadecimal number.  For example, so that
+
+    print (hex) 16339;
+
+prints "3fd3".
+
+    [ hex x y;
+      y = (x & $ff00) / $100;
+      x = x & $ff;
+      print (hdigit) y/$10, (hdigit) y, (hdigit) x/$10, (hdigit) x;
+    ];
+    [ hdigit x;
+      x = x % $10;
+      if (x<10) print x; else print (char) 'a'+x-10;
+    ];
+
+Once these routines have been defined, hex and hdigit are available
+anywhere in the same program for use as new printing rules.
+
+
+File: inform,  Node: Random and Indirect,  Next: Accepting Input,  Prev: Example 6,  Up: Routines
+
+Built-in functions 1: random and indirect
+-----------------------------------------
+
+   Inform provides a small stock of functions ready-defined, but which
+are used much as other functions are.  All but two of these concern
+objects and will be left until chapter 3.
+
+random has two forms:
+
+         random(N)
+
+returns a uniformly random number in the range 1, 2, ..., N.  N should
+always be a positive number (between 1 and 32767) for this to work
+properly.
+
+         random(two or more constant quantities, separated by commas)
+
+returns a uniformly random choice from this selection.  Thus,
+
+    print (string) random("red", "blue", "green", "purple", "orange");
+
+randomly prints the name of one of these five colours (each being
+equally likely to appear).  Likewise,
+
+    print random(13, 17);
+
+has a 50% chance of printing 13, and a 50% chance of printing 17.
+
+!!!! The other built-in function discussed here is indirect.
+
+    indirect(function, arg1, arg2, ...)
+
+calls the given function with given arguments.  Thus, this is
+equivalent to
+
+    function(arg1, arg2, ...)
+
+but has the additional virtue that the function can be given, not just
+as a literal function name, but as some calculated value:
+
+    indirect(random(OneRoutine, OtherRoutine), 45);
+
+has a 50% chance of calling OneRoutine(45), and a 50% chance of calling
+OtherRoutine(45).  indirect should be used with caution: if supplied
+with a numerical first argument which doesn't correspond to any
+function in the program, the program may resoundingly crash.  In any
+event, it is often best to achieve such effects using messages to
+objects.
+
+
+File: inform,  Node: Accepting Input,  Prev: Random and Indirect,  Up: Routines
+
+Accepting input
+---------------
+
+!!!!  Inform programmers seldom need to take input from the keyboard,
+in practice, since in all game situations the Library's parser routines
+take care of all that.  However, for completeness this section covers
+the read statement which is the main route by which keyboard input is
+taken.  It will not make much sense to readers who have not yet read
+the rest of this book.
+
+   The syntax is
+
+         read <text array> <parse buffer> <routine>
+
+where the <routine> is optional: if provided, it is called just before
+the input takes place so that the screen's top line or lines of data
+(the "status line" present in many games) can be renewed.
+
+   What the statement does is to read in a single line of text (waiting
+until the user has finished typing a line and then pressed RETURN),
+copy this text into the text array and then try to comprehend it,
+writing the results of this comprehension exercise ("parsing") into the
+parse buffer.
+
+   Before the statement is reached, the program should have entered the
+maximum number of characters which can be accepted (say, 60) into the
+0th entry of the text array; the statement will then write the actual
+number typed into the 1st entry, and the characters themselves into
+entries 2 and onward.  Thus,
+
+    text_array -> 0 = 60;
+    read text_array 0;
+    for (n = 0: n< text_array->1: n++) print (char) text_array->(n+2);
+    new_line;
+
+will read in a line of up to 60 characters, and then print it back
+again.  (The array text_array must have been created first, and so must
+the local variable n, of course.)
+
+   Note that in this case, no "parse buffer" has been given (0 was
+given in its place).  If, instead of 0, an array is given here, then
+the read statement makes an attempt to divide up the input text into
+individual words, and to match these words against the game's
+dictionary.  See *Note Special Data Structures:: for details.
+
+
+File: inform,  Node: Data Structures,  Next: Objects,  Prev: Routines,  Up: Programming Language
+
+The language of data structures
+===============================
+
+* Menu:
+
+* Directives and Constants::    Directives and global constants
+* Global Variables::            Variables usable by the entire program
+* Arrays::                      Arrays hold a sequence of values
+* Example 7::                   An array example: shuffling a pack of cards
+* Special Data Structures::     Seven special data structures in all programs
+
+
+File: inform,  Node: Directives and Constants,  Next: Global Variables,  Prev: Data Structures,  Up: Data Structures
+
+Directives and constants
+------------------------
+
+   Every example program so far has consisted only of a sequence of
+routines, each within beginning and end markers [ and ].  Such routines
+have no way of communicating with each other, and therefore of sharing
+information with each other, except by making function calls back and
+forth.  This arrangement is not really suited to a large program whose
+task may be to simulate something complicated (such as the world of an
+adventure game): it would be useful to have some kind of central
+registry of information which all routines have access to, as and when
+needed.
+
+   Information available to all routines in this way is said to be
+"global", rather than "local" to any one routine.  (As will appear in
+*Note Objects::, there is also an intermediate possibility where
+information is available only to a cluster of routines working on
+roughly the same part of a program.)
+
+   This global information can be organised in a variety of ways.  Such
+organised groups are called "data structures".  For example, a typical
+data structure might be a list of 10 values.  The term "data structure"
+did not appear in *Note Routines:: because information was only ever
+held in variables, the simplest possible kind of structure (one value
+on its own).
+
+   Data structures are added to Inform programs using commands called
+"directives" in between definitions of routines.  It's important to
+distinguish between these, which direct Inform to do something now
+(usually, to create something) and the statements which occur inside
+routines, which are merely translated in some way but not acted on
+until the program has finished being compiled and is run.
+
+   In fact, one directive has already appeared: the one written [,
+which means "translate the following routine up to the next ]".  In all
+there are 38 Inform directives, as follows:
+
+Abbreviate  Array       Attribute  Class        Constant     Default
+Dictionary  End         Endif      Extend       Fake_action  Global
+Ifdef       Ifndef      Ifnot      Ifv3         Ifv5         Iftrue
+Iffalse     Import      Include    Link         Lowstring    Message
+Nearby      Object      Property   Release      Replace      Serial
+Switches    Statusline  Stub       System_file  Trace        Verb
+Version     [
+
+Several of these are rather technical and will not be used by many
+programmers (such as Trace, Stub, Default, System_file, Abbreviate,
+Dictionary).  Others control fine points of what is compiled and what
+isn't (Ifdef, Ifnot, and so on; Message, Replace).  These not-very
+important directives are covered in Chapter II.
+
+   This leaves 9 central directives for creating data structures, and
+these are the ones which it is important to know about:
+
+Array       Attribute   Class      Constant     Extend       Global
+Object      Property    Verb
+
+It is conventional to write these with the initial letter capitalised:
+this makes directives look unlike statements.  Attribute, Class, Object
+and Property are the subject of *Note Objects::.
+
+The simplest directive with a "global" effect on the program -- an
+effect all over the program, that is, not just in one routine -- is
+Constant.  The following program, an unsatisfying game of chance, shows
+a typical use of Constant.
+
+    Constant MAXIMUM_SCORE = 100;
+
+    [ Main;
+      print "You have scored ", random(MAXIMUM_SCORE),
+      " points out of ", MAXIMUM_SCORE, ".^";
+    ];
+
+   The maximum score value is used twice in the routine Main.  Of
+course the program is the same as it would have been if the constant
+definition were not present, and MAXIMUM_SCORE were replaced by 100 in
+both places where it occurs.  The advantage of using Constant is that
+it makes it possible to change this value from 100 to, say, 50 with
+only a single change, and it makes the source code more legible to the
+reader by explaining what the significance of the number 100 is
+supposed to be.
+
+   If no value is specified for a constant, as in the line
+
+    Constant DEBUG;
+
+then the constant is created with value 0.
+
+
+File: inform,  Node: Global Variables,  Next: Arrays,  Prev: Directives and Constants,  Up: Data Structures
+
+Global variables
+----------------
+
+   As commented above, so far the only variables allowed have been
+"local variables", each private to their own routines.  A "global
+variable" is a variable which is accessible to all code in every
+routine.  Once a global variable has been declared, it is used in just
+the same way as a local variable.  The directive for declaring a global
+variable is Global:
+
+    Global score = 36;
+
+This creates a variable called score, which at the start of the program
+has the value 36.  score can be altered or used anywhere in the program
+after the line on which it is defined.
+
+
+File: inform,  Node: Arrays,  Next: Example 7,  Prev: Global Variables,  Up: Data Structures
+
+Arrays
+------
+
+   An "array" is an indexed collection of (global) variables, holding a
+set of numbers organised into a sequence. It allows general rules to be
+given for how a group of variables should be treated.  For instance,
+the directive
+
+    Array pack_of_cards --> 52;
+
+creates a stock of 52 variables, referred to in the program as
+
+    pack_of_cards-->0   pack_of_cards-->1   ...   pack_of_cards-->51
+
+There are two basic kinds of array: "word arrays" (written using --> as
+above) and "byte arrays" (written using -> similarly).  Whereas the
+entries of a word array can hold any number, the entries of a byte
+array can only be numbers in the range 0 to 255 inclusive.  (The only
+advantage of this is that it is more economical on memory, and
+beginners are advised to use word arrays instead.)
+
+   In addition to this, Inform provides arrays which have a little extra
+structure: they are created with the 0th entry holding the number of
+entries.  A word array with this property is called a table; a byte
+array with this property is a string.
+
+   For example, the array defined by
+
+    Array continents table 5;
+
+has six entries: continents-->0, which holds the number 5, and five more
+entries, indexed 1 to 5.  (The program is free to change continents-->0
+later but this will not change the size: the size of an array can never
+change.) As an example of using string arrays:
+
+    Array password string "DANGER";
+    Array phone_number string "1978-345-2160";
+    ...
+    PrintString(password);
+    ...
+    PrintString(phone_number);
+    ...
+    [ PrintString the_array i;
+        for (i=1: i<=the_array->0: i++)
+            print (char) the_array->i;
+    ];
+
+The advantage of string arrays, then, is that one can write a general
+routine like PrintString which works for arrays of any size.
+
+   To recapitulate, Inform provides four kinds of array in all:
+
+    -->   ->   table   string
+
+There are also four different ways to set up an array with its initial
+contents (so the directive can take 16 forms in all).  In all of the
+examples above, the array entries will all contain 0 when the program
+begins.
+
+   Instead, we can give a list of constant values.  For example,
+
+    Array primes --> 2 3 5 7 11 13;
+
+is a word array created with six entries, primes-->0 to primes-->5,
+initially holding the values 2 to 13.
+
+   The third way to create an array gives some text as an initial value
+(because one common use for arrays is as "strings of characters" or
+"text buffers").  The two string arrays above were set up this way.  As
+another example,
+
+    Array players_name -> "Frank Booth";
+
+sets up the byte array players_name as if the directive had been
+
+    Array players_name -> 'F' 'r' 'a' 'n' 'k' ' ' 'B' 'o' 'o' 't' 'h';
+
+!!!! The fourth way to create an array is obsolete and is kept only so
+that old programs still work.  This is to give a list of values in
+between end-markers [ and ], separated by commas or semi-colons.  Please
+don't use this any longer.
+
+   *Warning:* It is up to the programmer to see that no attempt is made
+to read or write non-existent entries of an array.  (For instance,
+pack_of_cards-->1000.)  Such mistakes are notorious for causing programs
+to fail in unpredictable ways, difficult to diagnose.  Here for example
+is an erroneous program:
+
+    Array ten --> 10;
+    Array fives --> 5 10 15 20 25;
+    [ Main n;
+      for (n=1: n<=10: n++) ten-->n = -1;
+      print fives-->0, "^";
+    ];
+
+This program ought to print 5 (since that's the 0-th entry in the array
+fives), but in fact it prints -1.  The problem is that the entries of
+ten are ten-->0 up to ten-->9, not (as the program implicitly assumes)
+ten-->1 to ten-->10.  So the value -1 was written to ten-->10, an entry
+which does not exist.  At this point anything could have happened.  As
+it turned out, the value was written into the initial entry of the next
+array along, "corrupting" the data there.
+
+
+File: inform,  Node: Example 7,  Next: Special Data Structures,  Prev: Arrays,  Up: Data Structures
+
+Example 7: Shuffling a pack of cards
+------------------------------------
+
+   This program simulates the shuffling of a pack of playing cards.
+The cards are represented by numbers in the range 0 (the Ace of Hearts)
+to 51 (the King of Spades).  The pack itself has 52 positions, from
+position 0 (on the top) to position 51 (on the bottom).  It is
+therefore represented by the array
+
+    pack_of_cards-->i
+
+whose i-th entry is the card number at position i.  A new pack as
+produced by the factory, still in order, would therefore be represented
+with card i in position i: the pack would have the Ace of Hearts on top
+and the King of Spades on the bottom.
+
+    Constant SHUFFLES = 100;
+    Array pack_of_cards --> 52;
+
+    [ ExchangeTwo x y z;
+
+      !   Initially x and y are both zero
+
+      while (x==y)
+      {   x = random(52) - 1; y = random(52) - 1;
+      }
+
+      !   x and y are now randomly selected, different numbers
+      !   in the range 0 to 51
+
+      z = pack_of_cards-->x;
+      pack_of_cards-->x = pack_of_cards-->y;
+      pack_of_cards-->y = z;
+    ];
+
+    [ Card n;
+      switch(n%13)
+      {   0: print "Ace";
+          1 to 9: print n%13 + 1;
+          10: print "Jack";
+          11: print "Queen";
+          12: print "King";
+      }
+      print " of ";
+      switch(n/13)
+      {   0: print "Hearts";
+          1: print "Clubs";
+          2: print "Diamonds";
+          3: print "Spades";
+      }
+    ];
+
+    [ Main i;
+      !   Create the pack in "factory order":
+      for (i=0:i<52:i++) pack_of_cards-->i = i;
+      !   Exchange random pairs of cards for a while:
+      for (i=0:i<SHUFFLES:i++) ExchangeTwo();
+      print "The pack has been shuffled to contain:^";
+      for (i=0:i<52:i++)
+          print (Card) pack_of_cards-->i, "^";
+    ];
+
+   Note the use of a "printing rule" called Card to describe card
+number i.  Note also that 100 exchanges of pairs of cards is only just
+enough to make the pack appear well shuffled.  Redefining SHUFFLES as
+10000 makes the program take longer; redefining it as 10 makes the
+result very suspect.
+
+!! The example code shuffles the pack in a simple way, but there are
+more efficient methods.  Here's one supplied by Dylan Thurston, giving
+perfect randomness in 51 exchanges.
+
+        pack_of_cards-->0 = 0;
+        for (i=1:i<52:i++)
+        {   j = random(i+1) - 1;
+            pack_of_cards-->i = pack_of_cards-->j; pack_of_cards-->j = i;
+        }
+
+
+File: inform,  Node: Special Data Structures,  Prev: Example 7,  Up: Data Structures
+
+Seven special data structures
+-----------------------------
+
+!! All Inform programs automatically contain seven special data
+structures, each being one of a kind: the object tree, the grammar, the
+table of actions, the release number, the serial code, the "statusline
+flag" and the dictionary.  These data structures are tailor-made for
+adventure games and (except for the object tree) can be ignored for
+every other kind of program.  So they are mostly covered in Book Two.
+
+  1. For the object tree (and the directives Object and Class), see
+     *Note Objects::.
+
+  2. For grammar (and the directives Verb and Extend), see Chapter V,
+     *Note Parsing Verbs:: and *Note Grammar Tokens::.
+
+  3. For actions (and the <...> and <<...>> statements and the ##
+     constant notation), see Chapter III, *Note Actions and Reactions::.
+
+  4. The release number (which is printed automatically by the library
+     in an Inform-written adventure game) is 1 unless otherwise
+     specified.  The directive
+
+         Release <number>;
+
+     does this.  Conventionally release 1 would be the first published
+     copy, and releases 2, 3, ... would be amended re-releases.  See
+     Chapter III, *Note Getting Started::, for an example.
+
+  5. The serial number is set automatically to the date of compilation
+     in the form 960822 ("22nd August 1996").  This can be overridden
+     if desired with the directive
+
+         Serial "dddddd";
+
+     where the text must be a string of 6 digits.
+
+  6. The "status line flag" chooses between styles of "status line" at
+     the top of an adventure game's screen display.  See Chapter IV,
+     *Note Daemons::, for use of the Statusline directive.
+
+  7. The dictionary is automatically built by Inform.  It is a stock of
+     all the English words which the game might want to recognise from
+     what the player has typed: it includes any words written in
+     constants like 'duckling', as well as any words given in name
+     values or in grammar.  For example
+
+         if (first_word == 'herring') print "You typed the word herring!";
+
+     is a legal statement.  Inform notices that herring -- because it
+     is in single quotes -- is a word the program may one day need to
+     be able to recognise, so it adds the word to the dictionary.  Note
+     that the constant 'herring' is a dictionary word but the constant
+     'h' is the ASCII value of lower-case H.  (Single-letter dictionary
+     words are seldom needed, but can be written using an ugly syntax
+     if need be: #n$h is the constant meaning "the dictionary word
+     consisting only of the letter H".)
+
+!!!!  From this description, the dictionary appears to be something
+into which words are poured, never to re-emerge.  The benefit is felt
+when the read statement comes to try to parse some input text:
+
+    read text_array parse_buffer;
+
+It must be emphasized that the read statement performs only the simplest
+possible form of parsing, and should not be confused with the very much
+more elaborate parser included in the Inform library.
+
+   What it does is to break down the line of input text into a sequence
+of words, in which commas and full stops count as separate words in
+their own right.  (An example is given in Chapter V, *Note Parsing
+Nouns::.) Before using read, the entry
+
+    parse_buffer->0
+
+should be set to the maximum number of words which parsing is wanted
+for.  (Any further words will be ignored.)  The number of words
+actually parsed from the text is written in
+
+    parse_buffer->1
+
+and a block of data is written into the array for each of these words:
+
+    parse_buffer-->(n*2 - 1)
+
+holds the dictionary value of the n-th word (if n counts 1, 2, 3, ...).
+If the word isn't in the dictionary, this value is zero.
+
+(In addition,
+
+    parse_buffer->(n*4)
+    parse_buffer->(n*4 + 1)
+
+are set to the number of letters in word n, and the offset of word n in
+the text array.)
+
+For example,
+
+    [ PleaseTypeYesOrNo i;
+      for (::)
+      {   buffer->0 = 60;
+          parse->0 = 1;
+          print "Please type ~yes~ or ~no~> ";
+          read buffer parse;
+          if (parse-->1 == 'yes') rtrue;
+          if (parse-->1 == 'no')  rfalse;
+      }
+    ];
+
+
+File: inform,  Node: Objects,  Prev: Data Structures,  Up: Programming Language
+
+The language of objects
+=======================
+
+     Objects make up the substance of the world.  That is why they
+     cannot be composite.
+
+     -- Ludwig Wittgenstein (1889-1951), Tractatus
+
+* Menu:
+
+* About Objects::               Objects and communication
+* Object Tree::                 The object tree and functions for reading it
+* Creating Objects::            Creating objects and setting up the object tree
+* Using the Tree::              `move', `remove', `in', and `objectloop'
+* Objects with Properties::     Creating objects with properties
+* Private Properties::          Using `private' properties for encapsulation
+* Using Attributes::            Using `give' and `has' to manipulate attributes
+* Classes and Inheritance::     Creating classes of related objects
+* Messages::                    You communicate with objects via messages
+* Access to Superclass Values:: Using an overridden value from a parent class
+* Philosophy::                  The theory behind this object-oriented design
+* Sending Messages::            Send messages to routines, strings, and classes
+* Dynamic Objects::             Creating and deleting objects at run time
+* Common vs Individual::        Object properties can be common or individual
+
+
+File: inform,  Node: About Objects,  Next: Object Tree,  Prev: Objects,  Up: Objects
+
+Objects and communication
+-------------------------
+
+   The objects in a program are its constituent parts: little lumps of
+code and data.  The starting point of an "object-oriented language" is
+that it's good design to tie up pieces of information in bundles with
+the pieces of program which deal with them.  But the idea goes further:
+
+  1. An object is something you can communicate with.  (It's like a
+     company where many people work in the same building, sharing the
+     same address: to the outside world it behaves like a single
+     person.)
+
+  2. Information inside the object can be kept concealed from the
+     outside world (like a company's confidential files).  This is
+     sometimes called "encapsulation".
+
+  3. The outside world can only ask the object to do something, and has
+     no business knowing how it will be done.  (The company might
+     decide to change its stock-control system one day, but the outside
+     world should never even notice that this has happened, even though
+     internally it's a dramatic shift.)
+
+All three principles have been seen already for routines: (1) you can
+call a routine, but you can't call "only this part of a routine"; (2)
+the local variables of a routine are its own private property, and the
+rest of the program can't find out or alter their values; (3) as long
+as the routine still accomplishes the same task, it can be rewritten
+entirely and the rest of the program will carry on working as if no
+change had been made.
+
+   Why bother with all this?  There are two answers.  First and
+foremost, Inform was designed to make adventure games, where objects
+are the right idea for representing items and places in the game.
+Secondly, the `object' approach makes sense as a way of organising any
+large, complicated program.
+
+   The other key idea is communication.  One can visualise the program
+as being a large group of companies, constantly writing letters to each
+other to request information or ask for things to be done.  In a
+typical "message", one object A sends a detailed question or
+instruction to another object B, which replies with a simple answer.
+(Again, we've seen this already for routines: one routine calls
+another, and the other sends back a return value.)
+
+Routines are only one of the four basic kinds of Inform object, which
+are:
+
+ * routines, declared using [...];
+
+ * strings in double-quotes "like so";
+
+ * collections of routines and global variables, declared using Object;
+
+ * prototypes for such collections, called "classes" and declared using Class.
+
+These four kinds are called "metaclasses".  If O is an object, then the
+function
+
+    metaclass(O)
+
+will always tell you what kind it is, which will be one of the four
+values
+
+    Routine   String   Object   Class
+
+For example,
+
+    metaclass("Violin Concerto no. 1")
+
+evaluates to String, whereas
+
+    metaclass(Main)
+
+should always be Routine (since Main should always be the name of the
+routine where an Inform program begins to run).  From *Note Routines::
+we already know about metaclasses Routine and String, so it's the other
+two cases which this section will concentrate on.
+
+!!!! Why only these four kinds?  Why are strings objects, and not (say)
+variables or dictionary words?  Object-oriented languages vary greatly
+in to what extreme they take the notion of object: in the dogmatic
+Smalltalk-80, every ingredient of any kind in a program is called an
+object: the program itself, the number 17, each variable and so on.
+Inform is much more moderate.  Routines, Objects and classes are
+genuinely object-like, and it just so happens that it's convenient to
+treat strings as objects (as we shall see).  But Inform stops there.
+
+
+File: inform,  Node: Object Tree,  Next: Creating Objects,  Prev: About Objects,  Up: Objects
+
+Built-in functions 2: the object tree
+-------------------------------------
+
+   Routines, strings and (as we shall see) classes are scattered about
+in an Inform program, in no particular order, and nothing links them
+together.  Object objects are special in that they are joined up in the
+"object tree" which grows through every Inform program.
+
+   In this tree, objects have a kind of family relationship to each
+other: each one has a parent, a child and a sibling.  (The analogy here
+is with family trees.)  Normally such a relation is another object in
+the tree, but instead it can be
+
+    nothing
+
+which means "no object at all".  For example, consider the tree:
+
+    Meadow
+      !
+    Mailbox  ->  Player
+      !            !
+    Note         Sceptre   ->   Cucumber  ->   Torch  ->   Magic Rod
+                                                 !
+                                               Battery
+
+The Mailbox and Player are both children of the Meadow, which is their
+parent, but only the Mailbox is the child of the Meadow.  The Magic Rod
+is the sibling of the Torch, which is the sibling of the Cucumber, and
+so on.
+
+Inform provides special functions for reading off positions in the tree:
+parent, sibling and child all do the obvious things, and in addition
+there's a function called children which counts up how many children an
+object has (where grandchildren don't count as children).  For instance,
+
+    parent ( Mailbox )  == Meadow
+    children ( Player ) == 4
+    child ( Player )    == Sceptre
+    child ( Sceptre )   == nothing
+    sibling ( Torch )   == Magic Rod
+
+It is a bad idea to apply these functions to the value nothing (since
+it is not an object, but a value representing the absence of one).  One
+can detect whether a quantity is a genuine object or not using
+metaclass, for
+
+    metaclass(X)
+
+is nothing for any value X which isn't an object: in particular,
+
+    metaclass(nothing)  == nothing
+
+!! Hopefully it's clear why the tree is useful for writing adventure
+games: it provides a way to simulate the vital idea of one thing being
+contained inside another.  But even in non-adventure game programs it
+can be a convenience.  For instance, it is an efficient way to hold
+tree structures and linked lists of information.

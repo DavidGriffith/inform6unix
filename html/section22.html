@@ -1,0 +1,394 @@
+<HTML><HEAD><TITLE>Section 22: Describing objects and rooms</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="chapter5.html">Back</A><BR><A HREF="section23.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>22. Describing objects and rooms</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>And we were angry and poor and happy,
+<BR>And proud of seeing our names in print.
+<BR><P>...G. K. Chesterton (<B>1874</B>--<B>1936</B>), <I>A Song of Defeat</I></BLOCKQUOTE>
+<P>
+
+
+Talking to the player about the state of the world is much easier
+than listening to his intentions for it.  Despite this, the business of
+description takes up a fair part of Chapter V since the
+designer of a really complex game will eventually need to know almost
+every rule involved.  (Whereas nobody would want to know everything
+about the parser.)
+<P>
+
+To begin, the simplest description is the "short name'' given to a single
+object.  For instance
+<PRE>
+    print (a) brass_lamp;
+</PRE>
+
+may result in "an old brass lamp'' being printed.  There are four such
+forms of <TT>print</TT>:
+
+<BR><TABLE Border><TR><TD><TT>print (the) obj</TT>     <TD> Print the object with its definite article
+<TR><TD><TT>print (The) obj</TT>     <TD> The same, but capitalised
+<TR><TD><TT>print (a) obj</TT>       <TD> Print the object with indefinite article
+<TR><TD><TT>print (name) obj</TT>    <TD> Print the object's short name alone
+</TABLE>
+<P>
+and these can be freely mixed into lists of things to <TT>print</TT> or
+<TT>print_ret</TT>, as for example:
+<PRE>
+    print_ret "The ogre declines to eat ", (the) noun, ".";
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex49"><B>EXERCISE 49:</B><BR>(link to <A HREF="answers1/answer49.html">the answer</A>)<TR><TD><TD> (By Gareth Rees.)  When referring to <TT>animate</TT> objects, one
+usually needs to use pronouns such as "his''.  Define new
+printing routines so that, say,
+<TT>print "You throw the book at ", (PronounAcc) obj, "!";</TT> will insert
+the right accusative pronoun.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> There is also a special syntax <TT>print object</TT> for printing object
+names, but <I> do not use it without good reason</I>: it doesn't understand
+some of the features below and is not protected against crashing if you
+mistakenly try to print the name for an out of range object number.
+<P>
+</SMALL>
+<TR><TD><TD><P>
+
+
+Inform tries to work out the right indefinite article for
+any object automatically.  In English-language games, it uses
+'an' when the short name starts with a vowel and 'a' when it
+does not (unless the name is plural, when 'some' is used
+in either case).  You can override this by setting <TT>article</TT>
+yourself.  Here are some possibilities:
+<BLOCKQUOTE>
+a / platinum bar, an / orange balloon, your / Aunt Jemima,<BR>
+some bundles of / reeds, far too many / marbles, The / London Planetarium<BR>
+</BLOCKQUOTE>
+
+If the object is given the attribute <TT>proper</TT> then its name is treated as
+a proper noun with no indefinite article, so the value of <TT>article</TT> is
+ignored.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The <TT>article</TT> property can also hold a routine to print
+one.
+</SMALL>
+<TR><TD><TD><P>
+
+
+Definite articles are always "the'' (except for <TT>proper</TT> nouns).  Thus
+<BLOCKQUOTE>
+the platinum bar, Benjamin Franklin, Elbereth<BR>
+</BLOCKQUOTE>
+
+are all printed by <TT>print (the) ...</TT>; the latter two objects
+being <TT>proper</TT>.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> There's usually no need to worry about definite and indefinite
+articles for room objects, as Inform never has cause to print them.
+</SMALL>
+<TR><TD><TD><P>
+
+A single object whose name is plural, such as "grapes'' or
+"marble pillars'', should be given the attribute <TT>pluralname</TT>.
+As a result the library might say, e.g., "You can't open those"
+instead of "You can't open that".  It also affects the pronoun
+"them'' and makes the usual indefinite article "some''.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> You can give <TT>animate</TT> objects the attributes <TT>male</TT>,
+<TT>female</TT> or <TT>neuter</TT> to help the parser understand pronouns properly.
+<TT>animate</TT> objects are assumed to be male if you set neither
+alternative.
+</SMALL>
+<TR><TD><TD><P>
+
+
+The short name of an object is normally the text given in double-quotes
+at the head of its definition.  This is very inconvenient to change
+during play when, for example, "blue liquid'' becomes
+"purple liquid'' as a result of a
+chemical reaction.  A more flexible way
+to specify an object's short name is with the <TT>short_name</TT>
+property.
+To print the name of such an object, Inform does the following:
+
+<P>1. --  If the <TT>short_name</TT> is a string, it's printed and that's all.
+<P>2. --  If it is a routine, then it is called.  If it returns true,
+that's all.
+<P>3. --  The text given in the header of the object definition is printed.
+
+<P> For example, the dye might be given:
+<PRE>
+short_name
+[;   switch(self.colour)
+     {   1: print "blue ";
+         2: print "purple ";
+         3: print "horrid sludge"; rtrue;
+     }
+],
+</PRE>
+
+with <TT>"liquid"</TT> as the short name in its header.  According to whether
+its <TT>colour</TT> property is 1, 2 or 3, the printed result is "blue liquid'',
+"purple liquid'' or "horrid sludge''.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Alternatively, define the dye with <TT>short_name "blue liquid"</TT> and then
+simply execute <TT>dye.short_name = "purple liquid";</TT> when the time comes.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Rooms can also be given a <TT>short_name</TT> routine, which is
+useful to code, say, a grid of four hundred similar locations called
+"Area 1" up to "Area 400".  (They can be represented by just one
+object in the program.)
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+For many objects the indefinite article and short name will most often be
+seen in inventory lists, such as
+<PRE>
+&#62;i
+You are carrying:
+  a leaf of mint
+  a peculiar book
+  your satchel (which is open)
+    a green cube
+</PRE>
+
+Some objects, though, ought to have fuller entries in an inventory:
+a wine bottle should say how much wine is left, for instance.  The <TT>invent</TT>
+property is designed for this.
+The simplest way to use <TT>invent</TT> is as a string.  For instance, declaring
+a peculiar book with
+<PRE>
+    invent "that harmless old book of Geoffrey's",
+</PRE>
+
+will make this the inventory line for the book.  In the light of events, it
+could later be changed to
+<PRE>
+    geoffreys_book.invent = "that lethal old book of Geoffrey's";
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Note that this string becomes the whole inventory entry: if the
+object were an open container, its contents wouldn't be listed, which might
+be unfortunate.  In such circumstances it's better to write an <TT>invent</TT>
+routine, and that's also the way to append text like "(half-empty)''.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Each line of an inventory is produced in two stages.
+<B> First</B>, the basic line:
+
+<P>1a. --  The global variable <TT>inventory_stage</TT> is set to 1.
+<P>1b. --  The <TT>invent</TT> routine is called (if there is one).
+If it returns true, stop here.
+<P>1c. --  The object's indefinite article and short-name are printed.
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+<B> Second</B>, little informative messages like "(which is open)"
+are printed, and inventories are given for the contents of open
+containers:
+
+<P>2a. --  The global variable <TT>inventory_stage</TT> is set to 2.
+<P>2b. --  The <TT>invent</TT> routine is called (if there is one).
+If it returns true, stop here.
+<P>2c. --  A message such as "(closed, empty and providing light)''
+is printed, as appropriate.
+<P>2d. --  If it is an <TT>open container</TT>, its contents are inventoried.
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+After each line is printed, linking text such as a new-line or a comma
+is printed, according to the current "list style''.
+</SMALL>
+<TR><TD><TD><P>
+
+<P>
+For example, here is the <TT>invent</TT> routine used by the matchbook in
+'Toyshop':
+<PRE>
+invent
+[ i; if (inventory_stage==2)
+     {   i=self.number;
+         if (i==0) print " (empty)";
+         if (i==1) print " (1 match left)";
+         if (i&#62;1)  print " (",i," matches left)";
+     }
+],
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex50"><B>EXERCISE 50:</B><BR>(link to <A HREF="answers1/answer50.html">the answer</A>)<TR><TD><TD> Suppose you want to change the whole inventory line for
+an ornate box but you can't use an <TT>invent</TT> string, or return true from
+stage 1, because you still want stage 2d to happen properly (so that its
+contents will be listed).  How can you achieve
+this?
+<P>
+
+</SMALL><TR><TD><TD><P>
+The largest and most complicated messages Inform ever prints on its own
+initiative are room descriptions, printed when the <TT>Look</TT> action is carried
+out (for instance, when the statement <TT>&#60;Look&#62;;</TT> triggers a room description).
+What happens is: the room's short name is printed (usually in bold-face)
+on a line of its own, then its <TT>description</TT>, followed by a list of the objects
+residing there which aren't <TT>concealed</TT> or <TT>scenery</TT>.
+<P>
+
+Chapter IV mentioned many different properties -- <TT>initial</TT>, <TT>when_on</TT>,
+<TT>when_off</TT> and so on -- giving descriptions of what an object looks like
+when in the same room as the player; some apply to doors, others to
+switchable objects and so on.  All of them can be routines to print text,
+instead of being strings to print.  The precise rules are given below.
+<P>
+
+But the whole system can be bypassed using the <TT>describe</TT> property.  If an
+object gives a <TT>describe</TT> routine then this takes priority over everything:
+if it returns true, the library assumes that the object has already been
+described, and prints nothing further.  For example,
+<PRE>
+    describe
+    [;  "^The platinum pyramid catches the light beautifully.";
+    ];
+</PRE>
+
+means that even when the pyramid has been <TT>moved</TT> (i.e. held by the player
+at some stage) it will always have its own line of room description.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Note the initial <TT>^</TT> (new-line) character.  The library doesn't print
+a skipped line itself before calling <TT>describe</TT> because it doesn't know
+yet whether the routine will want to say anything.  A <TT>describe</TT> routine
+which prints nothing and returns true makes an object invisible, as if
+it were <TT>concealed</TT>.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> The <TT>Look</TT> action does three things: it 'notes arrival', prints
+the room description then 'scores arrival'.  Only the printing rules are given
+here (see <A HREF="section20.html">Section 20</A> for the others), but they're given in full.  In what follows,
+the word 'location' means the room object if there's light to see by,
+and the special "Darkness'' object otherwise.  First the top line:
+
+<P>1a. --  A new-line is printed.  The location's short name is printed
+(in bold-face, if possible).
+<P>1b. --  If the player is on a <TT>supporter</TT>, then
+" (on <I><B>&#60;something&#62;</B></I>)'' is printed; if inside anything else, then
+" (in <I><B>&#60;something&#62;</B></I>)''.
+<P>1c. --  " (as <I><B>&#60;something&#62;</B></I>)'' is printed if this was requested
+by the game's most recent call to <TT>ChangePlayer</TT> (for instance,
+" (as a werewolf)'').
+<P>1d. --  A new-line is printed.
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+Now the 'long description'.  This step is skipped if the player has just
+moved of his own will into a location already visited, unless the game is
+in "verbose" mode.
+
+<P>2. --  If the location has a <TT>describe</TT> property, then run it.  If not,
+look at the location's <TT>description</TT> property: if it's a string, print it;
+if it's a routine, run it.
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+All rooms must provide <I> either</I> a <TT>describe</TT> property <I> or</I> a
+<TT>description</TT> of themselves.  Now for items nearby:
+
+<P>3a. --  List any objects on the floor.
+<P>3b. --  If the player is in or on something, list the other
+objects in that.
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The library has now finished, but your game gets a chance to add a
+postscript:
+
+<P>4. --  Call the entry point <TT>LookRoutine</TT>.
+
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The <TT>visited</TT> attribute is only given to a room after its description
+has been printed for the first time (it happens during 'scoring arrival').
+This is convenient for making the description different after the first time.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+'Listing objects' (as in 3a and 3b) is a complicated business.  Some objects
+are given a line or paragraph to themselves, others are lumped together
+in a list at the end.  The following objects are not mentioned at all:
+the player, what the player is in or on (if anything) and
+anything which is <TT>scenery</TT> or <TT>concealed</TT>.  The remaining objects are looked through (eldest first) as
+follows:
+
+<P>1. --  If the object has a <TT>describe</TT> routine, run it.  If it returns true,
+stop here and don't mention the object at all.
+<P>2. --  Work out the "description property'' for the object:
+<P>-- a. --  For a <TT>container</TT>, this is <TT>when_open</TT> or <TT>when_closed</TT>;
+<P>-- b. --  Otherwise, for a <TT>switchable</TT> object this is <TT>when_on</TT> or <TT>when_off</TT>;
+<P>-- c. --  Otherwise, for a <TT>door</TT> this is <TT>when_open</TT> or <TT>when_closed</TT>;
+<P>-- d. --  Otherwise, it's <TT>initial</TT>.
+<P>3. --  If <B> either</B> the object doesn't have this property
+<B> or</B> the object has been held by the player before (i.e., has <TT>moved</TT>)
+and the property isn't <TT>when_off</TT> or <TT>when_closed</TT> <B> then</B> then
+the object will be listed at the end.
+<P>4. --  Otherwise a new-line is printed and the property is printed
+(if it's a string) or run (if it's a routine).
+
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> A <TT>supporter</TT> which is <TT>scenery</TT> won't be mentioned,
+but anything on top of it which is not <TT>concealed</TT> will
+be.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Objects which have just been pushed into a new room are not listed
+in that room's description on the turn in question. This is not because of
+any rule about room descriptions, but because the pushed object is moved
+into the new room only after the room description is made.  This means
+that when a wheelbarrow is pushed for a long distance, the player does not
+have to keep reading "You can see a wheelbarrow here.'' every move, as
+though that were a surprise.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> You can use a library routine called <TT>Locale</TT> to perform
+'object listing'.  See <A HREF="sectionA7.html">Appendix A7</A> for details: suffice to say here that
+the process above is equivalent to executing
+<PRE>
+    if (Locale(location, "You can see", "You can also see"))
+        print " here.^";
+</PRE>
+
+<TT>Locale</TT> is useful for describing areas of a room which are sub-divided
+off, such as the stage of a theatre.
+</SMALL><TR><TD><TD>
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex51"><B>EXERCISE 51:</B><BR>(link to <A HREF="answers2/answer51.html">the answer</A>)<TR><TD><TD> The library implements "superbrief'' and "verbose''
+modes for room description (one always omits long room descriptions,
+the other never does).  How can verbose mode automatically print
+room descriptions every turn?  (Some of the later Infocom games did
+this.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL> 'Balances' often uses <TT>short_name</TT>, especially for
+the white cubes (whose names change) and lottery tickets
+(whose numbers are chosen by the player).  'Adventureland'
+uses <TT>short_name</TT> in simpler ways: see the bear and the
+bottle, for instance.
+<BR> The scroll class of 'Balances' uses <TT>invent</TT>.
+<BR> See the <TT>ScottRoom</TT> class of 'Adventureland' for a radically
+different way to describe rooms (in pidgin English, like
+telegraphese).
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="chapter5.html">Back</A> / <A HREF="section23.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

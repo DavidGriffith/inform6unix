@@ -1,0 +1,266 @@
+<HTML><HEAD><TITLE>Section 24: How nouns are parsed</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section23.html">Back</A><BR><A HREF="section25.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>24. How nouns are parsed</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>The Naming of Cats is a difficult matter,
+<BR>It isn't just one of your holiday games;
+<BR>You may think at first I'm as mad as a hatter
+<BR>When I tell you, a cat must have THREE DIFFERENT NAMES.
+<BR><P>...T. S. Eliot (<B>1888</B>--<B>1965</B>), <I>The Naming of Cats</I></BLOCKQUOTE>
+<P>
+
+<BLOCKQUOTE>
+Bulldust, coolamon, dashiki, fizgig, grungy, jirble, pachinko,
+poodle-faker, sharny, taghairm
+<P>...Catachrestic words from Chambers English Dictionary</BLOCKQUOTE>
+<P>
+
+</SMALL><TR><TD><TD>
+Suppose we have a tomato defined with
+<PRE>
+    name "fried" "green" "tomato",
+</PRE>
+
+but which is going to redden later and need to be referred to as "red
+tomato''.  It's perfectly straightforward to alter the <TT>name</TT> property of
+an object, which is a word array of dictionary words.  For example,
+<PRE>
+[ Names obj i;
+  for (i=0:2*i&#60;obj.#name:i++) print (address) (obj.&#38;name)--&#62;i, "^";
+];
+</PRE>
+
+prints out the list of dictionary words held in <TT>name</TT> for a given
+object.  It's perfectly possible to write to this, so we could just set
+<PRE>
+  (tomato.&#38;name)--&#62;1 = 'red';
+</PRE>
+
+but this is not a flexible or elegant solution, and it's time to
+begin delving into the parser.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Note that we can't change the size of the <TT>name</TT> array.
+To simulate this, we could define the object with
+<TT>name</TT> set to, say, 30 copies of an 'untypeable word' (see below)
+such as <TT>'blank.'</TT>.
+<P>
+</SMALL>
+<TR><TD><TD><P>
+
+
+The Inform parser is designed to be as "open-access'' as possible,
+because a parser cannot ever be general enough for every game without
+being highly modifiable.  The first thing it does
+is to read in text from the keyboard and break it up into a
+stream of words:
+so the text "wizened man, eat the grey bread'' becomes
+<BLOCKQUOTE>
+<TT>wizened</TT> / <TT>man</TT> / <TT>,</TT> / <TT>eat</TT> / <TT>the</TT> / <TT>grey</TT> / <TT>bread</TT><BR>
+</BLOCKQUOTE>
+
+
+and these words are numbered from 1.  At all times the parser keeps
+a "word number'' marker to keep its place along this line, and this
+is held in the variable <TT>wn</TT>.  The routine <TT>NextWord()</TT> returns
+the word at the current position of the marker, and moves it forward,
+i.e. adds 1 to <TT>wn</TT>.  For instance, the parser may find itself at
+word 6 and trying to match "grey bread'' as the name of an object.
+Calling <TT>NextWord()</TT> gives the value <TT>'grey'</TT> and calling it again
+gives <TT>'bread'</TT>.
+<P>
+
+Note that if the player had mistyped "grye bread'', "grye'' being a word
+which isn't mentioned anywhere in the program or created by the library,
+<TT>NextWord()</TT> returns 0 for 'misunderstood word'.  Writing something like
+<TT>if (w=='grye') ...</TT> somewhere in the program makes Inform put "grye''
+into the dictionary automatically.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Remember that the game's dictionary only has 9-character
+resolution.  (And only 6 if Inform has been
+told to compile an early-model story file: see <A HREF="section31.html">Section 31</A>.)
+Thus the values of <TT>'polyunsaturate'</TT> and
+<TT>'polyunsaturated'</TT> are equal.
+Also, upper case and lower case letters are considered the same.
+Words are permitted to contain numerals or symbols (but not at
+present to contain accented
+characters).
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> A dictionary word can even contain spaces, full stops or commas.
+If so it is 'untypeable'.  For instance, <TT>'in,out'</TT> is an untypeable
+word because if the player does type it then the parser cuts it into
+three, never checking the dictionary for the entire word.  Thus the
+constant <TT>'in,out'</TT> can never be anything that <TT>NextWord</TT> returns.
+This can actually be useful (as it was in <A HREF="section16.html">Section 16</A>).
+
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> It can also be useful to check for numbers.  The library
+routine <TT>TryNumber(wordnum)</TT> tries to parse the word
+at <TT>wordnum</TT> as a number (recognising decimal numbers and English
+ones from "one'' to "twenty''), returning -1000 if it fails
+altogether, or else the number.  Values exceeding 10000 are rounded
+down to 10000.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Sometimes there is no alternative but to actually look at
+the player's text one character at a time (for instance, to check
+a 20-digit phone number).  The routine <TT>WordAddress(wordnum)</TT>
+returns a byte array of the characters in the word, and
+<TT>WordLength(wordnum)</TT> tells you how many characters there are in it.
+Thus in the above example,
+<PRE>
+    thetext = WordAddress(4);
+    print WordLength(4), " ", (char) thetext-&#62;0, (char) thetext-&#62;2;
+</PRE>
+
+
+
+prints the text "3 et''.
+</SMALL>
+<TR><TD><TD><P>
+
+
+An object can affect how its name is parsed by giving a <TT>parse_name</TT>
+routine.  This is expected to try to match as many words as possible
+starting from the current position of <TT>wn</TT>, reading them in one at
+a time using the <TT>NextWord()</TT> routine.  Thus it must not stop just because
+the first word makes sense, but must keep reading and find out how many
+words in a row make sense.
+It should return:
+<BLOCKQUOTE>
+0<SAMP>      </SAMP>    if the text didn't make any sense at all,<BR>
+<I>k</I><SAMP>      </SAMP>  if <I>k</I> words in a row of the text seem to refer to the object, or<BR>
+-1<SAMP>      </SAMP>   to tell the parser it doesn't want to decide after all.<BR>
+</BLOCKQUOTE>
+
+The word marker <TT>wn</TT> can be left anywhere afterwards.  For example:
+<PRE>
+Object -&#62; thing "weird thing"
+  with parse_name
+       [ i; while (NextWord()=='weird' or 'thing') i++;
+            return i;
+       ];
+</PRE>
+
+This definition duplicates (very nearly) the effect of having defined:
+<PRE>
+Object -&#62; thing "weird thing"
+  with name "weird" "thing";
+</PRE>
+
+Which isn't very useful.  But the tomato can now be coded up with
+<PRE>
+       parse_name
+       [ i j; if (self has general) j='red'; else j='green';
+            while (NextWord()=='tomato' or 'fried' or j) i++;
+            return i;
+       ],
+</PRE>
+       
+so that "green" only applies until its <TT>general</TT> attribute has
+been set, whereupon "red'' does.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex56"><B>EXERCISE 56:</B><BR>(link to <A HREF="answers2/answer56.html">the answer</A>)<TR><TD><TD> Rewrite this to insist that the adjectives
+must come before the noun, which must be
+present.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex57"><B>EXERCISE 57:</B><BR>(link to <A HREF="answers2/answer57.html">the answer</A>)<TR><TD><TD> Create a musician called Princess who, when kissed,
+is transformed into "<TT>/?%?/</TT> (the
+artiste formerly known as Princess)''.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex58"><B>EXERCISE 58:</B><BR>(link to <A HREF="answers2/answer58.html">the answer</A>)<TR><TD><TD> (Cf. 'Caf&#232; Inform'.)  Construct a drinks machine capable
+of serving cola, coffee or tea, using only one object for the buttons
+and one for the possible drinks.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>parse_name</TT> is also used to spot plurals: see <A HREF="section25.html">Section 25</A>.
+</SMALL>
+<TR><TD><TD><P>
+
+
+Suppose that an object doesn't have a <TT>parse_name</TT> routine, or that
+it has but it returned -1.  The parser then looks at the <TT>name</TT>
+words.  It recognises any arrangement of some or all of these words
+as a match (the more words, the better).  Thus "fried green tomato'' is
+understood, as are "fried tomato'' and "green tomato''.  On the other
+hand, so are "fried green'' and "green green tomato green fried green''. 
+This method is quick and good at understanding a wide variety of
+sensible inputs, though bad at throwing out foolish ones.
+<P>
+
+However, you can affect this by using the <TT>ParseNoun</TT> entry point.
+This is called with one argument, the object in question, and should
+work exactly as if it were a <TT>parse_name</TT> routine: i.e., returning
+-1, 0 or the number of words matched as above.  Remember that it
+is called very often and should not be horribly slow.  For example,
+the following duplicates what the parser usually does:
+<PRE>
+[ ParseNoun obj n;
+  while (IsAWordIn(NextWord(),obj,name) == 1) n++; return n;
+];
+[ IsAWordIn w obj prop   k l m;
+  k=obj.&#38;prop; l=(obj.#prop)/2;
+  for (m=0:m&#60;l:m++)
+      if (w==k--&#62;m) rtrue;
+  rfalse;
+];
+</PRE>
+
+In this example <TT>IsAWordIn</TT> just checks to see if <TT>w</TT> is one of the
+entries in the word array <TT>obj.&#38;prop</TT>.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex59"><B>EXERCISE 59:</B><BR>(link to <A HREF="answers2/answer59.html">the answer</A>)<TR><TD><TD> Many adventure-game parsers split object names into
+'adjectives' and 'nouns', so that only the pattern
+<I><B>&#60;0 or more adjectives&#62;</B></I> <I><B>&#60;1 or more nouns&#62;</B></I>
+is recognised.  Implement this.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex60"><B>EXERCISE 60:</B><BR>(link to <A HREF="answers2/answer60.html">the answer</A>)<TR><TD><TD> During debugging it sometimes helps to
+be able to refer to objects by their internal numbers, so that
+"put object 31 on object 5'' would work.  Implement
+this.
+
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex61"><B>EXERCISE 61:</B><BR>(link to <A HREF="answers2/answer61.html">the answer</A>)<TR><TD><TD> How could the word "<TT>#</TT>'' be made a wild-card,
+meaning "match any single object''?
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex62"><B>EXERCISE 62:</B><BR>(link to <A HREF="answers2/answer62.html">the answer</A>)<TR><TD><TD> And how could "<TT>*</TT>'' be a wild-card for
+"match any collection of objects''?
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex63"><B>EXERCISE 63:</B><BR>(link to <A HREF="answers2/answer63.html">the answer</A>)<TR><TD><TD> There is no problem with calling a container
+"hole in wall'', because the parser will understand
+"put apple in hole in wall'' as "put (apple) in (hole in wall)''.
+But create a fly in amber, so that "put fly in amber in
+hole in wall'' works properly and isn't misinterpreted as
+"put (fly) in (amber in hole in wall)''.
+(Warning: you may need to know about the <TT>BeforeParsing</TT> entry
+point (see <A HREF="section26.html">Section 26</A>) and the format of the <TT>parse</TT> buffer (see
+<A HREF="section27.html">Section 27</A>).)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  Straightforward <TT>parse_name</TT> examples are the chess-pieces object
+and the kittens class of 'Alice Through The Looking-Glass'.  Lengthier
+ones are found in 'Balances', especially in the white cubes class.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section23.html">Back</A> / <A HREF="section25.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

@@ -1,0 +1,1452 @@
+This is Info file inform.info, produced by Makeinfo-1.64 from the input
+file inform.texi.
+
+This is the Inform Designer's Manual, third edition, 4 September 1996,
+as updated 16 May 1997.  It was converted to Info by Christopher J.
+Madsen <ac608@yfn.ysu.edu>.
+
+Copyright 1996,1997 Graham Nelson and Christopher J. Madsen
+
+Permission is granted to make and distribute copies of this manual
+provided that:
+ (a) distributed copies are not substantially different from those
+     archived by the author,
+ (b) this and other copyright messages are always retained in full, and
+ (c) no profit is involved.
+
+
+File: inform,  Node: Creating Objects,  Next: Using the Tree,  Prev: Object Tree,  Up: Objects
+
+Creating objects 1: setting up the tree
+---------------------------------------
+
+   The object tree's initial state is created with the directive
+Object.  For example,
+
+    Object "bucket" ...
+    Object -> "starfish" ...
+    Object -> "oyster" ...
+    Object -> -> "pearl" ...
+    Object -> "sand" ...
+
+(where the bulk of the definitions are here abbreviated to "..."), sets
+up the tree structure
+
+           "bucket"
+              !
+          "starfish" --> "oyster" --> "sand"
+                            !
+                         "pearl"
+
+The idea is that if no arrows -> are given in the Object definition,
+then the object has no parent: if one -> is given, then the object is a
+child of the last object to be defined with no arrows; if two are
+given, then it's a child of the last object defined with only one
+arrow; and so on.  (The list of definitions looks a little like the
+tree picture turned on its side.)
+
+   An object definition consists of a "head" followed by a "body",
+which is itself divided into "segments" (though there the similarity
+with caterpillars ends).  The head takes the form:
+
+         Object <arrows> <name> "textual name" <parent>
+
+but all of these four entries are optional.
+
+  1. The <arrows> are as described above.  Note that if one or more
+     arrows are given, that automatically specifies what object this is
+     the child of, so a <parent> cannot be given as well.
+
+  2. The <name> is what the object can be called inside the program;
+     it's analogous to a variable name.
+
+  3. The "textual name" can be given if the object's name ever needs to
+     be printed by the program when it is running.
+
+  4. The <parent> is an object which this new object is to be a child
+     of.  (This is an alternative to supplying arrows.)
+
+So much is optional that even the bare directive
+
+    Object;
+
+is allowed, though it makes a nameless and featureless object which is
+unlikely to be useful.
+
+
+File: inform,  Node: Using the Tree,  Next: Objects with Properties,  Prev: Creating Objects,  Up: Objects
+
+Statements for objects: move, remove, objectloop
+------------------------------------------------
+
+   The positions of objects in the tree are by no means fixed: they are
+created in a particular formation but are often shuffled around
+extensively during the program's execution.  (In an adventure game,
+where the objects represent items and rooms, objects are moved in the
+tree whenever the player picks something up or moves around.)  The
+statement
+
+         move <object> to <object>
+
+moves the first-named object to become a child of the second-named one.
+All of the first object's own children "move along with it", i.e.,
+remain its own children.  For instance, following the example in *Note
+Object Tree:: above,
+
+    move Cucumber to Mailbox;
+
+results in the tree
+
+    Meadow
+      !
+    Mailbox  ----------->  Player
+      !                      !
+    Cucumber  ->  Note     Sceptre  ->  Torch  ->  Magic Rod
+                                          !
+                                       Battery
+
+It must be emphasized that move prints nothing on the screen, and indeed
+does nothing at all except to rearrange the tree.  When an object
+becomes the child of another in this way, it always becomes the
+"eldest" child in the family-tree sense; that is, it is the new child()
+of its parent, pushing the previous children over into being its
+siblings.  It is, however, illegal to move an object out of such a
+structure using
+
+    move Torch to nothing;
+
+because nothing is not an object as such.  The effect is instead
+achieved with
+
+    remove Torch;
+
+which would now result in
+
+    Meadow                                               Torch
+      !                                                    !
+    Mailbox  ----------->  Player                       Battery
+      !                      !
+    Cucumber  ->  Note     Sceptre  ->  Magic Rod
+
+So the "object tree" is often fragmented into many little trees.
+
+Since objects move around a good deal, it's useful to be able to test
+where an object currently is; the condition in is provided for this.
+For example,
+
+    Cucumber in Mailbox
+
+is true if and only if the Cucumber is one of the direct children of
+the Mailbox.  (Cucumber in Mailbox is true, but Cucumber in Meadow is
+false.)  Note that
+
+    X in Y
+
+is only an abbreviation for
+
+    parent(X) == Y
+
+but it's worth having since it occurs so often.
+
+The one loop statement missed out in *Note Routines:: was objectloop.
+
+         objectloop(<variable-name>) <statement>
+
+runs through the <statement> once for each object in the tree, putting
+each object in turn into the variable.  For example,
+
+    objectloop(x) print (name) x, "^";
+
+prints out a list of the textual names of every object in the tree.
+(Objects which aren't given any textual names in their descriptions
+come out as "?".) More powerfully, any condition can be written in the
+brackets, as long as it begins with a variable name.
+
+    objectloop(x in Mailbox) print (name) x, "^";
+
+prints the names only of those objects which are direct children of the
+Mailbox object.
+
+
+File: inform,  Node: Objects with Properties,  Next: Private Properties,  Prev: Using the Tree,  Up: Objects
+
+Creating objects 2: with properties
+-----------------------------------
+
+   So far Objects are just tokens with names attached which can be
+shuffled around in a tree.  They become interesting when data and
+routines are attached to them, and this is what the body of an object
+definition is for.
+
+   The body contains up to four segments, which can occur in any order;
+each of the four is optional.  The segments are called
+
+    with    has    class    private
+
+class will be left until later.  The most important segment is with,
+which specifies things to be attached to the object.  For example,
+
+    Object magpie "black-striped bird"
+      with wingspan, worms_eaten;
+
+attaches two variables to the bird, one called wingspan, the other
+called worms_eaten.  Notice that when more than one variable is given,
+commas are used to separate them: and the object definition as a whole
+is ended by a semicolon, as always.  The values of the magpie's
+variables are referred to in the rest of the program as
+
+    magpie.wingspan
+    magpie.worms_eaten
+
+which can be used exactly the way normal (global) variables are used.
+Note that the object has to be named along with the variable, since
+
+    crested_glebe.wingspan
+    magpie.wingspan
+
+are different variables.
+
+   Variables which are attached to objects in this way are called
+"properties".  More precisely, the name wingspan is said to be a
+property, and is said to be "provided" by both the magpie and
+crested_glebe objects.
+
+   The presence of a property can be tested using the provides
+condition.  For example,
+
+    objectloop (x provides wingspan) ...
+
+executes the code ... for each object x in the game which is defined
+with a wingspan property.
+
+!! Although the provision of a property can be tested, it cannot be
+changed while the program is running.  The value of magpie.wingspan may
+change, but not the fact that the magpie has a wingspan.
+
+When the above magpie definition is made, the initial values of
+
+    magpie.wingspan
+    magpie.worms_eaten
+
+are both 0.  To create the magpie with a given wingspan, we have to
+specify an initial value: we do this by giving it after the name, e.g.
+
+    Object magpie "black-striped bird"
+      with wingspan 5, worms_eaten;
+
+and now the program begins with magpie.wingspan equal to 5, and
+magpie.worms_eaten still equal to 0.  (For consistency perhaps there
+should be an equals sign before the 5, but if this were the syntax then
+Inform programs would be horribly full of equals signs.)
+
+!! Properties can be arrays instead of global variables.  If two or more
+consecutive values are given for the same property, it becomes an
+array.  Thus,
+
+    Object magpie "black-striped bird"
+      with name "magpie" "bird" "black-striped" "black" "striped",
+           wingspan 5, worms_eaten;
+
+magpie.name is not a global variable (and cannot be treated as such: it
+doesn't make sense to add 1 to it), it is an --> array.  This must be
+accessed using two special operators, .& and .#.
+
+    magpie.&name
+
+means "the array which is held in magpie's name property", so that the
+actual name values are in the entries
+
+    magpie.&name-->0
+    magpie.&name-->1
+       ...
+    magpie.&name-->4
+
+The size of this array can be discovered with
+
+    magpie.#name
+
+which evaluates to the twice the number of entries, in this case, to 10.
+(Twice the number of entries because it is actually the number of byte
+array, ->, entries: byte arrays take only half as much storage as word
+arrays.)
+
+!! name is actually a special property created by Inform.  It has the
+unique distinction that textual values in double-quotes (like the five
+words given in magpie.name above) are entered into the game's
+dictionary, and not treated as ordinary strings.  (Normally one would
+use single-quotes for this.  The rule here is anomalous and goes back
+to the misty origins of Inform 1.) If you prefer a consistent style,
+using single quotes:
+
+    Object magpie "black-striped bird"
+      with name 'magpie' 'bird' 'black-striped' 'black' 'striped',
+           wingspan 5, worms_eaten;
+
+works equally well (except that single-character names like "X" then
+have to be written #n$X).
+
+Finally, properties can also be routines.  In the definition
+
+    Object magpie "black-striped bird"
+      with name "magpie" "bird" "black-striped" "black" "striped",
+           wingspan 5,
+           flying_strength
+           [;  return magpie.wingspan + magpie.worms_eaten;
+           ],
+           worms_eaten;
+
+magpie.flying_strength is neither a variable nor an array, but a
+routine, given in square brackets as usual.  (Note that the Object
+directive continues where it left off after the routine-end marker, ].)
+Routines which are written in as property values are called "embedded"
+and are mainly used to receive messages (as we shall see).
+
+!!!! Embedded routines are unlike ordinary ones in two ways:
+  1. An embedded routine has no name of its own, since it is referred to
+     as a property such as magpie.flying_strength instead.
+
+  2. If execution reaches the ] end-marker of an embedded routine, then
+     it returns false, not true (as a non-embedded routine would).  The
+     reason for this will only become clear in Chapter III when before
+     and after rules are discussed.
+
+
+File: inform,  Node: Private Properties,  Next: Using Attributes,  Prev: Objects with Properties,  Up: Objects
+
+private properties and encapsulation
+------------------------------------
+
+!!  An optional system is provided for "encapsulating" certain
+properties so that only the object itself has access to them.  These
+are defined by giving them in a segment of the object declaration
+called private.  For instance,
+
+    Object sentry "sentry"
+      private pass_number 16339,
+      with    challenge
+              [ attempt;
+                  if (attempt == sentry.pass_number)
+                      "Approach, friend!";
+                  "Stand off, stranger.";
+              ];
+
+makes the sentry provide two properties: challenge, which is public,
+and pass_number, which can be used only by the sentry's own embedded
+routines.
+
+!!!! This makes the provides condition slightly more interesting than it
+appeared in the previous section.  The answer to the question of whether
+or not
+
+    sentry provides pass_number
+
+depends on who's asking: this condition is true if it is tested in one
+of the sentry's own routines, and otherwise false.  A private property
+is so well hidden that nobody else can even know whether or not it
+exists.
+
+
+File: inform,  Node: Using Attributes,  Next: Classes and Inheritance,  Prev: Private Properties,  Up: Objects
+
+Attributes, give and has
+------------------------
+
+   In addition to properties, objects have flag variables attached.
+(Recall that flags are variables which are either true or false: the
+flag is either flying, or not.)  However, these are provided in a way
+which is quite different.  Unlike property names, attribute names have
+to be declared before use with a directive like:
+
+    Attribute tedious;
+
+Once this declaration is made, every object in the tree has a tedious
+flag attached, which is either true or false at any given time.  The
+state can be tested by the has condition:
+
+    if (magpie has tedious) ...
+
+tests whether the magpie's tedious flag is currently set, or not.
+
+   The magpie can be created already having attributes using the has
+segment in its declaration:
+
+    Object magpie "black-striped bird"
+      with wingspan, worms_eaten
+      has  tedious;
+
+The has segment contains a list of attributes (with no commas in
+between) which should be initially set.  In addition, an attribute can
+have a tilde ~ in front, indicating "this is definitely not held".
+This is usually what would have happened anyway, but class inheritance
+(see below) disturbs this.
+
+   Finally, the state of such a flag is changed in the running of the
+program using the give statement:
+
+    give magpie tedious;
+
+sets the magpie's tedious attribute, and
+
+    give magpie ~tedious;
+
+clears it again.  The give statement can take a list of attributes, too:
+
+    give door ~locked open;
+
+for example, meaning "take away locked and add on open".
+
+
+File: inform,  Node: Classes and Inheritance,  Next: Messages,  Prev: Using Attributes,  Up: Objects
+
+Classes and inheritance
+-----------------------
+
+   Having covered routines and strings in *Note Routines::, and Objects
+above, the fourth and final metaclass to discuss is that of "classes".
+A class is a kind of prototype object from which other objects are
+copied.  These other objects are sometimes called "instances" or
+"members" of the class, and are said to "inherit from" it.
+
+   For example, clearly all birds ought to have wingspans, and the
+property
+
+           flying_strength
+           [;  return magpie.wingspan + magpie.worms_eaten;
+           ],
+
+(attached to the magpie in the example above) is using a formula which
+should work for any bird.  We might achieve this by using directives as
+follows:
+
+    Class Bird
+      with wingspan 7,
+           flying_strength
+           [;  return self.wingspan + self.worms_eaten;
+           ],
+           worms_eaten;
+
+    Bird   "magpie"
+      with wingspan 5;
+    Bird   "crested glebe";
+    Bird   "Great Auk"
+      with wingspan 15;
+    Bird   "early bird"
+      with worms_eaten 1;
+
+   The first definition sets up a new class called Bird.  Every example
+of a Bird now automatically provides wingspan, a flying_strength
+routine and a count of worms_eaten.  Note that the four actual birds
+are created using the Bird class-name instead of the usual plain Object
+directive, but this is only a convenient short form for definitions
+such as:
+
+    Object "magpie"
+      with wingspan 5
+     class Bird;
+
+where class is the last of the four object definition segments.  It's
+just a list of classes which the object has to inherit from.
+
+   The Bird routine for working out flying_strength has to be written
+in such a way that it can apply to any bird.  It has to say "the flying
+strength of any bird is equal to its wingspan plus the number of worms
+it has eaten".  To do this, it has used the special value self, which
+means "whatever object is being considered at the moment".  More of
+this in the next section.
+
+   Note also that the Bird with specifies a wingspan of 7.  This is the
+value which its members will inherit, unless their own definitions
+over-ride this, as the magpie and great Auk objects do.  Thus the
+initial position is:
+
+    Bird            Value of wingspan    Value of worms_eaten
+    magpie                5                       0
+    crested glebe         7                       0
+    Great Auk             15                      0
+    early bird            7                       1
+
+!!!! In rare cases, clashes between what a class says and what the
+object says are resolved differently: see *Note Messages and Classes::.
+
+Inform has "multiple inheritance", which means that any object can
+inherit from any number of classes.  Thus, an object has no single
+class; rather, it can be a member of several classes at once.
+
+   Every object is a member of at least one class, because the four
+"metaclasses" Routine, String, Object and Class are themselves classes.
+(Uniquely, Class is a member of itself.)  The magpie above is a member
+of both Bird and Object.
+
+   To complicate things further, classes can themselves inherit from
+other classes:
+
+    Class BirdOfPrey
+     class Bird
+     with  wingspan 15,
+           people_eaten;
+
+    BirdOfPrey kestrel;
+
+   makes kestrel a member of both BirdOfPrey and of Bird.  Informally,
+BirdOfPrey is called a "subclass" of Bird.
+
+   Given all this, it's impossible to have a function called class,
+analogous to metaclass, to say what class something belongs to.
+Instead, there is a condition called ofclass:
+
+    kestrel ofclass Class
+
+is false, while
+
+    kestrel ofclass BirdOfPrey
+    kestrel ofclass Bird
+    kestrel ofclass Object
+    "Canterbury" ofclass String
+
+are all true.  This condition is especially handy for use with
+objectloop:
+
+    objectloop (x ofclass Bird) move x to Aviary;
+
+moves all the birds to the Aviary.
+
+
+File: inform,  Node: Messages,  Next: Access to Superclass Values,  Prev: Classes and Inheritance,  Up: Objects
+
+Messages
+--------
+
+   That completes the story of how to create objects, and it's time to
+begin communicating with them by means of messages.  Every message has
+a sender, a receiver and some parameter values attached, and it always
+produces a reply (which is just a single value).  For instance,
+
+    x = lamp.addoil(5, 80);
+
+sends the message addoil with parameters 5 and 80 to the object lamp,
+and puts the reply value into x.  Just as properties like
+magpie.wingspan are variables attached to objects, so messages are
+received by routines attached to objects, and message-sending is very
+like making an ordinary Inform function call.  The "reply" is what was
+called the return value in *Note Routines::, and the "parameters" used
+to be called function call arguments.  But slightly more is involved,
+as will become apparent.
+
+What does the lamp object do to respond to this message?  First of all,
+it must do something.  If the programmer hasn't specified an addoil
+routine for the lamp, then an error message will be printed out when
+the program is run, along the lines of
+
+    *** The object "lamp" does not provide the property "addoil" ***
+
+Not only does lamp.addoil have to exist, but it has to hold one of the
+four kinds of object, or else nothing.  What happens next depends on
+the metaclass of lamp.addoil:
+
+        metaclass What happens:                The reply is:
+        ========= ============================ =========================
+
+        Routine   the routine is called with   the routine's return value
+                  the given parameters
+        String    the string is printed,       true
+                  followed by a new-line
+        Object    nothing                      the object
+        Class     nothing                      the class
+        nothing   nothing                      false, or 0, or nothing
+                                               (all different ways of
+                                                   writing 0)
+
+!! If lamp.addoil is a list rather than a single value then the first
+entry is the one looked at, and the rest are ignored.
+
+For example,
+
+    print kestrel.flying_strength();
+
+will print out 15, by calling the flying_strength routine provided by
+the kestrel (the same one it inherited from Bird), which adds its
+wingspan of 15 to the number of worms it has so far eaten (none), and
+then returns 15.  (You can see all the messages being sent in a game as
+it runs with the debugging verb "messages": see *Note Debugging:: for
+details.)
+
+!! For examples of all the other kinds of receiving property, here is
+roughly what happens when the Inform library tries to move the player
+northeast from the current room (the location) in an adventure game:
+
+    x = location.ne_to();
+    if (x == nothing) "You can't go that way.";
+    if (x ofclass Object) move player to x;
+
+This allows directions to be given with some flexibility in properties
+like ne_to and so on:
+
+    Object Octagonal_Room "Octagonal Room"
+      with ...
+           ne_to "The north-east doorway is barred by an invisible wall!",
+           w_to  Courtyard,
+           e_to
+           [;  if (Amulet has worn)
+               {   print "A section of the eastern wall suddenly parts before
+                          you, allowing you into...^";
+                   return HiddenShrine;
+               }
+           ],
+           s_to
+           [;  if (random(5) ~= 1) return Gateway;
+               print "The floor unexpectedly gives way, dropping you through
+                      an open hole in the plaster...^";
+               return random(Maze1, Maze2, Maze3, Maze4);
+           ];
+
+   Two special variables help with the writing of message routines:
+self and sender.  self always has as value the Object which is
+receiving the message, while sender has as value the Object which sent
+it, or nothing if it wasn't sent from Object (but from some
+free-standing routine).  For example,
+
+    pass_number
+    [;  if (~~(sender ofclass CIA_Operative))
+            "Sorry, you aren't entitled to know that.";
+        return 16339;
+    ];
+
+
+File: inform,  Node: Access to Superclass Values,  Next: Philosophy,  Prev: Messages,  Up: Objects
+
+Access to superclass values
+---------------------------
+
+!! A fairly common situation in Inform coding is that one has a general
+class of objects, say Treasure, and wants to create an instance of this
+class which behaves slightly differently.  For example, we might have
+
+    Class  Treasure
+      with deposit
+           [;  if (self provides deposit_points)
+                   score = score + self.deposit_points;
+               else score = score + 5;
+               "You feel a sense of increased esteem and worth.";
+           ];
+
+and we want to create an instance called Bat_Idol which (say) flutters
+away, resisting deposition, but only if the room is dark:
+
+    Treasure Bat_Idol "jewelled bat idol"
+      with deposit
+           [;  if (location == thedark)
+               {   remove self;
+                   "There is a clinking, fluttering sound!";
+               }
+               ...
+           ];
+
+In place of ..., we have to copy out all of the previous code about
+depositing treasures.  This is clumsy: what we really want is a way of
+sending the deposit message to Bat_Idol but "as if it had not changed
+the value of deposit it inherited from Treasure".  We achieve this with
+the so-called superclass operator, ::.  (The term "superclass" is
+borrowed from the Smalltalk-80 system, where it is more narrowly
+defined.)  Thus, in place of ..., we could simply write:
+
+    self.Treasure::deposit();
+
+to send itself the deposit message again, but this time diverted to the
+property as provided by Treasure.
+
+   The :: operator works on all property values, not just for message
+sending.  In general,
+
+    object.class::property
+
+evaluates to the value of the given property which the class would
+normally pass on (or gives an error if the class doesn't provide that
+property or if the object isn't a member of that class).  Note that ::
+exists as an operator in its own right, so it is perfectly legal to
+write, for example,
+
+    x = Treasure::deposit; Bat_Idol.x();
+
+To continue the avian theme, BirdOfPrey might have its own
+flying_strength routine:
+
+           flying_strength
+           [;  return self.Bird::flying_strength() + self.people_eaten;
+           ],
+
+reflecting the idea that, unlike other birds, these can gain strength by
+eating people.
+
+
+File: inform,  Node: Philosophy,  Next: Sending Messages,  Prev: Access to Superclass Values,  Up: Objects
+
+Philosophy
+----------
+
+!!!! This section is best skipped until the reader feels entirely happy
+with the rest of Chapter I.  It is aimed mainly at those worried about
+whether the ideas behind the apparently complicated system of classes
+and objects are sound.  (As Stephen Fry once put it, "Socialism is all
+very well in practice, but does it work in theory?")  We begin with two
+definitions:
+
+`object'
+     a member of the program's object tree, or a routine in the
+     program, or a literal string in the program.  (Routines and
+     strings can't, of course, be moved around in the object tree, but
+     the tests ofclass and provides can be applied to them, and they
+     can be sent messages.)  Objects are part of the compiled program
+     produced by Inform.
+
+`class'
+     an abstract name for a set of objects in the game, which may have
+     associated with it a set of characteristics shared by its objects.
+     Classes themselves are frequently described by text in the
+     program's source code, but are not part of the compiled program
+     produced by Inform.
+
+Here are the full rules:
+  1. Compiled programs are composed of objects, which may have variables
+     attached called "properties".
+
+  2. Source code contains definitions of both objects and classes.
+
+  3. Any given object in the program either is, or is not, a member of
+     any given class.
+
+  4. For every object definition in the source code, an object is made
+     in the final program.  The definition specifies which classes this
+     object is a member of.
+
+  5. If an object X is a member of class C, then X "inherits" property
+     values as given in the class definition of C.
+
+     The details of how inheritance takes place are omitted here.  But
+     note that one of the things which can be inherited from class C is
+     being a member of some other class, D.
+
+  6. For every class definition, an object is made in the final program
+     to represent it, called its "class-object".
+
+     For example, suppose we have a class definition like:
+
+         Class Dwarf
+          with beard_colour;
+
+     The class Dwarf will generate a class-object in the final program,
+     also called Dwarf.  This class-object exists in order to receive
+     messages like create and destroy and, more philosophically, in
+     order to represent the concept of "dwarfness" within the simulated
+     world.
+
+     It is important to remember that the class-object of a class is
+     not normally a member of that class.  The concept of dwarfness is
+     not itself a dwarf: the condition Dwarf ofclass Dwarf is false.
+     Individual dwarves provide a property called beard_colour, but the
+     class-object of Dwarf does not: the concept of dwarfness has no
+     single beard colour.
+
+  7. Classes which are automatically defined by Inform are called
+     "metaclasses".  There are four of these: Class, Object, Routine
+     and String.
+
+     It follows by rule (6) that every Inform program contains the
+     class-objects of these four, also called Class, Object, Routine
+     and String.
+
+  8. Every object is a member of one, and only one, metaclass:
+       1. The class-objects are members of Class, and no other class.
+
+       2. Routines in the program (including those given as property
+          values) are members of Routine and no other class.
+
+       3. Static strings in the program (including those given as
+          property values) are members of String, and of no other class.
+
+       4. The objects defined in the source code are members of Object,
+          and possibly also of other classes defined in the source code.
+
+     It follows from (8.1) that Class is the unique class whose
+     class-object is one of its own members: the condition Class
+     ofclass Class is true, whereas X ofclass X is false for every
+     other class X.
+
+     There is one other unusual feature of metaclasses, and it is a
+     rule provided for pragmatic reasons (see below) even though it is
+     not very elegant:
+
+  9. Contrary to rules (5) and (8.1), the class-objects of the four
+     metaclasses do not inherit from Class.
+
+This concludes the list of rules.  To see what they entail, one needs to
+know the definitions of the four metaclasses.  These definitions are
+never written out in any textual form inside Inform, as it happens, but
+here are definitions equivalent to what actually does happen.  (There
+is no such directive as Metaclass: none is needed, since only Inform
+itself can define metaclasses, but the definitions here pretend that
+there is.)
+
+    Metaclass Object;
+
+In other words, this is a class from which nothing is inherited.  So the
+ordinary objects described in the source code only have the properties
+which the source code says they have.
+
+    Metaclass Class
+    with create    [; ... ],
+         recreate  [ instance; ... ],
+         destroy   [ instance; ... ],
+         copy      [ instance1 instance2; ... ],
+         remaining [; ... ];
+
+So class-objects respond only to these five messages, which are
+described in detail in the next section, and provide no other
+properties: *except* that by rule (9), the class-objects Class, Object,
+Routine and String provide no properties at all.  The point is that
+these five messages are concerned with object creation and deletion at
+run time.  But Inform is a compiler and not, like Smalltalk-80 or other
+highly object-oriented languages, an interpreter.  We cannot create the
+program while it is actually running, and this is what it would mean to
+send requests for creation or deletion to Class, Object, Routine or
+String.  (We could write the above routines to allow the requests to be
+made, but to print out some error if they ever are: but it is more
+efficient to have rule (9) instead.)
+
+    Metaclass Routine
+    with call      [ parameters...; ... ];
+
+Routines therefore provide only call.  See the next section for how to
+use this.
+
+    Metaclass String
+    with print     [; print_ret (string) self; ],
+         print_to_array [ array; ... ];
+
+Strings therefore provide only print and print_to_array.  See the next
+section for how to use these.
+
+To demonstrate this, here is an Inform code representation of what
+happens when the message
+
+     O.M(p1, p2, ...)
+
+is sent.
+
+     if (~~(O provides M)) "Error: O doesn't provide M";
+     P = O.M;
+     switch(metaclass(P))
+     {   nothing, Object, Class: return P;
+         Routine:                return P.call(p1, p2, ...);
+         String:                 return P.print();
+     }
+
+(The messages call and print are actually implemented by hand, so this
+is not actually a circular definition.  Also, this is simplified to
+remove details of what happens if P is an array.)
+
+
+File: inform,  Node: Sending Messages,  Next: Dynamic Objects,  Prev: Philosophy,  Up: Objects
+
+Sending messages to routines, strings or classes
+------------------------------------------------
+
+!! In the examples so far, messages have only been sent to proper
+Objects.  But it's a logical possibility to send messages to objects of
+the other three metaclasses too: the question is whether they are able
+to receive any.  The answer is yes, because Inform provides 8
+properties for such objects, as follows.
+
+   The only thing you can do with a Routine is to call it.  Thus, if
+Explore is the name of a routine, then
+
+    Explore.call(2, 4);      and      Explore(2, 4);
+
+are equivalent expressions.  The message call(2,4) means "run this
+routine with parameters (2,4)".  This is not quite redundant, because
+it can be used more flexibly than ordinary function calls:
+
+    x = Explore; x.call(2, 4);
+
+The call message replies with the routine's return value.
+
+   Two different messages can be sent to a String.  The first is print,
+which is provided because it logically ought to be, rather than because
+it is useful.  So, for example,
+
+    ("You can see an advancing tide of bison!").print();
+
+prints out the string, followed by a new-line; the print message replies
+true, or 1.
+
+!!!! print_to_array is more useful.  It copies out the text of the
+string into entries 2, 3, 4, ... of the supplied byte array, and writes
+the number of characters as a word into entries 0 and 1.  That is, if A
+has been declared as a suitably large array,
+
+    ("A rose is a rose is a rose").print_to_array(A);
+
+will cause the text of the string to be copied into the entries
+
+    A->2, A->3, ..., A->27
+
+with the value 26 written into
+
+    A-->0
+
+And the reply value of the message is also 26, for convenience.
+
+   Five different messages can be sent to objects of metaclass Class,
+i.e., to classes, and these are detailed in the next section.  (But an
+exception to this is that no messages at all can be sent to the four
+metaclasses Class, Object, Routine and String.)
+
+
+File: inform,  Node: Dynamic Objects,  Next: Common vs Individual,  Prev: Sending Messages,  Up: Objects
+
+Creating and deleting objects
+-----------------------------
+
+   A vexed problem in all object-oriented systems is that it is often
+elegant to grow data structures organically, simply conjuring new
+objects out of mid-air and attaching them to the structure already
+built.  The problem is that since resources cannot be infinite, there
+will come a point where no new objects can be conjured up.  The program
+must be written so that it can cope with this, and this can present the
+programmer with some difficulty, since the conditions that will prevail
+when the program is being run may be hard to predict.
+
+   In an adventure-game setting, object creation is useful for
+something like a beach full of stones: if the player wants to pick up
+more and more stones, the game needs to create a new object for each
+stone brought into play.
+
+   Inform allows object creation, but it insists that the programmer
+must specify in advance what the maximum resources ever needed will be:
+for example, the maximum number of stones which can ever be in play.
+Although this is a nuisance, the reward is that the resulting program
+is guaranteed to work correctly on every machine running it (or else to
+fail in the same way on every machine running it).
+
+   The model is this.  When a class is defined, a number N is
+specified, which is the maximum number of created instances of the
+class which the programmer will ever need at once.  When the program is
+running, "instances" can be created (up to this limit); or deleted.
+One can imagine the class having a stock of instances, so that creation
+consists of giving out one of the stock-pile and deletion consists of
+taking one back.
+
+   Classes can receive the following five messages:
+
+remaining()
+
+What is the current value of N?  That is, how many more instances can
+be created?
+
+create()
+
+Replies with a newly created instance, or with nothing if no more can
+be created.
+
+destroy(I)
+
+Destroys the instance I, which must previously have been created.
+
+recreate(I)
+
+Re-initialises the instance I, as if it had been destroyed and then
+created again.
+
+copy(I, J)
+
+Copies I to be equal to J, where both have to be instances of the class.
+
+!! Note that recreate and copy can be sent for any instances, not just
+instances which have previously been created.  For example,
+
+    Plant.copy(Gilded_Branch, Poison_Ivy)
+
+copies over all the Plant properties and attributes from Poison_Ivy to
+Gilded_Branch, but leaves all the rest alone.  Likewise,
+
+    Treasure.recreate(Gilded_Branch)
+
+only resets the properties to do with Treasure, leaving the Plant
+properties alone.
+
+   Unless the definition of a class C is made in a special way,
+C.remaining() will always reply 0, C.destroy() will cause an error and
+C.create() will be refused.  This is because the magic number N for a
+class is normally 0.
+
+   The "special way" is to give N in brackets after the class name.  For
+example, if the class definition for Leaf begins:
+
+    Class Leaf(100) ...
+
+then initially Leaf.remaining() will reply 100, and the first 100
+create() messages will certainly be successful.  Others will only
+succeed if leaves have been destroyed in the mean time.  In all other
+respects Leaf is an ordinary class.
+
+!! Object creation and destruction may need to be more sophisticated
+than this.  For example, we might have a data structure in which every
+object of class A is connected in some way with four objects of class
+B.  When a new A is created, four new Bs need to be created for it; and
+when an A is destroyed, its four Bs need to be destroyed.  In an
+adventure game setting, we might imagine that every Dwarf who is
+created has to carry an Axe of his own.
+
+   When an object has been created (or recreated), but before it has
+been "given out" to the program, a create message is sent to it (if it
+provides create).  This gives the object a chance to set itself up
+sensibly.  Similarly, when an object is about to be destroyed, but
+before it actually is, a destroy message is sent to it (if it provides
+destroy).  For example:
+
+    Class Axe(30);
+    Class Dwarf(7)
+     with beard_colour,
+          create
+          [ x; self.beard_colour = random("black", "red", "white", "grey");
+
+               !  Give this new dwarf an axe, if there are any to spare
+
+               x = Axe.create(); if (x ~= nothing) move x to self;
+          ],
+          destroy
+          [ x;
+               !  Destroy any axes being carried by this dwarf
+
+               objectloop (x in self && x ofclass Axe) Axe.destroy(x);
+          ];
+
+
+File: inform,  Node: Common vs Individual,  Prev: Dynamic Objects,  Up: Objects
+
+Footnote on common vs. individual properties
+--------------------------------------------
+
+!!!!  The properties used in the sections above are all examples of
+"individual properties", which some objects provide and others do not.
+There are also "common properties" which, because they are inherited
+from the class Object, are held by every member of Object.  An example
+is capacity.  The capacity can be read for an ordinary game object
+(say, a crate) even if it doesn't specify a capacity for itself, and
+the resulting "default" value will be 100.  However, this is only a
+very weak form of inheritance -- you can't change the crate's capacity
+value and the condition crate provides capacity evaluates to false.
+
+   The properties defined by the Inform library, such as capacity, are
+all common: mainly because common properties are marginally faster to
+access and marginally cheaper on memory.  Only 62 are available, of
+which the library uses up 48.  Individual properties, on the other
+hand, are practically unlimited. It is therefore worth declaring a
+common property only in those cases where it will be used very often in
+your program.  You can declare common properties with the directive:
+
+     Property <name>;
+
+which should be made after the inclusion of "Parser" but before first
+use of the new name.  The class Object will now pass on this property,
+with value 0, to all its members.  This so-called "default value" can
+optionally be specified.  For example, the library itself makes the
+declaration
+
+     Property capacity 100;
+
+which is why all containers in a game which don't specify any particular
+capacity can hold up to 100 items.
+
+
+File: inform,  Node: Using the Compiler,  Next: Fundamentals,  Prev: Programming Language,  Up: Top
+
+Using the Compiler
+******************
+
+     I was promised a horse, but what I got instead
+     was a tail, with a horse hung from it almost dead.
+     
+     -- Palladas of Alexandria (319?-400?)
+     -- translated by Tony Harrison (1937-)
+
+* Menu:
+
+* The Language of Inform::      The language of Inform
+* Compiler Options::            Compiler options and memory settings
+* Error Messages::              All the Inform error messages
+
+
+File: inform,  Node: The Language of Inform,  Next: Compiler Options,  Prev: Using the Compiler,  Up: Using the Compiler
+
+The language of Inform
+======================
+
+* Menu:
+
+* ICL::                         The Inform Command Language
+* Controlling Compilation::     Controlling what is compiled
+* Linking::                     Using the linker
+
+
+File: inform,  Node: ICL,  Next: Controlling Compilation,  Prev: The Language of Inform,  Up: The Language of Inform
+
+ICL
+---
+
+   The Inform compiler is quite configurable: it has a number of
+settings which can be altered to suit the convenience of the user.
+Many of these settings are "switches", which usually have just two
+possible states, off or on.  However, some can be set to a single-digit
+number.
+
+   The other numerical settings are "memory settings", which control
+how much of your computer's memory Inform uses while running (too low
+and it may not be able to compile games of the size you desire; too
+high and it may choke any other programs in the computer for space).
+
+   Finally, there are "path variables", which contain text and are used
+to sort out filenames for the files Inform uses or creates.  The usage
+of these variables varies widely from machine to machine, or rather,
+from one operating system to another.
+
+   If Inform seems to work adequately for you already, this section can
+safely be ignored until the day comes to compile a really big project.
+Times like that call for the ability to conveniently change many
+settings at once, and a tiny language called "ICL" is provided for you
+to supply detailed specifications.
+
+On many systems, though not usually the Apple Macintosh, the user sets
+Inform running by typing a command at the "command line", that is, in
+response to a prompt printed by the computer.  For example, under RISC
+OS one would press function key f12 from the desktop and be given the
+prompt *, to which one might reply
+
+inform ruins
+
+On computers with more doggedly windowed interfaces, there will be a
+higher-level interface of some kind provided with Inform, which should
+come with its own brief documentation.
+
+   The usual way to alter switches on the command line is to give a
+word of options after the inform command, introduced by a minus sign.
+The switches are all single letters, and by default are mostly off.  For
+example, the -x switch causes Inform to print a row of hash signs as it
+compiles:
+
+inform -x shell
+RISC OS Inform 6.01 (April 25th 1996)
+::###############################################################
+
+One hash sign is printed for every 100 textual lines of source code
+compiled.  (On my own machine, an Acorn Risc PC 700, about 10 hashes
+are printed every second: that is, the compilation speed is about 1000
+lines per second.) Although -x is provided to indicate that a slow
+compilation is continuing normally, many designers use it to get a
+feeling for how large their games are, and it's a morale boost when the
+row of hashes spills over onto a second screen line.
+
+   Inform has documentation built-in on the subject of switches and
+other ICL features, which may vary from machine to machine.  Running
+Inform with no filename will print this "help information".  In
+addition, -h1 will print details of filenaming conventions in use on
+your machine, and -h2 will print a list of switches and their settings.
+
+   The full command line syntax is
+
+     inform <ICL commands> <source file> <output file>
+
+where only the <source file> is mandatory.  By default, the full names
+to give the source and output files are derived in a way suitable for
+the machine Inform is running on: on a PC, for instance, advent may be
+understood as asking to compile advent.inf to advent.z5.  This is called
+"filename translation".  No detailed information on filenaming rules is
+given here, because it varies so much from machine to machine: see the
+-h1 on-line documentation.  Note however that a filename can contain
+spaces if it is written in double-quotes.
+
+One possible ICL command is to give a filename in brackets: e.g.,
+
+     inform -x (skyfall_setup) ...
+
+sets the -x switch, then runs through the text file skyfall_setup
+executing each line as an ICL command.  As an example, this file might
+read as follows:
+
+   ! Setup file for "Skyfall"
+
+   -d                   ! Contract double spaces
+   $max_objects=1000    ! 500 of them snowflakes
+   (usual_setup)        ! include my favourite settings, too
+   +module_path=mods    ! keep modules in the "mods" directory
+
+   Note that ICL can include comments after !, just as in Inform.
+Otherwise, an ICL file has one command per line (with no dividing
+semicolons), and the possibilities are as follows:
+
+-<switches>
+
+set these switches; or unset any switch preceded by a tilde ~.  (For
+example, -a~bc sets a, unsets b and sets c.)
+
+$list
+
+list current memory settings
+
+$?<name>
+
+ask for information on what this memory setting is for
+
+$small
+
+set the whole collection of memory settings to suitable levels for a
+small game
+
+$large
+
+ditto, for a slightly larger game
+
+$huge
+
+ditto, for a reasonably big one
+
+$<name>=<quantity>
+
+alter the named memory setting to the given level
+
++<name>=<filename>
+
+set the named pathname variable to the given filename, which should be
+one or more filenames of directories, separated by commas
+
+compile <filename> <filename>
+
+compile the first-named file, containing source code, writing the
+output program to the (optional) second-named file
+
+(<filename>)
+
+execute this ICL file (files may call each other in this way)
+
+
+File: inform,  Node: Controlling Compilation,  Next: Linking,  Prev: ICL,  Up: The Language of Inform
+
+Controlling what is compiled
+----------------------------
+
+   Several directives instruct Inform to "compile this part next" or
+"only compile this...".  First,
+
+    Include "filename";
+
+instructs Inform to compile the whole of the source code in the given
+file, and only carry on compiling from here once that is complete.  It
+is exactly equivalent to removing the Include directive and replacing it
+with the whole file "filename".  (The rules for how Inform interprets
+"filename" vary from machine to machine: run Inform with the -h1 switch
+for information.)  Note that you can write
+
+    Include ">shortname";
+
+to mean "the file called "shortname" which is in the same directory
+that the present file came from".  This is convenient if all the files
+making up the source code of your game are housed together.
+
+!!  Next, there are a number of "conditional compilation" directives.
+They take the general form of a condition:
+
+    Ifdef <name>;          Is the name defined as having some meaning?
+    Ifndef <name>;         Is the name undefined?
+    Iftrue <condition>;    Is this condition true?
+    Iffalse <condition>;   Is this condition false?
+
+followed by a chunk of Inform and then either
+
+    Ifnot;
+
+and another chunk of Inform, or just
+
+    Endif;
+
+   At this point it is perhaps worth mentioning that (most) directives
+can also be interspersed with statements in routine declarations,
+provided they are preceded by a # sign.  For example:
+
+    [ MyRoutine;
+    #Iftrue MAX_SCORE > 1000;
+      print "My, what a long game we're in for!^";
+    #Ifnot;
+      print "Let's have a quick game, then.^";
+    #Endif;
+      PlayTheGame();
+    ];
+
+which actually only compiles one of the two print statements, according
+to what the value of the constant MAX_SCORE is.
+
+!!!! Four more arcane directives control conditional compilation.
+
+    Default <name> <value>;
+
+defines <name> as a constant if it wasn't already the name of something:
+so it's equivalent to the manoeuvre
+
+    Ifndef <name>;
+    Constant <name> = <value>;
+    Endif;
+
+Similarly,
+
+    Stub <name> <number>;
+
+defines a routine with this name and number of local variables, if it
+isn't already the name of something: so it's equivalent to
+
+    Ifndef <name>;
+    [ <name> x1 x2 ... x<number>;
+    ];
+    Endif;
+
+!!!!  Large blocks of code intended to be used in many different games,
+such as the files which make up the Inform library, should be marked
+somewhere with the directive
+
+    System_file;
+
+If this is done, it is possible for an outside program including the
+file to use Replace.  The idea is that a sequence like:
+
+    Replace DoSomething;
+    ...
+    Include "SomeLibrary";
+    ...
+    [ DoSomething; "Tarantaraa!"; ];
+
+allows a routine DoSomething, which would normally be defined in the
+Include file "SomeLibrary", to be defined in this file instead.  The
+definition in the Include file is simply ignored.  In this way, one can
+override the library routines without actually having to modify the
+library source code.  To recap, the rule here is that a routine's
+definition is ignored if both (a) it occurs in a declared "system
+file", and (b) its name has been given in a Replace directive.
+
+One way to follow what is being compiled is to use the Message
+directive.  The compiler can be made to print messages at compile time
+using:
+
+     Message "information"
+     Message error "error message"
+     Message fatalerror "fatal error message"
+     Message warning "warning message"
+
+For example,
+
+    Ifndef VN_1610;
+    Message fatalerror "This code can only be compiled by Inform 6.1";
+    Endif;
+
+(By a special rule, the condition VN_1610-is-defined is true if and only
+if the version number is 6.10 or more; similarly for other four-digit
+numbers beginning with a 1.)  Informational messages are simply
+printed: e.g.,
+
+    Message "Library extension by Boris J. Parallelopiped";
+
+just prints out this line (with a carriage return).
+
+
+File: inform,  Node: Linking,  Prev: Controlling Compilation,  Up: The Language of Inform
+
+Using the linker
+----------------
+
+   The process of "linking" is as follows.  A game being compiled
+(called the "external" program) may Link one or more pre-compiled
+sections of code called "modules".  Suppose the game Jekyll has a
+subsection called Hyde.  Then these two methods of making Jekyll are,
+nearly, equivalent:
+  1. Putting Include "Hyde"; in the source code for "Jekyll", and
+     compiling "Jekyll".
+
+  2. Compiling "Hyde" with the -M ("module") switch set, then putting
+     Link "Hyde"; into the same point in the source code for "Jekyll",
+     and compiling "Jekyll".
+
+Option (2) is much faster as long as "Hyde" does not change very often,
+since its ready-compiled module can be left lying around while "Jekyll"
+is being developed.
+
+   Because "linking the library" is by far the most common use of the
+linker, this is made simple.  All you have to do is compile your game
+with the -U switch set, or, equivalently, to begin your source code with
+
+    Constant USE_MODULES;
+
+(This assumes that you already have pre-compiled copies of the two
+library modules: if not, you'll need to make them with
+
+    inform -M library.parserm
+    inform -M library.verblibm
+
+(where library.parserm should be replaced with the filename for your
+copy of the library file "parserm", and likewise for "verblibm").) Note
+that it is essential not to make any Attribute or Property declarations
+`before' the Include "Parser" line in the source code, though `after'
+that point is fine.  (Library 6/2 and later will print an error message
+if you make this mistake, but under 6/1 it can be a source of
+mysterious problems.)
+
+!!!! You can also write your own library modules, or indeed subdivide a
+large game into many modular parts.  But there are certain restrictions
+to the possibilities.  (Real experts may want to look at the Technical
+Manual here.)  Here's a brief list of these:
+
+1.  The module must make the same Property and Attribute directives as
+the main program.  Including the library file "linklpa.h" ("link
+library properties and attributes") declares the library's stock, so it
+would be sensible to begin a module with
+
+    Include "linklpa";
+
+and then include a similar file defining all the extra common properties
+and attributes which are needed by the program (if any).
+
+2.  The module cannot contain grammar (i.e., use Verb or Extend
+directives) or create fake actions.
+
+3.  The module can only use global variables defined outside the module
+if they are explicitly declared before use using the Import directive.
+For example,
+
+    Import global frog;
+
+allows the rest of the module's source code to refer to the variable
+frog (which must be defined in the outside program).  Note that the
+Include file "linklv.h" ("link library variables") imports all the
+library variables, so it would be sensible to include this.
+
+4.  An object in the module can't inherit from a class defined outside
+the module.  (But an object outside can inherit from a class inside.)
+
+5.  Certain constant values in the module must be known at
+module-compile-time (and must not, for instance, be a symbol only
+defined outside the module).  For instance: the size of an array must be
+known now, not later; the number of duplicate members of a Class; and
+the quantities being compared in an Iftrue or Iffalse.
+
+6.  The module can't: define the Main routine; use the Stub or Default
+directives; or define an object whose parent object is not also in the
+same module.
+
+These restrictions are mild in practice.  As an example, here is a
+short module to play with:
+
+    Include "linklpa";        ! Make use of the properties, attributes
+    Include "linklv";         ! and variables from the Library
+
+    [ LitThings x;
+      objectloop (x has light)
+          print (The) x, " is currently giving off light.^";
+    ];
+
+   It should be possible to compile this -M and then to Link it into
+another game, making the routine LitThings exist in that game.

@@ -1,0 +1,195 @@
+<HTML><HEAD><TITLE>Section 23: Listing and grouping objects</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section22.html">Back</A><BR><A HREF="section24.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>23. Listing and grouping objects</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>As some day it may happen that a victim must be found
+<BR>I've got a little list -- I've got a little list
+<BR>Of society offenders who might well be underground,
+<BR>And who never would be missed
+<BR>Who never would be missed!
+<BR><P>...W. S. Gilbert (<B>1836</B>--<B>1911</B>), <I>The Mikado</I></BLOCKQUOTE>
+<P>
+
+
+The library often needs to reel off a list of objects: when an <TT>Inv</TT>
+(inventory) action takes place, for instance, or when describing the
+contents of a container or the duller items in a room.  Lists are difficult
+to print out correctly 'by hand', because there are many cases to get right,
+especially when taking plurals into account.  Fortunately, the library's
+list-maker is available to the public.  The routine to call is:
+<PRE>
+WriteListFrom(object, style);
+</PRE>
+
+where the list will start from the given object and go along its siblings.
+Thus, to list all the objects inside <TT>X</TT>, list from <TT>child(X)</TT>.  What the
+list looks like depends on the "style'', which is a bitmap you can make by
+adding some of the following constants:
+
+<BR><TABLE Border><TR><TD>  <TT>NEWLINE_BIT</TT> <TD>   New-line after each entry
+<TR><TD>  <TT>INDENT_BIT</TT>  <TD>   Indent each entry according to depth
+<TR><TD>  <TT>FULLINV_BIT</TT> <TD>   Full inventory information after entry
+<TR><TD>  <TT>ENGLISH_BIT</TT> <TD>   English sentence style, with commas and 'and'
+<TR><TD>  <TT>RECURSE_BIT</TT> <TD>   Recurse downwards with usual rules
+<TR><TD>  <TT>ALWAYS_BIT</TT>  <TD>   Always recurse downwards
+<TR><TD>  <TT>TERSE_BIT</TT>   <TD>   More terse English style
+<TR><TD>  <TT>PARTINV_BIT</TT> <TD>   Only brief inventory information after entry
+<TR><TD>  <TT>DEFART_BIT</TT>  <TD>   Use the definite article in list
+<TR><TD>  <TT>WORKFLAG_BIT</TT> <TD>  At top level (only), only list objects
+<TR><TD>                <TD>   which have the <TT>workflag</TT> attribute
+<TR><TD>  <TT>ISARE_BIT</TT>   <TD>   Prints " is " or " are " before list
+<TR><TD>  <TT>CONCEAL_BIT</TT> <TD>   Misses out <TT>concealed</TT> or <TT>scenery</TT> objects
+</TABLE>
+The best way to use this is to experiment.   For example, a 'tall'
+inventory is produced by:
+<PRE>
+WriteListFrom( child(player),
+               FULLINV_BIT + INDENT_BIT + NEWLINE_BIT + RECURSE_BIT );
+</PRE>
+
+and a 'wide' one by:
+<PRE>
+WriteListFrom( child(player),
+               FULLINV_BIT + ENGLISH_BIT + RECURSE_BIT );
+</PRE>
+
+which produce effects like:
+<PRE>
+&#62;inventory tall
+You are carrying:
+  a bag (which is open)
+    three gold coins
+    two silver coins
+    a bronze coin
+  four featureless white cubes
+  a magic burin
+  a spell book
+</PRE>
+<PRE>
+&#62;inventory wide
+You are carrying a bag (which is open), inside which are three gold
+coins, two silver coins and a bronze coin, four featureless white
+cubes, a magic burin and a spell book.
+</PRE>
+
+except that the 'You are carrying' part is not done by the list-maker,
+and nor is the final full stop in the second example.
+The <TT>workflag</TT> is an attribute which the library scribbles over from time
+to time as temporary storage, but you can use it with care.  In this case
+it makes it possible to specify any reasonable list.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> <TT>WORKFLAG_BIT</TT> and <TT>CONCEAL_BIT</TT> specify conflicting rules.  If
+they're both given, then what happens is: at the top level, but not below,
+everything with <TT>workflag</TT> is included; on lower levels, but not at the
+top, everything without <TT>concealed</TT> or <TT>scenery</TT> is included.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex52"><B>EXERCISE 52:</B><BR>(link to <A HREF="answers2/answer52.html">the answer</A>)<TR><TD><TD> Write a <TT>DoubleInvSub</TT> action routine to produce an inventory
+like so:
+<PRE>
+You are carrying four featureless white cubes, a magic burin and a
+spell book.  In addition, you are wearing a purple cloak and a miner's
+helmet.
+</PRE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Finally, there is a neat way to customise the grouping together
+of non-identical items in lists, considerably enhancing the
+presentation of the game.  If a collection of game objects -- say,
+all the edible items in the game -- have a common non-zero value of the
+property <TT>list_together</TT>, in the range 1 to 1000, they will always
+appear adjacently in inventories, room descriptions and the
+like.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+Alternatively, instead of being a small number the common value can be
+a string such as <TT>"foodstuffs"</TT>.  If so then lists will cite, e.g.,
+<BLOCKQUOTE>
+three foodstuffs (a scarlet fish, some lemmas and an onion)<BR>
+</BLOCKQUOTE>
+
+in running text, or
+<BLOCKQUOTE>
+three foodstuffs:<BR>
+<SAMP>            </SAMP> a scarlet fish<BR>
+<SAMP>            </SAMP> some lemmas<BR>
+<SAMP>            </SAMP> an onion<BR>
+</BLOCKQUOTE>
+
+in indented lists.  This only happens when two or more are gathered
+together.
+<P>
+
+Finally, the common value can be a routine, such as:
+<PRE>
+list_together
+[; if (inventory_stage==1) print "heaps of food, notably ";
+   else print ", which would do you no good";
+],
+</PRE>
+<P>
+
+Typically this might be part of a class definition from which all the
+objects in question inherit.  A <TT>list_together</TT> routine
+will be called twice: once, with <TT>inventory_stage</TT> set to 1, as
+a preamble to the list of items, and once (with 2) to print any
+postscript required.  It is allowed to change <TT>c_style</TT> (the current
+list style) without needing to restore the old value and may, by
+returning 1 from stage 1, signal the list-maker not to print a list at
+all.  The simple example above results in
+<BLOCKQUOTE>
+heaps of food, notably a scarlet fish, some lemmas<BR>
+and an onion, which would do you no good<BR>
+</BLOCKQUOTE>
+
+Such a routine may want to make use of the variables <TT>parser_one</TT> and
+<TT>parser_two</TT>, which respectively hold the first object in the group
+and the depth of recursion in the list (this might be needed to keep
+indentation going properly).  Applying <TT>x=NextEntry(x,parser_two);</TT>
+moves <TT>x</TT> on from <TT>parser_one</TT> to the next item in the group.
+Another helpful variable is <TT>listing_together</TT>, set up to the first
+object of a group being listed or to 0 whenever no group is being listed.
+The following list of 24 items shows some possible effects (see the
+example game 'List Property'):
+<BLOCKQUOTE>
+You can see a plastic fork, knife and spoon, three hats (a fez, a Panama<BR>
+and a sombrero), the letters X, Y, Z, P, Q and R from a Scrabble set, a<BR>
+defrosting Black Forest gateau, Punch magazine, a recent issue of the<BR>
+Spectator, a die and eight coins (four silver, one bronze and three gold)<BR>
+here.<BR>
+</BLOCKQUOTE>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex53"><B>EXERCISE 53:</B><BR>(link to <A HREF="answers2/answer53.html">the answer</A>)<TR><TD><TD> Implement the Scrabble pieces.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex54"><B>EXERCISE 54:</B><BR>(link to <A HREF="answers2/answer54.html">the answer</A>)<TR><TD><TD> Implement the
+three denominations of coin.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex55"><B>EXERCISE 55:</B><BR>(link to <A HREF="answers2/answer55.html">the answer</A>)<TR><TD><TD> Implement the I Ching in the form of six coins,
+three gold (goat, deer and chicken), three silver (robin, snake
+and bison) which can be thrown to reveal gold and silver
+trigrams.
+<P>
+
+</SMALL><TR><TD><TD>
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL> A good example of <TT>WriteListFrom</TT> in action is the definition
+of <TT>CarryingClass</TT> from the example game 'The Thief', by
+Gareth Rees.  This alters the examine description of a character
+by appending a list of what that person is carrying and wearing.
+<BR> Denominations of coin are also in evidence in 'Balances'.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section22.html">Back</A> / <A HREF="section24.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

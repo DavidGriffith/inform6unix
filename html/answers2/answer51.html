@@ -1,0 +1,17 @@
+<HTML><HEAD><TITLE>Answer to Exercise 51</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 51</B><TR><TD><TD>
+<P>
+
+This answer is cheating, as it needs to know about the library's
+<TT>lookmode</TT> variable (set to 1 for normal, 2 for verbose or 3 for
+superbrief).  Simply include:
+<PRE>
+[ TimePasses;
+  if (action~=##Look &#38;&#38; lookmode==2) &#60;Look&#62;;
+];
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section22.html#ex51">the exercise in section 22</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

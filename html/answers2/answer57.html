@@ -1,0 +1,43 @@
+<HTML><HEAD><TITLE>Answer to Exercise 57</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 57</B><TR><TD><TD>
+<P>
+
+
+<PRE>
+Object -&#62; "/?%?/ (the artiste formally known as Princess)"
+  with name "princess" "artiste" "formally" "known" "as",
+       short_name
+       [;   if (self hasnt general) { print "Princess"; rtrue; }
+       ],
+       react_before
+       [;  Listen: print_ret (name) self, " sings a soft siren song.";
+       ],
+       initial
+       [;  print_ret (name) self, " is singing softly.";
+       ],
+       parse_name
+       [ x n; if (self hasnt general)
+            {   if (NextWord()=='princess') return 1;
+                return 0;
+            }
+            x=WordAddress(wn);
+            if (   x-&#62;0 == '/' &#38;&#38; x-&#62;1 == '?' &#38;&#38; x-&#62;2 == '%'
+                &#38;&#38; x-&#62;3 == '?' &#38;&#38; x-&#62;4 == '/')
+            {   while (wn&#60;=parse-&#62;1 &#38;&#38; WordAddress(wn++)&#60;x+5) n++;
+                return n;
+            }
+            return -1;
+       ],
+       life
+       [;   Kiss: give self general; self.life = NULL;
+                "In a fairy-tale transformation, the Princess 
+                 steps back and astonishes the world by announcing 
+                 that she will henceforth be known as ~/?%?/~.";
+       ],
+  has  animate proper female;
+</PRE>
+
+</TABLE>
+<HR>Back to <A HREF="../section24.html#ex57">the exercise in section 24</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

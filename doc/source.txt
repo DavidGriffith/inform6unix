@@ -1,0 +1,52 @@
+Inform sources
+==============
+
+The 'src' directory contains the source code to Inform, which was taken
+from ftp.gmd.de:
+
+    /if-archive/infocom/compilers/inform6/source/inform621_source.zip
+
+with the following changes:
+
+    * header.h:
+    Removed the '#define ARCHIMEDES' line.  Machine type is now set via the
+    -D compiler option.
+
+    * inform.c:
+    Increased size of some static buffers, to cope with extra-long default
+    pathname settings.  Changed buffers are now of size PATHLEN, where that
+    is #define'd at the top of the file.
+
+    * files.c:
+    Same as inform.c.
+
+See 'source.diff' for the explicit diffs.
+
+Inform library
+==============
+
+The 'lib' directory contains the Inform library, which taken unchanged from
+ftp.gmd.de:
+
+    /if-archive/infocom/compilers/inform6/library/inform_library610.zip 
+
+The standard header files are stored in lower-case here.  Symbolic links to
+other semi-standard names get created upon installation (e.g. verblib.h
+gets symlinked to Verblib.h and VerbLib.h).  Except on Cygwin, where case
+doesn't seem to matter.
+
+Include files
+=============
+
+The 'include' directory contains many of the include files that various
+people have written for Inform over the years.  Documentation for most of
+them is contained in their own files (but there are extra doc files for
+some).
+
+Note that only some of these headers have been tested with Inform 6.  If
+you find one that doesn't work as advertised, drop me a line and I'll
+attempt to fix it (or, if you've already done that, send me the fix!).
+
+As with the library headers, all the header file names have been converted
+to lower case.  Converted lowercase files get symlinked to their original
+names on installation, for compatibility with old games that use them.

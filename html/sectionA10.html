@@ -1,0 +1,229 @@
+<HTML><HEAD><TITLE>Section A10: Entry points and meaningful constants</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA9.html">Back</A><BR><A HREF="sectionA11.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A10. Entry points and meaningful constants</H3></BLOCKQUOTE><TR><TD><TD>
+Entry points are routines which you can provide, if you choose to, and which
+are called by the library routines to give you the option of changing the
+rules.  All games <I> must</I> define an <TT>Initialise</TT> routine, which is
+obliged to set the <TT>location</TT> variable to a room; the rest are
+optional.bigskip
+<P>
+
+<DT><B><TT>AfterLife</TT></B><DD>
+
+When the player has died (a condition signalled by the variable <TT>deadflag</TT>
+being set to a non-zero value other than 2, which indicates winning), this
+routine is called: by setting <TT>deadflag=0</TT> again it can resurrect the
+player.
+<P>
+
+<DT><B><TT>AfterPrompt</TT></B><DD>
+
+Called just after the prompt is printed: therefore, called after all the
+printing for this turn is definitely over.  A useful opportunity to
+use <TT>box</TT> to display quotations without them scrolling away.
+<P>
+
+<DT><B><TT>Amusing</TT></B><DD>
+
+Called to provide an 'afterword' for players who have won: for instance, it
+might advertise some features which a successful player might never have
+noticed.  (But only if you have defined the constant <TT>AMUSING_PROVIDED</TT> in
+your own code.)
+<P>
+
+<DT><B><TT>BeforeParsing</TT></B><DD>
+
+Called after the parser has read in some text and set up the
+<TT>buffer</TT> and <TT>parse</TT> tables, but has done nothing else yet (except
+to set the word marker <TT>wn</TT> to 1).  The routine can do anything it
+likes to these tables, and can leave the word marker anywhere; there
+is no meaningful return value.
+<P>
+
+<DT><B><TT>ChooseObjects(obj,c)</TT></B><DD>
+
+When <TT>c</TT> is 0, the parser is processing an "all'' and has
+decided to exclude <TT>obj</TT> from it; when <TT>c</TT> is 1, it has
+decided to include it.  Returning 1 forces inclusion,
+returning 2 forces exclusion and returning 0 lets the parser's
+decision stand.  When <TT>c</TT> is 2, the parser wants help in
+resolving an ambiguity: using the <TT>action_to_be</TT> variable
+the routine must decide how appropriate <TT>obj</TT> is for the
+given action and return a score of 0 to 9 accordingly.  See <A HREF="section29.html">Section 29</A>.
+<P>
+
+<DT><B><TT>DarkToDark</TT></B><DD>
+
+Called when a player goes from one dark room into another one; a splendid
+excuse to kill the player off.
+<P>
+
+<DT><B><TT>DeathMessage</TT></B><DD>
+
+Prints up "You have died" style messages, for <TT>deadflag</TT> values of 3 or
+more.  (If you choose ever to set <TT>deadflag</TT> to such.)
+<P>
+
+<DT><B><TT>GamePostRoutine</TT></B><DD>
+
+A kind of super-<TT>after</TT> rule, which applies to all actions in the game,
+whatever they are: use only in the last resort.
+<P>
+
+<DT><B><TT>GamePreRoutine</TT></B><DD>
+
+A kind of super-<TT>before</TT> rule, which applies to all actions in the game,
+whatever they are: use only in the last resort.
+<P>
+
+<DT><B><TT>Initialise</TT></B><DD>
+
+A compulsory routine, which must set <TT>location</TT> and is convenient for
+miscellaneous initialising, perhaps for random settings.
+<P>
+
+<DT><B><TT>InScope</TT></B><DD>
+
+An opportunity to place extra items in scope during parsing, or to change
+the scope altogether.  If <TT>et_flag</TT> is 1 when this is called, the scope is
+being worked out for <TT>each_turn</TT> reasons; otherwise for everyday parsing.
+<P>
+
+<DT><B><TT>LookRoutine</TT></B><DD>
+
+Called at the end of every <TT>Look</TT> description.
+<P>
+
+<DT><B><TT>NewRoom</TT></B><DD>
+
+Called when the room changes, before any description of it is printed.  This
+happens in the course of ordinary movements or use of <TT>PlayerTo</TT>, but may
+not happen if the game uses <TT>move</TT> to shift the player object directly.
+<P>
+
+<DT><B><TT>ParseNoun(obj)</TT></B><DD>
+
+To do the job of parsing the <TT>name</TT> property (if <TT>parse_name</TT> hasn't done
+it already).  This takes one argument, the object in question, and returns
+a value as if it were a <TT>parse_name</TT> routine.
+<P>
+
+<DT><B><TT>ParseNumber(text,n)</TT></B><DD>
+
+An opportunity to parse numbers in a different (or additional) way.  The
+text to be parsed is a byte array of length <TT>n</TT> starting at <TT>text</TT>.
+<P>
+
+<DT><B><TT>ParserError(pe)</TT></B><DD>
+
+The chance to print different parser error messages (like "I don't
+understand that sentence'').  <TT>pe</TT> is the parser error number (see <A HREF="section29.html">Section 29</A>).
+<P>
+
+<DT><B><TT>PrintRank</TT></B><DD>
+
+Completes the printing of the score.  You might want to change this, so as
+to make the ranks something like "junior astronaut" or "master
+catburglar" or whatever suits your game.
+<P>
+
+<DT><B><TT>PrintVerb(v)</TT></B><DD>
+
+A chance to change the verb printed out in a parser question (like "What do
+you want to (whatever)?'') in case an unusual verb via <TT>UnknownVerb</TT> has
+been constructed.  <TT>v</TT> is the dictionary address of the verb.
+Returns true (or 1) if it has printed something.
+<P>
+
+<DT><B><TT>PrintTaskName(n)</TT></B><DD>
+
+Prints the name of task <TT>n</TT> (such as "driving the car").
+<P>
+
+<DT><B><TT>TimePasses</TT></B><DD>
+
+Called after every turn (but not, for instance, after a command like
+"score" or "save").  It's much more elegant to use timers and daemons, or
+<TT>each_turn</TT> routines for individual rooms -- using this is a last resort.
+<P>
+
+<DT><B><TT>UnknownVerb</TT></B><DD>
+
+Called by the parser when it hits an unknown verb,
+so that you can transform it into a known one.
+<P>
+
+<P>
+The following constants, if defined in a game, change settings made by the
+library.  Those described as "To indicate that...'' have no meaningful
+value; one simply defines them by, e.g., the directive <TT>Constant DEBUG;</TT>.
+<P>
+
+<P>
+<P>
+
+<DT><B><TT>AMUSING_PROVIDED</TT></B><DD>
+To indicate that an <TT>Amusing</TT> routine is provided.
+<P>
+
+<DT><B><TT>DEBUG</TT></B><DD>
+To indicate that the special "debugging" verbs are to be
+included.
+<P>
+
+<DT><B><TT>Headline</TT></B><DD>
+Style of game and copyright message.
+<P>
+
+<DT><B><TT>MAX_CARRIED</TT></B><DD>
+Maximum number of (direct) possessions the player can
+carry.
+<P>
+
+<DT><B><TT>MAX_SCORE</TT></B><DD>
+Maximum game score.
+<P>
+
+<DT><B><TT>MAX_TIMERS</TT></B><DD>
+Maximum number of timers or daemons active at any one time
+(defaults to 32).
+<P>
+
+<DT><B><TT>NO_PLACES</TT></B><DD>
+To indicate that the "places'' and "objects'' verbs
+should not be allowed.
+<P>
+
+<DT><B><TT>NUMBER_TASKS</TT></B><DD>
+Number of 'tasks' to perform.
+<P>
+
+<DT><B><TT>OBJECT_SCORE</TT></B><DD>
+Score for picking up a <TT>scored</TT> object for the first
+time.
+<P>
+
+<DT><B><TT>ROOM_SCORE</TT></B><DD>
+Score for visiting up a <TT>scored</TT> room for the first time.
+<P>
+
+<DT><B><TT>SACK_OBJECT</TT></B><DD>
+Object which acts as a 'rucksack', into which the game
+automatically tidies away things for the player.
+<P>
+
+<DT><B><TT>Story</TT></B><DD>
+Story name, conventionally in CAPITAL LETTERS.
+<P>
+
+<DT><B><TT>TASKS_PROVIDED</TT></B><DD>
+To indicate that "tasks'' are provided.
+<P>
+
+<DT><B><TT>WITHOUT_DIRECTIONS</TT></B><DD>
+To indicate that the standard compass directions
+are to be omitted.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA9.html">Back</A> / <A HREF="sectionA11.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

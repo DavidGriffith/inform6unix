@@ -1,0 +1,48 @@
+<HTML><HEAD><TITLE>Section A11: What order the program should be in</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="sectionA10.html">Back</A><BR><A HREF="sectionA12.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>A11. What order the program should be in</H3></BLOCKQUOTE><TR><TD><TD>
+This section summarises Inform's "this has to be defined before
+that can be'' rules.
+
+<P>1. --  The three library files, <TT>Parser</TT>, <TT>Verblib</TT> and <TT>Grammar</TT> must be
+included in that order.
+
+<P>-- (a) --  Before inclusion of <TT>Parser</TT>: you must define the constants
+<TT>Story</TT> and <TT>Headline</TT>; the constant <TT>DEBUG</TT> must be defined here, if
+anywhere; similarly for <TT>Replace</TT> directives; but you may not yet define global
+variables, objects or routines.  If you are linking in the library
+(using <TT>USE_MODULES</TT>) then you may not use the <TT>Attribute</TT> or <TT>Property</TT>
+directive in this part of the program.
+<P>-- (b) --  Between <TT>Parser</TT> and <TT>Verblib</TT>: if a 'sack object' is
+to be included, it should be defined here, and the constant <TT>SACK_OBJECT</TT>
+set to it; the <TT>LibraryMessages</TT> object should be defined here, if at
+all; likewise the <TT>task_scores</TT> array.
+<P>-- (c) --  Before inclusion of <TT>Verblib</TT>: the constants
+<BLOCKQUOTE>
+<SAMP>            </SAMP> <TT>MAX_CARRIED</TT>, <TT>MAX_SCORE</TT>, <TT>NUMBER_TASKS</TT>, <TT>OBJECT_SCORE</TT>,<BR>
+<SAMP>            </SAMP> <TT>ROOM_SCORE</TT>, <TT>AMUSING_PROVIDED</TT> and <TT>TASKS_PROVIDED</TT><BR>
+</BLOCKQUOTE>
+
+must be defined before this (if ever).
+<P>-- (d) --  Before inclusion of <TT>Grammar</TT>: <TT>Verb</TT> and <TT>Extend</TT> directives
+cannot be used.
+<P>-- (e) --  After inclusion of <TT>Grammar</TT>: It's too late to define any
+entry point routines.
+<P>
+
+
+<P>2. --  Any <TT>Switches</TT> directive must come before the definition of any
+constants.
+<P>3. --  If an object begins inside another, it must be defined after its
+parent.
+<P>4. --  <TT>Global</TT> variables must be declared earlier in the
+program than the first reference to them.
+<P>5. --  Attributes and classes must be declared earlier than
+their first usage in an object definition.
+<P>6. --  General parsing and scope routines must be defined before being quoted
+in grammar tokens.
+<P>7. --  Nothing can be defined after the <TT>End</TT> directive.
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="sectionA10.html">Back</A> / <A HREF="sectionA12.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

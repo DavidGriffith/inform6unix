@@ -1,0 +1,513 @@
+<HTML><HEAD><TITLE>Section 16: Living creatures and conversation</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section15.html">Back</A><BR><A HREF="section17.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>16. Living creatures and conversation</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+<BR>To know how to live is my trade and my art.
+<BR><P>...Michel de Montaigne (<B>1533</B>--<B>1592</B>), <I>Essays</I></BLOCKQUOTE>
+<P>
+
+<BLOCKQUOTE>
+<BR>Everything that can be said can be said clearly.
+<BR><P>...Ludwig Wittgenstein (<B>1889</B>--<B>1951</B>), <I>Tractatus</I></BLOCKQUOTE>
+<P>
+
+
+This rummage through special kinds of objects finishes up with the most
+sophisticated kind: living ones.  Note that the finer points of this
+section, on the arts of conversation, require some knowledge of Chapter
+V.
+<P>
+
+Animate objects, such as sea monsters, mad aunts or nasty little dwarves,
+have a property called <TT>life</TT>.  This behaves somewhat like a <TT>before</TT>
+or <TT>after</TT> routine, but only applies to the following actions:
+<P>
+
+<DL>
+<DT><B><TT>Attack</TT></B><DD>
+
+The player is making hostile advances...
+<P>
+<DT><B><TT>Kiss</TT></B><DD>
+
+...or excessively friendly ones...
+<P>
+<DT><B><TT>WakeOther</TT></B><DD>
+
+...or simply trying to rouse the creature from sleep.
+<P>
+<DT><B><TT>ThrowAt</TT></B><DD>
+
+The player asked to throw <TT>noun</TT> at the creature.
+<P>
+<DT><B><TT>Give</TT></B><DD>
+
+The player asked to give <TT>noun</TT> to the creature...
+<P>
+<DT><B><TT>Show</TT></B><DD>
+
+...or, tantalisingly, just to show it.
+<P>
+<DT><B><TT>Ask</TT></B><DD>
+
+The player asked about something.  Just as with a "consult''
+topic (see <A HREF="section15.html">Section 15</A> passim), the variables <TT>consult_from</TT>
+and <TT>consult_words</TT> are set up to indicate which words the
+object might like to think about.  (In addition, <TT>second</TT>
+holds the dictionary value for the first word which isn't
+<TT>'the'</TT>, but this is much cruder.)
+<P>
+<DT><B><TT>Tell</TT></B><DD>
+
+Likewise, the player is trying to tell the creature about
+something.  The topic is set up just as for <TT>Ask</TT> (that is,
+<TT>consult_from</TT> and <TT>consult_words</TT> are set, and <TT>second</TT>
+also holds the first interesting word).
+<DT><B><TT>Answer</TT></B><DD>
+
+This can happen in two ways.  One is if the player types "answer <I><B>&#60;some text&#62;</B></I>
+to troll" or "say <I><B>&#60;some text&#62;</B></I> to troll''; the other is if he gives an
+order which the parser can't sort out, such as
+"troll, og south", and which the <TT>orders</TT> property hasn't handled
+already.  Once again, variables are set as if it
+were a "consult'' topic.  (In addition, <TT>noun</TT> is set to the
+first word, and an attempt to read the text as a number is
+stored in the variable <TT>special_number</TT>: for instance,
+"computer, 143" will cause <TT>special_number</TT> to be set to
+143.)
+<P>
+<DT><B><TT>Order</TT></B><DD>
+
+This catches any 'orders' which aren't
+handled by the <TT>orders</TT> property (see below); <TT>action</TT>,
+<TT>noun</TT> and <TT>second</TT> are set up as usual. 
+</DL>
+<P>
+ 
+If the <TT>life</TT> routine doesn't exist, or returns false, events take their
+usual course.  <TT>life</TT> routines tend to be quite lengthy, even for
+relatively static characters such as the priest who stands in
+the 'Ruins' Shrine:
+<PRE>
+Object -&#62; priest "mummified priest"
+  with name "mummified" "priest",
+       description
+          "He is desiccated and hangs together only by will-power.  Though
+           his first language is presumably local Mayan, you have the curious
+           instinct that he will understand your speech.",
+       initial "Behind the slab, a mummified priest stands waiting, barely
+           alive at best, impossibly venerable.",
+       life
+       [; Answer: "The priest coughs, and almost falls apart.";
+          Ask:     switch(second)
+                   {   'dictionary', 'book':
+                            if (dictionary has general)
+                                "~The ~bird~ glyph... very funny.~";
+                           "~A dictionary? Really?~";
+                       'glyph', 'glyphs', 'mayan', 'dialect':
+                           "~In our culture, the Priests are ever literate.~";
+                       'king', 'tomb', 'shrine', 'temple', 'altar', 'slab':
+                           "~The King (life! prosperity! happiness!) is buried
+                            deep under this Shrine, where you will never go.~";
+                   }
+                   "~You must find your own answer.~";
+          Tell:   "The priest has no interest in your sordid life.";
+          Attack, Kiss:  remove self;
+                  "The priest desiccates away into dust until nothing
+                   remains, not a breeze nor a bone.";
+          ThrowAt: move noun to location; &#60;&#60;Attack self&#62;&#62;;
+          Show, Give:
+                   if (noun==dictionary &#38;&#38; dictionary hasnt general)
+                   {   give dictionary general;
+                      "The priest reads a little of the book, laughing
+                       in a hollow, whispering way.  Unable to restrain
+                       his mirth, he scratches in a correction somewhere
+                       before returning the book.";
+                   }
+                  "The priest is not very interested in earthly things.";
+       ],
+  has  animate;
+</PRE>
+
+(Some of the <TT>Ask</TT> topics are omitted for brevity.)
+Of course an <TT>animate</TT> object still has <TT>before</TT> and <TT>after</TT> routines
+like any other, so you can trap many other kinds of behaviour.
+Animate creatures can also <TT>react_before</TT> and <TT>react_after</TT>, and it's
+here that these properties really come into their own:
+
+<PRE>
+       react_before
+       [; Drop: if (noun==satellite_gadget)
+             print "~I wouldn't do that, Mr Bond,~ says Blofeld.^^";
+          Shoot: remove beretta;
+            "As you draw, Blofeld snaps his fingers and a giant
+             magnet snatches the gun from your hand.  It hits the
+             ceiling with a clang.  Blofeld silkily strokes his cat.";
+       ];
+</PRE>
+
+
+If Blofeld moves from place to place, these rules move with him.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex18"><B>EXERCISE 18:</B><BR>(link to <A HREF="answers1/answer18.html">the answer</A>)<TR><TD><TD> Arrange for a bearded psychiatrist to place the player
+under observation, occasionally mumbling insights such as
+"Subject puts green cone on table.
+Interesting.''
+<P>
+
+
+Another example is the coiled snake from 'Balances', which
+shows that even the tiniest <TT>life</TT> routine can be adequate for an animal:
+<PRE>
+Object -&#62; snake "hissing snake"
+  with name "hissing" "snake",
+       initial "Tightly coiled at the edge of the chasm is a hissing snake.",
+       life [; "The snake hisses angrily!"; ],
+  has  animate;
+</PRE>
+
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> When writing general code to deal with <TT>animate</TT> creatures,
+it's sometimes convenient to have a system worked out for printing
+pronouns such as "her'' and "He''.  See <A HREF="section22.html">Section 22</A> for one way to do this.
+</SMALL>
+<TR><TD><TD><P>
+
+
+Sometimes creatures should be <TT>transparent</TT>, sometimes not.  Consider these
+two cases of <TT>animate</TT> characters, for instance:
+
+<P> --  an urchin with something bulging inside his jacket pocket;
+<P> --  a hacker who has a bunch of keys hanging off his belt.
+<P>
+
+
+The hacker is <TT>transparent</TT>, the urchin not.  That way the parser prevents
+the player from referring to whatever the urchin is hiding, even if the
+player has played the game before, and knows what is in there and what it's
+called.  But the player can look at and be tantalised by the hacker's
+keys.
+<P>
+<P>
+
+
+When the player types in something like "pilot, fly south'',
+the result is called an 'order': this is the corresponding idea to an
+'action'.  (Indeed, if the player types "me, go south'' an
+ordinary <TT>Go s_obj</TT> action is produced.)
+<P>
+
+The order is sent to the pilot's <TT>orders</TT> property, which may if
+it wishes obey or react in some other way.  Otherwise, the standard
+game rules will simply print something like "The pilot has better things
+to do.''  The above priest is especially unhelpful:
+<PRE>
+       orders
+       [;  Go: "~I must not leave the Shrine.~";
+           NotUnderstood: "~You speak in riddles.~";
+           default: "~It is not your orders I serve.~";
+       ];
+</PRE>
+
+(The <TT>NotUnderstood</TT> clause is run when the parser couldn't
+understand what the player typed: e.g., "priest, go onrth''.)
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> Something to bear in mind is that because the library regards
+the words "yes'' and "no'' as being verbs in Inform, it understands
+"delores, yes'' as being a <TT>Yes</TT> order.  (This can be a slight
+nuisance, as "say yes to delores'' is treated differently: it gets
+routed through the <TT>life</TT> routine as an <TT>Answer</TT>.)
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> If the <TT>orders</TT> property returns false (or if there wasn't
+an <TT>orders</TT> property in the first place), the order is sent either
+to the <TT>Order:</TT> part of the <TT>life</TT> property (if it's understood)
+or to the <TT>Answer:</TT> part (if it isn't).  (This is how all orders used to
+be processed, and it's retained to avoid making reams of old Inform
+code go wrong.)  If these also return false, a message like "X has
+better things to do'' or "There is no reply'' is finally printed.
+</SMALL>
+<TR><TD><TD><P>
+
+
+To clarify the various kinds of conversation:
+
+<BR><TABLE Border><TR><TD> Command                      <TD> rule      <TD> <TT>action</TT>  <TD> <TT>noun</TT>    <TD> <TT>second</TT>   <TD> consult
+<TR><TD> "orc, take axe''            <TD> <TT>order</TT>   <TD> <TT>Take</TT>    <TD> <TT>axe</TT>     <TD> <TT>0</TT>        <TD>
+<TR><TD> "orc, yes''                 <TD> <TT>order</TT>   <TD> <TT>Yes</TT>     <TD> <TT>0</TT>       <TD> <TT>0</TT>        <TD>
+<TR><TD> "ask orc for the shield''   <TD> <TT>order</TT>   <TD> <TT>Give</TT>    <TD> <TT>shield</TT>  <TD> <TT>player</TT>   <TD>
+<TR><TD> "orc, troll''               <TD> <TT>order</TT>   <TD> <TT>NotU...</TT> <TD> <TT>'troll'</TT> <TD> <TT>orc</TT>      <TD> 3<SAMP>      </SAMP> 1
+<TR><TD> "say troll to orc''         <TD> <TT>life</TT>    <TD> <TT>Answer</TT>  <TD> <TT>'troll'</TT> <TD> <TT>orc</TT>      <TD> 2<SAMP>      </SAMP> 1
+<TR><TD> "answer troll to orc''      <TD> <TT>life</TT>    <TD> <TT>Answer</TT>  <TD> <TT>'troll'</TT> <TD> <TT>orc</TT>      <TD> 2<SAMP>      </SAMP> 1
+<TR><TD> "orc, tell me about coins'' <TD> <TT>life</TT>    <TD> <TT>Ask</TT>     <TD> <TT>orc</TT>     <TD> <TT>'coins'</TT>  <TD> 6<SAMP>      </SAMP> 1
+<TR><TD> "ask orc about the big troll'' <TD> <TT>life</TT> <TD> <TT>Ask</TT>     <TD> <TT>orc</TT>     <TD> <TT>'big'</TT>    <TD> 4<SAMP>      </SAMP> 3
+<TR><TD> "ask orc about wyvern''     <TD> <TT>life</TT>    <TD> <TT>Ask</TT>     <TD> <TT>orc</TT>     <TD> <TT>0</TT>        <TD> 4<SAMP>      </SAMP> 1
+<TR><TD> "tell orc about lost troll'' <TD> <TT>life</TT>   <TD> <TT>Tell</TT>    <TD> <TT>orc</TT>     <TD> <TT>'lost'</TT>   <TD> 4<SAMP>      </SAMP> 2
+</TABLE>
+where "wyvern'' is a word not mentioned anywhere in the program,
+which is why its value is <TT>0</TT>.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex19"><B>EXERCISE 19:</B><BR>(link to <A HREF="answers1/answer19.html">the answer</A>)<TR><TD><TD>  In some ways, <TT>Answer</TT> and <TT>Tell</TT> are just too much trouble.
+How can you make attempts to use these produce a message saying
+"To talk to someone, try
+'someone, something'.''?
+
+<P>
+
+<P>
+
+Some objects are not alive as such, but can be spoken to: microphones,
+tape recorders, voice-activated computers and so on.
+It would be a nuisance to implement these as <TT>animate</TT>, since they have
+none of the other characteristics of life: instead, they can be given
+just the attribute <TT>talkable</TT> and <TT>orders</TT> and <TT>life</TT> properties to
+deal with the resulting conversation.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/exercise.gif" ALT="??"><TD bgcolor="#FBB9AC"><A NAME="ex20"><B>EXERCISE 20:</B><BR>(link to <A HREF="answers1/answer20.html">the answer</A>)<TR><TD><TD> (Cf. 'Starcross'.)  Construct a computer responding to
+"computer, theta is 180''.
+
+<P>
+
+<P>
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> The rest of this section starts to overlap much more with
+Chapter V, and assumes a little familiarity with the parser.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  The <TT>NotUnderstood</TT> clause of <TT>orders</TT> is run when the
+parser has got stuck parsing an order like "pilot, fly somersaults''.
+The variable <TT>etype</TT> holds the parser error that would have been
+printed out, had it been a command by the player himself.  See <A HREF="section29.html">Section 29</A>:
+for instance, <TT>CANTSEE_PE</TT> would mean "the pilot can't see any such
+object''.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>
+When the player issues requests to an <TT>animate</TT> or <TT>talkable</TT> object,
+they're normally parsed exactly as if they were commands by the
+player himself (except that the <TT>actor</TT> is now the person being
+spoken to).  But sometimes one would rather they were parsed by
+an entirely different grammar.  For instance, consider Zen, the
+flight computer of an alien spacecraft.  It's inappropriate to
+tell Zen to (say) pick up a teleport bracelet and the crew tend
+to give commands more like:
+<BLOCKQUOTE>
+"Zen, set course for Centauro''<BR>
+"Zen, speed standard by six''<BR>
+"Zen, scan 360 orbital''<BR>
+"Zen, raise the force wall''<BR>
+"Zen, clear the neutron blasters for firing''<BR>
+</BLOCKQUOTE>
+
+This could mostly be implemented by adding verbs like "raise''
+to the usual game grammar (see the 'Starcross' computer exercise
+above), or by carefully trapping the <TT>Answer</TT> rule.  But this is
+a nuisance, especially if about half the commands you want are
+recognised as orders in the usual grammar but the other half aren't.
+</SMALL>
+<TR><TD><TD><P>
+
+<TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+An <TT>animate</TT> or <TT>talkable</TT> object can therefore provide a <TT>grammar</TT>
+routine (if it likes).  This is called at a time when the parser has
+worked out the object that is being addressed and has set the variables
+<TT>verb_num</TT> and <TT>verb_word</TT> (to the number of the 'verb' and its
+dictionary entry, respectively: for example, in "orac, operate the
+teleport'' <TT>verb_num</TT> would be 3 (because the comma counts as a
+word on its own) and <TT>verb_word</TT> would be <TT>'operate'</TT>).  The <TT>grammar</TT>
+routine can reply by returning:
+<P>0. -- The parser carries on as usual.
+<P>1. -- The <TT>grammar</TT> routine is saying it has done all the parsing necessary
+itself, by hand (i.e., using <TT>NextWord</TT>, <TT>TryNumber</TT>, <TT>NounDomain</TT> and
+the like): the variables <TT>action</TT>, <TT>noun</TT> and <TT>second</TT> must be set up
+to contain the resulting order.
+<P><TT>'verb'</TT> -- The parser ignores the usual grammar and instead works
+through the grammar lines for the given verb (see below).
+<P><TT>-'verb'</TT> -- Ditto, except that if none of those grammar lines work
+then the parser goes back and tries the usual grammar as well.
+<P>
+
+ In addition, the <TT>grammar</TT> routine is free to
+do some partial parsing of the early words provided it moves on
+<TT>verb_num</TT> accordingly to show how much it's got through.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex21"><B>EXERCISE 21:</B><BR>(link to <A HREF="answers1/answer21.html">the answer</A>)<TR><TD><TD> Implement Charlotte, a little girl who's playing
+Simon Says (a game in which she only follows your instructions
+if you remember to say "Simon says'' in front of them: so she'll
+disobey "charlotte, wave'' but obey
+"charlotte, simon says wave'').
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex22"><B>EXERCISE 22:</B><BR>(link to <A HREF="answers1/answer22.html">the answer</A>)<TR><TD><TD> Another of Charlotte's rules is that if you say a
+number, she has to clap that many times.  Can you
+play?
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex23"><B>EXERCISE 23:</B><BR>(link to <A HREF="answers1/answer23.html">the answer</A>)<TR><TD><TD> Regrettably, Dyslexic Dan has always mixed up the
+words "take'' and "drop''.  Implement him
+anyway.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL>  It's useful to know that if the player types a comma or a
+full stop, then the parser cuts these out as separate words.  Because
+of this, a dictionary word containing up to 7 letters and
+then a comma or a full stop can never be matched by what the player
+types.  Such a word is called an "untypeable verb'', and it's useful
+to help a <TT>grammar</TT> routine to shunt parsing into a piece of game
+grammar which the player can never use.
+For instance, here's a way to implement the 'Starcross'
+computer which doesn't involve creating foolish new actions.  We
+create grammar:
+<PRE>
+[ Control;
+  switch(NextWord())
+  {   'theta': parsed_number=1; return 1;
+      'phi':   parsed_number=2; return 1;
+      'range': parsed_number=3; return 1;
+      default: return -1;
+  }
+];
+Verb "comp," * Control "is" number -&#62; SetTo;
+</PRE>
+
+And the computer itself needs properties
+<PRE>
+       grammar [; return 'comp,'; ],
+       orders
+       [;  SetTo:
+               switch(noun)
+               {   1: print "~Theta"; 2: print "~Phi"; 3: print "~Range"; }
+               print_ret " set to ", second, ".~";
+           default: "~Does not compute!~";
+       ];
+</PRE>
+
+This may not look easier, but it's much more flexible, as the exercises
+below will hopefully demonstrate.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddbend.gif" ALT="/\/\"><TD bgcolor="#EEEEEE"><SMALL> Another use for untypeable verbs is to create what might be
+called 'fake fake actions'.  Recall that a fake action is one which
+is never generated by the parser, and has no action routine.  Sometimes
+(very rarely) you want a proper action but which still can't be
+generated by the parser: the following example creates three.
+<PRE>
+Verb "actions." * -&#62; Prepare * -&#62; Simmer * -&#62; Cook;
+</PRE>
+
+The parser never uses "actions.'' in its ordinary grammar, so this
+definition has the sole effect of creating three new actions:
+<TT>Prepare</TT>, <TT>Simmer</TT> and <TT>Cook</TT>.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex24"><B>EXERCISE 24:</B><BR>(link to <A HREF="answers1/answer24.html">the answer</A>)<TR><TD><TD> How can you make a grammar extension to an ordinary
+verb that will apply only to
+Dan?
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex25"><B>EXERCISE 25:</B><BR>(link to <A HREF="answers1/answer25.html">the answer</A>)<TR><TD><TD> Make an alarm clock responding to "alarm, off'',
+"alarm, on'' and "alarm, half past seven'' (the latter to
+set its alarm time).
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex26"><B>EXERCISE 26:</B><BR>(link to <A HREF="answers1/answer26.html">the answer</A>)<TR><TD><TD> Implement a tricorder (from
+Star Trek) which analyses nearby objects on a request like
+"tricorder, the quartz stratum''.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex27"><B>EXERCISE 27:</B><BR>(link to <A HREF="answers1/answer27.html">the answer</A>)<TR><TD><TD> And, for good measure, a replicator
+responding to commands like "replicator, tea earl grey''
+and "replicator, aldebaran brandy''.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex28"><B>EXERCISE 28:</B><BR>(link to <A HREF="answers1/answer28.html">the answer</A>)<TR><TD><TD> And a communications badge in contact with the ship's
+computer, which answers questions like
+"computer, where is Admiral Lebling''.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex29"><B>EXERCISE 29:</B><BR>(link to <A HREF="answers1/answer29.html">the answer</A>)<TR><TD><TD> Finally, construct the formidable flight computer
+Zen.
+<P>
+
+<P><P><TR><TD><TD bgcolor="#EEEEEE"><SMALL>
+The next two exercises really belong to <A HREF="section28.html">Section 28</A>, but are too useful
+(for the "someone on the other end of a phone'' situation) to
+bury far away.  Note that an alternative to these scope-hacking
+tricks, if you just want to implement something like "michael,
+tell me about the crystals'' (when Michael is at the other end of the
+line), is to make the phone a <TT>talkable</TT> object and make the word
+<TT>'michael'</TT> refer to the phone (using a <TT>parse_name</TT> routine).
+<P>
+
+For more on scope hacking, see <A HREF="section28.html">Section 28</A>.  Note that the variable <TT>scope_reason</TT>
+is always set to the constant value <TT>TALKING_REASON</TT> when the game is trying
+to work out who you wish to talk to: so it's quite easy to make the
+scope different for conversational
+purposes.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dexercise.gif" ALT="??/\"><TD bgcolor="#FBB9AC"><A NAME="ex30"><B>EXERCISE 30:</B><BR>(link to <A HREF="answers1/answer30.html">the answer</A>)<TR><TD><TD> Via the main screen of the
+Starship Enterprise, Captain Picard wants to see and talk to
+Noslen Maharg, the notorious tyrant, who is down on the planet
+Mrofni.  Make it so.
+
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/ddexercise.gif" ALT="??/\/\"><TD bgcolor="#FBB9AC"><A NAME="ex31"><B>EXERCISE 31:</B><BR>(link to <A HREF="answers1/answer31.html">the answer</A>)<TR><TD><TD> Put the player in telepathic contact with
+Martha, who is in a sealed room some distance away, but who has
+a talent for telekinesis.  Martha should respond well to
+"martha, look'', "ask martha about...'', "say yes to martha'',
+"ask martha for red ball'', "martha, give me the red ball'' and
+the like.
+<P>
+
+</SMALL><TR><TD><TD>
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>
+A much fuller example of a 'non-player character' is given in
+the example game 'The Thief', by Gareth Rees (though it's
+really an implementation of the gentleman in 'Zork', himself
+an imitation of the pirate in 'Advent').  The thief is
+capable of walking around, being followed, stealing things,
+picking locks, opening doors and so on.
+<BR> Other good definitions of <TT>animate</TT> objects to look at
+are Christopher in 'Toyshop', who will stack up building blocks
+on request; the kittens in 'Alice Through The Looking-Glass'; the
+barker in 'Balances', and the cast of 'Advent': the little
+bird, the snake, bear and dragon, the pirate and of course the
+threatening little dwarves.
+<BR> Following people means being able to refer to them after
+they've left the room: see 'Follow my leader', also by Mr Rees,
+or the library extension "follower.h'' by Andrew Clover.
+<BR> See the Inform home page for a way round the <TT>Yes</TT>
+awkwardness.
+<BR> For parsing topics of conversation in advanced ways,
+see the example game 'Encyclopaedia Frobozzica'
+by Gareth Rees.
+<BR> To see how much a good set of characters can do for a
+game, try playing the prologue of 'Christminster'.
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section15.html">Back</A> / <A HREF="section17.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

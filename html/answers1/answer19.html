@@ -1,0 +1,23 @@
+<HTML><HEAD><TITLE>Answer to Exercise 19</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE><TR><TD Valign="top"><IMG SRC="../icons/exercise.gif" ALT="??"><TD bgcolor="#FAA89B"><B>ANSWER TO EXERCISE 19</B><TR><TD><TD>
+<P>
+
+
+Add the following lines, after the inclusion of <TT>Grammar</TT>:
+<PRE>
+[ SayInsteadSub; "[To talk to someone, please type ~someone, something~
+or else ~ask someone about something~.]"; ];
+Extend "answer" replace * topic -&#62; SayInstead;
+Extend "tell"   replace * topic -&#62; SayInstead;
+</PRE>
+
+A slight snag is that this will throw out "nigel,
+tell me about the grunfeld defence'' (which the library will normally
+convert to an <TT>Ask</TT> action, but can't if the grammar for "tell'' is
+missing).  To avoid this, you could (instead of making the above
+directives) <TT>Replace</TT> the <TT>TellSub</TT> routine (see <A HREF="section21.html">Section 21</A>)
+by the <TT>SayInsteadSub</TT> one.
+</TABLE>
+<HR>Back to <A HREF="../section16.html#ex19">the exercise in section 16</A><HR>
+<SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

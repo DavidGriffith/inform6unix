@@ -1,0 +1,96 @@
+<HTML><HEAD><TITLE>Section 13: Switchable objects</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<TABLE></SMALL>
+<TR><TD><TD><P>
+<TR><TD Valign="top"><A HREF="contents.html">Contents</A><BR><A HREF="section12.html">Back</A><BR><A HREF="section14.html">Forward</A><TD bgcolor="#F5DEB3"><BLOCKQUOTE><H3>13. Switchable objects</H3></BLOCKQUOTE><TR><TD><TD>
+<P>
+
+<BLOCKQUOTE>
+Steven: 'Well, what does this do?'<SAMP>      </SAMP>  Doctor: 'That is the dematerialising
+control.  And that over yonder is the horizontal hold.  Up there is the
+scanner, these are the doors, that is a chair with a panda on it.  Sheer
+poetry, dear boy.  Now please stop bothering me.'
+<P>...Dennis Spooner,
+<I> The Time Meddler</I>, <I> Dr Who</I>, serial <B> 17</B> (<B>1965</B>)</BLOCKQUOTE>
+
+
+<P>
+
+
+Objects can also be <TT>switchable</TT>.  This means they can be turned off or
+on, as if they had some kind of switch on them.  The object has the
+attribute <TT>on</TT> if it's on.  For
+example:
+<PRE>
+Object searchlight "Gotham City searchlight" skyscraper
+  with name "search" "light" "template", article "the",
+       description "It has some kind of template on it.",
+       when_on "The old city searchlight shines out a bat against
+                the feather-clouds of the darkening sky.",
+       when_off "The old city searchlight, neglected but still
+                 functional, sits here."
+  has  switchable static;
+</PRE>
+
+Something more portable would come in handy for the
+explorer of 'Ruins', who would hardly have embarked on his expedition
+without a decent light source...
+<PRE>
+Object sodium_lamp "sodium lamp"
+  with name "sodium" "lamp" "heavy",
+       describe
+       [;  if (self hasnt on) 
+               "^The sodium lamp squats heavily on the ground.";
+          "^The sodium lamp squats on the ground, burning away.";
+       ],
+       battery_power 40,
+       before
+       [;  Examine: print "It is a heavy-duty archaeologist's lamp, ";
+               if (self hasnt on) "currently off.";
+               if (self.battery_power &#60; 10) "glowing a dim yellow.";
+               "blazing with brilliant yellow light.";
+           Burn: &#60;&#60;SwitchOn self&#62;&#62;;
+           SwitchOn:
+               if (self.battery_power &#60;= 0)
+                  "Unfortunately, the battery seems to be dead.";
+               if (parent(self) hasnt supporter &#38;&#38; self notin location)
+                  "The lamp must be securely placed before being lit.";
+           Take, Remove:
+               if (self has on)
+                  "The bulb's too delicate and the metal frame's too
+                   hot to lift the lamp while it's switched on.";
+       ],
+       after
+       [;  SwitchOn: give self light;
+           SwitchOff: give self ~light;
+       ],
+  has  switchable;
+</PRE>
+
+The 'Ruins' lamp will eventually be a little more complicated, with a
+daemon to make the battery power run down and to extinguish the lamp
+when it runs out; and it will be pushable from place to place, making it
+not quite as useless as the player will hopefully think at first.
+<P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/dbend.gif" ALT="/\"><TD bgcolor="#EEEEEE"><SMALL> A point to note is that this time the <TT>when_on</TT> and <TT>when_off</TT>
+properties haven't been used to describe the lamp when it's on the ground:
+this is because once an object has been held by the player, it's normally
+given only a perfunctory mention in room descriptions ("You can also see a
+sodium lamp and a grape here.'').  But the <TT>describe</TT> property has priority
+over the whole business of how objects are described in room
+descriptions.  When it returns true, as above, the usual description process
+does nothing further.  For much more on room descriptions, see <A HREF="section22.html">Section 22</A>.
+</SMALL>
+<TR><TD><TD><P>
+
+<P><TR><TD Valign="top"><IMG SRC="icons/refs.gif" ALT="*"><TD bgcolor="#EEEEEE"><B>REFERENCES:</B><BR><SMALL>  The original switchable object was the brass lamp from 'Advent'
+(which also provides verbs "on'' and "off'' to switch it).  (The other
+example games are generally pre-electric in setting.)
+</SMALL>
+<TR><TD><TD><P>
+
+
+</TABLE>
+<HR><A HREF="contents.html">Contents</A> / <A HREF="section12.html">Back</A> / <A HREF="section14.html">Forward</A> <BR>
+<A HREF="chapter1.html">Chapter I</A> / <A HREF="chapter2.html">Chapter II</A> / <A HREF="chapter3.html">Chapter III</A> / <A HREF="chapter4.html">Chapter IV</A> / <A HREF="chapter5.html">Chapter V</A> / <A HREF="chapter6.html">Chapter VI</A> / <A HREF="chapterA.html">Appendix</A><HR><SMALL><I>Mechanically translated to HTML from third edition as revised 16 May 1997. Copyright &#169; Graham Nelson 1993, 1994, 1995, 1996, 1997: all rights reserved.</I></SMALL></BODY></HTML>

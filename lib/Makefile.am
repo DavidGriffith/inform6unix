@@ -5,7 +5,7 @@ pkgdata_DATA = $(MODULES) $(INCLUDES)
 MODULES = parserm.m5 verblibm.m5
 
 INCLUDES = English.h Grammar.h linklpa.h linklv.h Parser.h parserm.h	\
-VerbLib.h verblibm.h
+VerbLib.h verblibm.h infix.h
 
 EXTRA_DIST = $(INCLUDES)
 

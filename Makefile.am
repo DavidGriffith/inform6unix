@@ -2,9 +2,9 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src lib doc demos
+SUBDIRS = src lib include doc demos
 
-EXTRA_DIRS = contrib config
+EXTRA_DIRS = config
 
 dist-hook:
 	@ for dir in $(EXTRA_DIRS); do \

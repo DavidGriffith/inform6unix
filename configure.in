@@ -43,6 +43,7 @@ AC_OUTPUT(
 Makefile
 src/Makefile
 lib/Makefile
+include/Makefile
 doc/Makefile
 demos/Makefile
 )

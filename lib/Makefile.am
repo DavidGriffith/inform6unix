@@ -4,8 +4,8 @@ pkgdata_DATA = $(MODULES) $(INCLUDES)
 
 MODULES = parserm.m5 verblibm.m5
 
-INCLUDES = English.h Grammar.h linklpa.h linklv.h Parser.h parserm.h	\
-VerbLib.h verblibm.h infix.h
+INCLUDES = english.h grammar.h linklpa.h linklv.h parser.h parserm.h	\
+verblib.h verblibm.h infix.h
 
 EXTRA_DIST = $(INCLUDES)
 
@@ -17,11 +17,33 @@ SUFFIXES = .h .m5
 
 INFORM = $(top_builddir)/src/inform
 
-INFFLAGS = +include_path=$(srcdir)/ +module_path=$(srcdir)/
+INFFLAGS = +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
++language_name=english
 
 .h.m5:;	$(INFORM) $(INFFLAGS) -M $<
 
-CLEANFILES = $(MODULES)
+if CYGWIN
+#	No symlinks required under Cygwin.
+else
+EXTRA_NAMES = English.h Grammar.h Parser.h Verblib.h VerbLib.h
+
+all-local:
+	@ for file in $(EXTRA_NAMES); do				\
+		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+		test -r $$file || $(LN_S) $$realfile $$file;		\
+	done
+
+install-data-local:
+	@ for file in $(EXTRA_NAMES); do				\
+		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+		echo Linking $$file to $$realfile;			\
+		cd $(pkgdatadir);					\
+		rm -f $$file;						\
+		$(LN_S) $$realfile $$file;				\
+	done
+endif
+
+CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 
 $(MODULES): $(INFORM)
 

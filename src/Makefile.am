@@ -16,7 +16,11 @@ DEFS = -D$(HOST) $(INCLUDE_DIR) $(MODULE_DIR)
 inform_SOURCES = $(SRCS) $(HDRS)
 
 install-exec-hook:
+if CYGWIN
+#	Don't bother keeping old versions under Cygwin.
+else
 	mv $(bindir)/inform $(bindir)/inform-$(INFORM_VERSION)
 	$(LN_S) $(bindir)/inform-$(INFORM_VERSION) $(bindir)/inform
+endif
 
 @make_include@

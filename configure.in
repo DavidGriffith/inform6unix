@@ -3,7 +3,7 @@ dnl Master configuration file for Inform, in -*- m4 -*- mode.
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize.
-AC_INIT(inform, 6.21.4)
+AC_INIT(inform, 6.21.5)
 AC_CONFIG_SRCDIR(src/inform.c)
 
 dnl Extra config files go in this directory.
@@ -13,7 +13,7 @@ dnl Set package info.
 INFORM_VERSION=6.21
 AC_SUBST(INFORM_VERSION)
 
-PACKAGE_VERSION=4
+PACKAGE_VERSION=5
 AC_SUBST(PACKAGE_VERSION)
 
 AM_INIT_AUTOMAKE(inform, ${INFORM_VERSION}.${PACKAGE_VERSION})

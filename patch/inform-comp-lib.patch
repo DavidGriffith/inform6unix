@@ -1,0 +1,1363 @@
+diff -ru inform-6.21.3/include/menus.h inform-6.21.4/include/menus.h
+--- inform-6.21.3/include/menus.h	Thu Apr 19 04:14:57 2001
++++ inform-6.21.4/include/menus.h	Thu Nov 29 23:20:22 2001
+@@ -1,6 +1,7 @@
+ ! -------------------------------------------------------------------------
+ !   Menus.h           A library extension providing easier and better menus
+ !                                                      Graham Nelson 961113
++!                                                       Kevin Bracey 011128
+ !
+ !   A menu is a tree of objects of class Option.  A Menu is an Option which
+ !   launches a fresh menu when chosen.  To choose option O, send the
+@@ -80,8 +81,20 @@
+ 
+ Global screen_width;
+ Global screen_height;
++Global char_width;
++Global char_height;
++
++Array ForUseByOptions -> 129;
++
++#Iftrue #version_number==6;
++[ Menus_Measure s;
++    @output_stream 3 ForUseByOptions;
++    print (string) s;
++    @output_stream -3;
++    return 0-->24;
++];
++#Endif;
+ 
+-Array ForUseByOptions string 128;
+ Class Option
+  with emblazon
+       [ bar_height page pages temp;
+@@ -90,15 +103,28 @@
+ 
+           !   Clear screen:
+ 
+-          @erase_window $ffff;
++          @erase_window -1;
++          #Iftrue #version_number==6;
++          @set_cursor -1;
++          @mouse_window -1;
++          temp = bar_height * char_height;
++          @split_window temp;
++          #Ifnot;
+           @split_window bar_height;
++          #Endif;
+ 
+           !   Black out top line in reverse video:
+           @set_window 1;
+           @set_cursor 1 1;
++          #Iftrue #version_number==6;
++          @set_font 4 -> temp;
++          #Endif;
+           style reverse; spaces(screen_width);
++          #Iftrue #version_number==6;
++          @set_font 1 -> temp;
++          #Endif;
+ 
+-          if (standard_interpreter == 0)
++          if (#version_number ~= 6 && standard_interpreter == 0)
+               @set_cursor 1 1;
+           else
+           {   ForUseByOptions-->0 = 128;
+@@ -106,7 +132,11 @@
+               print (name) self;
+               if (pages ~= 1) print " [", page, "/", pages, "]";
+               @output_stream -3;
++              #Iftrue #version_number==6;
++              temp = 1 + (screen_width*char_width - 0-->24)/2;
++              #Ifnot;
+               temp = (screen_width - ForUseByOptions-->0)/2;
++              #Endif;
+               @set_cursor 1 temp;
+           }
+ 
+@@ -118,7 +148,7 @@
+       select
+       [;  self.emblazon(1, 1, 1);
+ 
+-          @set_window 0; font on; style roman; new_line; new_line;
++          style roman; @set_window 0; font on; new_line; new_line;
+ 
+           if (self provides description)
+               return self.description();
+@@ -129,10 +159,19 @@
+ Class Menu class Option
+  with select
+       [ count j obj pkey  line oldline top_line bottom_line
+-                            page pages options top_option;
++                            page pages options top_option y x;
+ 
+           screen_width = 0->33;
+           screen_height = 0->32;
++          #Iftrue #version_number==6;
++          @set_font 4 -> x;
++          char_width = 0->39;
++          char_height = 0->38;
++          @set_font x -> x;
++          #Ifnot;
++          char_width = 0->38;
++          char_height = 0->39;
++          #Endif;
+           if (screen_height == 0 or 255) screen_height = 18;
+           screen_height = screen_height - 7;
+ 
+@@ -140,7 +179,8 @@
+           objectloop (obj in self && obj ofclass Option) options++;
+           if (options == 0) return 2;
+ 
+-          pages = 1 + options/screen_height;
++          pages = options/screen_height;
++          if (options%screen_height ~= 0) pages++;
+ 
+           top_line = 6;
+ 
+@@ -152,8 +192,22 @@
+ 
+           top_option = (page - 1) * screen_height;
+ 
+-          self.emblazon(7 + count, page, pages);
+-
++          self.emblazon(5 + options, page, pages);
++          
++          #Iftrue #version_number==6;
++          x = 1 + char_width; y = 1 + char_height; @set_cursor y 1;
++          @set_font 4->j; spaces(screen_width); @set_font 1->j;
++          @set_cursor y x; print (string) NKEY__TX;
++          j = 1+screen_width*char_width - Menus_Measure(PKEY__TX) - char_width;
++          @set_cursor y j; print (string) PKEY__TX;
++          
++          y = y + char_height; @set_cursor y 1;
++          @set_font 4->j; spaces(screen_width); @set_font 1->j;
++          @set_cursor y x; print (string) RKEY__TX;
++          if (sender ofclass Option) j = QKEY2__TX; else j = QKEY1__TX;
++          j = 1+screen_width*char_width - Menus_Measure(j) - char_width;
++          @set_cursor y j;
++          #Ifnot;
+           @set_cursor 2 1; spaces(screen_width);
+           @set_cursor 2 2; print (string) NKEY__TX;
+           j = screen_width-12; @set_cursor 2 j; print (string) PKEY__TX;
+@@ -161,6 +215,7 @@
+           @set_cursor 3 1; spaces(screen_width);
+           @set_cursor 3 2; print (string) RKEY__TX;
+           j = screen_width-17; @set_cursor 3 j;
++          #Endif;
+ 
+           if (sender ofclass Option)
+               print (string) QKEY2__TX;
+@@ -171,7 +226,15 @@
+           count = top_line; j = 0;
+           objectloop (obj in self && obj ofclass Option)
+           {   if (j >= top_option && j < (top_option + screen_height))
+-              {   @set_cursor count 6;
++              {   
++                  #Iftrue #version_number==6;
++                  y = 1 + (count-1)*char_height;
++                  x = 1 + 4*char_width;
++                  @set_cursor y x;
++                  print (char) ' ';
++                  #Ifnot;
++                  @set_cursor count 6;
++                  #Endif;
+                   print (name) obj;
+                   count++;
+               }
+@@ -184,12 +247,57 @@
+           {   !   Move or create the > cursor:
+ 
+               if (line~=oldline)
+-              {   if (oldline~=0) { @set_cursor oldline 4; print " "; }
++              {   #Iftrue #version_number == 6;
++                  x = 1 + 4*char_width;
++                  count = top_line; j = 0;
++                  objectloop (obj in self && obj ofclass Option)
++                  {   if (j >= top_option && j < (top_option + screen_height))
++                      {   if (j - top_option + top_line == oldline or line)
++                          {   if (j - top_option + top_line == line)
++                                  style reverse;
++                              y = 1 + (count-1)*char_height;
++                              @set_cursor y x;
++                              print (char) ' ', (name) obj, (char) ' ';
++                              style roman;
++                          }
++                          count++;
++                      }
++                      j++;
++                  }
++                  #Ifnot;
++                  if (oldline~=0) { @set_cursor oldline 4; print " "; }
+                   @set_cursor line 4; print ">";
++                  #Endif;
+               }
+               oldline = line;
+ 
+               @read_char 1 -> pkey;
++              
++              if (pkey == 253 or 254)
++              {   !   Mouse click:
++                  x = (0-->27-->1 - 1) / char_width + 1;
++                  y = (0-->27-->2 - 1) / char_height + 1;
++                  if (y >= top_line && y <= bottom_line)
++                  {   line = y;
++                      if (pkey == 253)
++                         pkey = 13;
++                      
++                  }
++                  else if (y == 2)
++                  {   if (x <= screen_width / 2)
++                          pkey = 130;
++                      else
++                          pkey = 129;
++                  }
++                  else if (y == 3)
++                  {   if (x <= screen_width / 2)
++                          pkey = 13;
++                      else
++                          pkey = 27;
++                  }
++                  else
++                      @sound_effect 1;
++              }
+ 
+               if (pkey == NKEY1__KY or NKEY2__KY or 130)
+               {   !   Cursor down:
+@@ -252,8 +360,16 @@
+ 
+           if (sender ofclass Option) return 2;
+ 
+-          font on; @set_cursor 1 1;
+-          @erase_window $ffff; @set_window 0;
++          #Iftrue #version_number==6;
++          @set_font 1 -> x;
++          #Ifnot;
++          font on;
++          #Endif;
++          @set_cursor 1 1;
++          @erase_window -1; @set_window 0;
++          #Iftrue #version_number==6;
++          @set_cursor -2;
++          #Endif;
+           new_line; new_line; new_line;
+           if (deadflag==0) <<Look>>;
+           return 2;
+diff -ru inform-6.21.3/lib/english.h inform-6.21.4/lib/english.h
+--- inform-6.21.3/lib/english.h	Thu Apr 19 04:15:30 2001
++++ inform-6.21.4/lib/english.h	Sun May 25 23:24:01 2003
+@@ -275,7 +275,7 @@
+ Constant SCORE__TX    = "Score: ";
+ Constant MOVES__TX    = "Moves: ";
+ Constant TIME__TX     = "Time: ";
+-Constant CANTGO__TX   = "You can't go that way.";
++Constant CANTGO__TX   = 0;
+ Constant FORMER__TX   = "your former self";
+ Constant YOURSELF__TX = "yourself";
+ Constant DARKNESS__TX = "Darkness";
+@@ -636,6 +636,9 @@
+                2: "You can't get out of the closed ", (name) x1, ".";
+                3: print "You get ";
+                   if (x1 has supporter) print "off "; else print "out of ";
++                  print_ret (the) x1, ".";
++               4: print "But you aren't ";
++                  if (x1 has supporter) print "on "; else print "in ";
+                   print_ret (the) x1, ".";
+            }
+   VagueGo:       "You'll have to say which compass direction to go in.";
+diff -ru inform-6.21.3/lib/grammar.h inform-6.21.4/lib/grammar.h
+--- inform-6.21.3/lib/grammar.h	Thu Apr 19 04:15:30 2001
++++ inform-6.21.4/lib/grammar.h	Sun May 25 23:23:09 2003
+@@ -104,6 +104,7 @@
+                 * special                        -> Showverb;
+ Verb meta 'showobj'
+                 *                                -> Showobj
++		* number                         -> ShowObj    ! (L61030)
+                 * multi                          -> Showobj;
+ #endif;
+ 
+@@ -210,7 +211,8 @@
+ Verb 'in' 'inside'
+                 *                                -> GoIn;
+ Verb 'exit' 'out' 'outside'
+-                *                                -> Exit;
++                *                                -> Exit
++                * noun                           -> Exit;
+ Verb 'examine' 'x//' 'watch' 'describe' 'check'
+                 * noun                           -> Examine;
+ Verb 'read'
+diff -ru inform-6.21.3/lib/parserm.h inform-6.21.4/lib/parserm.h
+--- inform-6.21.3/lib/parserm.h	Thu Apr 19 04:15:30 2001
++++ inform-6.21.4/lib/parserm.h	Tue Jun 10 05:01:40 2003
+@@ -77,7 +77,7 @@
+ !   Time and score
+ ! (for linkage reasons, the task_* arrays are created not here but in verblib.h)
+ ! ------------------------------------------------------------------------------
+-Global turns = 1;                    ! Number of turns of play so far
++Global turns = 0;                    ! Number of turns of play so far
+ Global the_time = NULL;              ! Current time (in minutes since midnight)
+ Global time_rate = 1;                ! How often time is updated
+ Global time_step;                    ! By how much
+@@ -342,11 +342,11 @@
+ ! ------------------------------------------------------------------------------
+ !   Low level textual manipulation
+ ! ------------------------------------------------------------------------------
+-Array  buffer    -> 121;             ! Buffer for parsing main line of input
++Array  buffer    -> 123;             ! Buffer for parsing main line of input
+ Array  parse     -> 65;              ! Parse table mirroring it
+-Array  buffer2   -> 121;             ! Buffers for supplementary questions
++Array  buffer2   -> 123;             ! Buffers for supplementary questions
+ Array  parse2    -> 65;              !
+-Array  buffer3   -> 121;             ! Buffer retaining input for "again"
++Array  buffer3   -> 123;             ! Buffer retaining input for "again"
+ 
+ Constant comma_word = 'comma,';      ! An "untypeable word" used to substitute
+                                      ! for commas in parse buffers
+@@ -605,6 +605,14 @@
+ 
+ [ KeyboardPrimitive  a_buffer a_table;
+   read a_buffer a_table;
++#iftrue #version_number == 6;
++  @output_stream -1;
++  @loadb a_buffer 1 -> sp;
++  @add a_buffer 2 -> sp;
++  @print_table sp sp;
++  new_line;
++  @output_stream 1;
++#endif;
+ ];
+ [ Keyboard  a_buffer a_table  nw i w w2 x1 x2;
+ 
+@@ -642,8 +650,8 @@
+ #IFV5;
+ !  Undo handling
+ 
+-    if ((w == UNDO1__WD or UNDO2__WD or UNDO3__WD) && (parse->1==1))
+-    {   if (turns==1)
++    if ((w == UNDO1__WD or UNDO2__WD or UNDO3__WD) && (nw==1))
++    {   if (turns==0)
+         {   L__M(##Miscellany,11); jump FreshInput;
+         }
+         if (undo_flag==0)
+@@ -1118,9 +1126,13 @@
+                             !  Advance past the last preposition
+ 
+                             while (wn <= num_words)
+-                            {   if (NextWord() == line_tdata-->(pcount-1))
+-                                {   l = NounDomain(actors_location, actor,
+-                                            NOUN_TOKEN);
++                                {   if ( (NextWord()->#dict_par1) &8 ) ! --if IS a preposition
++                                    {
++                                        l = Descriptors(false);  ! skip past THE etc
++                                        if (l~=0) etype=l;  ! don't allow multiple objects
++
++                                        l = NounDomain(actors_location, actor,
++                                                NOUN_TOKEN);
+                                     #ifdef DEBUG;
+                                     if (parser_trace>=2)
+                                     {   print " [Advanced to ~noun~ token: ";
+@@ -1656,6 +1668,8 @@
+                        #ENDIF;
+                        wn=o; return 1;
+                    }
++                   if (o==-1 && (line_ttype-->(token_n+1) == PREPOSITION_TT))
++                     return GPR_FAIL;    ! don't infer if required preposition is absent
+                    return GPR_PREPOSITION;
+            }
+ 
+@@ -2617,6 +2631,7 @@
+ 
+   for (i=0: i<number_matched: i++) {
+       obj = match_list-->i; its_owner = parent(obj); its_score=0;
++      met = 0;
+ 
+ !      if (indef_type & OTHER_BIT ~=0
+ !          &&  obj~=itobj or himobj or herobj) met++;
+@@ -2820,6 +2835,7 @@
+       if (i==0) { print (string) THOSET__TX; jump TokenPrinted; }
+       if (i==1) { print (string) THAT__TX; jump TokenPrinted; }
+       if (i>=REPARSE_CODE) print (address) No__Dword(i-REPARSE_CODE);
++      else if (i in compass) print (address) (i.&1-->1); ! the direction name
+       else print (the) i;
+       .TokenPrinted;
+       spacing_flag = true;
+@@ -4004,13 +4020,15 @@
+   parser_one=x; scope_reason=y; actor=a; actors_location=al;
+ ];
+ 
++! rewritten to fix Issue L61027
+ [ BeforeRoutines;
+   if (GamePreRoutine()~=0) rtrue;
+   if (RunRoutines(player,orders)~=0) rtrue;
+-  if (location~=0 && RunRoutines(location,before)~=0) rtrue;
+   scope_reason=REACT_BEFORE_REASON; parser_one=0;
+-  SearchScope(ScopeCeiling(player),player,0); scope_reason=PARSING_REASON;
++  SearchScope(ScopeCeiling(player),player,0);
++  scope_reason=PARSING_REASON;
+   if (parser_one~=0) rtrue;
++  if (location~=0 && RunRoutines(location,before)~=0) rtrue;
+   if (inp1>1 && RunRoutines(inp1,before)~=0) rtrue;
+   rfalse;
+ ];
+@@ -4115,7 +4133,8 @@
+ ! ----------------------------------------------------------------------------
+ 
+ [ DisplayStatus;
+-   if (the_time==NULL)
++!   if (the_time==NULL)
++   if ((0->1)&2 == 0)	! Fixes Issue L60709
+    {   sline1=score; sline2=turns; }
+    else
+    {   sline1=the_time/60; sline2=the_time%60; }
+@@ -4380,6 +4399,75 @@
+ ! ----------------------------------------------------------------------------
+ 
+ #IFV5;
++#Iftrue #version_number == 6;
++[ DrawStatusLine width charw height wx wy x y scw mvw;
++   ! Split the window. Standard 1.0 interpreters should keep the window 0
++   ! cursor in the same absolute position, but older interpreters,
++   ! including Infocom's don't - they keep the window 0 cursor in the
++   ! same position relative to its origin. We therefore compensate
++   ! manually.
++   @get_wind_prop 0 0 -> wy; @get_wind_prop 0 1 -> wx;
++   @get_wind_prop 0 13 -> height; @log_shift height $FFF8 -> height;
++   @get_wind_prop 0 4 -> y; @get_wind_prop 0 5 -> x;
++   @split_window height;
++   y = y - height + wy - 1;
++   if (y < 1) y = 1;
++   x = x + wx - 1;
++   @set_cursor y x 0;
++   ! Now clear it. This isn't totally trivial. Our approach is to select the
++   ! fixed space font, measure its width, and print an appropriate
++   ! number of spaces. We round up if the screen isn't a whole number
++   ! of characters wide, and rely on window 1 being set to clip by default.
++   @set_window 1;
++   @set_cursor 1 1;
++   @set_font 4 -> x;
++   style reverse;
++   @get_wind_prop 1 3 -> width;
++   @get_wind_prop 1 13 -> charw;
++   charw = charw & $FF;
++   spaces (width+charw-1) / charw;
++   ! Back to standard font for the display. We use output_stream 3 to
++   ! measure the space required, the aim being to get 50 characters
++   ! worth of space for the location name.
++   x = 1+charw;
++   @set_cursor 1 x;
++   @set_font 1 -> x;
++   @get_wind_prop 1 13 -> charw;
++   charw = charw & $FF;
++   if (location == thedark) print (name) location;
++   else
++   {   FindVisibilityLevels();
++       if (visibility_ceiling == location)
++           print (name) location;
++       else print (The) visibility_ceiling;
++   }
++   @output_stream 3 StorageForShortName;
++   print (string) SCORE__TX, "00000";
++   @output_stream -3; scw = 0-->24 + charw;
++   @output_stream 3 StorageForShortName;
++   print (string) MOVES__TX, "00000";
++   @output_stream -3; mvw = 0-->24 + charw;
++   if (width - scw - mvw >= 50*charw)
++   {   x = 1+width-scw-mvw;
++       @set_cursor 1 x; print (string) SCORE__TX, sline1;
++       x = x+scw;
++       @set_cursor 1 x; print (string) MOVES__TX, sline2;
++   }
++   else
++   {   @output_stream 3 StorageForShortName;
++       print "00000/00000";
++       @output_stream -3; scw = 0-->24 + charw;
++       if (width - scw >= 50*charw)
++       {   x = 1+width-scw;
++           @set_cursor 1 x; print sline1, "/", sline2;
++       }
++   }
++   ! Reselect roman, as Infocom's interpreters interpreters go funny
++   ! if reverse is selected twice.
++   style roman;
++   @set_window 0;
++];
++#Ifnot;
+ [ DrawStatusLine width posa posb;
+    @split_window 1; @set_window 1; @set_cursor 1 1; style reverse;
+    width = 0->33; posa = width-26; posb = width-13;
+@@ -4408,11 +4496,92 @@
+    }
+    @set_cursor 1 1; style roman; @set_window 0;
+ ];
++#Endif;
+ #ENDIF;
+ 
+ #ifv5;
+ Array StorageForShortName --> 161;
+ #endif;
++
++#Iftrue #version_number==6;
++
++! ----------------------------------------------------------------------------
++! Replace the compiler's built-in box handling code, which only works with
++! the V4/V5 screen model.
++! ----------------------------------------------------------------------------
++
++[ Box__Routine maxw table n w w2 lc t y x of cw ch s;
++    n = table --> 0;
++    @set_font 4 -> of;
++    @get_wind_prop 0 0 -> y;
++    @get_wind_prop 0 1 -> x;
++    @get_wind_prop 0 3 -> w;
++    @get_wind_prop 0 13 -> ch;
++    cw = ch & $ff;
++    @log_shift ch $fff8 -> ch;
++    @set_font of -> temp_global;
++    if (maxw < 160)
++    {   maxw = 0; lc = 1;
++        do
++        {   t = table --> lc;
++            if (t~=0)
++            {   @output_stream 3 StorageForShortName;
++                print (string) t;
++                @output_stream -3;
++                t = 0-->24;
++                if (t > maxw) maxw = t;
++            }
++            lc++;
++        } until (lc > n);
++    }
++    else maxw = maxw*cw;
++    s = (maxw + cw - 1) / cw + 4;
++    w2 = s * cw;
++    x = x+(w-w2)/2;
++    y = y+ch*2;
++    @move_window 1 y x;
++    y = (n+2)*ch;
++    @window_size 1 y w2;
++    x = (w2-maxw)/2;
++    @set_window 1;
++    @set_font 4 -> temp_global;
++    style reverse;
++    y = 1+ch;
++    lc = 1;
++    @set_cursor 1 1;
++    spaces s;
++    do
++    {   @set_cursor y 1;
++        spaces s;
++        t = table --> lc;
++        if (t~=0)
++        {  @set_cursor y x;
++           @set_font 1 -> sp;
++           print (string) t;
++           @set_font sp -> temp_global;
++        }
++        y=y+ch; lc++;
++    } until (lc > n);
++    @set_cursor y 1;
++    spaces s;
++    style roman;
++    @set_window 0;
++    @output_stream -1;
++    print "[ ";
++    lc = 1;
++    do
++    {   w = table --> lc;
++        if (w ~= 0) print (string) w;
++        lc++;
++        if (lc > n)
++        {   print "]^^";
++            break;
++        }
++        print "^  ";
++    } until (false);
++    @output_stream 1;
++];
++#Endif;
+ 
+ [ PrefaceByArticle o acode pluralise  i artform findout;
+ 
+diff -ru inform-6.21.3/lib/verblibm.h inform-6.21.4/lib/verblibm.h
+--- inform-6.21.3/lib/verblibm.h	Thu Apr 19 04:15:31 2001
++++ inform-6.21.4/lib/verblibm.h	Mon May 26 00:21:58 2003
+@@ -47,10 +47,27 @@
+ [ VersionSub;
+   Banner();
+   if (standard_interpreter > 0)
+-      print "Standard interpreter ",
++  {   print "Standard interpreter ",
+           standard_interpreter/256, ".", standard_interpreter%256,
+-          " (", 0->$1e, (char) 0->$1f, ") / ";
+-  else print "Interpreter ", 0->$1e, " Version ", (char) 0->$1f, " / ";
++          " (", 0->$1e;
++#iftrue #version_number == 6;
++      print (char) '.', 0->$1f;
++#ifnot;
++      print (char) 0->$1f;
++#endif;
++      print ") / ";
++  }
++  else
++  {   print "Interpreter ", 0->$1e, " Version ";
++#iftrue #version_number == 6;
++      print 0->$1f;
++#ifnot;
++      print (char)0->$1f;
++#endif;
++      print " / ";
++  }
++
++
+   print "Library serial number ", (string) LibSerial, "^";
+ #IFDEF LanguageVersion;
+   print (string) LanguageVersion, "^";
+@@ -145,6 +162,13 @@
+           || (o2 hasnt worn && o1 has worn)) rfalse;
+       if ((o1 hasnt light && o2 has light)
+           || (o2 hasnt light && o1 has light)) rfalse;
++      if (o1 has container)
++      {    if (o2 hasnt container) rfalse;
++           if ((o1 has open && o2 hasnt open)
++                || (o2 has open && o1 hasnt open))
++                    rfalse;
++      }
++      else if (o2 has container) rfalse;
+   }
+ 
+   return Identical(o1,o2);
+@@ -196,12 +220,13 @@
+ [ Print__Spaces n;         ! To avoid a bug occurring in Inform 6.01 to 6.10
+   if (n==0) return; spaces n; ];
+ 
++! To allow opening "apparently" empty containers
+ [ WriteListFrom o style depth;
+   if (o==child(parent(o)))
+   {   SortOutList(o); o=child(parent(o)); }
+   c_style=style;
+-  wlf_indent=0; WriteListR(o,depth);
+-  rtrue;
++  wlf_indent=0;
++  return WriteListR(o,depth);
+ ];
+ 
+ [ WriteListR o depth stack_pointer  classes_p sizes_p i j k k2 l m n q senc mr;
+@@ -337,7 +362,13 @@
+           print (number) sizes_p->i, " ";
+           PrintOrRun(j,plural,1);
+       }
+-      WriteAfterEntry(j,depth,stack_pointer);
++
++      if (sizes_p->i > 1 && j hasnt pluralname)
++      {   give j pluralname;
++          WriteAfterEntry(j, depth, stack_pointer);
++          give j ~pluralname;
++      }
++      else WriteAfterEntry(j,depth,stack_pointer);
+ 
+      .Omit_EL2;
+       if (c_style & ENGLISH_BIT ~= 0)
+@@ -601,7 +632,7 @@
+ 
+ #IFV5;
+ [ DoMenu menu_choices EntryR ChoiceR
+-         lines main_title main_wid cl i j oldcl pkey;
++         lines main_title main_wid cl i j oldcl pkey ch cw y x;
+ 
+   if (pretty_flag==0)
+       return LowKey_Menu(menu_choices,EntryR,ChoiceR);
+@@ -615,34 +646,49 @@
+   .ReDisplay;
+       oldcl=0;
+       @erase_window $ffff;
+-      i=lines+7;
++      #Iftrue #version_number==6;
++      @set_cursor -1;
++      ch=0->38;
++      #Ifnot;
++      ch=1;
++      #Endif;
++      i=ch*(lines+7);
+       @split_window i;
+-      i = 0->33;
++      i=0->33;
+       if (i==0) i=80;
+       @set_window 1;
+       @set_cursor 1 1;
++      #Iftrue #version_number==6;
++      @set_font 4 -> cw;
++      cw=0->39;
++      #Ifnot;
++      cw=1;
++      #Endif; 
+       style reverse;
+-      spaces(i); j=i/2-main_wid;
++      spaces(i); j=1+(i/2-main_wid)*cw;
+       @set_cursor 1 j;
+       print (string) main_title;
+-      @set_cursor 2 1; spaces(i);
+-      @set_cursor 2 2; print (string) NKEY__TX;
+-      j=i-12; @set_cursor 2 j; print (string) PKEY__TX;
+-      @set_cursor 3 1; spaces(i);
+-      @set_cursor 3 2; print (string) RKEY__TX;
+-      j=i-17; @set_cursor 3 j;
++      y=1+ch; @set_cursor y 1; spaces(i);
++      x=1+cw; @set_cursor y x; print (string) NKEY__TX;
++      j=1+(i-13)*cw; @set_cursor y j; print (string) PKEY__TX;
++      y=y+ch; @set_cursor y 1; spaces(i);
++      @set_cursor y x; print (string) RKEY__TX;
++      j=1+(i-18)*cw; @set_cursor y j;
+       if (menu_nesting==1) print (string) QKEY1__TX;
+                       else print (string) QKEY2__TX;
+       style roman;
+-      @set_cursor 5 2; font off;
++      y=y+2*ch;
++      @set_cursor y x; font off;
+ 
+       if (menu_choices ofclass String) print (string) menu_choices;
+       else menu_choices.call();
+ 
++      x = 1+3*cw;
+       for (::)
+       {   if (cl ~= oldcl)
+-          {   if (oldcl>0) { @set_cursor oldcl 4; print " "; }
+-              @set_cursor cl 4; print ">";
++          {   if (oldcl>0)
++              { y=1+(oldcl-1)*ch; @set_cursor y x; print " "; }
++              y=1+(cl-1)*ch; @set_cursor y x; print ">";
+           }
+           oldcl=cl;
+           @read_char 1 -> pkey;
+@@ -661,10 +707,10 @@
+               EntryR.call();
+     
+               @erase_window $ffff;
+-              @split_window 1;
++              @split_window ch;
+               i = 0->33; if (i==0) { i=80; }
+               @set_window 1; @set_cursor 1 1; style reverse; spaces(i);
+-              j=i/2-item_width;
++              j=1+(i/2-item_width)*cw;
+               @set_cursor 1 j;
+               print (string) item_name;
+               style roman; @set_window 0; new_line;
+@@ -681,6 +727,9 @@
+       menu_nesting--; if (menu_nesting>0) rfalse;
+       font on; @set_cursor 1 1;
+       @erase_window $ffff; @set_window 0;
++      #Iftrue #version_number==6;
++      @set_cursor -2;
++      #Endif;
+       new_line; new_line; new_line;
+       if (deadflag==0) <<Look>>;
+ ];  
+@@ -695,7 +744,7 @@
+ [ MoveFloatingObjects i k l m address flag;
+   objectloop (i)
+   {   address=i.&found_in;
+-      if (address~=0 && i hasnt absent)
++      if (address~=0 && i hasnt absent && ~~IndirectlyContains(player, i))
+       {   if (ZRegion(address-->0)==2)
+           {   if (i.found_in() ~= 0) move i to location; else remove i;
+           }
+@@ -739,9 +788,11 @@
+   for (::)
+   {   if (location == nothing || parent(player) == nothing) read buffer parse;
+       else read buffer parse DrawStatusLine;
+-      i=parse-->1;
+-      if (i==YES1__WD or YES2__WD or YES3__WD) rtrue;
+-      if (i==NO1__WD or NO2__WD or NO3__WD) rfalse;
++      if (parse->1) {  ! condition added  (fixes Issue L61029)
++          i=parse-->1;
++          if (i==YES1__WD or YES2__WD or YES3__WD) rtrue;
++          if (i==NO1__WD or NO2__WD or NO3__WD) rfalse;
++      }   ! end of condition
+       L__M(##Quit,1); print "> ";
+   }
+ ];
+@@ -1188,6 +1239,7 @@
+ [ InsertSub ancestor;
+   receive_action = ##Insert;
+   if (second==d_obj || player in second) <<Drop noun>>;
++  if (parent(noun) == second) return L__M(##Drop,1,noun);
+   if (parent(noun)~=player) return L__M(##Insert,1,noun);
+ 
+   ancestor = CommonAncestor(noun, second);
+@@ -1346,6 +1398,7 @@
+ 
+ [ ExitSub p;
+   p=parent(player);
++  if (noun ~= nothing && noun ~= p) return L__M(##Exit,4,noun);
+   if (p==location || (location==thedark && p==real_location))
+   {   if ((location.out_to~=0)
+           || (location==thedark && real_location.out_to~=0)) <<Go out_obj>>;
+@@ -1400,6 +1453,7 @@
+ 
+   if (k==0 || j==0)
+   {   if (i.cant_go ~= 0) PrintOrRun(i, cant_go);
++    else L__M(##Go,2);
+       rfalse;
+   }
+ 
+@@ -1487,8 +1541,8 @@
+ 
+              .Prop_Chosen;
+ 
+-             if (o hasnt moved || o.describe~=NULL || f2==1)
+-             {   if (o.describe~=NULL && RunRoutines(o,describe)~=0)
++             if (o hasnt moved || o.&describe~=0 || f2==1)
++             {   if (o.&describe~=0 && RunRoutines(o,describe)~=0)
+                  {   flag=1;
+                      give o ~workflag; k--;
+                  }    
+@@ -1568,7 +1622,7 @@
+   return visibility_levels;
+ ];
+ 
+-[ LookSub allow_abbrev  visibility_levels i j k;
++[ LookSub allow_abbrev  visibility_levels i j k nl_flag;
+   if (parent(player)==0) return RunTimeError(10);
+ 
+   .MovedByInitial;
+@@ -1604,7 +1658,7 @@
+ 
+   if (lookmode<3 && visibility_ceiling==location)
+   {   if ((allow_abbrev~=1) || (lookmode==2) || (location hasnt visited))
+-      {   if (location.describe~=NULL) RunRoutines(location,describe);
++      {   if (location.&describe~=0) RunRoutines(location,describe);
+           else
+           {   if (location.description==0) RunTimeError(11,location);
+               else PrintOrRun(location,description);
+@@ -1612,6 +1666,8 @@
+       }
+   }
+ 
++  if (visibility_ceiling==location) nl_flag = 1;
++
+   if (visibility_levels == 0) Locale(thedark);
+   else
+   {   for (i=player, j=visibility_levels: j>0: j--, i=parent(i))
+@@ -1620,8 +1676,9 @@
+       for (j=visibility_levels: j>0: j--)
+       {   for (i=player, k=0: k<j: k++) i=parent(i);
+           if (i.inside_description~=0)
+-          {   new_line; PrintOrRun(i,inside_description); }
+-          Locale(i);
++          {   if (nl_flag) new_line; else nl_flag = 1;
++              PrintOrRun(i,inside_description); }
++          if (Locale(i)~=0) nl_flag=1;
+       }
+   }
+ 
+@@ -1650,6 +1707,11 @@
+   L__M(##LookUnder,2);
+ ];
+ 
++[ VisibleContents o  i f;
++  objectloop (i in o) if (i hasnt concealed && i hasnt scenery) f++;
++  return f;
++];
++
+ [ SearchSub i f;
+   if (location==thedark) return L__M(##Search,1,noun);
+   if (ObjectIsUntouchable(noun)) return;
+@@ -1723,7 +1785,8 @@
+   give noun open;
+   if (AfterRoutines()==1) rtrue;
+   if (keep_silent==1) rtrue;
+-  if (noun has container && noun hasnt transparent && child(noun)~=0
++  if (noun has container && noun hasnt transparent && VisibleContents(noun) ~= 0
++      && location ~= thedark
+       && IndirectlyContains(noun,player)==0)
+       return L__M(##Open,4,noun);
+   L__M(##Open,5,noun);
+@@ -1833,14 +1896,14 @@
+   if (ObjectIsUntouchable(noun)) return;
+   if (noun has static)   return L__M(##Push,1,noun);
+   if (noun has scenery)  return L__M(##Push,2,noun);
+-  if (noun has animate)  return L__M(##Pull,4,noun);
++  if (noun has animate)  return L__M(##Push,4,noun);
+   L__M(##Push,3,noun);
+ ];
+ [ TurnSub;
+   if (ObjectIsUntouchable(noun)) return;
+   if (noun has static)   return L__M(##Turn,1,noun);
+   if (noun has scenery)  return L__M(##Turn,2,noun);
+-  if (noun has animate)  return L__M(##Pull,4,noun);
++  if (noun has animate)  return L__M(##Turn,4,noun);
+   L__M(##Turn,3,noun);
+ ];
+ 
+diff -ru inform-6.21.3/src/asm.c inform-6.21.4/src/asm.c
+--- inform-6.21.3/src/asm.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/asm.c	Sun Apr 13 02:55:13 2003
+@@ -443,7 +443,7 @@
+ /* 0 */ { (uchar *) "not",             4, 4,  3, 0x0F,     St,      0, 0, ONE },
+ /* 1 */ { (uchar *) "save",            4, 4,  4, 0x05,     St,      0, 0,ZERO },
+ /* 2 */ { (uchar *) "restore",         4, 4,  5, 0x06,     St,      0, 0,ZERO },
+-/* 3 */ { (uchar *) "not",             5, 0, -1, 0x38,      0,      0, 0, VAR },
++/* 3 */ { (uchar *) "not",             5, 0, -1, 0x38,     St,      0, 0, VAR },
+ /* 4 */ { (uchar *) "save",            5, 0, -1, 0x00,     St,      0, 0, EXT },
+ /* 5 */ { (uchar *) "restore",         5, 0, -1, 0x01,     St,      0, 0, EXT },
+ /* 6 */ { (uchar *) "pull",            6, 6, -1, 0x29,     St,      0, 0, VAR }
+@@ -1533,7 +1533,7 @@
+             if (asm_trace_level >= 4)
+                 printf("To label %d, which is %d from here\n",
+                     j, label_offsets[j]-pc);
+-            if ((label_offsets[j] >= pc+2) && (label_offsets[j] < pc+32))
++            if ((label_offsets[j] >= pc+2) && (label_offsets[j] < pc+64))
+             {   if (asm_trace_level >= 4) printf("Short form\n");
+                 zcode_markers[i+1] = DELETED_MV;
+             }
+@@ -1591,7 +1591,7 @@
+                 zcode_holding_area[i+1] = addr%256;
+             }
+             else
+-            {   if (addr >= 32)
++            {   if (addr >= 64)
+                 {   compiler_error("Label out of range for branch");
+                     printf("Addr is %04x\n", addr);
+                 }
+@@ -1653,6 +1653,10 @@
+     {   uchar zero[1];
+         zero[0] = 0;
+         while ((adjusted_pc%scale_factor)!=0) transfer_byte(zero);
++        if (oddeven_packing_switch)
++            while ((adjusted_pc%(scale_factor*2))!=0) transfer_byte(zero);
++        else
++            while ((adjusted_pc%scale_factor)!=0) transfer_byte(zero);
+     }
+ 
+     zmachine_pc = adjusted_pc;
+@@ -2600,7 +2604,7 @@
+         else
+         {   put_token_back();
+             AI.operand[AI.operand_count++] = parse_operand_z();
+-            if ((indirect_addressed)
++            if ((indirect_addressed) && (AI.operand_count == 1)
+                 && (AI.operand[AI.operand_count-1].type == VARIABLE_OT))
+             {   AI.operand[AI.operand_count-1].type = SHORT_CONSTANT_OT;
+                 AI.operand[AI.operand_count-1].marker = VARIABLE_MV;
+@@ -2656,6 +2660,9 @@
+                        /* Exception for the V6 set_colour, which can take
+                           a third argument, thus forcing it into VAR form: */
+                        if ((version_number == 6) && (O.code == 0x1b)) max = 3;
++                       /* Also an exception for je, which can take from 1
++                          argument (useless) to 4 arguments */
++                       if (O.code == 0x01) { min = 1; max = 4; }
+                        break;
+         case VAR:      min = 0; max = 4; break;
+         case VAR_LONG: min = 0; max = 8; break;
+diff -ru inform-6.21.3/src/chars.c inform-6.21.4/src/chars.c
+--- inform-6.21.3/src/chars.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/chars.c	Tue Jun 10 04:26:15 2003
+@@ -85,7 +85,7 @@
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-char alphabet[3][27];                  /* The alphabet table.                */
++uchar alphabet[3][27];                  /* The alphabet table. */
+ 
+ int alphabet_modified;                 /* Has the default been changed?      */
+ 
+@@ -173,7 +173,7 @@
+         }
+     }
+     for (j=0; j<3; j++)
+-        for (k=0; k<26; k++)
++	for (k=(j<2?0:1); k<26; k++)
+         {   i=(int) ((alphabet[j])[k]);
+             zscii_to_alphabet_grid[i] = k + j*26;
+             iso_to_alphabet_grid[zscii_to_iso_grid[i]] = k + j*26;
+@@ -1170,9 +1170,9 @@
+     character_digit_value['E'] = 14;
+     character_digit_value['F'] = 15;
+ 
+-    strcpy(alphabet[0], "abcdefghijklmnopqrstuvwxyz");
+-    strcpy(alphabet[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+-    strcpy(alphabet[2], " ^0123456789.,!?_#'~/\\-:()");
++    strcpy((char *) alphabet[0], "abcdefghijklmnopqrstuvwxyz");
++    strcpy((char *) alphabet[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
++    strcpy((char *) alphabet[2], " ^0123456789.,!?_#'~/\\-:()");
+ 
+     alphabet_modified = FALSE;
+ 
+diff -ru inform-6.21.3/src/expressp.c inform-6.21.4/src/expressp.c
+--- inform-6.21.3/src/expressp.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/expressp.c	Sun Apr 13 02:57:19 2003
+@@ -769,6 +769,9 @@
+                  case lowest_fake_action_number_SC:
+                      o->type = LONG_CONSTANT_OT; o->marker = 0;
+                      v = ((grammar_version_number==1)?256:4096); break;
++                 case oddeven_packing_SC:
++                     o->type = SHORT_CONSTANT_OT; o->marker = 0;
++                     v = oddeven_packing_switch; break;
+                  default:
+                      v = t.value;
+                      o->marker = INCON_MV;
+@@ -1562,7 +1565,9 @@
+ 
+     comma_allowed = (context == VOID_CONTEXT);
+     arrow_allowed = (context != ASSEMBLY_CONTEXT);
+-    array_init_ambiguity = (context == ARRAY_CONTEXT);
++    array_init_ambiguity = ((context == ARRAY_CONTEXT) ||
++        (context == ASSEMBLY_CONTEXT));
++
+     action_ambiguity = (context == ACTION_Q_CONTEXT);
+ 
+     if (context == ASSEMBLY_CONTEXT) context = QUANTITY_CONTEXT;
+diff -ru inform-6.21.3/src/header.h inform-6.21.4/src/header.h
+--- inform-6.21.3/src/header.h	Tue Nov  5 01:43:15 2002
++++ inform-6.21.4/src/header.h	Tue Jun 10 04:26:46 2003
+@@ -1376,7 +1376,7 @@
+ 
+ /*  Index numbers into the keyword group "system_constants" (see "lexer.c")  */
+ 
+-#define NO_SYSTEM_CONSTANTS   61
++#define NO_SYSTEM_CONSTANTS   62
+ 
+ #define adjectives_table_SC   0
+ #define actions_table_SC      1
+@@ -1447,9 +1447,12 @@
+ #define lowest_object_number_SC       56
+ #define highest_object_number_SC      57
+ 
+-#define grammar_table_SC              58     /* Glulx-only */
+-#define dictionary_table_SC           59     /* Glulx-only */
+-#define dynam_string_table_SC         60     /* Glulx-only */
++#define oddeven_packing_SC            58
++
++#define grammar_table_SC              59     /* Glulx-only */
++#define dictionary_table_SC           60     /* Glulx-only */
++#define dynam_string_table_SC         61     /* Glulx-only */
++
+ 
+ /*  Index numbers into the keyword group "system_functions" (see "lexer.c")  */
+ 
+@@ -2091,7 +2094,7 @@
+ 
+ extern uchar source_to_iso_grid[];
+ extern int   character_digit_value[];
+-extern char  alphabet[3][27];
++extern uchar alphabet[3][27];
+ extern int   alphabet_modified;
+ extern int   zscii_defn_modified;
+ extern int   zscii_high_water_mark;
+@@ -2257,6 +2260,8 @@
+     memory_map_switch,      module_switch,        temporary_files_switch,
+     define_DEBUG_switch,    define_USE_MODULES_switch, define_INFIX_switch,
+     runtime_error_checking_switch;
++
++extern int oddeven_packing_switch;
+ 
+ extern int glulx_mode, compression_switch;
+ 
+diff -ru inform-6.21.3/src/inform.c inform-6.21.4/src/inform.c
+--- inform-6.21.3/src/inform.c	Tue Nov  5 01:42:55 2002
++++ inform-6.21.4/src/inform.c	Sun Apr 13 03:00:23 2003
+@@ -170,6 +170,7 @@
+     nowarnings_switch,              /* -w */
+     hash_switch,                    /* -x */
+     memory_map_switch,              /* -z */
++    oddeven_packing_switch,         /* -B */
+     define_DEBUG_switch,            /* -D */
+     temporary_files_switch,         /* -F */
+     module_switch,                  /* -M */
+@@ -225,6 +226,7 @@
+     nowarnings_switch = FALSE;
+     hash_switch = FALSE;
+     memory_map_switch = FALSE;
++    oddeven_packing_switch = FALSE;
+     define_DEBUG_switch = FALSE;
+ #ifdef USE_TEMPORARY_FILES
+     temporary_files_switch = TRUE;
+@@ -1125,6 +1127,7 @@
+   z   print memory map of the Z-machine\n\n");
+ 
+ printf("\
++  B   use big memory model (for large V6/V7 files)\n\
+   C0  text character set is plain ASCII only\n\
+   Cn  text character set is ISO 8859-n (n = 1 to 9)\n\
+       (1 to 4, Latin1 to Latin4; 5, Cyrillic; 6, Arabic;\n\
+@@ -1243,7 +1246,7 @@
+         case 'x': hash_switch = state; break;
+         case 'y': s=2; linker_trace_setting=p[i+1]-'0'; break;
+         case 'z': memory_map_switch = state; break;
+-
++        case 'B': oddeven_packing_switch = state; break;
+         case 'C': s=2; character_set_setting=p[i+1]-'0';
+                   if ((character_set_setting < 0)
+                       || (character_set_setting > 9))
+diff -ru inform-6.21.3/src/lexer.c inform-6.21.4/src/lexer.c
+--- inform-6.21.3/src/lexer.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/lexer.c	Sun Apr 13 03:22:11 2003
+@@ -357,6 +357,7 @@
+     "constant_names_array",
+     "lowest_class_number", "highest_class_number", "class_objects_array",
+     "lowest_object_number", "highest_object_number",
++    "oddeven_packing",
+     "grammar_table", "dictionary_table", "dynam_string_table",
+     "" },
+     SYSTEM_CONSTANT_TT, FALSE, TRUE
+diff -ru inform-6.21.3/src/symbols.c inform-6.21.4/src/symbols.c
+--- inform-6.21.3/src/symbols.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/symbols.c	Sun Apr 13 02:22:08 2003
+@@ -296,6 +296,7 @@
+ 
+ extern void write_the_identifier_names(void)
+ {   int i, j, k, t, null_value; char idname_string[256];
++    static char unknown_attribute[20] = "<unknown attribute>";
+ 
+     for (i=0; i<no_individual_properties; i++)
+         individual_name_strings[i] = 0;
+@@ -304,7 +305,7 @@
+ 
+     veneer_mode = TRUE;
+ 
+-    null_value = compile_string("<unknown attribute>", FALSE, FALSE);
++    null_value = compile_string(unknown_attribute, FALSE, FALSE);
+     for (i=0; i<NUM_ATTR_BYTES*8; i++) attribute_name_strings[i] = null_value;
+ 
+     for (i=0; i<no_symbols; i++)
+diff -ru inform-6.21.3/src/tables.c inform-6.21.4/src/tables.c
+--- inform-6.21.3/src/tables.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/tables.c	Sun Apr 13 03:13:35 2003
+@@ -174,7 +174,7 @@
+               + 2*no_grammar_token_routines;     /* general parsing routines */
+ 
+     total += (subtract_pointers(dictionary_top, dictionary))  /* dictionary */
+-             + ((module_switch)?18:0);                        /* module map */
++             + ((module_switch)?30:0);                        /* module map */
+ 
+     total += scale_factor*0x100            /* maximum null bytes before code */
+             + 1000;             /* fudge factor (in case the above is wrong) */
+@@ -579,6 +579,8 @@
+ 
+     while ((mark%length_scale_factor) != 0) p[mark++]=0;
+     while (mark < (scale_factor*0x100)) p[mark++]=0;
++    if (oddeven_packing_switch)
++        while ((mark%(scale_factor*2)) != 0) p[mark++]=0;
+ 
+     if (mark > 0x10000)
+     {   error("This program has overflowed the maximum readable-memory \
+@@ -597,7 +599,14 @@
+ 
+     /*  ------------------ Another synchronising gap ----------------------- */
+ 
+-    while ((mark%scale_factor) != 0) mark++;
++    if (oddeven_packing_switch)
++    {   if (module_switch)
++             while ((mark%(scale_factor*2)) != 0) mark++;
++        else
++             while ((mark%(scale_factor*2)) != scale_factor) mark++;
++    }
++    else
++        while ((mark%scale_factor) != 0) mark++;
+ 
+     /*  ------------------------- Strings Area ----------------------------- */
+ 
+@@ -622,8 +631,8 @@
+         case 4:
+         case 5: excess = Out_Size-((int32) 0x40000L); limit = 256; break;
+         case 6:
++        case 7:
+         case 8: excess = Out_Size-((int32) 0x80000L); limit = 512; break;
+-        case 7: excess = 0;                           limit = 320; break;
+     }
+ 
+     if (module_switch)
+@@ -652,8 +661,42 @@
+     {   extend_offset=256;
+         if (no_objects+9 > extend_offset) extend_offset=no_objects+9;
+         while ((extend_offset%length_scale_factor) != 0) extend_offset++;
++        /* Not sure why above line is necessary, but oddeven_packing
++         * will need extend_offset to be even */
+         code_offset = extend_offset*scale_factor;
+-        strings_offset = code_offset + (Write_Strings_At-Write_Code_At);
++        if (oddeven_packing_switch)
++            strings_offset = code_offset + scale_factor;
++        else
++            strings_offset = code_offset + (Write_Strings_At-Write_Code_At);
++
++        /* With the extended memory model, need to specifically check that we
++         * haven't overflowed the packed address range for routines or strings.
++         * With the standard memory model, we only need the earlier total size
++         * check.
++         */
++        excess = zmachine_pc + code_offset - (scale_factor*((int32) 0x10000L));
++        if (excess > 0)
++        {   char code_full_error[80];
++            sprintf(code_full_error,
++                "The code area limit has been exceeded by %d bytes",
++                 excess);
++            fatalerror(code_full_error);
++        }
++
++        excess = strings_length + strings_offset - (scale_factor*((int32) 0x10000L));
++        if (excess > 0)
++        {   char strings_full_error[140];
++            if (oddeven_packing_switch)
++                sprintf(strings_full_error,
++                    "The strings area limit has been exceeded by %d bytes",
++                     excess);
++            else
++                sprintf(strings_full_error,
++                    "The code+strings area limit has been exceeded by %d bytes. \
++ Try running Inform again with -B on the command line.",
++                     excess);
++            fatalerror(strings_full_error);
++        }
+     }
+     else
+     {   code_offset = Write_Code_At;
+@@ -695,6 +738,8 @@
+     if (extend_memory_map)
+     {   j=(Write_Code_At - extend_offset*scale_factor)/length_scale_factor;
+         p[40]=j/256; p[41]=j%256;                         /* Routines offset */
++        if (oddeven_packing_switch)
++            j=(Write_Strings_At - extend_offset*scale_factor)/length_scale_factor;
+         p[42]=j/256; p[43]=j%256;                        /* = Strings offset */
+     }
+ 
+diff -ru inform-6.21.3/src/text.c inform-6.21.4/src/text.c
+--- inform-6.21.3/src/text.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/text.c	Sun Apr 13 03:15:37 2003
+@@ -231,9 +231,14 @@
+     /* also occurs at an address expressible as a packed address         */
+ 
+     if (!glulx_mode) {
+-        while ((i%scale_factor)!=0)
+-	{   i+=2; *c++ = 0; *c++ = 0;
+-	}
++        if (oddeven_packing_switch)
++            while ((i%(scale_factor*2))!=0)
++            {   i+=2; *c++ = 0; *c++ = 0;
++            }
++        else
++            while ((i%scale_factor)!=0)
++            {   i+=2; *c++ = 0; *c++ = 0;
++            }
+     }
+ 
+     j = static_strings_extent;
+@@ -281,7 +286,13 @@
+ {
+     int lookup_value, in_alphabet;
+ 
+-    if (zsc < 0x100) lookup_value = iso_to_alphabet_grid[zsc];
++    if (zsc==' ')
++    {   write_z_char_z(0);
++        return;
++    }
++
++    if (zsc < 0x100) lookup_value = zscii_to_alphabet_grid[zsc];
++
+     else lookup_value = -1;
+ 
+     if (lookup_value >= 0)
+@@ -1415,9 +1426,9 @@
+                    "Character can be printed but not input:", unicode);
+                 k = '?';
+             }
+-            k2 = zscii_to_alphabet_grid[k];
++            k2 = zscii_to_alphabet_grid[(uchar) k];
+         }
+-        else k2 = iso_to_alphabet_grid[k];
++        else k2 = iso_to_alphabet_grid[(uchar) k];
+ 
+         if (k2 < 0)
+         {   if ((k2 == -5) || (k2 <= -0x100))
+diff -ru inform-6.21.3/src/veneer.c inform-6.21.4/src/veneer.c
+--- inform-6.21.3/src/veneer.c	Thu Aug 24 19:58:30 2000
++++ inform-6.21.4/src/veneer.c	Tue Jun 10 04:51:52 2003
+@@ -482,19 +482,21 @@
+              if (Z__Region(obj) == cla-1) rtrue;\
+              rfalse;\
+          }\
+-         switch(cla)\
+-         {   1: if (obj<=4) rtrue;\
+-                if (obj in 1) rtrue;\
+-                rfalse;\
+-             2: if (obj<=4) rfalse;\
+-                if (obj in 1) rfalse;\
+-                rtrue;\
+-             3, 4: rfalse;\
++         if (cla == 1) {\
++             if (obj<=4) rtrue;\
++             if (obj in 1) rtrue;\
++             rfalse;\
++         } else if (cla == 2) {\
++             if (obj<=4) rfalse;\
++             if (obj in 1) rfalse;\
++             rtrue;\
++         } else if (cla == 3 or 4) {\
++             rfalse;\
+          }",
+         "if (cla notin 1) { RT__Err(\"apply 'ofclass' for\", cla, -1);rfalse;}\
+-         a = obj.&2;\
++         @get_prop_addr obj 2 -> a;\
+          if (a==0) rfalse;\
+-         n = obj.#2;\
++         @get_prop_len a -> n;\
+          for (j=0: j<n/2: j++)\
+          {   if (a-->j == cla) rtrue;\
+          }\
+@@ -534,7 +536,7 @@
+          print \"^[** Programming error: \";\
+          if (crime<0) jump RErr;\
+          if (crime==1) { print \"class \"; @print_obj obj;\
+-         \": 'create' can have 0 to 3 parameters only **]\";}\
++         \": 'create' can have 0 to 5 parameters only **]\";}\
+          if (crime == 32) \"objectloop broken because the object \",\
+          (name) obj, \" was moved while the loop passed through it **]\";\
+          if (crime == 33) \"tried to print (char) \", obj,\
+@@ -602,11 +604,20 @@
+ 
+         "Z__Region",
+         "addr;\
+-         if (addr==0) rfalse;\
++         if (addr==0 || Unsigned__Compare(addr, $001A-->0) >= 0) rfalse;\
+          if (addr>=1 && addr<=(#largest_object-255)) rtrue;\
++         #iftrue #oddeven_packing;\
++         @test addr 1 ?~NotString;\
++         if (Unsigned__Compare(addr, #strings_offset)<0) rfalse;\
++         return 3;\
++         .NotString;\
++         if (Unsigned__Compare(addr, #code_offset)<0) rfalse;\
++         return 2;\
++         #ifnot;\
+          if (Unsigned__Compare(addr, #strings_offset)>=0) return 3;\
+          if (Unsigned__Compare(addr, #code_offset)>=0) return 2;\
+          rfalse;\
++         #endif;\
+          ]", "", "", "", "", ""
+     },
+     {   /*  Unsigned__Compare:  returns 1 if x>y, 0 if x=y, -1 if x<y        */
+@@ -654,13 +665,15 @@
+     {   /*  Cl__Ms:   the five message-receiving properties of Classes       */
+ 
+         "Cl__Ms",
+-        "obj id y a b c d x;\
++        "obj id y a b c d e f x;\
+          switch(id)\
+          {   create:\
+                  if (children(obj)<=1) rfalse; x=child(obj);\
+                  remove x; if (x provides create) { if (y==0) x..create();\
+                  if (y==1) x..create(a); if (y==2) x..create(a,b);\
+-                 if (y>3) RT__Err(1,obj); if (y>=3) x..create(a,b,c);}\
++                 if (y==3) x..create(a,b,c); if (y==4) x..create(a,b,c,d);\
++                 if (y>5) RT__Err(1,obj);\
++                 if (y>=5) x..create(a,b,c,d,e);}\
+                  return x;\
+              recreate:\
+                  if (~~(a ofclass obj))\
+@@ -668,7 +681,9 @@
+                  Copy__Primitive(a, child(obj));\
+                  if (a provides create) { if (y==1) a..create();\
+                  if (y==2) a..create(b); if (y==3) a..create(b,c);\
+-                 if (y>4) RT__Err(1,obj); if (y>=4) a..create(b,c,d);\
++                 if (y==4) a..create(b,c,d); if (y==5) a..create(b,c,d,e);\
++                 if (y>6) RT__Err(1,obj);\
++                 if (y>=6) a..create(b,c,d,e,f);\
+                  } rfalse;",
+             "destroy:\
+                  if (~~(a ofclass obj))\

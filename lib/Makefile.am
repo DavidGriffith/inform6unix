@@ -9,10 +9,9 @@ verblib.h verblibm.h
 
 EXTRA_DIST = $(INCLUDES)
 
-TYPES = \(Class\|Object\)
+ETAGS_ARGS = $(ETAGS_INFORM) $(INCLUDES)
 
-ETAGS_ARGS = -l none -r '/$(TYPES)\([ \t]+->\)*[ \t]+\([^ \t]+\)/\3/' \
--r '/\[[ \t]+\([^ \t;]+\)/\1/' $(INCLUDES)
+TAGS_DEPENDENCIES = $(INCLUDES)
 
 SUFFIXES = .h .m5
 
@@ -20,8 +19,26 @@ INFORM = $(top_builddir)/src/inform
 
 INFFLAGS = +include_path=$(srcdir)/ +module_path=$(srcdir)/
 
-.h.m5:;	$(INFORM) $(INFFLAGS) -Mx $<
+.h.m5:;	$(INFORM) $(INFFLAGS) -M $<
 
-CLEANFILES = $(MODULES)
+EXTRA_NAMES = Grammar.h Parser.h Verblib.h VerbLib.h
+
+all-local:
+	@ for file in $(EXTRA_NAMES); do				\
+		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+		rm -f $$file;						\
+		$(LN_S) $$realfile $$file;				\
+	done
+
+install-data-local:
+	@ for file in $(EXTRA_NAMES); do				\
+		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+		echo Linking $$file to $$realfile;			\
+		cd $(pkgdatadir);					\
+		rm -f $$file;						\
+		$(LN_S) $$realfile $$file;				\
+	done
+
+CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 
 @make_include@

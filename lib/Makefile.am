@@ -42,7 +42,7 @@ remove-localdir:
 	rmdir $(DESTDIR)$(localmoddir)
 
 add-local-names:
-	@ cd $(top_builddir)/lib;					\
+	@- cd $(top_builddir)/lib;					\
 	for file in $(EXTRA_NAMES); do					\
 	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
 	   test -r $$file || $(LN_S) $(srcdir)/$$realfile $$file;	\

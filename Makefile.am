@@ -13,7 +13,7 @@ dist-hook:
 	cd $(srcdir)/tutor; $(MAKE) clean
 	@ for dir in $(EXTRA_DIRS); do					\
 	   echo Adding $$dir directory to distribution;			\
-	   cp -rp $(srcdir)/$$dir $(distdir);				\
+	   cp -rfp $(srcdir)/$$dir $(distdir);				\
 	   rm -rf $(distdir)/$$dir/CVS;					\
 	done
 

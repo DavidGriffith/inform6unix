@@ -32,10 +32,11 @@ transform = $(program_transform_name)
 NORMAL_INSTALL = :
 PRE_INSTALL = :
 POST_INSTALL = :
-NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+
+NORMAL_UNINSTALL = chmod -R u+w $(DESTDIR)$(pkgdatadir)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
@@ -306,7 +307,6 @@ install-data-hook:
 	done
 
 uninstall-hook:
-	- chmod -R u+w $(DESTDIR)$(pkgdatadir)
 	rm -rf $(DESTDIR)$(htmldir)
 
 dist-hook:

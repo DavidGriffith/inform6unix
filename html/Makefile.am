@@ -21,6 +21,8 @@ EXTRA_DIST = $(html_DATA)
 
 EXTRA_DIRS = $(html_DIRS)
 
+NORMAL_UNINSTALL = chmod -R u+w $(DESTDIR)$(pkgdatadir)
+
 install-data-hook:
 	for dir in $(EXTRA_DIRS); do					\
 	    cp -rp $(srcdir)/$$dir $(DESTDIR)$(htmldir);		\
@@ -28,7 +30,6 @@ install-data-hook:
 	done
 
 uninstall-hook:
-	- chmod -R u+w $(DESTDIR)$(pkgdatadir)
 	rm -rf $(DESTDIR)$(htmldir)
 
 dist-hook:

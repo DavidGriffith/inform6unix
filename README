@@ -23,12 +23,11 @@ The following subdirectories are included in the package:
     html	the online Designer's Manual, in HTML format
     demos	some Inform demo games (including the classic 'advent')
     tutor	some Inform tutorial files
+    docs	internal Inform documentation and release notes
     contrib	other contributed Inform stuff
-    patch	patches that have been applied to the sources
 
 The Inform distributed here is Andrew Plotkin's bi-platform version, with
-support for compiling to both Z-code and Glulx, with slight modification by
-me for this package (mostly to increase the maximum size of pathnames).
+support for compiling to both Z-code and Glulx.
 See the file README.glulx for details about the extra options for Glulx.
 
 How do I install it?
@@ -78,6 +77,15 @@ stuff about the late, great Infocom.
 There are also more resources for programming with Inform, including a new
 edition of the Inform Designer's Manual suitable for printing.  See the
 stuff in the programming/inform6 subdirectory.
+
+The Inform maintainers
+======================
+
+As well as the original author, Graham Nelson, an active community of
+Inform maintainers exists to fix bugs, implement new features and issue new
+versions of the program.  If you'd like to know more, visit them at:
+
+    http://www.inform-fiction.org
 
 About this package
 ==================

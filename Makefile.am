@@ -7,7 +7,7 @@ SUBDIRS = src lib include info html demos
 EXTRA_DIST = AUTHORS VERSION README.bugs README.glulx README.paths	\
 README.source
 
-EXTRA_DIRS = config contrib tutor
+EXTRA_DIRS = config contrib patch tutor
 
 dist-hook:
 	cd $(srcdir)/tutor; $(MAKE) clean

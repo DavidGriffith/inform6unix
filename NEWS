@@ -3,7 +3,7 @@ Version 6.21.3 (6 Nov 02):
 
 * The Inform included here is now Andrew Plotkin's bi-platform version,
   which can compile for Glulx, following a suggestion by Marshall
-  T. Vandebilt <vandem2.rpi.edu>.
+  T. Vandegrift <vandem2.rpi.edu>.
 
 * Now includes HTML version of the Designer's Manual.
 

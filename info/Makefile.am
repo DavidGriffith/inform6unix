@@ -11,11 +11,11 @@ inform-14
 
 INFO_FILES = inform.info
 
-split:;	@ for file in $(INFO_FILES); do \
-		echo Splitting $$file; \
-		base=`basename $$file .info`; \
-		cp Info/$$file $$base; \
-		infosplit -v $$base; \
+split:;	@ for file in $(INFO_FILES); do					\
+		echo Splitting $$file;					\
+		base=`basename $$file .info`;				\
+		cp Info/$$file $$base;					\
+		infosplit -v $$base;					\
 	done
 
 @make_include@

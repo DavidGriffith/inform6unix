@@ -20,8 +20,6 @@ with the following changes:
     * files.c:
     Same as inform.c.
 
-See 'source.diff' for the explicit diffs.
-
 Inform library
 ==============
 
@@ -34,6 +32,12 @@ The standard header files are stored in lower-case here.  Symbolic links to
 other semi-standard names get created upon installation (e.g. verblib.h
 gets symlinked to Verblib.h and VerbLib.h).  Except on Cygwin, where case
 doesn't seem to matter.
+
+Patches applied
+===============
+
+Patches have been applied which fix many bugs in the sources and library;
+these can be found in the 'patch' subdirectory.
 
 Include files
 =============

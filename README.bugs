@@ -1,0 +1,8 @@
+Known bugs in this release
+==========================
+
+* Version 6.21 of Inform crashes if strict checking (-S) is used with
+  modules (-U).  This is puzzling to me, since -S is the default.  So I
+  would expect anyone who uses modules without explicitly turning strict
+  checking off to report a bug, but no-one seems to have.  If anyone can
+  explain this, I'd be interested to hear it.

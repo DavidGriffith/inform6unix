@@ -12,7 +12,7 @@ dnl Set package info.
 INFORM_VERSION=6.21
 AC_SUBST(INFORM_VERSION)
 
-PACKAGE_VERSION=1
+PACKAGE_VERSION=3
 AC_SUBST(PACKAGE_VERSION)
 
 AM_INIT_AUTOMAKE(inform, ${INFORM_VERSION}.${PACKAGE_VERSION})
@@ -48,5 +48,6 @@ src/Makefile
 lib/Makefile
 include/Makefile
 info/Makefile
+html/Makefile
 demos/Makefile
 )

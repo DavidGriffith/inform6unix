@@ -1,0 +1,571 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;2: The state of play</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch1.html" title="Chapter I: The Inform Language">chapter I</a> /
+ <a href="s1.html" title="&#167;1: Routines">prev</a> /
+ <a href="s3.html" title="&#167;3: Objects and classes">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p48" name="p48"></a>
+<h2>&#167;2 &nbsp; The state of play</h2>
+
+<a id="s2_1" name="s2_1"></a>
+<h3>&#167;2.1 &nbsp; Directives construct things</h3>
+
+<p class="normal"><span class="atleft"><img src="dm4-048_1.jpg" alt=""></span>
+Every example program so far has consisted only of 
+a sequence of routines, each within beginning and end markers <code>[</code> 
+and <code>]</code>. Such routines have no way of communicating with each 
+other, and therefore of sharing information with each other, except by 
+calling each other back and forth. This arrangement is not really suited 
+to a large program whose task may be to simulate something complicated, 
+such as the world of an adventure game: instead, some central registry 
+of information is needed, to which all routines can have access. 
+In the author's game &#8216;Curses&#8217;, centrally-held 
+information ranges from the current score, held in a single variable 
+called <code>score</code>, to Madame Sosostris's tarot pack, which 
+uses an array of variables representing the cards on the pack, to a 
+slide-projector held as an &#8220;object&#8221;: a bundle of variables 
+and routines encoding the relevant rules of the game, such as that 
+the whitewashed wall is only lit up when the slide projector is 
+switched on.</p>
+
+<p class="indent">Every Inform source program is a list of constructions, 
+made using commands called &#8220;directives&#8221;. These are quite 
+different from the statements inside routines, because directives create 
+something at compilation time, whereas statements are only instructions 
+for the interpreter to follow later, when the story file is being 
+played.</p>
+
+<p class="indent">In all there are 38 Inform directives, but most of 
+them are seldom used, or else are just conveniences to help you organise 
+your source code: for instance <code>Include</code> means &#8220;now 
+include another whole file of source code here&#8221;, and there 
+are directives for &#8220;if I've set some constant at the start of 
+the code, then don't compile this next bit&#8221; and so on. The 10 
+directives that matter are the ones creating data structures, and 
+here they are:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[         Array     Attribute    Class       Constant
+Extend    Global    Object       Property    Verb
+</pre>
+
+<p class="normal">The directive written <code>[</code>, meaning 
+&#8220;construct a routine containing the following statements, 
+up to the next <code>]</code>&#8221;, was the subject of 
+<a href="s1.html">&#167;1</a>. The four directives to do
+with objects, <code>Attribute</code>, <code>Class</code>, 
+<code>Object</code> and <code>Property</code>, will be the subject of
+<a id="p49" name="p49"></a>
+<a href="s3.html">&#167;3</a>. The two directives to do with laying 
+out grammar, <code>Verb</code> and <code>Extend</code>, are intimately 
+tied up with the needs of adventure games using the Inform library,
+and are useless for any other purpose, so these are left until 
+<a href="s30.html">&#167;30</a>. That leaves just <code>Array</code>, 
+<code>Constant</code> and <code>Global</code>.</p>
+
+<a id="s2_2" name="s2_2"></a>
+<h3>&#167;2.2 &nbsp; Constants</h3>
+
+<p class="normal">The simplest construction you can make is of 
+a <code>Constant</code>. The following program, an unsatisfying 
+game of chance, shows a typical usage:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Constant MAXIMUM_SCORE = 100;
+
+[ Main;
+  print &quot;You have scored &quot;, random(MAXIMUM_SCORE),
+      &quot; points out of &quot;, MAXIMUM_SCORE, &quot;.^&quot;;
+];
+</pre>
+
+<p class="normal">The maximum score value is used twice in the routine 
+<code>Main</code>. The resulting story file is exactly the same as it 
+would have been if the constant definition were not present, and 
+<code>MAXIMUM_SCORE</code> were replaced by 100 in both places
+where it occurs. But the advantage of using <code>Constant</code> is 
+that it makes it possible to change this value from 100 to, say, 50 
+with only a single change to the source code, and it makes the source 
+code more legible.</p>
+
+<p class="indent">People often write the names of constants in full 
+capitals, but this is not compulsory. Another convention is that the 
+<code>=</code> sign, which is optional, is often left out if the 
+value is a piece of text rather than a number. If no value is specified 
+for a constant, as in the line</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Constant BETA_TEST_VERSION;</pre>
+
+<p class="normal">then the constant is created with value 0.</p>
+
+<p class="indent">A constant can be used from anywhere in the source 
+code after the line on which it is declared. Its value cannot be 
+altered.</p>
+
+<a id="s2_3" name="s2_3"></a>
+<h3>&#167;2.3 &nbsp; Global variables</h3>
+
+<p class="normal">The variables in <a href="s1.html">&#167;1</a> 
+were all &#8220;local variables&#8221;, each owned privately by its 
+own routine, inaccessible to the rest of the program and destroyed as 
+soon as the routine stops. A &#8220;global variable&#8221; is permanent 
+and its value can be used or altered from every routine.</p>
+
+<a id="p50" name="p50"></a>
+<p class="indent">The directive for declaring a global variable is 
+<code>Global</code>. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Global score = 36;</pre>
+
+<p class="normal">This creates a variable called <code>score</code>, which 
+at the start of the program has the value 36. (If no initial value 
+is given, it starts with the value 0.)</p>
+
+<p class="indent">A global variable can be altered or used from anywhere in the source 
+code <em>after</em> the line on which it is declared.</p>
+
+<a id="s2_4" name="s2_4"></a>
+<h3>&#167;2.4 &nbsp; Arrays</h3>
+
+<p class="normal">An &#8220;array&#8221; is an indexed collection of 
+variables, holding a set of numbers organised into a sequence. To 
+see why this useful, suppose that a pack of cards is to be simulated. 
+You could define 52 different variables with <code>Global</code>, with
+names like <code>Ace_of_Hearts</code>, to hold the position of each 
+card in the pack: but then it would be very tiresome to write a routine 
+to shuffle them around.</p>
+
+<p class="indent">Instead, you can declare an array:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array pack_of_cards --&gt; 52;</pre>
+
+<p class="normal">which creates a stock of 52 variables, called the 
+&#8220;entries&#8221; of the array, and referred to in the source 
+code as</p>
+
+<p class="lynxonly"></p>
+<pre class="code">pack_of_cards--&gt;0   pack_of_cards--&gt;1   ...   pack_of_cards--&gt;51</pre>
+
+<p class="normal">and the point of this is that you can read or alter 
+the variable for card number <code>i</code> by calling it 
+<code>pack_of_cards--&gt;i</code>. 
+Here is an example program, in full, for shuffling the pack:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Constant SHUFFLES = 100;
+Array pack_of_cards --&gt; 52;
+[ ExchangeTwo x y z;
+  !   Randomly choose two different numbers between 0 and 51:
+  while (x==y) {
+      x = random(52) - 1; y = random(52) - 1;
+  }
+  z = pack_of_cards--&gt;x; pack_of_cards--&gt;x = pack_of_cards--&gt;y;
+  pack_of_cards--&gt;y = z;
+];
+[ Card n;
+  switch(n%13) {
+      0: print &quot;Ace&quot;;
+      1 to 9: print n%13 + 1;
+      10: print &quot;Jack&quot;;
+      11: print &quot;Queen&quot;;
+      12: print &quot;King&quot;;
+  }
+  print &quot; of &quot;;
+  switch(n/13) {<a id="p51" name="p51"></a>
+      0: print &quot;Hearts&quot;; 1: print &quot;Clubs&quot;;
+      2: print &quot;Diamonds&quot;; 3: print &quot;Spades&quot;;
+  }
+];
+[ Main i;
+  !   Create the pack in quot;factory order&quot;:
+  for (i=0:i&lt;52:i++) pack_of_cards--&gt;i = i;
+  !   Exchange random pairs of cards for a while:
+  for (i=1:i&lt;=SHUFFLES:i++) ExchangeTwo();
+  print &quot;The pack has been shuffled into the following order:^&quot;;
+  for (i=0:i&lt;52:i++)
+      print (Card) pack_of_cards--&gt;i, &quot;^&quot;;
+];
+</pre>
+
+<p class="normal">The cards are represented by numbers in the range 
+0 (the Ace of Hearts) to 51 (the King of Spades). The pack itself has 
+52 positions, from position 0 (top) to position 51 (bottom). The 
+entry <code>pack_of_cards--&gt;i</code> holds the number of the 
+card in position <code>i</code>. A new pack as produced by the factory 
+would come with Ace of Hearts on top (card 0 in position 0), running 
+down to the King of Spades on the bottom (card 51 in position 51).</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+A hundred exchanges is only just enough. Redefining <code>SHUFFLES</code> as 10,000 
+takes a lot longer, while redefining it as 10 makes for a highly suspect 
+result. Here is a more efficient method of shuffling (contributed 
+by Dylan Thurston), perfectly random in just 51 exchanges.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+pack_of_cards--&gt;0 = 0;
+for (i=1:i&lt;52:i++) {
+    j = random(i+1) - 1;
+    pack_of_cards--&gt;i = pack_of_cards--&gt;j; pack_of_cards--&gt;j = i;
+}
+</pre>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">In the above example, the array entries are all 
+created containing 0. Instead, you can give a list of constant values. 
+For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array small_primes --&gt; 2 3 5 7 11 13;</pre>
+
+<a id="p52" name="p52"></a>
+<p class="normal">is an array with six entries, <code>small_primes--&gt;0</code> 
+to <code>small_primes--&gt;5</code>, initially holding 2, 3, 5, 7, 11 
+and 13.</p>
+
+<p class="indent">The third way to create an array gives some text 
+as an initial value, occasionally useful because one popular use for 
+arrays is as &#8220;strings of characters&#8221; or &#8220;text 
+buffers&#8221;. For instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array players_name --&gt; &quot;Frank Booth&quot;;</pre>
+
+<p class="normal">is equivalent to the directive:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array players_name --&gt; 'F' 'r' 'a' 'n' 'k' ' ' 'B' 'o' 'o' 't' 'h';</pre>
+
+<p class="normal">Literal text like &quot;Frank Booth&quot; is a constant, 
+not an array, and you can no more alter its lettering than you could 
+alter the digits of the number 124. The array <code>players_name</code> is 
+quite different: its entries can be altered. But this means it cannot 
+be treated as if it were a string constant, and in particular can't 
+be printed out with <code>print (string)</code>. See below for the right 
+way to do this.</p>
+
+<p class="normal" style="margin-top:1em"><span class="warning"><b>&#8226;</b> <b>WARNING</b></span><br>
+In the pack of cards example, the entries are indexed 0 to 51. It's 
+therefore impossible for an interpreter to obey the following statement:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">pack_of_cards--&gt;52 = 0;</pre>
+
+<p class="normal">because there is no entry 52. Instead, the following 
+message will be printed when it plays:</p>
+
+<p class="output">[** Programming error: tried to write to --&gt;52 
+in the array &#8220;pack_of_cards&#8221;, which has entries 0 up 
+to 51 **]</p>
+
+<p class="normal">Such a mistake is sometimes called breaking the 
+bounds of the array.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The kind of array constructed above is sometimes 
+called a &#8220;word array&#8221;. This is the most useful kind and 
+many game designers never use the other three varieties at all.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The first alternative is a &#8220;byte array&#8221;, which is identical 
+except that its entries can only hold numbers in the range 0 to 255, 
+and that it uses the notation <code>-&gt;</code> instead of <code>--&gt;</code>. This 
+is only really useful to economise on memory usage in special circumstances,
+usually when the entries are known to be characters, because ZSCII 
+character codes are all between 0 and 255. The &#8220;Frank Booth&#8221; 
+array above could safely have been a byte array.</p>
+
+<a id="p53" name="p53"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+In addition to this, Inform provides arrays which have a little extra 
+structure: they are created with the 0th entry holding the number 
+of entries. A word array with this property is called a <code>table</code>; 
+a byte array with this property is a <code>string</code>. 
+For example, the table</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array continents table 5;</pre>
+
+<p class="aside">has six entries: <code>continents--&gt;0</code>, which holds 
+the number 5, and further entries <code>continents--&gt;1</code> 
+to <code>continents--&gt;5</code>. If the program changed 
+<code>continents--&gt;0</code> this would not magically change the 
+number of array entries, or indeed the number of continents.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+One main reason you might want some arrangement like this is to write 
+a general routine which can be applied to any array. Here is an example 
+using <code>string</code> arrays:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Array password string &quot;danger&quot;;
+Array phone_number string &quot;0171-930-9000&quot;;
+...
+print &quot;Please give the password &quot;, (PrintStringArray) password,
+    &quot; whenever telephoning Universal Exports at &quot;,
+    (PrintStringArray) phone_number, &quot;.&quot;;
+...
+[ PrintStringArray the_array i;
+  for (i=1: i&lt;=the_array-&gt;0: i++) print (char) the_array-&gt;i;
+];
+</pre>
+
+<p class="aside">Such routines should be written with care, as the 
+normal checking of array bounds isn't performed when arrays are 
+accessed in this indirect sort of fashion, so any mistake you make 
+may cause trouble elsewhere and be difficult to diagnose.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+With all data structures (i.e., with objects, strings, routines and 
+arrays) Inform calls by reference, not by value. So, for instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ DamageStringArray the_array i;
+  for (i=1: i&lt;=the_array-&gt;0: i++) {
+      if (the_array-&gt;i == 'a' or 'e' or 'i' or 'o' or 'u')
+          the_array-&gt;i = random('a', 'e', 'i', 'o', 'u');
+      print (char) the_array-&gt;i;
+  }
+];
+</pre>
+
+<p class="aside">means that the call <code>DamageStringArray(password_string)</code> 
+will not just print (say) &#8220;dungor&#8221; but also alter the one 
+and only copy of <code>password_string</code> in the story file.</p>
+
+<a id="p54" name="p54"></a>
+<a id="s2_5" name="s2_5"></a>
+<h3>&#167;2.5 &nbsp; Reading into arrays from the keyboard</h3>
+
+<p class="normal">Surprisingly, perhaps, given that Inform is a language 
+for text adventure games, support for reading from the keyboard is 
+fairly limited. A significant difference of approach between Inform 
+and many other systems for interactive fiction is that mechanisms for 
+parsing textual commands don't come built into the language itself. 
+Instead, game designers use a standard Inform parser program which 
+occupies four and a half thousand lines of Inform code.</p>
+
+<p class="indent">Reading single key-presses, perhaps with time-limits, 
+or for that matter reading the mouse position and state (in a Version 
+6 game) requires the use of Inform assembly language: see 
+<a href="s42.html">&#167;42</a>.</p>
+
+<p class="indent">A statement called <code>read</code> does however 
+exist for reading in a single line of text and storing it into a 
+byte array:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">read text_array 0;</pre>
+
+<p class="normal">You must already have set <code>text_array-&gt;0</code> 
+to the maximum number of characters you will allow to be read. (If 
+this is <i>N</i>, then the array must be defined with at least
+<i>N</i> + 3 entries, the last of which guards against overruns.)
+The number of characters actually read, not counting the carriage 
+return, will be placed into <code>text_array-&gt;1</code> and 
+the characters themselves into entries from <code>text_array-&gt;2</code> 
+onwards. For example, if the player typed &#8220;GET IN&#8221;:</p>
+
+<p class="lynxonly"></p>
+<table border="1" style="margin-left:30px;margin-top:1em;margin-bottom:1em">
+<tr><td><code>-&gt;0</code></td>
+<td><code>1</code></td>
+<td><code>2</code></td>
+<td><code>3</code></td>
+<td><code>4</code></td>
+<td><code>5</code></td>
+<td><code>6</code></td>
+<td><code>7</code></td></tr>
+<tr><td><i>max</i></td>
+<td><i>characters</i></td>
+<td colspan="6" style="text-align:center"><i>text typed by player, reduced to lower case</i></td></tr>
+<tr><td>60</td>
+<td>6</td>
+<td><code>'g'</code></td>
+<td><code>'e'</code></td>
+<td><code>'t'</code></td>
+<td><code>'&nbsp;'</code></td>
+<td><code>'i'</code></td>
+<td><code>'n'</code></td></tr></table>
+
+<p class="normal">The following echo chamber demonstrates how to 
+read from this array:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Array text_array -&gt; 63;
+[ Main c x;
+  for (::) {
+      print &quot;^&gt; &quot;;
+      text_array-&gt;0 = 60;
+      read text_array 0;
+      for (x=0:x&lt;text_array-&gt;1:x++) {
+          c = text_array-&gt;(2+x);
+          print (char) c; if (c == 'o') print &quot;h&quot;;
+      }
+  }
+];
+</pre>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="p55" name="p55"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+<code>read</code> can go further than simply reading in the text: 
+it can work out where the words start and end, and if they are words 
+registered in the story file's built-in vocabulary, known as the 
+&#8220;dictionary&#8221;. To produce all this information, <code>read</code> 
+needs to be supplied with a second array:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">read text_array parse_array;</pre>
+
+<p class="aside"><code>read</code> not only stores the text (just 
+as above) but breaks down the line into a sequence of words, in 
+which commas and full stops count as separate words in their own right. 
+(An example is given in <a href="ch4.html">Chapter IV</a>, 
+<a href="s30.html">&#167;30</a>.) In advance of this 
+<code>parse_array-&gt;0</code> must havebeen set to <i>W</i>, the 
+maximum number of words you want to parse. Any further text will be 
+ignored. <code>parse_array</code> should have at least 4<i>W</i> 
++ 2 entries, because <code>parse_array-&gt;1</code> is set to the 
+actual number of words parsed, and then a four-entry block is written 
+into the array for each word parsed. Numbering the words as 1, 2, 3,
+&#8230;, the number of letters in word <i>n</i> is written into 
+<code>parse_array-&gt;(n*4)</code>, and the position of the start 
+of the word in <code>text_array</code>. The dictionary value of 
+the word, or zero if it isn't recognised, is stored as 
+<code>parse_array--&gt;(n*2-1)</code>. The corresponding parsing 
+array to the previous text array, for the command &#8220;GET IN&#8221;, 
+looks like so:</p>
+
+<p class="lynxonly"></p>
+<table border="1" style="margin-left:30px;margin-top:1em;margin-bottom:1em">
+<tr><td><code>-&gt;0</code></td>
+<td><code>1</code></td>
+<td><code>2</code></td>
+<td><code>3</code></td>
+<td><code>4</code></td>
+<td><code>5</code></td>
+<td><code>6</code></td>
+<td><code>7</code></td>
+<td><code>8</code></td>
+<td><code>9</code></td></tr>
+<tr><td><i>max</i></td>
+<td><i>words</i></td>
+<td colspan="4" style="text-align:center"><i>first word</i></td>
+<td colspan="4" style="text-align:center"><i>second word</i></td></tr>
+<tr><td>10</td>
+<td>2</td>
+<td colspan="2"><code>'get'</code></td>
+<td>2</td>
+<td>3</td>
+<td colspan="2"><code>'in'</code></td>
+<td>5</td>
+<td>2</td></tr></table>
+
+<p class="aside">In this example both words were recognised. The 
+word &#8220;get&#8221; began at position <code>-&gt;2</code> in 
+the text array, and was 3 characters long; the word &#8220;in&#8221; 
+began at <code>-&gt;5</code> and was 2 characters long. 
+The following program reads in text and prints back an analysis:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Array text_array -&gt; 63;
+Array parse_array -&gt; 42;
+[ Main w x length position dict;
+  w = 'mary'; w = 'had'; w = 'a//'; w = 'little'; w = 'lamb';
+  for (::) {
+      print &quot;^&gt; &quot;;
+      text_array-&gt;0 = 60; parse_array-&gt;0 = 10;
+      read text_array parse_array;
+      for (w=1:w&lt;=parse_array-&gt;1:w++) {
+          print &quot;Word &quot;, w, &quot;: &quot;;
+          length = parse_array-&gt;(4*w);
+          position = parse_array-&gt;(4*w + 1);
+          dict = parse_array--&gt;(w*2-1);
+          for (x=0:x&lt;length:x++)
+              print (char) text_array-&gt;(position+x);<a id="p56" name="p56"></a>
+          print &quot; (length &quot;, length, &quot;)&quot;;
+          if (dict) print &quot; equals '&quot;, (address) dict, &quot;'^&quot;;
+          else print &quot; is not in the dictionary^&quot;;
+      }
+  }
+];
+</pre>
+
+<p class="aside">Note that the pointless-looking first line of <code>Main</code> 
+adds five words to the dictionary. The result is:</p>
+
+<p class="output"><tt>&gt;MARY, hello</tt><br>
+Word 1: mary (length 4) equals 'mary'<br>
+Word 2: , (length 1) is not in the dictionary<br>
+Word 3: hello (length 5) is not in the dictionary</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+What goes into the dictionary? The answer is: any of the words given 
+in the name of an object (see <a href="s3.html">&#167;3</a>), 
+any of the verbs and prepositions given in grammar by <code>Verb</code> 
+and <code>Extend</code> directives (see &#167;26), and anything 
+given as a dictionary-word constant. The last is convenient because 
+it means that code like</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (parse_array --&gt;(n*2-1)) == 'purple';</pre>
+
+<p class="aside">does what it looks as if it should. When compiling 
+this line, Inform automatically adds the word &#8220;purple&#8221; 
+to the story file's dictionary, so that any <code>read</code> statement 
+will recognise it.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b> <b>REFERENCES</b></span><br>
+Evin Robertson's function library <code>&quot;array.h&quot;</code> 
+provides some simple array-handling utilities. &nbsp;
+<span class="warning"><b>&#8226;</b></span>L. Ross Raszewski's function 
+library <code>&quot;istring.h&quot;</code> offers Inform versions of 
+the ANSI C string-handling routines, including <code>strcmp()</code>, 
+<code>strcpy()</code> and <code>strcat()</code>. The further extension 
+<code>&quot;znsi.h&quot;</code> allows the printing out of string 
+arrays with special escape sequences like <code>[B</code> interpreted 
+as &#8220;bold face.&#8221; (See also the same author's
+<code>&quot;ictype.h&quot;</code>.) &nbsp;
+<span class="warning"><b>&#8226;</b></span>Adam Cadre's function library 
+<code>&quot;flags.h&quot;</code> manages an array of boolean values 
+(that is, values which can only be <code>true</code> or <code>false</code>) 
+so as to use only one-sixteenth as much memory as a conventional array, 
+though at some cost to speed of access.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch1.html" title="Chapter I: The Inform Language">chapter I</a> /
+ <a href="s1.html" title="&#167;1: Routines">prev</a> /
+ <a href="s3.html" title="&#167;3: Objects and classes">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;11: Clothing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s10.html" title="&#167;10: Food and drink">prev</a> /
+ <a href="s12.html" title="&#167;12: Containers, supporters and sub-objects">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p126" name="p126"></a>
+<h2>&#167;11 &nbsp; Clothing</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-126_1.jpg" alt=""></span>
+The player's possessions are normally thought of as being held in
+the hands, but there are two alternative possibilities: some items
+might be being carried indirectly in a bag or other container (see
+<a href="s12.html">&#167;12</a> next), while others might be worn as 
+clothing. Wearing a hat is evidently different from carrying it. Some 
+consequences are left to the designer to sort out, such as taking 
+account of the hat keeping the rain off, but others are automatically 
+provided: for instance, a request to &#8220;drop all&#8221; will not 
+be taken as including the hat, and the hat will not count towards 
+any maximum number of items allowed to be held in the player's hands. 
+The library provides two actions for clothing: <code>Wear</code> and 
+<code>Disrobe</code>. There is already an action called <code>Remove</code> 
+for taking items out of containers, which is why the name <code>Remove</code> 
+is not used for taking clothes off.</p>
+
+<p class="indent">&#8216;Ruins&#8217; contains only one item of 
+clothing, found resting on an altar in the Shrine: it summons a 
+priest.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Treasure -&gt; -&gt; mask &quot;jade mosaic face-mask&quot;
+  with description &quot;How exquisite it would look in the Museum.&quot;,
+       initial &quot;Resting on the altar is a jade mosaic face-mask.&quot;,
+       name 'jade' 'mosaic' 'face-mask' 'mask' 'face',
+       cultural_value 10,
+       after [;
+           Wear: move priest to Shrine;
+               if (location == Shrine)
+                   &quot;Looking through the obsidian eyeslits of the
+                   mosaic mask, a ghostly presence reveals itself:
+                   a mummified calendrical priest, attending your
+                   word.&quot;;
+           Disrobe: remove priest;
+       ],
+  has  clothing;
+</pre>
+
+<p class="normal">The attribute <code>clothing</code> signifies that 
+the mask can be worn. During the time something is worn, it 
+has the attribute <code>worn</code>. The library's standard rules
+ensure that:</p>
+
+<p class="aside" style="margin-left:30px">An object can only have
+<code>worn</code> if it is <code>in player</code>, that is, if 
+it is an immediate possession of the player.</p>
+
+<p class="normal">If you use <code>move</code> or <code>remove</code> to 
+shift items of clothing in your own code, or give or take away the 
+<code>worn</code> attribute, then you too should follow this principle.</p>
+
+<a id="p127" name="p127"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+A risk of providing clothing for the player is that it's hard to resist 
+the lure of realism. A tweed jacket would add some colour to &#8216;Ruins&#8217;. 
+But if a jacket, why not plus-four trousers, an old pair of army boots 
+and a hat with a mosquito net? And if trousers, why not underwear? 
+What are the consequences if the player strips off? Too much of this 
+kind of realism can throw a game off balance, so: no tweed.</p>
+
+<a id="ex14" name="ex14"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans14">EXERCISE 14</a></b></span><br>
+Design a pair of white silk gloves, left and right, which are a single 
+object called &#8220;pair of white gloves&#8221; until the player asks 
+to do something which implies dividing them (typing &#8220;wear 
+left glove&#8221;, say, or &#8220;put right glove in drawer&#8221;). 
+They should automatically rejoin into the pair as soon as they are 
+together again. (By Richard Tucker. Hint: <code>react_before</code> 
+and <code>before</code> rules are all you need.)</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+For designers who do want to go down the &#8220;if trousers, why 
+not underwear?&#8221; road, Denis Moskowitz's library extension 
+<tt>&quot;clothing.h&quot;</tt> models clothing by layer and by
+area of body covered. &nbsp;
+<span class="warning"><b>&#8226;</b></span>For players who also want to, 
+the road to take is &#8216;I-0&#8217;, by Adam Cadre.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s10.html" title="&#167;10: Food and drink">prev</a> /
+ <a href="s12.html" title="&#167;12: Containers, supporters and sub-objects">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;A1: Library attributes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+<style type="text/css">
+dd {text-align: justify; margin-bottom: 0.5em; }
+</style>
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="app.html">appendices</a> /
+ <a href="app.html" title="Appendices">prev</a> /
+ <a href="sa2.html" title="&#167;A2: Library properties">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p418" name="p418"></a>
+<h2>&#167;A1 &nbsp; Library attributes</h2>
+
+<dl>
+<dt><code>absent</code></dt>
+<dd>A &#8216;floating object&#8217; (one with a <code>found_in</code> 
+property, which can appear in many different rooms) which is <code>absent</code>
+will in future no longer appear in the game. Note that you cannot make 
+a floating object disappear merely by giving it <code>absent</code>, 
+but must explicitly <code>remove</code> it as well.</dd>
+
+<dt><code>animate</code></dt>
+<dd>&#8220;Is alive (human or animal).&#8221; Can be spoken to in 
+&#8220;richard, hello&#8221; style; matches the <code>creature</code> token 
+in grammar; picks up &#8220;him&#8221; or &#8220;her&#8221; (according 
+to gender) rather than &#8220;it&#8221;, likewise &#8220;his&#8221;; 
+an object the player is changed into becomes <code>animate</code>; some 
+messages read &#8220;on whom&#8221;, etc., instead of &#8220;on 
+which&#8221;; can't be taken; its subobjects &#8220;belong to&#8221; 
+it rather than &#8220;are part of&#8221; it; messages don't assume 
+it can be &#8220;touched&#8221; or &#8220;squeezed&#8221; as an 
+ordinary object can; the actions <code>Attack</code>, <code>ThrowAt</code> 
+are diverted to <code>life</code> rather than rejected as being
+&#8216;futile violence&#8217;.</dd>
+
+<dt><code>clothing</code></dt>
+<dd>&#8220;Can be worn.&#8221;</dd>
+
+<dt><code>concealed</code></dt>
+<dd>&#8220;Concealed from view but present.&#8221; The player object 
+has this; an object which was the player until <code>ChangePlayer</code> 
+happened loses this property; a <code>concealed door</code> can't 
+be entered; does not appear in room descriptions.</dd>
+
+<dt><code>container</code></dt>
+<dd>Affects scope and light; object lists recurse through it if <code>open</code> 
+(or <code>transparent</code>); may be described as closed, open, locked, 
+empty; a possession will give it a <code>LetGo</code> action if the 
+player tries to remove it, or a <code>Receive</code> if something is 
+put in; things can be taken or removed from it, or inserted into it, 
+but only if it is <code>open</code>; likewise for &#8220;transfer&#8221; 
+and &#8220;empty&#8221;; room descriptions describe using <code>when_open</code> 
+or <code>when_closed</code> if given; if there is no defined description, 
+an <code>Examine</code> causes the contents to be searched (i.e. written 
+out) rather than a message &#8220;You see nothing special about&#8230;&#8221;; 
+<code>Search</code> only reveals the contents of containers, otherwise 
+saying &#8220;You find nothing&#8221;. <em>Note:</em> an object cannot 
+be both a <code>container</code> and a <code>supporter</code>.</dd>
+
+<dt><code>door</code></dt>
+<dd>&#8220;Is a door or bridge.&#8221; Room descriptions describe using 
+<code>when_open</code> or <code>when_closed</code> if given; and an 
+<code>Enter</code> action becomes a <code>Go</code> action. If a
+<code>Go</code> has to go through this object, then: if <code>concealed</code>, 
+the player &#8220;can't go that way&#8221;; if not <code>open</code>, then 
+the player is told either that this cannot be ascended or descended (if 
+the player tried &#8220;up&#8221; or &#8220;down&#8221;), or that it is in 
+the way (otherwise); but if neither, then its <code>door_to</code> property is 
+<a id="p419" name="p419"></a>
+consulted to see where it leads; finally, if this is zero, 
+then it is said to &#8220;lead nowhere&#8221; and otherwise the player 
+actually moves to the location.</dd>
+
+<dt><code>edible</code></dt>
+<dd>&#8220;Can be eaten&#8221; (and thus removed from game).</dd>
+
+<dt><code>enterable</code></dt>
+<dd>Affects scope and light; only an <code>enterable</code> on the 
+floor can be entered. If an <code>enterable</code> is also a <code>container</code> 
+then it can only be entered or exited if it is <code>open</code>.</dd>
+
+<dt><code>female</code></dt>
+<dd>This object has a feminine name. In games written in English, this 
+makes her a female person, though in other languages it might be inanimate.
+The parser uses this information when considering pronouns like &#8220;her&#8221;.
+(In English, anything <code>animate</code> is assumed to be male 
+unless <code>female</code> or <code>neuter</code> is set.)</dd>
+
+<dt><code>general</code></dt>
+<dd>A general-purpose attribute, defined by the library but never 
+looked at or altered by it. Available for designers to use if they 
+choose to do so.</dd>
+
+<dt><code>light</code></dt>
+<dd>&#8220;Is giving off light.&#8221; (See <a href="s19.html">&#167;19</a>.) 
+Also: the parser understands &#8220;lit&#8221;, &#8220;lighted&#8221;, 
+&#8220;unlit&#8221; using this; inventories will say &#8220;(providing 
+light)&#8221; of it, and so will room descriptions if the current 
+<code>location</code> is ordinarily dark; it will never be automatically 
+put away into the player's <code>SACK_OBJECT</code>, as it might plausibly 
+be inflammable or the main light source.</dd>
+
+<dt><code>lockable</code></dt>
+<dd>Can be locked or unlocked by a player holding its key object, 
+which is given by the property <code>with_key</code>; if a <code>container</code> 
+and also <code>locked</code>, may be called &#8220;locked&#8221; in 
+inventories.</dd>
+
+<dt><code>locked</code></dt>
+<dd>Can't be opened. If a <code>container</code> and also <code>lockable</code>, 
+may be called &#8220;locked&#8221; in inventories.</dd>
+
+<dt><code>male</code></dt>
+<dd>This object has a masculine name. In games written in English, this 
+makes him a male person, though in other languages it might be inanimate. 
+The parser uses this information when considering pronouns like 
+&#8220;him&#8221;. (In English, anything <code>animate</code> is assumed 
+to be male unless <code>female</code> or <code>neuter</code> is set.)</dd>
+
+<dt><code>moved</code></dt>
+<dd>&#8220;Has been or is being held by the player.&#8221; Objects 
+(immediately) owned by the player after <code>Initialise</code> has run 
+are given it; at the end of each turn, if an item is newly held by 
+the player and is <code>scored</code>, it is given <code>moved</code> 
+and <code>OBJECT_SCORE</code> points are awarded; an object's 
+<code>initial</code> message only appears in room descriptions if it 
+is un<code>moved</code>.</dd>
+
+<dt><code>neuter</code></dt>
+<dd>This object's name is neither masculine nor feminine. (In English,
+anything without <code>animate</code> is assumed neuter, because only 
+people and higher animals have gender. Anything <code>animate</code> is 
+assumed <code>male</code> unless <code>female</code> or <code>neuter</code> 
+is set. A robot, for instance, might be an <code>animate</code>
+object worth making <code>neuter</code>.)</dd>
+
+<dt><code>on</code></dt>
+<dd>&#8220;Switched on.&#8221; A <code>switchable</code> object 
+with <code>on</code> is described by <code>with_on</code> in room 
+descriptions; it will be called &#8220;switched on&#8221; by <code>Examine</code>.</dd>
+
+<dt><code>open</code></dt>
+<dd>&#8220;Open door or container.&#8221; Affects scope and light; 
+lists (such as inventories) recurse through an <code>open 
+container</code>; if a <code>container</code>, called 
+<a id="p420" name="p420"></a>
+&#8220;open&#8221; by some descriptions; things can be taken or removed from an <code>open 
+container</code>; similarly inserted, transferred or emptied. A
+<code>container</code> can only be entered or exited if it is both 
+<code>enterable</code> and <code>open</code>. An <code>open door</code> 
+can be entered. Described by <code>when_open</code> in room
+descriptions.</dd>
+
+<dt><code>openable</code></dt>
+<dd>Can be opened or closed, unless <code>locked</code>.</dd>
+
+<dt><code>pluralname</code></dt>
+<dd>This single object's name is in the plural. For instance, an 
+object called &#8220;seedless grapes&#8221; should have <code>pluralname</code> 
+set. The library will then use the pronoun &#8220;them&#8221; and 
+the indefinite article &#8220;some&#8221; automatically.</dd>
+
+<dt><code>proper</code></dt>
+<dd>Its short name is a proper noun, and never preceded by &#8220;the&#8221; 
+or &#8220;The&#8221;. The player's object must have this (so something 
+changed into will be given it).</dd>
+
+<dt><code>scenery</code></dt>
+<dd>Not listed by the library in room descriptions; &#8220;not portable&#8221; 
+to be taken; &#8220;you are unable to&#8221; pull, push, or turn it.</dd>
+
+<dt><code>scored</code></dt>
+<dd>The player gets <code>OBJECT_SCORE</code> points for picking it 
+up for the first time; or, if a room, <code>ROOM_SCORE</code> points 
+for visiting it for the first time.</dd>
+
+<dt><code>static</code></dt>
+<dd>&#8220;Fixed in place&#8221; if player tries to take, remove, pull, 
+push or turn.</dd>
+
+<dt><code>supporter</code></dt>
+<dd>&#8220;Things can be put on top of it.&#8221; Affects scope and 
+light; object lists recurse through it; a possession will give it 
+a <code>LetGo</code> action if the player tries to remove it, or 
+a <code>Receive</code> if something is put in; things can be taken 
+or removed from it, or put on it; likewise for transfers; a player
+inside it is said to be &#8220;on&#8221; rather than &#8220;in&#8221; 
+it; room descriptions list its contents in separate paragraphs 
+if it is itself listed. <em>Note:</em> an object cannot be both 
+a <code>container</code> and a <code>supporter</code>.</dd>
+
+<dt><code>switchable</code></dt>
+<dd>Can be switched on or off; listed as such by <code>Examine</code>; 
+described using <code>when_on</code> or <code>when_off</code> in 
+room descriptions.</dd>
+
+<dt><code>talkable</code></dt>
+<dd>Player can talk to this object in &#8220;thing, do this&#8221; 
+style. This is useful for microphones and the like, when 
+<code>animate</code> is inappropriate.</dd>
+
+<dt><code>transparent</code></dt> 
+<dd>&#8220;Contents are visible.&#8221; Affects scope and light; 
+a <code>transparent</code> container is treated as if it were 
+<code>open</code> for printing of contents.</dd>
+
+<dt><code>visited</code></dt>
+<dd>&#8220;Has been or is being visited by the player.&#8221; Given 
+to a room immediately after a <code>Look</code> first happens there: 
+if this room is <code>scored</code> then <code>ROOM_SCORE</code> points 
+are awarded. Affects whether room descriptions are abbreviated or not.</dd>
+
+<dt><code>workflag</code></dt>
+<dd>Temporary flag used by Inform internals, also available to outside 
+routines; can be used to select items for some lists printed by 
+<code>WriteListFrom</code>.</dd>
+
+<dt><code>worn</code></dt>
+<dd>&#8220;Item of clothing being worn.&#8221; Should only be an object 
+being immediately carried by player. Affects inventories; doesn't 
+count towards the limit of <code>MAX_CARRIED</code>; won't be automatically 
+put away into the <code>SACK_OBJECT</code>; a <code>Drop</code> action 
+will cause a <code>Disrobe</code> action first; so will <code>PutOn</code> 
+or <code>Insert</code>.</dd>
+
+</dl>
+
+<a id="p421" name="p421"></a>
+<p class="aside"><i>Note.</i> &nbsp; The only library attributes which 
+it's useful to apply to locations are <code>light</code>,
+<code>scored</code> and <code>visited</code>.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="app.html">appendices</a> /
+ <a href="app.html" title="Appendices">prev</a> /
+ <a href="sa2.html" title="&#167;A2: Library properties">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

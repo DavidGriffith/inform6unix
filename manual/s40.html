@@ -1,0 +1,810 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;40: Error messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">chapter VI</a> /
+ <a href="s39.html" title="&#167;39: Controlling compilation from without">prev</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p300" name="p300"></a>
+<h2>&#167;40 &nbsp; Error messages</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-300_1.jpg" alt=""></span>
+Five kinds of error are reported by Inform: a fatal error is a
+breakdown severe enough to make Inform stop working at once; an
+error allows Inform to continue for the time being, but will normally
+cause Inform not to output the story file (because it is suspected
+of being damaged); and a warning means that Inform suspects you may have
+made a mistake, but will not take any action itself. The fourth kind 
+is an ICL error, where a mistake has been made in a file of ICL commands 
+for Inform to follow: an error on the command line is called a 
+&#8220;command line error&#8221; but is just another way to get an 
+ICL error. And the fifth is a compiler error, which appears if Inform's 
+internal cross-checking shows that it is malfunctioning. The text 
+reporting a compiler error asks the user to report it the author of
+Inform.</p>
+
+<h3>Fatal errors</h3>
+
+<h4>1. <i>Too many errors</i></h4>
+
+<p class="lynxonly"></p>
+<pre>Too many errors: giving up</pre>
+
+<p class="normal">After 100 errors, Inform stops, in case it has been 
+given the wrong source file altogether, such as a program written in 
+a different language.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>2. <i>Input/output problems</i></h4>
+
+<p class="normal">Most commonly, Inform has the wrong filename:</p>
+
+<p><tt>Couldn't open source file 
+</tt>&#8249;<span class="token">filename</span>&#8250;<br>
+<tt>Couldn't open output file 
+</tt>&#8249;<span class="token">filename</span>&#8250;</p>
+
+<p class="normal">(and so on). More seriously the whole process of 
+file input/output (or &#8220;I/O&#8221;) may go wrong for some reason 
+to do with the host computer: for instance, if it runs out of disc 
+space. Such errors are rare and look like this:</p>
+
+<p><tt>I/O failure: couldn't read from source file<br>
+I/O failure: couldn't backtrack on story file for checksum</tt></p>
+
+<p class="normal">and so forth. The explanation might be that two 
+tasks are vying for control of the same file (e.g., two independent Inform 
+compilations trying to write a debugging information file with the 
+same name), or that the file has somehow been left &#8220;open&#8221; 
+by earlier, aborted compilation. Normally you can only have at most 
+256 files of source code in a single compilation. If this limit is 
+passed, Inform generates the error</p>
+
+<p><tt>Program contains too many source files: increase #define MAX_SOURCE_FILES</tt></p>
+
+<p class="normal">This might happen if file <i>A</i> includes file 
+<i>B</i> which includes file <i>C</i> which includes file <i>A</i> 
+which&#8230; and so on. Finally, if a non-existent pathname variable 
+is set in ICL, the error</p>
+
+<p><tt>No such path setting as</tt> &#8249;<span class="token">name</span>&#8250;</p>
+
+<p class="normal">is generated.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>3. <i>Running out of things</i></h4>
+
+<p class="normal">If there is not enough memory even to get started, 
+the following appear:</p>
+
+<p><tt>Run out of memory allocating </tt>&#8249;<span class="token">n</span>&#8250;<tt>
+bytes for </tt>&#8249;<span class="token">something</span>&#8250;<br>
+<tt>Run out of memory allocating array of </tt>&#8249;<span class="token">n</span>&#8250;<tt>x</tt>&#8249;<span
+class="token">m</span>&#8250;<tt> bytes for </tt>&#8249;<span
+class="token">something</span>&#8250;</p>
+
+<p class="normal">More often memory will run out in the course of 
+compilation, like so:</p>
+
+<p><tt>The memory setting </tt>&#8249;<span class="token">setting</span>&#8250;<tt> 
+(which is </tt>&#8249;<span class="token">value</span>&#8250;<tt> at 
+present) has been exceeded. Try running Inform again 
+with $</tt>&#8249;<span class="token">setting</span>&#8250;<tt>=</tt>&#8249;<span 
+class="token">larger-value</span>&#8250;<tt> on the command line.</tt></p>
+
+<p class="normal">(For details of memory settings, see 
+<a href="s39.html">&#167;39</a> above.) In a really colossal game, 
+it is just conceivable that you might hit</p>
+
+<p><tt>One of the memory blocks has exceeded 640K</tt></p>
+
+<p class="normal">which would need Inform to be recompiled to get 
+around (but I do not expect anyone ever to have this trouble, because 
+other limits would be reached first). Much more likely is the error</p>
+
+<p><tt>The story file/module exceeds version </tt>&#8249;<span 
+class="token">n</span>&#8250;<tt> limit (</tt>&#8249;<span
+class="token">m</span>&#8250;<tt>K) by </tt>&#8249;<span
+class="token">b</span>&#8250;<tt> bytes</tt></p>
+
+<p class="normal">If you're already using version 8, then the story file 
+is full: you might be able to squeeze more game in using the <code>Abbreviate</code> 
+directive, but basically you're near to the maximum game size possible. 
+Otherwise, the error suggests that you might want to change the version 
+from 5 to 8, and the game will be able to grow at least twice as large 
+again. It's also possible to run out not of story file space but of 
+byte-accessible memory:</p>
+
+<p><tt>This program has overflowed the maximum readable-memory size 
+of the Z-machine format. See the memory map below: the start of the
+area marked &quot;above readable memory&quot; must be brought down 
+to $10000 or less.</tt></p>
+
+<a id="p302" name="p302"></a>
+<p class="normal">Inform then prints out a memory map so that you can 
+see what contributed to the exhaustion: there is detailed advice on 
+this vexatious error in <a href="s45.html">&#167;45</a>. Finally,
+you can also exhaust the number of classes:</p>
+
+<p><tt>Inform's maximum possible number of classes (whatever amount 
+of memory is allocated) has been reached. If this causes serious
+inconvenience, please contact the author.</tt></p>
+
+<p class="normal">At time of writing, this maximum is 256 and nobody 
+has yet contacted the author.</p>
+
+<h3>Errors</h3>
+
+<p class="normal">In the following, anything in double-quotes is a 
+quotation from your source code; other strings are in single-quotes. 
+The most common error by far takes the form:</p>
+
+<p><tt>Expected </tt>&#8249;<span class="token">...</span>&#8250;<tt> but
+found </tt>&#8249;<span class="token">...</span>&#8250;</p> 
+
+<p class="normal">There are 112 such errors, most of them straightforward 
+to sort out, but a few take some practice. One of the trickiest things 
+to diagnose is a loop statement having been misspelt. For example, the 
+lines</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+pritn &quot;Hello&quot;;
+While (x == y) print &quot;x is still y^&quot;;
+</pre>
+
+<p class="normal">produce one error each:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+line 1: Error: Expected assignment or statement but found pritn
+line 2: Error: Expected ';' but found print
+</pre>
+
+<p class="normal">The first is fine. The second is odd: a human immediately 
+sees that <code>While</code> is meant to be a <code>while</code> loop, 
+but Inform is not able to make textual guesses like this. Instead Inform 
+decides that the code intended was</p>
+
+<p class="lynxonly"></p>
+<pre class="code">While (x == y); print &quot;x is still y^&quot;;</pre>
+
+<p class="normal">with <code>While</code> assumed to be the name of 
+a function which hasn't been declared yet. Thus, Inform thinks the 
+mistake is that the <code>;</code> has been missed out.</p>
+
+<p class="indent">In that example, Inform repaired the situation and 
+was able to carry on as normal in subsequent lines. But it sometimes happens 
+that a whole cascade of errors is thrown up, in code which the user is 
+fairly sure must be nearly right. What has happened is that one syntax 
+mistake threw Inform off the right track, so that it continued not 
+to know where it was for many lines in a row. Look at the first error 
+message, fix that and then try again.</p>
+
+<a id="p303" name="p303"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<h4>1. <i>Reading in the source-code</i></h4>
+
+<ul>
+<li><tt>Unrecognised combination in source: </tt>&#8249;<span
+ class="token">text</span>&#8250;</li>
+<li><tt>Alphabetic character expected after </tt>&#8249;<span
+ class="token">text</span>&#8250;</li>
+<li><tt>Name exceeds the maximum length of </tt>&#8249;<span
+ class="token">number</span>&#8250;<tt> characters: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>Binary number expected after '$$'</tt></li>
+<li><tt>Hexadecimal number expected after '$'</tt></li>
+<li><tt>Too much text for one pair of quotations '...' to hold</tt></li>
+<li><tt>Too much text for one pair of quotations &quot;...&quot; to hold</tt></li>
+<li><tt>No text between quotation marks ''</tt></li>
+<li><tt>Expected 'p' after '//' to give number of dictionary word </tt>&#8249;<span
+ class="token">word</span>&#8250;</li>
+</ul>
+
+<p class="normal">In that last error message, &#8220;number&#8221; is 
+used in the linguistic sense, of singular versus plural.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>2. <i>Characters</i></h4>
+
+<ul>
+<li><tt>Illegal character found in source: </tt>&#8249;<span
+ class="token">char</span>&#8250;</li>
+<li><tt>No such accented character as </tt>&#8249;<span
+ class="token">text</span>&#8250;</li>
+<li><tt>'@{' without matching '}'</tt></li>
+<li><tt>At most four hexadecimal digits allowed in '@{...}'</tt></li>
+<li><tt>'@{...}' may only contain hexadecimal digits</tt></li>
+<li><tt>'@..' must have two decimal digits</tt></li>
+<li><tt>Character can be printed but not input: </tt>&#8249;<span
+ class="token">char</span>&#8250;</li>
+<li><tt>Character can be printed but not used as a value: </tt>&#8249;<span
+ class="token">char</span>&#8250;</li>
+<li><tt>Alphabet string must give exactly 23 [or 26] characters</tt></li>
+<li><tt>Character can't be used in alphabets unless entered into Zcharacter
+ table: </tt>&#8249;<span class="token">char</span>&#8250;</li>
+<li><tt>Character must first be entered into Zcharacter table: </tt>&#8249;<span
+ class="token">char</span>&#8250;</li>
+<li><tt>Character can only be used if declared in advance as part of 'Zcharacter 
+table': </tt>&#8249;<span class="token">char</span>&#8250;</li>
+<li><tt>Character duplicated in alphabet: </tt>&#8249;<span
+ class="token">char</span>&#8250;</li>
+<li><tt>No more room in the Zcharacter table</tt></li>
+</ul>
+
+<p class="normal">Characters are given by ISO Latin-1 code number if 
+in this set, and otherwise by Unicode number, and are also printed if 
+this is possible. For instance, if you try to use an accented character 
+as part of an identifier name, you cause an error like so:</p>
+
+<p><tt>Error: Illegal character found in source: (ISO Latin1) $e9, 
+i.e., 'e'<br>&gt; Object cafe</tt></p>
+
+<a id="p304" name="p304"></a>
+<p class="normal">because identifiers may only use the letters A to Z, 
+in upper and lower case, the digits 0 to 9 and the underscore character 
+_. The same kind of error is produced if you try to use (say) the ^ 
+character outside of quotation marks. The characters legal in unquoted 
+Inform source code are:</p>
+
+<p class="syntax">&#8249;<span class="token">new-line</span>&#8250;
+&#8249;<span class="token">form-feed</span>&#8250;
+&#8249;<span class="token">space</span>&#8250;
+&#8249;<span class="token">tab</span>&#8250;<br>
+<tt>0123456789<br>
+abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+()[]{}&lt;&gt;&quot;',.:;?!+-*/%=&amp;|~#@_</tt></p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>3. <i>Variables and arrays</i></h4>
+
+<ul>
+<li><tt>Variable must be defined before use: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>'=' applied to undeclared variable</tt></li>
+<li><tt>Local variable defined twice: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>All 233 global variables already declared</tt></li>
+<li><tt>No array size or initial values given</tt></li>
+<li><tt>Array sizes must be known now, not externally defined</tt></li>
+<li><tt>An array must have a positive number of entries</tt></li>
+<li><tt>A 'string' array can have at most 256 entries</tt></li>
+<li><tt>An array must have between 1 and 32767 entries</tt></li>
+<li><tt>Entries in byte arrays and strings must be known constants</tt></li>
+<li><tt>Missing ';' to end the initial array values before &quot;[&quot; or &quot;]&quot;</tt></li>
+</ul>
+
+<p class="normal">The limit of 233 global variables is absolute: a 
+program even approaching this limit should probably be making more 
+use of object properties to store its information. &#8220;Entries&#8230;
+must be known constants&#8221; is a restriction on what byte or 
+string arrays may contain: basically, numbers or characters; defined
+constants (such as object names) may only be used if they have already 
+been defined. This restriction does not apply to the more normally used 
+word and table arrays.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>4. <i>Routines and function calls</i></h4>
+
+<ul>
+<li><tt>No 'Main' routine has been defined</tt></li>
+<li><tt>It is illegal to nest routines using '#['</tt></li>
+<li><tt>A routine can have at most 15 local variables</tt></li>
+<li><tt>Argument to system function missing</tt></li>
+<li><tt>System function given with too many arguments</tt></li>
+<li><tt>Only constants can be used as possible 'random' results</tt></li>
+<li><tt><a id="p305" name="305"></a>A function may be called with at most 7 arguments</tt></li>
+<li><tt>Duplicate definition of label: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>The following name is reserved by Inform for its own use as a
+routine name; you can use it as a routine name yourself (to 
+override the standard definition) but cannot use it for anything 
+else: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+</ul>
+
+<p class="normal">Note that the system function <code>random</code>, when 
+it takes more than one argument, can only take constant arguments, 
+as this enables the possibilities to be stored efficiently within 
+the program. Thus <code>random(random(10), location)</code> will
+produce an error. To make a random choice between non-constant values,
+write a <code>switch</code> statement instead.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>5. <i>Expressions and arithmetic</i></h4>
+
+<ul>
+<li><tt>Missing operator: inserting '+'</tt></li>
+<li><tt>Evaluating this has no effect: </tt>&#8249;<span
+ class="token">operator</span>&#8250;</li>
+<li><tt>'=' applied to </tt>&#8249;<span
+ class="token">operator</span>&#8250;</li>
+<li><tt>Brackets mandatory to clarify order of: </tt>&#8249;<span
+ class="token">operator</span>&#8250;</li>
+<li><tt>Missing operand for </tt>&#8249;<span
+ class="token">operator</span>&#8250;</li>
+<li><tt>Missing operand after </tt>&#8249;<span
+ class="token">something</span>&#8250;</li>
+<li><tt>Found '(' without matching ')'</tt></li>
+<li><tt>No expression between brackets '(' and ')'</tt></li>
+<li><tt>'or' not between values to the right of a condition</tt></li>
+<li><tt>'has'/'hasnt' applied to illegal attribute number</tt></li>
+<li><tt>Division of constant by zero</tt></li>
+<li><tt>Signed arithmetic on compile-time constants overflowed the range
+ -32768 to +32767: </tt>&#8249;<span class="token">calculation</span>&#8250;</li>
+<li><tt>Label name used as value: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>System function name used as value: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>No such constant as </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>The obsolete '#w$word' construct has been removed</tt></li>
+</ul>
+
+<p class="normal">&#8220;Operators&#8221; include not only addition 
+<code>+</code>, multiplication <code>*</code> and so on, but also
+higher-level things like <code>--&gt;</code> (&#8220;array entry&#8221;) 
+and <code>.</code> (&#8220;property value&#8221;) and <code>::</code>
+(&#8220;superclass&#8221;). An example of an operator where &#8220;Evaluating 
+this has no effect&#8221; is in the statement</p>
+
+<p class="lynxonly"></p>
+<pre class="code">34 * score;</pre>
+
+<p class="normal">where the multiplication is a waste of time, since 
+nothing is done with the result. &#8220;= applied to &#8249;<span
+class="token">operator</span>&#8250;&#8221; means something like</p>
+
+<p class="lynxonly"></p>
+<pre class="code">(4 / fish) = 7;</pre>
+
+<a id="p306" name="p306"></a>
+<p class="normal">which literally means &#8220;set 4<code>/fish</code> to 7&#8221; 
+and gives the error &#8220;= applied to /&#8221;.</p>
+
+<p class="indent">&#8220;Brackets mandatory to clarify order&#8221; means 
+that an expression is unclear as written, and this is often a caution 
+that it would be wrong either way and needs to be reconsidered. For 
+instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (parent(axe) == location == Hall_of_Mists) ...</pre>
+
+<p class="normal">This looks as if it might mean &#8220;if these three 
+values are all equal&#8221;, but does not: the result of <code>==</code> is 
+either <code>true</code> or <code>false</code>, so whichever comparison happens
+first, the other one compares against one of these values.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>6. <i>Miscellaneous errors in statements</i></h4>
+
+<ul>
+<li><tt>'do' without matching 'until'</tt></li>
+<li><tt>'default' without matching 'switch'</tt></li>
+<li><tt>'else' without matching 'if'</tt></li>
+<li><tt>'until' without matching 'do'</tt></li>
+<li><tt>'break' can only be used in a loop or 'switch' block</tt></li>
+<li><tt>At most 32 values can be given in a single 'switch' case</tt></li>
+<li><tt>Multiple 'default' clauses defined in same 'switch'</tt></li>
+<li><tt>'default' must be the last 'switch' case</tt></li>
+<li><tt>'continue' can only be used in a loop block</tt></li>
+<li><tt>A reserved word was used as a print specification: </tt>&#8249;<span
+ class="token">name</span>&#8250;</li>
+<li><tt>No lines of text given for 'box' display</tt></li>
+<li><tt>In Version 3 no status-line drawing routine can be given</tt></li>
+<li><tt>The 'style' statement cannot be used for Version 3 games</tt></li>
+</ul>
+
+<p class="normal">For instance, <code>print (bold) X</code> gives the 
+&#8220;reserved word in print specification&#8221; error because <code>bold</code> 
+is a keyword that has some meaning already (the statement <code>style 
+bold;</code> changes the type face to bold). Anyway, call such a printing
+routine something else.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>7. <i>Object and class declarations</i></h4>
+
+<ul>
+<li><tt>Two textual short names given for only one object</tt></li>
+<li><tt>The syntax '-&gt;' is only used as an alternative to 'Nearby'</tt></li>
+<li><tt>Use of '-&gt;' (or 'Nearby') clashes with giving a parent</tt></li>
+<li><tt>'-&gt;' (or 'Nearby') fails because there is no previous object</tt></li>
+<li><tt>'-&gt; -&gt; ...' fails because no previous object is deep enough</tt></li>
+<li><tt>Two commas ',' in a row in object/class definition</tt></li>
+<li><tt>Object/class definition finishes with ','</tt></li>
+<li><a id="p307" name="p307"></a>&#8249;<span class="token">name</span>&#8250;<tt> is a name already 
+in use (with type </tt>&#8249;<span class="token">type</span>&#8250;<tt>) 
+and may not be used as a property name too</tt></li>
+<li><tt>Property given twice in the same declaration, because the names
+'</tt>&#8249;<span class="token">name</span>&#8250;<tt>' and '</tt>&#8249;<span 
+class="token">name</span>&#8250;<tt>' actually refer to the same property</tt></li>
+<li><tt>Property given twice in the same declaration: </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>Property should be declared in 'with', not 'private': </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>Limit (of 32 values) exceeded for property </tt>&#8249;<span
+class="tokne">name</span>&#8250;</li>
+<li><tt>An additive property has inherited so many values that the 
+list has overflowed the maximum 32 entries</tt></li>
+<li><tt>Duplicate-number not known at compile time</tt></li>
+<li><tt>The number of duplicates must be 1 to 10000</tt></li>
+</ul>
+
+<p class="normal">Note that &#8220;common properties&#8221; (those provided 
+by the library, or those declared with <code>Property</code>) cannot 
+be made <code>private</code>. All other properties arecalled &#8220;individual&#8221;. 
+The &#8220;number of duplicates&#8221; referred to is the number of duplicate 
+instances to make for a new class, and it needs to be a number Inform 
+can determine now, not later on in the source code (or in another module 
+altogether). The limit 10,000 is arbitrary and imposed to help prevent
+accidents: in practice available memory is very unlikely to permit 
+anything like this many instances.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>8. <i>Grammar</i></h4>
+
+<ul>
+<li><tt>Two different verb definitions refer to </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>There is no previous grammar for the verb </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>There is no action routine called </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>No such grammar token as </tt>&#8249;<span
+class="token">text</span>&#8250;</li>
+<li><tt>'=' is only legal here as 'noun=Routine'</tt></li>
+<li><tt>Not an action routine: </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>This is a fake action, not a real one: </tt>&#8249;<span
+class="token">name</span>&#8250;</li>
+<li><tt>Too many lines of grammar for verb: increase #define MAX_LINES_PER_VERB</tt></li>
+<li><tt>'/' can only be used with Library 6/3 or later</tt></li>
+<li><tt>'/' can only be applied to prepositions</tt></li>
+<li><tt>The 'topic' token is only available if you are using Library
+6/3 or later</tt></li>
+<li><tt>'reverse' actions can only be used with Library 6/3 or later</tt></li>
+</ul>
+
+<p class="normal">At present verbs are limited to 20 grammar lines each, 
+though this would be easy to increase. (A grammar of this kind of 
+length can probably be written more efficiently using general parsing 
+routines, however.)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="p308" name="p308"></a>
+<h4>9. <i>Conditional compilation</i></h4>
+
+<ul>
+<li><tt>'Ifnot' without matching 'If...'</tt></li>
+<li><tt>'Endif' without matching 'If...'</tt></li>
+<li><tt>Second 'Ifnot' for the same 'If...' condition</tt></li>
+<li><tt>End of file reached in code 'If...'d out</tt></li>
+<li><tt>This condition can't be determined</tt></li>
+</ul>
+
+<p class="normal">&#8220;Condition can't be determined&#8221; only 
+arises for <code>Iftrue</code> and <code>Iffalse</code>, which
+make numerical or logical tests: for instance,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Iftrue #strings_offset == $4a50;</pre>
+
+<p class="normal">can't be determined because, although both quantities 
+are constants, the value of <code>#strings_offset</code> will not be 
+known until compilation is finished. On the other hand, for example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Iftrue #version_number &gt; 5;</pre>
+
+<p class="normal">can be determined at any time, as the version number 
+was set before compilation.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>10. <i>Miscellaneous errors in directives</i></h4>
+
+<ul>
+<li><tt>You can't 'Replace' a system function already used</tt></li>
+<li><tt>Must specify 0 to 3 local variables for 'Stub' routine</tt></li>
+<li><tt>A 'Switches' directive must come before the first constant definition</tt></li>
+<li><tt>All 62 properties already declared</tt></li>
+<li><tt>'alias' incompatible with 'additive'</tt></li>
+<li><tt>The serial number must be a 6-digit date in double-quotes</tt></li>
+<li><tt>A definite value must be given as release number</tt></li>
+<li><tt>A definite value must be given as version number</tt></li>
+<li><tt>Grammar__Version must be given an explicit constant value</tt></li>
+<li><tt>Once a fake action has been defined it is too late to change the
+grammar version. (If you are using the library, move any Fake_Action 
+directives to a point after the inclusion of &quot;Parser&quot;.)</tt></li>
+<li><tt>The version number must be in the range 3 to 8</tt></li>
+<li><tt>All 64 abbreviations already declared</tt></li>
+<li><tt>All abbreviations must be declared together</tt></li>
+<li><tt>It's not worth abbreviating </tt>&#8249;<span class="token">text</span>&#8250;</li>
+<li><tt>'Default' cannot be used in -M (Module) mode</tt></li>
+<li><tt>'LowString' cannot be used in -M (Module) mode</tt></li>
+</ul>
+
+<a id="p309" name="p309"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<h4>11. <i>Linking and importing</i></h4>
+
+<ul>
+<li><tt>File isn't a module: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: action name clash with </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: program and module give differing values of </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: module (wrongly) declared this a variable: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this attribute is undeclared within module: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this property is undeclared within module: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this was referred to as a constant, but isn't: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: </tt>&#8249;<span class="token">type</span>&#8250;<tt>
+</tt>&#8249;<span class="token">name</span>&#8250;<tt> in both program and module</tt></li>
+<li><tt>Link: </tt>&#8249;<span class="token">name</span>&#8250;<tt>
+has type </tt>&#8249;<span class="token">type</span>&#8250;<tt> 
+in program but type </tt>&#8249;<span class="token">type</span>&#8250;<tt> 
+in module</tt></li>
+<li><tt>Link: failed because too many extra global variables needed</tt></li>
+<li><tt>Link: module (wrongly) declared this a variable: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this attribute is undeclared within module: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this property is undeclared within module: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: this was referred to as a constant, but isn't: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Link: module and game use different character sets</tt></li>
+<li><tt>Link: module and game both define non-standard character sets, but they disagree</tt></li>
+<li><tt>Link: module compiled as Version </tt>&#8249;<span class="token">number</span>&#8250;<tt> 
+(so it can't link into this V</tt>&#8249;<span class="token">number</span>&#8250;<tt> game</tt></li>
+<li><tt>'Import' cannot import things of this type: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>'Import' can only be used in -M (Module) mode</tt></li>
+</ul>
+
+<p class="normal">Note that the errors beginning &#8220;Link:&#8221; are 
+exactly those occurring during the process of linking a module into 
+the current compilation. They mostly arise when the same name is used 
+for one purpose in the current program, and a different one in the 
+module.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>12. <i>Assembly language</i></h4>
+
+<ul>
+<li><tt>Opcode specification should have form &quot;VAR:102&quot;</tt></li>
+<li><tt>Unknown flag: options are B (branch), S (store), T (text), 
+I (indirect addressing), F** (set this Flags 2 bit)</tt></li>
+<li><tt>Only one '-&gt;' store destination can be given</tt></li>
+<li><tt>Only one '?' branch destination can be given</tt></li>
+<li><tt>No assembly instruction may have more than 8 operands</tt></li>
+<li><tt>This opcode does not use indirect addressing</tt></li>
+<li><tt>Indirect addressing can only be used on the first operand</tt></li>
+<li><tt>Store destination (the last operand) is not a variable</tt></li>
+<li><tt>Opcode unavailable in this Z-machine version: </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>Assembly mistake: syntax is </tt>&#8249;<span class="token">syntax</span>&#8250;</li>
+<li><tt><a id="p310" name="p310"></a>Routine contains no such label as </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>For this operand type, opcode number must be in range </tt>&#8249;<span class="token">range</span>&#8250;</li>
+</ul>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>13. <i>Deliberate &#8220;errors&#8221;</i></h4>
+
+<p class="normal">Finally, error messages can also be produced from 
+within the program (deliberately) using <code>Message</code>. It may 
+be that a mysterious message is being caused by an included file 
+written by someone other than yourself.</p>
+
+<h3>Warnings</h3>
+
+<h4>1. <i>Questionable practices</i></h4>
+
+<p>&#8249;<span class="token">type</span>&#8250;
+&#8249;<span class="token">name</span>&#8250;<tt> declared but not used</tt></p>
+
+<p class="normal">For example, a <code>Global</code> directive was 
+used to create a variable, which was then never used in the program.</p>
+
+<p><tt>'=' used as condition: '==' intended?</tt></p>
+
+<p class="normal">Although a line like</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (x = 5) print &quot;My name is Alan Partridge.&quot;;</pre>
+
+<p class="normal">is legal, it's probably a mistake: <code>x = 5</code> 
+sets <code>x</code> to 5 and results in 5, so the condition is always 
+true. Presumably it was a mistype for <code>x == 5</code> meaning 
+&#8220;test <code>x</code> to see if it's equal to 5&#8221;.</p>
+
+<p><tt>Unlike C, Inform uses ':' to divide parts of a 'for' loop
+specification: replacing ';' with ':'</tt></p>
+
+<p class="normal">Programmers used to the C language will now and then 
+habitually type a <code>for</code> loop in the form</p>
+
+<p class="lynxonly"></p>
+<pre class="code">for (i=0; i&lt;10; i++) ...</pre>
+
+<p class="normal">but Inform needs colons, not semicolons: however, as 
+it can see what was intended, it makes the correction automatically 
+and issues only a warning.</p>
+
+<a id="p311" name="p311"></a>
+<p><tt>Missing ','? Property data seems to contain the property 
+name </tt>&#8249;<span class="token">name</span>&#8250;</p>
+
+<p class="normal">The following, part of an object declaration, 
+is legal but unlikely:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+with found_in MarbleHall
+     short_name &quot;conch shell&quot;, name &quot;conch&quot; &quot;shell&quot;,
+</pre>
+
+<p class="normal">As written, the <code>found_in</code> property has 
+a list of three values: <code>MarbleHall</code>, <code>short_name</code> 
+and <code>&quot;conch shell&quot;</code>. <code>short_name</code> 
+throws up the warning because Inform suspects that a comma was missed 
+out and the programmer intended</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+with found_in MarbleHall,
+     short_name &quot;conch shell&quot;, name &quot;conch&quot; &quot;shell&quot;,
+</pre>
+
+<p><tt>This is not a declared Attribute: </tt>&#8249;<span class="token">name</span>&#8250;</p>
+
+<p class="normal">Similarly, suppose that a game contains a pen. Then 
+the following <code>give</code> statement is dubious but legal:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give MarbleDoorway pen;</pre>
+
+<p class="normal">The warning is caused because it's far more likely 
+to be a misprint for</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give MarbleDoorway open;</pre>
+
+<p><tt>Without bracketing, the minus sign '-' is ambiguous</tt></p>
+
+<p class="normal">For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Array Doubtful --&gt; 50 10 -20 56;</pre>
+
+<p class="normal">because Inform is not sure whether this contains three 
+entries (the middle one being 10 &#8722; 20 = &#8722;10), or four. 
+It guesses four, but suggests brackets to clarify the situation.</p>
+
+<p><tt>Entry in '-&gt;' or 'string' array not in range 0 to 255</tt></p>
+
+<p class="normal">Byte <code>-&gt;</code> and <code>string</code> 
+arrays can only hold numbers in the range 0 to 255. If a larger entry 
+is supplied, only the remainder mod 256 is stored, and this warning 
+is issued.</p>
+
+<a id="p312" name="p312"></a>
+<p><tt>This statement can never be reached</tt></p>
+
+<p class="normal">There is no way that the statement being compiled 
+can ever be executed when the game is played. Here is an obvious example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">return; print &quot;Goodbye!&quot;;</pre>
+
+<p class="normal">where the <code>print</code> statement can never be 
+reached, because a <code>return</code> must just have happened. 
+Beginners often run into this example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">&quot;You pick up the gauntlet.&quot;; score = score + 5; return;</pre>
+
+<p class="normal">Here the <code>score = score + 5</code> statement 
+is never reached because the text, given on its own, means &#8220;print 
+this, then print a new-line, then return from the current routine&#8221;. 
+The intended behaviour needs something like</p>
+
+<p class="lynxonly"></p>
+<pre class="code">score = score + 5; &quot;You pick up the gauntlet.&quot;;</pre>
+
+<p><tt>Verb disagrees with previous verbs: </tt>&#8249;<span class="token">verb</span>&#8250;</p>
+
+<p class="normal">The <code>Extend only</code> directive is used to 
+cleave off a set of synonymous English verbs and make them into a new 
+Inform verb. For instance, ordinarily &#8220;take&#8221;, &#8220;get&#8221;, 
+&#8220;carry&#8221; and &#8220;hold&#8221; are one single Inform verb, 
+but this directive could split off &#8220;carry&#8221; and &#8220;get&#8221; 
+from the other two. The warning would arise if one tried to split off 
+&#8220;take&#8221; and &#8220;drop&#8221; together, which come from 
+different original Inform verbs. (It's still conceivably usable, which 
+is why it's a warning, not an error.)</p>
+
+<p><tt>This does not set the final game's statusline</tt></p>
+
+<p class="normal">An attempt to choose, e.g., <code>Statusline time</code> 
+within a module, having no effect on the program into which the module 
+will one day be linked. Futile. Finally a ragbag of unlikely and fairly 
+self-explanatory contingencies:</p>
+
+<ul>
+<li><tt>This version of Inform is unable to produce the grammar table 
+format requested (producing number 2 format instead)</tt></li>
+<li><tt>Grammar line cut short: you can only have up to 6 tokens in 
+any line (unless you're compiling with library 6/3 or later)</tt></li>
+<li><tt>Version 3 limit of 4 values per property exceeded (use -v5 
+to get 32), so truncating property </tt>&#8249;<span class="token">name</span>&#8250;</li>
+<li><tt>The 'box' statement has no effect in a version 3 game</tt></li>
+<li><tt>Module has a more advanced format than this release of the
+Inform 6 compiler knows about: it may not link in correctly</tt></li>
+</ul>
+
+<a id="p313" name="p313"></a>
+<p class="normal">The last of these messages is to allow for different 
+module formats to be introduced in future releases of Inform, but 
+so far there has only ever been module format 1, so nobody has ever 
+produced this error.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<h4>2. <i>Obsolete usages</i></h4>
+
+<ul>
+<li><tt>more modern to use 'Array', not 'Global'</tt></li>
+<li><tt>use '-&gt;' instead of 'data'</tt></li>
+<li><tt>use '-&gt;' instead of 'initial'</tt></li>
+<li><tt>use '-&gt;' instead of 'initstr'</tt></li>
+<li><tt>ignoring 'print_paddr': use 'print (string)' instead</tt></li>
+<li><tt>ignoring 'print_addr': use 'print (address)' instead</tt></li>
+<li><tt>ignoring 'print_char': use 'print (char)' instead</tt></li>
+<li><tt>use 'word' as a constant dictionary address</tt></li>
+<li><tt>'#a$Act' is now superseded by '##Act'</tt></li>
+<li><tt>'#n$word' is now superseded by ''word''</tt></li>
+<li><tt>'#r$Routine' can now be written just 'Routine'</tt></li>
+<li><tt>all properties are now automatically 'long'</tt></li>
+<li><tt>use the ^ character for the apostrophe in </tt>&#8249;<span class="token">dictionary word</span>&#8250;</li>
+</ul>
+
+<p class="normal">These all occur if Inform compiles a syntax which 
+was correct under Inform 5 (or earlier) but has now been withdrawn 
+in favour of something better.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+No Inform library file (or any other file marked <code>System_file</code>) 
+produces warning messages. It may contain many declared but unused 
+routines, or may contain obsolete usages for the sake of backward 
+compatibility.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">chapter VI</a> /
+ <a href="s39.html" title="&#167;39: Controlling compilation from without">prev</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

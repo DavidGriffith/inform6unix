@@ -1,0 +1,405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;49: Structure</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s48.html" title="&#167;48: A triangle of identities">prev</a> /
+ <a href="s50.html" title="&#167;50: The design of puzzles">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p385" name="p385"></a>
+<h2>&#167;49 &nbsp; Structure</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-378_1.jpg" alt=""></span>
+Games from all of the major design houses of the 1980s share a common 
+structure, partly because they were planned as if they were Hollywood 
+films, which even today retain the shape of a three-act play from 
+nineteenth-century theatre. Designers would begin by making a formal 
+pitch, writing two or three-page synopses of the action, and serious 
+coding did not begin until such a synopsis had been talked through.
+Structural breakdowns of what they produced are often revealing.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal"><i>Size and density.</i> &nbsp;
+There was a time when the sole measure of quality in advertisements 
+for cheaper adventure games was the number of rooms. Level 9's most 
+original work, &#8216;Snowball&#8217;, claimed to have over 7,000 
+locations, of which 6,800 made up an unusually wearisome maze. Even 
+a 200-room game meant only minimal room descriptions and simple puzzles, 
+scattered thinly over the map. Whereas ten of the Infocom games have 
+fewer than sixty rooms, with &#8216;Seastalker&#8217; (30 rooms), 
+&#8216;The Witness&#8217; (30) and &#8216;The Hitchhiker's Guide
+To The Galaxy&#8217; (31) the most geographically concise. Today's 
+custom is that, barring a few junctions and corridors, there should 
+be something interactive in every room.</p>
+
+<p class="indent">Today's design systems impose few restrictions on 
+game size or construction, but designers still have an unconscious idea 
+of a &#8220;budget&#8221; for a game design, if only to keep its 
+proportions in balance. A typical medium-to-large game contains 
+250 objects, counting items, rooms and other sundries (the player, 
+the compass directions) as objects. Many items are not portable but 
+are instead walls, tapestries, thrones, control panels, coal-grinding 
+machines and, as a rule of thumb, three items to one room is about right. 
+We might therefore expect 60 rooms, and the next step in budgeting would 
+be to share these out among game regions. The 180 or so items might divide 
+as 50 portable items and 130 furnishings. (&#8216;Wishbringer&#8217;: 
+250 objects, 52 rooms, 34 takeable items.) As for the text, &#8216;Enchanter&#8217; 
+contains 20,100 words, &#8216;Trinity&#8217; 32,200 and &#8216;Curses&#8217; 
+44,000, but the latter are large games and 25,000 words is more typical: 
+around a quarter of the length of a typical novel, for an average of 
+only 400 words per location. The size of the source code varies dramatically 
+with the design system, but for instance: &#8216;Spellbreaker&#8217; 
+17,800 lines, &#8216;Christminster&#8217; 13,000, &#8216;Once and 
+Future&#8217; (Gerry Kevin Wilson, 1998) 35,000.</p>
+
+<a id="p386" name="p386"></a>
+<p class="indent">Limitations can be a blessing in disguise, because 
+they force a designer to keep asking if this part or that part is 
+altogether necessary. Here is Brian Moriarty, whose research went 
+as far as looking up geological surveys:</p>
+
+<blockquote>The first thing I did was sit down and make a map of the 
+Trinity site. It was changed about 50 times trying to simplify it 
+and get it down from over 100 rooms to the 40 or so rooms that now 
+comprise it. It was a lot more accurate and very detailed, but a 
+lot of that detail was totally useless.</blockquote>
+
+<p class="normal">This reduction to 40 rooms would have been worthwhile 
+even if memory and disc space had been unlimited. Redundant locations 
+can be an indication of too much prose and too little interaction. 
+&#8216;The Light: Shelby's Addendum&#8217; (C. A. McCarthy, 1995) 
+contains much that is praiseworthy but its reviewers took a dim view 
+of its having over twenty locations in which nothing happens.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+It is not always realised how technical constraints have influenced the 
+literary style of the classic games, and so of what we consider to 
+be good today. Infocom's writers were mostly working under an absolute 
+ceiling of 255 objects (including rooms) and memory was more pressing 
+still. Lebling summarised the implementor's frustration <i>en passant</i> 
+in a 1987 memo: &#8220;I made a pitch for a more-unlimited game system&#8230;
+Brian [Moriarty] is already running out of table space in his game, Amy 
+[Briggs]'s game is too big and not even in Beta yet, all our EZIP games 
+have had to be cut, and &#8216;Bureaucracy&#8217; [Douglas Adams, 1987] 
+had to become EZIP instead of LZIP.&#8221; (We would now call both 
+EZIP and LZIP version 4 of the Z-machine, but LZIP games were small 
+enough to run on a Commodore 64 &#8211; the biggest source of sales 
+&#8211; and EZIPs weren't.) Lebling lamented in 1998 that &#8220;a lot 
+of lovely shivers&#8221; had to be cut out of his almost-finished 
+&#8216;The Lurking Horror&#8217; as a result: whereas in spite of 
+the amount of her game (&#8216;Plundered Hearts&#8217;) that ended 
+on the cutting-room floor, Amy Briggs felt that &#8220;The constraints 
+of running on the Commodore 64 helped the games be richer, I believe, 
+than if we had been writing then for the Pentium Pro&#8221; 
+(<i>XYZZYnews</i> 12). Similarly, Scott Adams's games, running on 
+smaller computers with tape decks instead of disc drives, were obliged 
+to show extreme economy with objects and textual messages, but 
+coded rules and what we would now call daemons so efficiently that these 
+few objects ended up tightly interlinked, with side effects and multiple 
+uses.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal"><i>The prologue.</i> &nbsp; Most games divide into 
+three phases: prologue, middle game and end game. These phases are 
+often closed off from each other, so that once a phase has ended it 
+cannot be returned to, though the prologue sometimes offers premonitions 
+of the end, or conversely the end game echoes back to the prologue. 
+Like the children in C. S. Lewis's tales of Narnia, the player is 
+always going &#8220;further up, and further in&#8221;. Stu Galley, in 
+debugging the mystery &#8216;The Witness&#8217;, found himself obliged 
+to enforce the plotting of the passage between prologue and middle 
+game:</p>
+
+<a id="p387" name="p387"></a>
+<blockquote>[The play-testers] discovered significant &#8220;branches&#8221; 
+in the story that I had overlooked. For example, what if the player sneaks 
+into the house or doesn't go in at all until too late? The first possibility 
+raised too many complications, so we decided to lock all the outside doors.</blockquote>
+
+<p class="normal">The duties of the prologue are to establish an atmosphere, 
+to foreshadow what is to come and give out a little background information, 
+while giving the player enough entertainment to want to continue. The 
+interactive aspect of this is that the player has to pick up the game's 
+special skills, using commands, tools or actions special to the setting. 
+(The prologue to &#8216;The Meteor, The Stone and a Long Glass of Sherbet&#8217; 
+(Angela M. Horns, 1997) uses an easy puzzle involving a telescope and 
+a guide book to provide practice with them.)</p>
+
+<p class="indent">The task of passing into the middle game should be 
+reasonably straightforward, but at the same time involved enough that 
+the player has a feeling that time spent on the game is time rewarded. 
+The designer would be wise to imagine that the player of the prologue 
+is really only toying with the game at this stage, and isn't drawing 
+a map or being at all careful. If the prologue is too big, the player 
+will quickly get lost and give up. If it is too hard, then many players 
+simply won't reach the middle game.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The passage from the prologue to the middle game is often also the passage 
+from the mundane to the fantastical, so that the prologue answers the 
+question &#8220;How did I get into all this?&#8221; The prologue of 
+&#8216;Advent&#8217; is an above-ground landscape, whose presence 
+lends a much greater sense of claustrophobia and depth to the underground
+bulk of the game. On the other hand, a few games drop the player right 
+in at the deep end, as in &#8216;Plundered Hearts&#8217;, which opens 
+to a sea battle in full swing.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Notable prologues include the streets and meadows outside the apparently 
+impenetrable &#8216;Christminster&#8217; college (4 locations), the 
+undemolished planet Earth of &#8216;The Hitchhiker's Guide To The 
+Galaxy&#8217; (6) or 221B Baker Street in &#8216;Sherlock&#8217; (again, 
+6), but some have been as large as the guild house of &#8216;Sorcerer&#8217; 
+(Steve Meretzky, 1984), at 13 locations, or the seaport of &#8216;Crobe&#8217; 
+(Jonathan Partington, 1986), at 18. &#8216;Advent&#8217; in its classical 
+form had an 8-location prologue, but some extensions (such as Level 
+9's) fleshed out the above-ground substantially, making the volcano 
+visible as a precursor to its underground discovery late in the 
+middle game.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal"><i>The middle game.</i> &nbsp; The middle game is 
+the one which least needs detailed planning in advance, because it 
+is the one which comes nearest to being a miscellaneous collection 
+of puzzles. On the other hand, since it is also the largest part 
+it is the most in need of some rough subdivision into segments.
+Working through these segments, one by one, provides a sequence of 
+problems and rewards for the player. A first-draft design of the middle game may just 
+<a id="p388" name="p388"></a>
+consist of a rough sketch of these segments, 
+with some general ideas for objects, places and characters. Slotting 
+actual puzzles in can come later in a more improvisatory, freewheeling 
+sort of way.</p>
+
+<p class="indent">The obvious way to subdivide is to carve up the 
+map, perhaps with a pattern to the regions, perhaps even sharing regions 
+out to different authors (as in the AGT game, &#8216;Shades of Gray&#8217;, 
+1993). Regions correspond perhaps to time zones, to the four winds 
+or the twelve signs of the Zodiac, or else are delineated from each 
+other through simple geography: cave games are especially prone to 
+this, often having a node-like room with exits in all eight cardinal 
+directions. Thus &#8216;Zork II&#8217; (Marc Blank and Dave Lebling, 
+1981) has seven areas arranged at compass points around the Carousel 
+Room, with the area northeast serving as prologue. Sometimes the 
+same locale occurs more than once, revisited with a different perspective. 
+The innovative &#8216;Spider and Web&#8217; (Andrew Plotkin, 1998), 
+in which a player is being interrogated about what really happened 
+when a secret installation was broken into, features repeated but 
+varying hypothetical versions set in the same locations.</p>
+
+<p class="indent">Other designers structure the game around performances: 
+in &#8216;Ballyhoo&#8217; the player enacts the full repertoire of 
+circus skills, and in a region of &#8216;The Quest for the Sangraal&#8217; 
+all seven deadly sins must be committed. More often, though, dramatic 
+actions are intended to become the turning points in a story. Gareth 
+Rees (in <i>XYZZYnews</i> 6):</p>
+
+<blockquote>In &#8216;Christminster&#8217;, I identified a set of key 
+scenes each of which was an event or experience that affected the 
+player character, and moved the story forwards towards the conclusion, 
+and yet could plausibly be implemented as a section of an adventure 
+game.</blockquote>
+
+<p class="normal">In chronological terms, the plot literally moved 
+forwards: the clock, in &#8216;Christminster&#8217;, chimes the half-hour 
+when a key event takes place, advancing towards dinner in hall, but 
+time hangs heavy in an endless Cambridge afternoon while the player 
+is stuck. Puzzles were slotted in later, often around the needs of 
+the plot. One of the game's most enjoyable sequences, with the player
+exploring a pitch-dark secret tunnel in the company of Professor Wilderspin,
+in fact exists only to oblige the player to spend time in the Professor's 
+company so that he can do a good deal of talking. Like most traditional 
+interactive fiction, &#8216;Christminster&#8217; has a plot with little 
+overall variation except for the order in which the player does things. 
+But some radical designers see events not as milestones but forks in 
+the plot. Thomas M. Disch:</p>
+
+<blockquote>&#8230; any computer-interactive text deconstructs itself 
+as you write because it's always stopping and starting and branching off 
+this way and that &#8230; With &#8216;Amnesia&#8217;, I found myself 
+working with a form that allowed me to display these erasures, 
+these unfollowed paths.</blockquote>
+
+<a id="p389" name="p389"></a>
+<p class="normal">There are games, though, in which an entirely improvised 
+middle game is compensated for by a tautly controlled prologue and 
+end game. Andrew Plotkin (in <i>XYZZYnews</i> 14):</p>
+
+<blockquote>Since &#8216;So Far&#8217; [1996] is pretty much pure 
+surrealism, I didn't have a plot in mind originally. I had a theme, 
+and was co-inventing puzzles and scenes and events all at the same 
+time.</blockquote>
+
+<p class="normal">This sounds potentially shambolic, but in an interview 
+(<i>XYZZYnews</i> 13) in the immediate aftermath of testing &#8216;So Far&#8217;, 
+Michael Kinyon found it enormously affecting. Steve Meretzky:</p>
+
+<blockquote>Sometimes you have only a sketchy outline and are just beginning 
+to coalesce the geography. Sometimes the geography coalesces around the 
+puzzles. Sometimes it's both together.</blockquote>
+
+<p class="normal">Geography coalescing around puzzles is evident in 
+Meretzky's work, in which events often spread across multiple locations, 
+as in the case of the &#8216;Sorcerer&#8217; flume ride.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The middle game is likely to have the largest area of playable map that 
+the player will face. In laying this out, it adds to the interest to 
+make connections in the half-cardinal compass directions &#8211; northeast, 
+northwest, southeast, southwest &#8211; and to steer away from a feeling 
+that the game has a square grid. (One of the few defects of the 
+&#8216;Trinity&#8217; middle game, though possibly that was the price 
+to be paid for one of its better puzzles.) Equally, a few, possibly long, 
+loops which can be walked around reduce retracing of steps and avoid 
+the appearance of a bus service map in which half a dozen lines have 
+only one exchange.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The passage from middle game to end game often takes the form of a scavenger
+hunt: throughout the middle game a number of well-hidden objects are 
+collected and only when they are combined can the end game be entered. See 
+&#8216;Lords of Time&#8217; (Sue Gazzard, 1983) or indeed almost any game 
+produced in the wake of &#8216;Advent&#8217;, as it was almost taken 
+for granted that any game must have &#8220;treasures&#8221;. Soon 
+enough it became a clich&eacute;, and one which games like &#8216;Leather 
+Goddesses of Phobos&#8217; or &#8216;Hollywood Hijinx&#8217; 
+(&#8220;Hollywood&#8221; Dave Anderson and Liz Cyr-Jones, 1986) send 
+up, but it's still not a bad idea, because it enables many different 
+problems to be open at once. You can be stuck finding sprocket 2 and 
+go and work on finding sprocket 5 for a while instead.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal"><i>End game.</i> &nbsp; End games serve two purposes. 
+First, they give the player a sense of being near to success (they used 
+to be called the &#8220;Master Game&#8221;), and can be used to culminate 
+the plot, to reveal the game's secrets. They also serve to stop the 
+final stage of the game from being too hard to play, narrowing it to 
+only a few accessible rooms or objects. In cave games like &#8216;Zork&#8217;,
+the final puzzle would be made exceptionally difficult but today's designers 
+<a id="p390" name="p390"></a>
+usually prefer to give the player the satisfaction of finishing, 
+and themselves the satisfaction of knowing that their story has been 
+completed.</p>
+
+<p class="indent">A mark of the last pieces of the puzzle falling into 
+place is that loose ends are tied neatly up and the characters sent 
+away with their fates worked out and futures settled. Looking back, 
+from the point of view of a winning player, can you understand what 
+has happened and why? Can you also see what is to happen to the protagonist 
+next?</p>
+
+<p class="indent">The final message is another important one and, as 
+with the overture, the coda is all the better for being brief. To quote 
+examples would only spoil their games. A popular device is to make 
+the two scenes which open and close the story &#8220;book-ends&#8221; 
+for each other, symmetrical and matching.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+To speak of &#8220;the&#8221; final message or &#8220;the&#8221; last 
+step is a little presumptive. Multiple outcomes are not to every designer's 
+taste, but Daniel Ravipinto's &#8216;Tapestry&#8217; (1996), with 
+its sense of tragedy, and its misleading portents and advice, drew 
+much of its strength from an open end. (Its plot owes much to the 1993 
+<i>Star Trek: The Next Generation</i> episode of the same name.)</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Gerry Kevin Wilson suggests that the end game should feature &#8220;your 
+Big Nasty&trade;. The Big Nasty&trade; is the final challenge, be it monster, 
+man, maze, or whatever. This is where you want to ham up your writing 
+and get a sense of urgency going. There needs to be a time limit&#8230;&#8221; 
+In this view, which is not universally shared, the end game is like
+a video game's &#8220;Boss Level&#8221;.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Like prologues, end games vary in size: from a one or two location single 
+closing scene (&#8216;The Lurking Horror&#8217;, &#8216;Sorcerer&#8217;) 
+to a new game region (the Dungeon Master's lair in &#8216;Zork III&#8217; 
+(Marc Blank and Dave Lebling, 1982), 7 locations, or Roman Britain in 
+&#8216;Curses&#8217;, 16).</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Games in the style of &#8216;Advent&#8217; are very 
+wide, with around thirty or so puzzles, all easily available and soluble 
+in any order. Others, such as the Melbourne House adaptation of Tolkien 
+(&#8216;Lord of the Rings Game One&#8217; (later a.k.a. &#8216;The
+Fellowship of the Ring&#8217;), &#8216;Shadows of Mordor&#8217;, &#8216;The 
+Crack of Doom&#8217;, Philip Mitchell, 1985, 1987, 1989), are very 
+narrow: a long sequence of puzzles, each of which leads only to a 
+chance to solve the next. Wide games are dull, since no problem solved 
+will lead to any radical change. Narrow games are difficult to pitch: 
+if the one puzzle open at a time is easy then play is too rapid, but 
+if it is hard then the player will be abruptly slammed into a wall 
+of frustration.</p>
+
+<p class="indent">Towards the end of design it can be helpful to draw 
+out a lattice diagram of the puzzles. At the top is a node representing 
+the start of the game, and then lower nodes represent solved puzzles. 
+An arrow is drawn between two puzzles if one has to be solved before 
+the other can be. Here is the lattice diagram for 
+<a id="p391" name="p391"></a>
+&#8216;Ruins&#8217;, with subscripted numbers showing the points scored on reaching each
+given position: each of the artifacts is worth 5 except the jade mask, 
+worth 10. [<a href="colophon.html#ld_lattice">description</a>]</p>
+
+<p><img src="dm4-391_1.jpg" longdesc="colophon.html#ld_lattice"
+ title="Lattice diagram for &#8216;Ruins&#8217;"
+ alt="The diagram is simple, but balanced, showing which puzzles are 
+prerequisites for solving other puzzles, from the start to the end of 
+the game. It also shows that for most of the game, the player has at most 
+two puzzles to work on, and at three points in the game, only one."></p>
+
+<p class="normal">This diagram is useful for three reasons. Firstly, 
+it checks that the game is soluble at all: for example, if the jade 
+mask had been kept in Xibalb&aacute;, there would be no solution. 
+Secondly, it shows how much of the game happens in different areas. 
+Most usefully of all, the diagram shows whether the game is wide or 
+narrow and which puzzles are likely to be bottlenecks, with large
+parts of the game depending on their solution. This tall, spindly 
+diagram is indicative of a fairly linear plot, not surprisingly as 
+the game is so small. The problem of entering the Shrine is evidently 
+a bottleneck.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+A long arrow on a lattice diagram is a caution that some action very 
+early in play is essential even though it has no effect until some 
+other action much later on. If the early action becomes impossible 
+later, for instance because it is in a prologue which cannot be returned 
+to, the player will legitimately feel aggrieved. In &#8216;Christminster&#8217;,
+&#8220;getting invited to dinner&#8221; is theoretically an early puzzle 
+because access to the Master's lodgings occurs at the outset of the 
+middle game, but the puzzle never goes away and remains accessible 
+right up to dinner time.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+C. E. Forman exhibits the lattice diagram for &#8216;Enchanter&#8217;, 
+which clearly shows its prologue, middle game, end game structure, in
+<i>XYZZYnews</i> 4. Replying in issue 6, Gareth Rees argues that game 
+analysis is an aid to, rather than an integral part of, game design.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s48.html" title="&#167;48: A triangle of identities">prev</a> /
+ <a href="s50.html" title="&#167;50: The design of puzzles">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

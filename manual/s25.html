@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;25: Extending and redefining the world model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s24.html" title="&#167;24: The world model described">prev</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p198" name="p198"></a>
+<h2>&#167;25 &nbsp; Extending and redefining the world model</h2>
+
+<blockquote>A circulating library in a town is as an ever-green 
+tree of diabolical knowledge! It blossoms through the year!<br>
+&#8212; R. B. Sheridan (1751&#8211;1816), <i>The Rivals</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-198_1.jpg" alt=""></span>
+In <i>The History of Zork</i>, Tim Anderson summed up the genesis of
+the &#8216;Zork I&#8217; world model &#8211; and perhaps also its 
+exodus, that is, its adaptation to other games &#8211; when he 
+commented that &#8220;the general problem always remained: anything 
+that changes the world you're modelling changes practically everything 
+in the world you're modelling.&#8221; Substantial changes to the world 
+model often have profound implications and can lead to endless headaches 
+in play-testing if not thought through. Even a single object can upset 
+the plausibility of the whole: a spray-can, for instance, unless 
+its use is carefully circumscribed. On the other hand, introducing 
+whole categories of objects often causes no difficulty at all, if they 
+do not upset existing ideas such as that of door, location, container 
+and so on. For instance, the set of collectable Tarot cards in the game 
+&#8216;Curses&#8217; have numerous rules governing their behaviour, 
+but never cause the basic rules of play to alter for other items or 
+places.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">In making such an extension the natural strategy is 
+simply to define a new class of objects, and to take advantage of Inform's 
+message system to make designing such objects as easy and flexible as 
+possible. For example, suppose we need a class of Egyptian magical amulets, 
+small arrowhead-like totems worn on the wrist and made of semi-precious 
+minerals, with cartoon-like carvings. (The Ashmolean Museum, Oxford, 
+has an extensive collection.) Each amulet is to have the power (but 
+only if worn) to cast a different spell. Almost all of the code for this 
+will go into a class definition called <code>Amulet</code>. This means 
+that</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (noun ofclass Amulet) ...</pre>
+
+<p class="normal">provides a convenient test to see if an object <code>noun</code> 
+is an amulet, and so forth. (This imposes a restriction that an object 
+can't start or stop being an amulet in the course of play, because class 
+membership is forever. If this restriction were unacceptable, a new 
+attribute would need to be created instead, in the same way that the 
+standard world model recognises any object with the attribute
+<code>container</code> as a container, rather than having a <code>Container</code> 
+class.)</p>
+
+<a id="p199" name="p199"></a>
+<p class="normal">Suppose the requirement is that the player should 
+be able to type &#8220;cast jasper amulet&#8221;, which would work 
+so long as the jasper amulet were being worn. It seems sensible to 
+create an action called <code>Cast</code>, and this necessitates
+creating an action subroutine to deal with it:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ CastSub;
+  &quot;Nothing happens.&quot;;
+];
+Verb 'cast' 'invoke' * noun -&gt; Cast;
+</pre>
+
+<p class="normal">Nothing happens here because the code is kept with 
+the <code>Amulet</code> class instead:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Amulet
+  with amulet_spell &quot;Nothing happens.&quot;,
+       before [ destination;
+           Cast:
+               if (self hasnt worn)
+                   &quot;The amulet rattles loosely in your hand.&quot;;
+               destination = self.amulet_spell();
+               switch (destination) {
+                   false: &quot;Nothing happens.&quot;;
+                   true: ;
+                   default: print &quot;Osiris summons you to...^&quot;;
+                       PlayerTo(destination);
+               }
+               rtrue;
+       ],
+  has  clothing;
+</pre>
+
+<p class="normal">Thus every <code>Amulet</code> provides an 
+<code>amulet_spell</code> message, which answers the question &#8220;you 
+have been cast: what happens now?&#8221; The reply is either <code>false</code>,
+meaning nothing has happened; true, meaning that something did happen; 
+or else an object or room to teleport the player to.</p>
+
+<p class="indent">From the designer's point of view, once the above 
+extension has been made, amulets are easy to create and have legible 
+code. Here are four example spells:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+amulet_spell &quot;The spell fizzles out with a dull phut! sound.&quot;,
+amulet_spell [;
+    if (location == thedark) {
+        give real_location light;
+        &quot;There is a burst of magical light!&quot;;
+    }
+],
+amulet_spell HiddenVault,<a id="p200" name="p200"></a>
+amulet_spell [;
+    return random(LeadRoom, SilverRoom, GoldRoom);
+],
+</pre>
+
+<p class="normal">An elaborate library extension will end up defining 
+many classes, grammar, actions and verb definitions, and these may 
+neatly be packaged up into an <code>Include</code> file and to be 
+placed among the library files.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Such a file should contain the directive <code>System_file;</code>, 
+as then other designers will be able to <code>Replace</code> routines 
+from it, just as with the rest of the library.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">So much for extending the Inform model with new classes: 
+the rest of the section is about modifying what's ordinarily there. 
+The simplest change, but often all that's needed, is to change a few 
+of the standard responses called &#8220;library messages&#8221;, 
+such as the &#8220;Nothing is on sale.&#8221; which ends to be 
+printed when the player asks to buy something, or the &#8220;Taken.&#8221; 
+when something is picked up. (To change every message, and with it 
+the language of the game, see <a href="s34.html">&#167;34</a>.)</p>
+
+<p class="indent">To set new library messages, provide a special 
+object called <code>LibraryMessages</code>, which must be defined <em>between</em> 
+the inclusion of the <code>&quot;Parser.h&quot;</code> and
+<code>&quot;Verblib.h&quot;</code> library files. This object should 
+have just one property, a <code>before</code> rule. 
+For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object LibraryMessages
+  with before [;
+           Jump: if (real_location ofclass ISS_Module)
+               &quot;You jump and float helplessly for a while in zero
+               gravity here on the International Space Station.&quot;;
+           SwitchOn:
+               if (lm_n == 3) {
+                   &quot;You power up &quot;, (the) lm_o, &quot;.&quot;;
+               }
+       ];
+</pre>
+
+<p class="normal">This object is never visible in the game, but its 
+<code>before</code> rule is consulted before any message is printed: 
+if it returns <code>false</code>, the standard message is printed; 
+if <code>true</code>, then nothing is printed, as it's assumed 
+that this has already happened.</p>
+
+<p class="indent">The <code>Jump</code> action only ever prints one 
+message (usually &#8220;You jump on the spot.&#8221;), but more 
+elaborate actions such as <code>SwitchOn</code> have several, and 
+<code>Take</code> has thirteen. The library's variable <code>lm_n</code> 
+holds the message number, which counts upwards from 1. In some cases, 
+the object being talked about is held 
+<a id="p201" name="p201"></a>
+in <code>lm_o</code>. The 
+messages and numbers are given in <a href="sa4.html">&#167;A4</a>. 
+New message numbers may possibly be added in future, but old ones will 
+not be renumbered.</p>
+
+<p class="indent">An especially useful library message to change is 
+the prompt, normally set to <code>&quot;^&gt;&quot;</code> (new-line followed by 
+&gt;). This is printed under the action <code>Prompt</code> (actually 
+a fake action existing for this very purpose). You can use this to 
+make the game's prompt context-sensitive, or to remove the new-line 
+from before the prompt.</p>
+
+<a id="ex59" name="ex59"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans59">EXERCISE 59</a></b></span><br>
+Infocom's game &#8216;The Witness&#8217; has the prompt &#8220;What 
+should you, the detective, do next?&#8221; on turn one and &#8220;What 
+next?&#8221; subsequently. Implement this.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+<code>LibraryMessages</code> can also be used as a flexible way to 
+alter the rules governing individual actions. Here are two examples 
+in the guise of exercises.</p>
+
+
+<a id="ex60" name="ex60"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans60">EXERCISE 60</a></b></span><br>
+Under the standard world model (&#182;6.7.4 in <a href="s24.html">&#167;24</a> 
+above), a player standing on top of something is not allowed to 
+type, say, &#8220;east&#8221; to leave the room: the message &#8220;You'll
+have to get off&#8230; first&#8221; is printed instead. Change this.</p>
+
+<a id="ex61" name="ex61"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans61">EXERCISE 61</a></b></span><br>
+Under standard rules (&#182;6.6.1 in <a href="s24.html">&#167;24</a> 
+above), a player trying to &#8220;push&#8221; something which is 
+not <code>static</code> or <code>scenery</code> or <code>animate</code> 
+will find that &#8220;Nothing obvious happens&#8221;. Add the rule 
+that an attempt to push a <code>switchable</code> item is to be 
+considered as an attempt to switch it on, if it's off, and vice versa. 
+(This might be useful if a game has many buttons and levers.)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The Library is itself written in Inform, and with 
+experience it's not too hard to alter it if need be. But to edit and 
+change the library files themselves is an inconvenience and an inelegant 
+way to carry on, because it would lead to needing a separate copy 
+of all the files for each project you work on. Because of this, Inform 
+allows you to <code>Replace</code> any routine or routines of your choice
+from the library, giving a definition of your own which is to be used 
+instead of the one in the standard files. For example, if the directive</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Replace BurnSub;</pre>
+
+<p class="normal">is placed in your file <em>before the library files 
+are included</em>, Inform ignores the definition of <code>BurnSub</code> in 
+the library files. You then have to define a routine called <code>BurnSub</code> 
+yourself: looking in the library file <tt>&quot;Verblib.h&quot;</tt>, 
+the original turns out to be tiny:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">[ BurnSub; L__M(##Burn,1,noun); ];</pre>
+
+<a id="p202" name="p202"></a>
+<p class="normal">All this does is to print out library message number 
+1 for <code>Burn</code>, the somewhat preachy &#8220;This dangerous 
+act would achieve little.&#8221; You could instead write a fuller 
+<code>BurnSub</code> providing for a new concept of an object being 
+&#8220;on fire&#8221;.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Inform even allows you to <code>Replace</code> &#8220;hardware&#8221; 
+functions like <code>random</code> or <code>parent</code>, which 
+would normally be translated directly to machine opcodes. 
+This is even more &#8220;at your own risk&#8221; than ordinary usages 
+of <code>Replace</code>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">What are the implications of fire likely to be? One 
+way to find out is to read through the world model (<a href="s24.html">&#167;24</a>) 
+and see how fire ought to affect each group of rules. Evidently we have 
+just created a new possible internal state for an object, which means 
+a new rule under &#182;1, but it doesn't stop there:</p>
+
+<div class="clump">
+<p class="indent">1.4.4. Some objects are &#8220;flammable&#8221; 
+and therefore in one of two mutually exclusive states, &#8220;on 
+fire&#8221; and &#8220;not on fire&#8221;.</p>
+<p class="indent">2.4. If an object on fire is placed in a flammable 
+container or on a flammable supporter, that too catches fire.</p>
+<p class="indent">2.5. If a container or supporter is on fire, any 
+flammable object within or on top of it catches fire.</p>
+<p class="indent">4.3.3.1. Any object on fire provides light.</p>
+<p class="indent">4.4.3. The player cannot touch any object on fire 
+unless (say) wearing the asbestos gloves.</p>
+<p class="indent">5.4.1. All flammable objects have a &#8220;lifespan&#8221;, 
+a length of time for which they can burn before being consumed. 
+The each-turn daemon subtracts one from the lifespan of any object 
+on fire, and removes it from play if the lifespan reaches zero.</p>
+</div>
+
+<p class="normal">One could go further than this: arguably, certain 
+rooms should also be flammable, so that an object on fire which is 
+dropped there would set the room ablaze; and the player should not 
+survive long in a burning room; and we have not even provided a way 
+to douse the flames, except by waiting for fires to burn themselves 
+out. But the above rules will maintain a reasonable level of
+plausibility. &#182;1.4.4 is provided by defining a new class of 
+<code>Flammable</code> objects, which contains an <code>each_turn</code> 
+routine implementing &#182;5.4.1, and an <code>on_fire</code> attribute. 
+The same <code>each_turn</code> can take care of &#182;2.4 and 
+&#182;2.5, and can give the object <code>light</code> if it's currently 
+<code>on_fire</code>, thus solving &#182;4.3.3.1. But, while it would 
+be easy to add simple rules like &#8220;you can't <em>take</em> an 
+object which is on fire&#8221;, &#182;4.4.3 in its fullest form is 
+more problematic, and means replacing the <code>ObjectIsUntouchable</code> 
+routine. Giving any object on fire a <code>before</code> rule
+preventing the player from using any of the &#8220;touchy&#8221; 
+actions on it would go some of the way, but wouldn't handle subtler 
+cases, like a player not being 
+<a id="p203" name="p203"></a>
+allowed to reach for something through 
+a burning hoop. Nor is this everything: burning objects will need to 
+be talked about differently when alight, and this will call for 
+using the powerful descriptive features in <a href="ch4.html">Chapter IV</a>.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+&#8216;Balances&#8217; implements the &#8216;Enchanter&#8217; trilogy's 
+magic system by methods like the above. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Approximately seventy library 
+extensions have been contributed by members of the Inform community 
+and more are placed at <tt>ftp.gmd.de</tt> with each month that goes
+by. Often short and legible, they make good examples of Inform coding 
+even if you don't want to use them. Many are cited in &#8220;references&#8221; 
+paragraphs throughout the book: here are others which seem more appropriate 
+here. &nbsp;
+<span class="warning"><b>&#8226;</b></span><tt>&quot;money.h&quot;</tt>, 
+by Erik Hetzner, is a textbook case of a class-based extension to 
+Inform providing a new aspect to the world model which doesn't much 
+overlap with what's already there: notes and coinage. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Conversely, Marnie Parker's 
+<tt>&quot;OutOfRch.h&quot;</tt> exemplifies a change that needs to 
+permeate the existing world model to be effective: it defines which 
+areas of a location are within reach from which other areas, so that 
+for instance a player sitting on a chair might only be able to reach 
+items on the adjacent table and not a window on the far wall. &nbsp;
+<span class="warning"><b>&#8226;</b></span>In some graphical adventure 
+games, interactivity sometimes cuts out at a significant event and 
+an unchangeable movie animation is shown instead: this is sometimes 
+called a &#8220;cut-scene&#8221;. Such games sometimes allow the player 
+to replay any movies seen so far, reviewing them for clues missed 
+previously. <tt>&quot;movie.h&quot;</tt>, by L. Ross Raszewski, projects 
+the textual version of movies like this, thus providing a framework 
+for cut-scenes. &nbsp;
+<span class="warning"><b>&#8226;</b></span><tt>&quot;infotake.h&quot;</tt>, 
+by Joe Merical, shifts the Inform model world back to the style of 
+&#8216;Zork&#8217;: printing Zorkesque messages, providing a 
+&#8220;diagnose&#8221; verb and so on. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Anson Turner's <tt>&quot;animalib&quot;</tt> 
+retains the core algorithms of the Inform library (principally the 
+parser and list-writer) but redesigns the superstructure of properties 
+and attributes with the aim of a cleaner, more consistent world model.
+Although this alternative library is in its early stages of development, 
+its code makes interesting reading. For instance, some child-objects 
+represent items held inside their parents and others represent items 
+on top of their parents. The standard Inform library distinguishes 
+these cases by looking at the attributes of the parent-object 
+&#8211; whether it is a <code>supporter</code> or a <code>container</code>. 
+Contrariwise, <tt>&quot;animalib&quot;</tt> distinguishes them by 
+looking at attributes of the child, so that the different children 
+of a single parent can all be contained in different ways.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s24.html" title="&#167;24: The world model described">prev</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

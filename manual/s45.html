@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;45: Limitations and getting around them</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">chapter VII</a> /
+ <a href="s44.html" title="&#167;44: Case study: a library file for menus">prev</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p344" name="p344"></a>
+<h2>&#167;45 &nbsp; Limitations and getting around them</h2>
+
+<blockquote>How wide the limits stand<br>
+Between a splendid and an happy land.<br>
+&#8212; Oliver Goldsmith (1728&#8211;1774), <i>The Deserted Village</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-344_1.jpg" alt=""></span>
+The Z-machine is well-designed, and has three major advantages: it is 
+compact, widely portable and can be quickly executed. Nevertheless, 
+like any rigidly defined format it imposes limitations. This section 
+is intended to help those few designers who encounter the current limits. 
+Some of the economy-measures below may sound like increasingly desperate 
+manoeuvres in a lost battle, but if so then the cavalry is on its way: 
+Andrew Plotkin has written a hybrid version of Inform which removes
+almost every restriction. Although it doesn't quite have all the nooks 
+and crannies of Inform yet working, it does allow most games to compile 
+without difficulty to a very much larger virtual machine than the 
+Z-machine called &#8220;glulx&#8221;.</p>
+
+<div class="clump"><p class="normal">1. <i>Story file size.</i>&nbsp;
+The maximum size of a story file (in K) is given by:</p>
+
+<p class="lynxonly"></p>
+<table id="s45_tbl1" align="center">
+<tr class="row1"><td>V3</td><td>V4</td><td>V5</td><td>V6</td><td>V7</td><td>V8</td></tr>
+<tr><td>128</td><td>256</td><td>256</td><td>512</td><td>320</td><td>512</td></tr>
+</table>
+
+<p class="normal">Because the centralised library of Inform is efficient in 
+terms of not duplicating code, even 128K allows for a game at least half 
+as large again as a typical old-style Infocom game. Inform is normally 
+used only to produce story files of Versions 5, 6 and 8. Version 5 
+is the default; Version 6 should be used where pictures or other graphical 
+features are essential to the game; Version 8 is a size extension for 
+Version 5, allowing games of fairly gargantuan proportions.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+If story file memory does become short, a standard mechanism can save 
+about 8­10% of the total memory, though it will not greatly affect readable 
+memory extent. Inform does not usually trouble with this economy measure, 
+since there's very seldom any need, and it makes the compiler run about 
+10% slower. What you need to do is define abbreviations and then run 
+the compiler in its &#8220;economy&#8221; mode (using the switch <tt>-e</tt>). 
+For instance, the directive</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Abbreviate &quot; the &quot;;</pre>
+
+<p class="aside">(placed before any text appears) will cause the string 
+&#8220; the &#8221; to be internally stored as a single &#8216;letter&#8217;, 
+saving memory every time it occurs (about 2,500 times in &#8216;Curses&#8217;, for 
+<a id="p345" name="p345"></a>
+instance). You can have up to 64 abbreviations. When choosing abbreviations, 
+avoid proper nouns and instead pick on short combinations of a space and common 
+two- or three-letter blocks. Good choices include <tt>&quot; the &quot;</tt>, 
+<tt>&quot;The &quot;</tt>, <tt>&quot;, &quot;</tt>, 
+<tt>&quot; and &quot;</tt>, <tt>&quot;you&quot;</tt>, 
+<tt>&quot; a &quot;</tt>, <tt>&quot;ing &quot;</tt>, 
+<tt>&quot; to&quot;</tt>. You can even get Inform to work out by itself 
+what a good stock of abbreviations would be, by setting the <tt>-u</tt> 
+switch: but be warned, this makes the compiler run about 29,000% slower.</p>
+</div>
+
+<div class="clump"><p class="normal">2. <i>Readable memory size.</i>&nbsp;
+In a very large game, or even a small one if it uses unusually large 
+or very many arrays, the designer may run up against the following 
+Inform fatal error message:</p>
+
+<p class="output">This program has overflowed the maximum readable-memory 
+size of the Z-machine format. See the memory map below: the start of 
+the area marked &#8220;above readable memory&#8221; must be brought 
+down to $10000 or less.</p>
+
+<p class="normal">In other words, the readable-memory area is absolutely 
+limited to 65,536 bytes in all Versions. Using the <tt>-D</tt> debugging 
+option increases the amount of readable-memory consumed, and the Infix 
+<tt>-X</tt> switch increases this further yet. (For instance &#8216;Advent&#8217; 
+normally uses 24,820 bytes, but 25,276 with <tt>-D</tt> and 28,908 
+with <tt>-X</tt>.) The following table suggests what is, and what 
+is not, worth economising on.</p>
+
+<p class="lynxonly"></p>
+<table border="1" align="center" id="s45_tbl2">
+<tr><td><i>Each &#8230;</i></td><td><i>Costs &#8230;</i></td></tr>
+<tr><td>Routine</td><td>0</td></tr>
+<tr><td>Text in double-quotes</td><td>0</td></tr>
+<tr><td>Object or class</td><td>26</td></tr>
+<tr><td>Common property value</td><td>3</td></tr>
+<tr><td>Non-common property value</td><td>5</td></tr>
+<tr><td>If a property holds an array</td><td>add 2 for each entry after the first</td></tr>
+<tr><td>Dictionary word</td><td>9</td></tr>
+<tr><td>Verb</td><td>3</td></tr>
+<tr><td>Different action</td><td>4</td></tr>
+<tr><td>Grammar token</td><td>3</td></tr>
+<tr><td><code>--&gt;</code> or <code>table</code> array entry</td><td>2</td></tr>
+<tr><td><code>-&gt;</code> or <code>string</code> array entry</td><td>1</td></tr>
+</table>
+
+<p class="normal">To draw some morals: verbs, actions, grammar and the 
+dictionary consume little readable memory and are too useful to economise 
+on. Objects and arrays are where savings can be made. Here is one 
+strategy for doing so.</p>
+</div>
+
+<div class="clump"><p class="normal">2a. <i>Economise on arrays.</i>&nbsp;
+Many programmers create arrays with more entries than needed, saying 
+in effect &#8220;I'm not sure how many this will take, but it's bound 
+to be less than 1,000, so I'll say 1,000 entries to be on the safe
+<a id="p346" name="p346"></a>
+side.&#8221; More thought will often reduce the number. If not, look at 
+the typical contents. Are the possible values always between 0 and 255? 
+If so, make it a <code>-&gt;</code> or <code>string</code> array and 
+the consumption of readable memory is halved. Are the possible values 
+always <code>true</code> or <code>false</code>? If so, Adam Cadre's 
+<tt>&quot;flags.h&quot;</tt> library extension offers a slower-access 
+form of array but which consumes only about 1/8th of a byte of readable 
+memory per array entry.</p></div>
+
+<div class="clump"><p class="normal">2b. <i>Turn arrays of constants into routines.</i>&nbsp;
+Routines cost nothing in readable memory terms, but they can still store 
+information as long as it doesn't need to vary during play. For instance, 
+&#8216;Curses&#8217; contains an array beginning:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Array RadioSongs table
+  &quot;Queen's ~I Want To Break Free~.&quot;
+  &quot;Bach's ~Air on a G-string~.&quot;
+  &quot;Mozart's ~Musical Joke~.&quot;
+</pre>
+
+<p class="normal">and so on for dozens more easy-listening songs which 
+sometimes play on Aunt Jemima's radio. It might equally be a routine:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ RadioSongs n;
+  switch (n) {
+      0: return 100; ! Number of songs
+      1: return &quot;Queen's ~I Want To Break Free~.&quot;;
+      2: return &quot;Bach's ~Air on a G-string~.&quot;;
+      3: return &quot;Mozart's ~Musical Joke~.&quot;;
+</pre>
+
+<p class="normal">and so on. Instead of reading <code>RadioSongs--&gt;x</code>, 
+one now reads <code>RadioSongs(x)</code>. Not an elegant trick, but it 
+saves 200 bytes of readable memory.</p></div>
+
+<div class="clump"><p class="normal">2c. <i>Economise on object properties.</i>&nbsp;
+Each time an object provides a property, readable memory is used. This 
+is sometimes worth bearing in mind when writing definitions of classes 
+which will have many members. For instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Doubloon(100)
+ with name 'gold' 'golden' 'spanish' 'doubloon' 'coin' 'money'
+           'coins//p' 'doubloons//p',
+      ...
+</pre>
+
+<p class="normal">Each of the hundred doubloons has a <code>name</code> 
+array with eight entries, so 1700 bytes of readable memory are consumed. 
+This could be reduced to 300 like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Doubloon(100)
+ with parse_name [;
+      ! A routine detecting the same name-words
+      ...
+      ],
+</pre>
+</div>
+
+<a id="p347" name="p347"></a>
+<div class="clump"><p class="normal">2d. <i>Make commonly occurring properties common.</i>&nbsp;
+Recall that properties declared with the <code>Property</code> directive 
+are called &#8220;common properties&#8221;: these are faster to access 
+and consume less memory. If, for instance, each of 100 rooms in your 
+game provides a property called <code>time_zone</code>, then the 
+declaration</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Property time_zone;</pre>
+
+<p class="normal">at the start of your code will save 2 bytes each 
+time <code>time_zone</code> is provided, saving 200 bytes in all. 
+(The library's properties are all common already.)</p>
+</div>
+
+<div class="clump"><p class="normal">2e. <i>Economise on objects.</i>&nbsp;
+In a room with four scenery objects irrelevant to the action, say 
+a window, a chest of drawers, a bed and a carpet, is it strictly necessary 
+for each to have its own object? Kathleen Fischer: &#8220;<code>parse_name</code>
+is your friend&#8230; a single object with an elaborate <code>parse_name</code> 
+can be used to cover a whole lot of scenery.&#8221; In Kathleen's technique, 
+it would use <code>parse_name</code> to record which of the words 
+&#8220;window&#8221;, &#8220;chest&#8221;, &#8220;bed&#8221; or
+&#8220;carpet&#8221; was used, storing that information in a property: 
+other properties, like <code>description</code>, would be routines which 
+produced text depending on what the object is representing this turn.</p>
+</div>
+
+<div class="clump"><p class="normal">2f. <i>Reuse objects.</i>&nbsp;
+This is a last resort but L. Ross Raszewski's <tt>&quot;imem.h&quot;</tt> 
+has helped several designers through it. Briefly, just as an array was 
+converted to a routine in (1) above, <tt>&quot;imem.h&quot;</tt> converts 
+object definitions to routines, with a minimal number of them &#8220;swapped 
+in&#8221; as real objects at any given time and the rest &#8211; items 
+of scenery in distant locations, for instance &#8211; &#8220;swapped 
+out&#8221;.</p></div>
+
+<div class="clump"><p class="normal">3. <i>Grammar.</i>&nbsp;
+There can be up to 256 essentially different verbs, each with up to 32 
+grammar lines. Using the <code>UnknownVerb</code> entry point will get 
+around the former limit, and general parsing routines can make even 
+a single grammar line match almost any range of syntax.</p></div>
+
+<div class="clump"><p class="normal">4. <i>Vocabulary.</i>&nbsp;
+There is no theoretical limit except that the dictionary words
+each take up 9 bytes of readable memory, which means that 4,000 words 
+is probably the practical limit. In practice games generally have 
+vocabularies of between 500 and 2,000 words.</p></div>
+
+<div class="clump"><p class="normal">5. <i>Dictionary resolution.</i>&nbsp;
+Dictionary words are truncated to their first 9 letters (except 
+that non-alphabetic characters, such as hyphens, count as 2 &#8220;letters&#8221;
+for this purpose: look up <code>Zcharacter</code> in the index for references 
+to more on this). Upper and lower case letters are considered equal. 
+Since general parsing routines, or <code>parse_name</code> routines, can 
+look at the exact text typed by the player, finer resolution is easy 
+enough if needed.</p></div>
+
+<div class="clump"><p class="normal">6. <i>Attributes, properties, names.</i>&nbsp;
+There can be up to 48 attributes and an unlimited number of properties, 
+at most 63 of these can be made common by 
+<a id="p348" name="p348"></a>
+being declared with 
+<code>Property</code>. A property entry can hold up to 64 bytes of data. 
+Hence, for example, an object can have up to 32 <code>name</code>s. If an 
+object must respond to more, give it a suitable <code>parse_name</code> 
+routine.</p></div>
+
+<div class="clump"><p class="normal">7. <i>Objects and classes.</i>&nbsp;
+The number of objects is unlimited so long as there is readable 
+memory to hold their definitions. The number of classes is presently
+limited to 256, of which the library uses only 1.</p></div>
+
+<div class="clump"><p class="normal">8. <i>Global variables.</i>&nbsp;
+There can only be 240 of these, and the Inform compiler uses 5 as scratch 
+space, while the library uses slightly over 100; but since a typical 
+game uses only a dozen of its own, code being almost always object-oriented, 
+the restriction is never felt.</p></div>
+
+<div class="clump"><p class="normal">9. <i>Arrays.</i>&nbsp;
+An unlimited number of <code>Array</code> statements is permitted, 
+although the entries in arrays consume readable memory (see above).</p></div>
+
+<div class="clump"><p class="normal">10. <i>Function calls and messages.</i>&nbsp;
+A function can be called with at most seven arguments. A message can 
+be called with at most five.</p></div>
+
+<div class="clump"><p class="normal">11. <i>Recursion and stack usage.</i>&nbsp;
+The limit on this is rather technical (see <i>The Z-Machine 
+Standards Document</i>). Roughly speaking, recursion is permitted 
+to a depth of 90 routines in almost all circumstances, and often much 
+deeper. Direct usage of the stack via assembly language must be modest.</p></div>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">chapter VII</a> /
+ <a href="s44.html" title="&#167;44: Case study: a library file for menus">prev</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;41: Architecture and assembly</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">chapter VII</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">prev</a> /
+ <a href="s42.html" title="&#167;42: Devices and opcodes">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p314" name="p314"></a>
+<h2>&#167;41 &nbsp; Architecture and assembly</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-314_1.jpg" alt=""></span>
+Infocom's games of 1979&#8211;89 were written in a language called
+ZIL, the Zork Implementation Language. At first sight this is outlandishly 
+unlike Inform, but appearances are deceptive. The following source code 
+describes toy boats in Kensington Park, from a game widely considered 
+a masterpiece: &#8216;Trinity&#8217; (1986), by Brian Moriarty.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+&lt;OBJECT BOAT
+        (LOC ROUND-POND)
+        (DESC &quot;toy boats&quot;)
+        (FLAGS TRYTAKE NODESC PLURAL)
+        (SYNONYM BOAT BOATS TOYS)
+        (ADJECTIVE TOY)
+        (ACTION BOAT-F)&gt;
+&lt;ROUTINE BOAT-F ()
+         &lt;COND (&lt;VERB? EXAMINE WATCH&gt;
+                &lt;TELL CTHEO
+&quot; are crafted of paper and sticks. They bob freely among the &quot;
+D ,POND-BIRDS &quot;, who can barely conceal their outrage.&quot; CR&gt;
+                &lt;RTRUE&gt;)
+               (&lt;VERB? SWIM DIVE WALK-TO FOLLOW SIT LIE-DOWN ENTER&gt;
+                &lt;DO-WALK ,P?IN&gt;
+                &lt;RTRUE&gt;)
+               (&lt;INTBL? ,PRSA ,TOUCHVERBS ,NTOUCHES&gt;
+                &lt;TELL CTHE ,BOAT &quot; are far out of reach.&quot; CR&gt;
+                &lt;RTRUE&gt;)
+               (T
+                &lt;RFALSE&gt;)&gt;&gt;
+</pre>
+
+<p class="normal">Inform and ZIL each have objects, with properties and 
+attributes. They're called different things, true: ZIL has its dictionary 
+words in <code>SYNONYM</code> and <code>ADJECTIVE</code> where Inform 
+uses <code>name</code>, ZIL calls attributes &#8220;flags&#8221; and 
+has NODESC where Inform would have <code>scenery</code>, but the similarity 
+is striking. Both languages have routines with a tendency to return 
+<code>true</code> and <code>false</code>, too.</p>
+
+<p class="indent">The underlying similarity is the Z-machine, which both 
+languages make use of. The Z-machine is an imaginary computer: created 
+on Joel Berez's mother's coffee table in Pittsburgh in 1979, it has 
+never existed as circuitry. 
+<a id="p315" name="p315"></a>
+Instead, almost every real computer built 
+in the 1980s and 1990s has been taught to emulate the Z-machine, and 
+so to run story files.</p>
+
+<p class="indent">This chapter contains what the advanced Inform programmer 
+needs, from time to time, to know about the Z-machine. The reader who 
+only wants to get at fairly easy screen effects like coloured text may 
+want to turn straight to the references to <a href="s42.html">&#167;42</a>, 
+where a number of convenient library extensions are listed.</p>
+
+<p class="indent">In any case this chapter is by no means the full story, 
+which is contained in <i>The Z-Machine Standards Document</i>. It seems 
+nonetheless appropriate to acknowledge here the work of the Z-machine's 
+architects: Joel Berez, Marc Blank, P. David Lebling, Tim Anderson and 
+others.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The Z-machine as conceived in 1979 is now known 
+as &#8220;version 1&#8221;, and there have been seven subsequent versions 
+to date. Inform normally produces version 5 story files, but this can 
+be controlled with the <tt>-v</tt> switch: so <tt>-v6</tt> compiles 
+a version 6 story file, for instance. Briefly, the versions are:</p>
+
+<div class="clump"><p class="normal"><i>Versions 1 and 2.</i>&nbsp;
+Early draft designs by Infocom, used only in the first release of the 
+&#8216;Zork&#8217; trilogy. Inform cannot produce them.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 3.</i>&nbsp;
+The standard Infocom design, limited in various ways: to 255 objects, 
+32 attributes, at most 4 entries in a property array, at most 3
+arguments in a routine call and a story file at most 128K in size. 
+Inform can produce version 3 files but this is not recommended and 
+some advanced features of the language, such as message-sending, will 
+not work.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 4.</i>&nbsp;
+A partial upgrade, now seldom used.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 5.</i>&nbsp;
+The advanced Infocom design and the one normally used by Inform. 
+Limits are raised to 65,535 objects, 48 attributes, 32 entries in a
+property array, 7 arguments in a routine call and a story file at most 
+256K in size.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 6.</i>&nbsp;
+Similar, though not identical, in architecture to Version 5, but offering 
+support for pictures. Inform will compile to this, but there are two
+further obstructions: you need a way to package up the sounds and images 
+to go with the story file (see <a href="s43.html">&#167;43</a>), and 
+then players need an interpreter able to make use of them.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 7.</i>&nbsp;
+An intermediate version which has never proved useful, and whose use 
+is now deprecated.</p></div>
+
+<div class="clump"><p class="normal"><i>Version 8.</i>&nbsp;
+Identical to version 5 except that it allows story files up to 512K
+long. Most of the largest Inform games use version 8.</p></div>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="p316" name="p316"></a>
+<p class="normal">The native language of the Z-machine is neither Inform 
+nor ZIL, but an intermediate-level code which we'll call &#8220;assembly 
+language&#8221;. It's tiresome to write a program of any complexity in 
+assembly language. For instance, here are two equivalent pieces of 
+Inform: first, a statement in ordinary code:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">&quot;The answer is &quot;, 3*subtotal + 1;</pre>
+
+<p class="normal">Secondly, assembly language which achieves the same end:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+@print &quot;The answer is &quot;;
+@mul 3 subtotal -&gt; x;
+@add x 1 -&gt; x;
+@print_num x;
+@new_line;
+@rtrue;
+</pre>
+
+<p class="normal">(Here we've used a variable called <code>x</code>.) 
+Inform allows you to mix assembly language and ordinary Inform source 
+code freely, but all commands in assembly language, called &#8220;opcodes&#8221;, 
+are written with an <code>@</code> sign in front, to distinguish them. The values supplied 
+to opcodes, such as <code>3</code> and <code>subtotal</code>, are called &#8220;operands&#8221;. 
+The <code>-&gt;</code> arrow sign is read &#8220;store to&#8221; and 
+indicates that an answer is being stored somewhere. So, for instance, the line</p>
+
+<p class="lynxonly"></p>
+<pre class="code">@add x 1 -&gt; x;</pre>
+
+<p class="normal">adds <code>x</code> and 1, storing the result of this 
+addition back in <code>x</code>. Operands can only be constants or 
+variables: so you can't write a compound expression like
+<code>my_array--&gt;(d*4)</code>.</p>
+
+<p class="indent">As can be seen above, some opcodes store values and 
+some don't. Another important category are the &#8220;branch&#8221; opcodes, 
+which result in execution jumping to a different place in the source 
+code if some condition turns out to be true, and not otherwise. For instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+@je x 1 ?Xisone;
+@print &quot;x isn't equal to 1.&quot;;
+.Xisone;
+</pre>
+
+<p class="normal">Here, <code>Xisone</code> is the name of a label, 
+marking a point in the source code which a branch opcode (or an Inform 
+<code>jump</code> statement) might want to jump to. (A label can't 
+be the last thing in a function, but if you needed this, you could always 
+finish with a label plus a <code>return</code> statement instead.) <code>@je</code> 
+means &#8220;jump 
+<a id="p317" name="p317"></a>
+if equal&#8221;, so the code tests <code>x</code> to see 
+if it's equal to 1 and jumps to <code>Xisone</code> if so. Inform will 
+only allow branches to labels in the same routine. Note that inserting 
+a tilde,</p>
+
+<pre class="code">@je x 1 ?~Xisntone;</pre>
+
+<p class="normal">reverses the condition, so this opcode branches if 
+<code>x</code> is not equal to 1.</p>
+
+<p class="indent">The full specification of Inform's assembly-language 
+syntax is given in &#167;14 of <i>The Z-Machine Standards Document</i>, 
+but this will seldom if ever be needed, because the present chapter contains 
+everything that can't be done more easily without assembly language anyway.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The rest of this section sketches the architecture of the Z-machine, 
+which many designers won't need to know about. Briefly, it contains memory 
+in three sections: readable and writeable memory at byte addresses 0 up 
+to <i>S</i>&#8722;1, read-only memory from <i>S</i> up to 
+<i>P</i>&#8722;1 and inaccessible memory from <i>P</i> upwards. (In 
+any story file, the Inform expression <code>0--&gt;2</code> gives the 
+value of <i>P</i> and <code>0--&gt;7</code> gives <i>S</i>.) The 
+read-write area contains everything that needs to change in play: 
+variables, object properties and attributes, arrays and certain other 
+tables; except for the stack and the &#8220;program counter&#8221;, 
+its marker as to which part of some routine it is currently running. 
+The beginning of the read-write area is a 64-byte &#8220;header&#8221;. 
+Byte 0 of this header, and so of an entire story file, contains the 
+version number of the Z-machine for which it is written. (The expression 
+<code>0-&gt;0</code> evaluates to this.)</p>
+
+<p class="aside">The read-only area contains tables which the Inform parser 
+needs to make detailed use of but never alters: the grammar lines and 
+the dictionary, for instance. The &#8220;inaccessible&#8221; area contains 
+routines and static (that is, unalterable) strings of text. These can 
+be called or printed out, which is access of a sort, but you can't write 
+code which will examine them one byte at a time.</p>
+
+<p class="aside">In addition to local and global variables, the Z-machine 
+contains a &#8220;stack&#8221;, which is accessed with the name <code>sp</code> 
+for &#8220;stack pointer&#8221;. The stack is a pile of values. Each
+time <code>sp</code> is written to, a new value is placed on top of the 
+pile. Each time it is read, the value being read is taken off the pile. 
+At the start of a routine, the stack is always empty.</p>
+
+<p class="aside">There is no access to the outside world except by 
+using certain opcodes. For instance, <code>@read</code> and <code>@read_char</code> 
+allow use of the keyboard, whereas <code>@print</code> and
+<code>@draw_picture</code> allow use of the screen. (The screen's image 
+is not stored anywhere in memory, and nor is the state of the keyboard.) 
+Conversely, hardware can cause the Z-machine to &#8220;interrupt&#8221;, 
+that is, to make a spontaneous call to a particular routine, interrupting 
+what it was previously working on. This happens only if the story file 
+has previously requested it: for example, by setting a sound effect playing 
+and asking for a routine to be called when it finishes; or by asking 
+for an interrupt if thirty seconds pass while the player is thinking 
+what to type.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">chapter VII</a> /
+ <a href="ch7.html" title="Chapter VII: The Z-Machine">prev</a> /
+ <a href="s42.html" title="&#167;42: Devices and opcodes">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

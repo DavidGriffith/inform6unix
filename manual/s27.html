@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;27: Listing and grouping objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s26.html" title="&#167;26: Describing objects and rooms">prev</a> /
+ <a href="s28.html" title="&#167;28: How nouns are parsed">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p211" name="p211"></a>
+<h2>&#167;27 &nbsp; Listing and grouping objects</h2>
+
+<blockquote>As some day it may happen that a victim must be found<br>
+I've got a little list &#8211; I've got a little list<br>
+Of society offenders who might well be underground,<br>
+And who never would be missed<br>
+Who never would be missed!<br>
+&#8212; W. S. Gilbert (1836&#8211;1911), <i>The Mikado</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-211_1.jpg" alt=""></span>
+Listing objects tidily in a grammatical sentence is more difficult
+than it seems, especially when taking plurals and groups of similar
+objects into account. Here, for instance, is a list of 23 items printed
+by a room description in the demonstration game &#8216;List Property&#8217;:</p>
+
+<p class="output">You can see a plastic fork, knife and spoon, three 
+hats (a fez, a Panama and a sombrero), the letters X, Y, Z, P, Q and 
+R from a Scrabble set, Punch magazine, a recent issue of the Spectator, 
+a die and eight coins (four silver, one bronze and three gold) here.</p>
+
+<p class="normal">Fortunately, the library's list-maker is available 
+to the public by calling:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">WriteListFrom(object, style);</pre>
+
+<p class="normal">where the list will start from the given object and 
+go along its siblings. Thus, to list all the objects inside <code>X</code>, 
+list from <code>child(X)</code>. What the list looks like depends on 
+a &#8220;style&#8221; made by adding up some of the following:</p>
+
+<p class="lynxonly"></p>
+<table style="margin-left:30px;margin-top:1em;margin-bottom:1em">
+<tr><td><code>ALWAYS_BIT</code></td>
+ <td>Always recurse downwards</td></tr>
+<tr><td><code>CONCEAL_BIT</code></td>
+ <td>Misses out <code>concealed</code> or <code>scenery</code> objects</td></tr>
+<tr><td><code>DEFART_BIT</code></td>
+ <td>Uses the definite article in list</td></tr>
+<tr><td><code>ENGLISH_BIT</code></td>
+ <td>English sentence style, with commas and &#8216;and&#8217;</td></tr>
+<tr><td><code>FULLINV_BIT</code></td>
+ <td>Gives full inventory entry for each object</td></tr>
+<tr><td><code>INDENT_BIT</code></td>
+ <td>Indents each entry according to depth</td></tr>
+<tr><td><code>ISARE_BIT</code></td>
+ <td>Prints &#8220; is &#8221; or &#8220; are &#8221; before list</td></tr>
+<tr><td><code>NEWLINE_BIT</code></td>
+ <td>Prints new-line after each entry</td></tr>
+<tr><td><code>NOARTICLE_BIT</code></td>
+ <td>Prints no articles, definite or indefinite</td></tr>
+<tr><td><code>PARTINV_BIT</code></td>
+ <td>Only brief inventory information after entry</td></tr>
+<tr><td><code>RECURSE_BIT</code></td>
+ <td>Recurses downwards with usual rules</td></tr>
+<tr><td><code>TERSE_BIT</code></td>
+ <td>More terse English style</td></tr>
+<tr><td><code>WORKFLAG_BIT</code></td>
+ <td>At top level (only), only lists objects which have 
+ the <code>workflag</code> attribute</td></tr>
+</table>
+
+<a id="p212" name="p212"></a>
+<p class="normal">Recursing downwards means that if an object is listed, 
+then its children are also listed, and so on for their children. 
+The &#8220;usual rules&#8221; of <code>RECURSE_BIT</code> are that 
+children are only listed if the parent is <code>transparent</code>, 
+or a <code>supporter</code>, or a <code>container</code> which is 
+<code>open</code> &#8211; which is the definition of 
+&#8220;see-through&#8221; used throughout the Inform library. &#8220;Full 
+inventory information&#8221; means listing objects exactly as if in 
+an inventory, according to the rigmarole described in
+<a href="s26.html">&#167;26</a>. &#8220;Brief inventory information&#8221; 
+means listing as if in a room description: that is, noting whether objects 
+are open, closed, empty or providing light (except that light is 
+only mentioned when in a room which is normally dark).</p>
+
+<p class="indent">The best way to decide which bits to set is to experiment. 
+For example, a &#8216;tall&#8217; inventory is produced by:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+WriteListFrom(child(player),
+    FULLINV_BIT + INDENT_BIT + NEWLINE_BIT + RECURSE_BIT);
+</pre>
+
+<p class="normal">and a &#8216;wide&#8217; one by:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+WriteListFrom(child(player),
+    FULLINV_BIT + ENGLISH_BIT + RECURSE_BIT);
+</pre>
+
+<p class="normal">which produce effects like:</p>
+
+<p class="output">&gt;<tt>inventory tall</tt><br>
+You are carrying:<br>
+&nbsp; a bag (which is open)<br>
+&nbsp; &nbsp; three gold coins<br>
+&nbsp; &nbsp; two silver coins<br>
+&nbsp; &nbsp; a bronze coin<br>
+&nbsp; four featureless white cubes<br>
+&nbsp; a magic burin<br>
+&nbsp; a spell book<br>
+&gt;<tt>inventory wide</tt><br>
+You are carrying a bag (which is open), inside which are three gold coins, 
+two silver coins and a bronze coin, four featureless white cubes, a 
+magic burin and a spell book.</p>
+
+<p class="normal">except that the &#8220;You are carrying&#8221; part 
+is not done by the list-maker, and nor is the final full stop in the 
+second example.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The <code>workflag</code> is an attribute which the library scribbles 
+over from time to time as temporary storage, but you can use it for 
+short periods with care. In this case it makes it possible to specify 
+any reasonable list.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+<code>WORKFLAG_BIT</code> and <code>CONCEAL_BIT</code> specify 
+conflicting rules. If they're both given, then what happens is: at 
+the top level, but not below, everything with <code>workflag</code> is
+included; on lower levels, but not at the top, everything without 
+<code>concealed</code> or <code>scenery</code> is included.</p>
+
+<a id="p213" name="p213"></a>
+<a id="ex66" name="ex66"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans66">EXERCISE 66</a></b></span><br>
+Write a <code>DoubleInvSub</code> action routine to produce an inventory 
+like so:</p>
+
+<p class="output">You are carrying four featureless white cubes, a 
+magic burin and a spell book. In addition, you are wearing a purple 
+cloak and a miner's helmet.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Lists are shorter, neater and more elegantly phrased 
+if similar objects are grouped together. For instance, keys, books 
+and torch batteries are all grouped together in lists printed by the 
+game &#8216;Curses&#8217;. To achieve this, the objects belonging to 
+such a group (all the keys for instance) provide a common value of 
+the property <code>list_together</code>. If this value is a number 
+between 1 and 1000, the library will unobtrusively group the objects 
+with that value together so that they appear consecutively in any 
+list. For instance &#8216;Curses&#8217; includes the following 
+definitions:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Constant KEY_GROUP = 1;
+...
+Object -&gt; -&gt; brass_key &quot;small brass key&quot;
+  with ...
+       list_together KEY_GROUP;
+</pre>
+
+<p class="normal">and similarly for the other keys. Alternatively, instead 
+of being a small number the common value can be a string such as 
+<code>&quot;foodstuffs&quot;</code>. If so, then it must either 
+be given in a class definition or else as a constant, like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Constant FOOD_GROUP = &quot;foodstuffs&quot;;</pre>
+
+<p class="normal">(In particular, the actual text should only be written 
+out in one place in the source code. Otherwise two or more different 
+strings will be made, which just happen to have the same text as each 
+other, and Inform will consider these to be different values of 
+<code>list_together</code>.) Lists will then cite, for instance,</p>
+
+<p class="output">three foodstuffs (a scarlet fish, some lembas wafer 
+and an onion)</p>
+
+<p class="normal">in running text, or</p>
+
+<p class="output">three foodstuffs:<br>
+&nbsp; a scarlet fish<br>
+&nbsp; some lembas wafer<br>
+&nbsp; an onion</p>
+
+<a id="p214" name="p214"></a>
+<p class="normal">in indented lists. This only happens when two or 
+more are gathered together. Finally, the common value of <code>list_together</code> 
+can be a routine, such as:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+list_together [;
+    if (inventory_stage == 1) {
+        print &quot;heaps of food, notably&quot;;
+        if (c_style &amp; INDENT_BIT == 0) print &quot; &quot;;
+            else print &quot; --^&quot;;
+    } else if (c_style &amp; INDENT_BIT == 0)
+        print &quot; (which only reminds you how hungry you are)&quot;;
+],
+</pre>
+
+<p class="normal">Typically this might be part of a class definition from 
+which all the objects in question inherit. Any <code>list_together</code> 
+routine will be called twice: once, with <code>inventory_stage</code> 
+set to 1, as a preamble to the list of items, and once (with 2) to 
+print any postscript required. It is allowed to change <code>c_style</code>, 
+the current list style, without needing to restore the old value and 
+may, by returning <code>true</code> from stage 1, signal the list-maker 
+not to print a list at all. The above example would give a conversational 
+sentence-like list as follows:</p>
+
+<p class="output">heaps of food, notably a scarlet fish, some lembas 
+wafer and an onion (which only reminds you how hungry you are)</p>
+
+<p class="normal">and would also look suitable in sober tall-inventory-like 
+columns:</p>
+
+<p class="output">heaps of food, notably --<br>
+&nbsp; a scarlet fish<br>
+&nbsp; some lembas wafer<br>
+&nbsp; an onion</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+A <code>list_together</code> routine has the opportunity to look through 
+the objects which are about to be listed together, by looking at some 
+of the list-maker's variables. <code>parser_one</code> holds the first 
+object in the group and <code>parser_two</code> holds the depth of
+recursion in the list, which might be needed to keep the indentation 
+straight. Applying <code>x = NextEntry(x,parser_two)</code> will move 
+<code>x</code> on from one object to the next in the group being 
+listed.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The library variable <code>listing_together</code> is set to the first 
+object of a group being listed, when a group is being listed, or to 
+<code>nothing</code> the rest of the time. This is useful because 
+an object's <code>short_name</code> routine might need to behave 
+differently during a grouped listing to the rest of the time.</p>
+
+<a id="ex67" name="ex67"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans67">EXERCISE 67</a></b></span><br>
+Implement the Scrabble pieces from the example list above.</p>
+
+<a id="p215" name="p215"></a>
+<a id="ex68" name="ex68"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans68">EXERCISE 68</a></b></span><br>
+Implement the three denominations of coin.</p>
+
+<a id="ex69" name="ex69"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans69">EXERCISE 69</a></b></span><br>
+Implement the I Ching in the form of six coins, three gold (goat, deer 
+and chicken), three silver (robin, snake and bison) which can be 
+thrown to reveal gold and silver trigrams.</p>
+
+<a id="ex70" name="ex70"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans70">EXERCISE 70</a></b></span><br>
+Design a class called <code>AlphaSorted</code>, members of which are always 
+listed in alphabetical order. Although this <em>could</em> be done 
+with <code>list_together</code>, this exercise is here to draw the 
+reader's attention to an ugly but sometimes useful alternative. The 
+only actions likely to produce lists are <code>Look</code>, <code>Search</code>, 
+<code>Open</code> and <code>Inv</code>: so react to these actions by
+rearranging the object tree into alphabetical order before the 
+list-writer gets going.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+A good example of <code>WriteListFrom</code> in action is the definition 
+of <code>CarryingClass</code> from the example game &#8216;The 
+Thief&#8217;, by Gareth Rees. This alters the examine description of
+a character by appending a list of what that person is carrying and 
+wearing. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Andreas Hoppler has written an 
+alternative list-writing library extension called <tt>&quot;Lister.h&quot;</tt>,
+which defines a class <code>Lister</code> so that designers can customise 
+their own listing engines for different purposes in a single game. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Anson Turner's example program 
+<tt>&quot;52.inf&quot;</tt> models a deck of cards, and an extensive 
+<code>list_together</code> sorts out hands of cards.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s26.html" title="&#167;26: Describing objects and rooms">prev</a> /
+ <a href="s28.html" title="&#167;28: How nouns are parsed">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;35: Case and parsing noun phrases</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch5.html" title="Chapter V: Natural Language">chapter V</a> /
+ <a href="s34.html" title="&#167;34: Linguistics and the Inform parser">prev</a> /
+ <a href="s36.html" title="&#167;36: Parsing non-English languages">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p262" name="p262"></a>
+<h2>&#167;35 &nbsp; Case and parsing noun phrases</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-262_1.jpg" alt=""></span>
+As this section and the next use a variety of linguistic terms, here
+are some definitions. &#8220;Flexion&#8221; is the changing of a word 
+according to its situation, and there are several kinds:</p>
+
+<p class="aside"><em>inflection</em>: a variable ending for a word, 
+such as &#8220;a&#8221; becoming &#8220;an&#8221;.</p>
+
+<p class="aside"><em>agreement</em>: when the inflection of one 
+word is changed to match another word which it goes with. Thus 
+&#8220;grand maison&#8221; but &#8220;grande dame&#8221; (French), 
+where the inflection on &#8220;grand&#8221; agrees with the gender 
+of the noun it is being applied to.</p>
+
+<p class="aside"><em>affix</em>: part of a word which is attached 
+either at the beginning (<em>prefix</em>), the end (<em>suffix</em>)
+or somewhere in the middle (<em>infix</em>) of the ordinary word 
+(the <em>stem</em>) to indicate, for instance, person or gender of 
+the objects attached to a verb. The affix often plays a part that 
+an entirely separate word would play in English. For instance, 
+&#8220;donnez-lui&#8221; (French: &#8220;give to him&#8221;), where 
+the suffix is &#8220;-lui&#8221;, or &#8220;cogela&#8221; (Spanish: 
+&#8220;take it&#8221;), where the suffix is &#8220;la&#8221;.</p>
+
+<p class="aside"><em>enclitic</em>: an affix, usually a suffix, meaning 
+&#8220;too&#8221; or &#8220;and&#8221; in English. For instance,
+&#8220;que&#8221; (Latin).</p>
+
+<p class="aside"><em>agglutinization</em>: the practice of composing many 
+affixes to a single word, so that it may even become an entire phrase. 
+For instance:</p>
+
+<p class="syntax">kirjoitettuasi &nbsp; <i>after you had written</i> 
+(Finnish)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">In most languages, noun phrases have different
+<em>cases</em> according to their situation in a sentence. In the 
+English sentence &#8220;Emily ate one bath bun and gave Beatrice 
+the other&#8221;, the noun phrase &#8220;Emily&#8221; is <em>nominative</em>, 
+&#8220;one bath bun&#8221; and &#8220;the other&#8221; are 
+<em>accusative</em> and &#8220;Beatrice&#8221; is <em>dative</em>. 
+These last two are the cases most often occurring in Inform commands, 
+as in the example</p>
+
+<p class="syntax">leg den frosch auf ihn &nbsp; <i>put the frog 
+on him</i> (German)<br>
+nimm den frosch von ihm &nbsp; <i>take the frog from him</i></p>
+
+<p class="normal">where the noun phrase &#8220;den frosch&#8221; is 
+accusative both times, but &#8220;ihn&#8221; and &#8220;ihm&#8221; 
+are the same word (&#8220;him&#8221;) in its accusative and dative 
+forms. In some languages a <em>vocative</em> case would also be needed 
+for the name of someone being addressed:</p>
+
+<p class="syntax">domine, fiat lux &nbsp; <i>Lord, let there be light</i> 
+(Latin)</p>
+
+<a id="p263" name="p264"></a>
+<p class="normal">since &#8220;domine&#8221; is the vocative form of 
+&#8220;dominus&#8221;. Latin also has genitive and ablative cases, 
+making six in all, but this pales by comparison with Finnish, which 
+has about thirty. In effect, a wide range of English prepositional phrases
+like &#8220;into the water&#8221; are written as just the noun phrase 
+&#8220;water&#8221; with a suffix meaning &#8220;into&#8221;.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">To parse any of these languages, and even in some 
+circumstances to parse special effects in English-language games, 
+it's useful to have further control over the way that the parser 
+recognises noun phrases.</p>
+
+<p class="indent">The words entered into an object's <code>name</code> property 
+normally take the accusative case, the one most often needed in commands, 
+as for example in the grammar line:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'take' * noun -&gt; Take;</pre>
+
+<p class="normal">On the other hand, the nouns in the following grammar 
+lines aren't all accusative:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Verb 'give'
+    * noun 'to' noun -&gt; Give
+    * noun noun      -&gt; Give reverse;
+</pre>
+
+<p class="normal">This matches &#8220;give biscuit to jemima&#8221; and 
+&#8220;give jemima biscuit&#8221;, &#8220;biscuit&#8221; being accusative 
+in both cases and &#8220;to jemima&#8221; and &#8220;jemima&#8221; both 
+dative. In a language where the spelling of a word can tell a dative 
+from an accusative, such as German, we could instead use grammar like 
+this:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Verb 'give'
+    * noun dativenoun -&gt; Give
+    * dativenoun noun -&gt; Give reverse;
+</pre>
+
+<p class="normal">where <span class="grammartoken"><code>dativenoun</code></span> 
+is some token meaning &#8220;like <span class="grammartoken"><code>noun</code></span>, 
+but in the dative case instead of the accusative&#8221;. This could 
+be used as the definition of a German verb &#8220;gib&#8221;, in which 
+case both of the following would be parsed correctly:</p>
+
+<p class="syntax">gib die blumen dem maedchen &nbsp; <i>give 
+the flowers to the girl</i><br>
+gib dem maedchen die blumen &nbsp; <i>give the girl the flowers</i></p>
+
+<p class="normal">Unfortunately Inform doesn't come with a token called 
+<span class="grammartoken"><code>dativenoun</code></span> built in,
+so you have to write one, using a general parsing routine (see 
+<a href="s31.html">&#167;31</a>). For the sake 
+<a id="p264" name="p264"></a>
+of an example closer 
+to English, suppose a puzzle in which the Anglo-Saxon hero Beowulf will 
+do as he is asked to, but only if addressed in Old English:</p>
+
+<p class="syntax">beowulf, gief gold to cyning &nbsp;
+<i>beowulf, give gold to king</i> (Old English)</p>
+
+<p class="normal">The grammar would be much like that for German, 
+and indeed English:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'gief' * noun dativenoun -&gt; OEGive;</pre>
+
+<p class="normal">and here is a simple version of 
+<span class="grammartoken"><code>dativenoun</code></span>:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ dativenoun;
+  if (NextWord() == 'to')
+      return ParseToken(ELEMENTARY_TT, NOUN_TOKEN);
+  return GPR_FAIL;
+];
+</pre>
+
+<p class="normal">Read this as: &#8220;if the next word is &#8220;to&#8221;, 
+try and match a noun following it; otherwise it isn't a dative&#8221;. 
+A more likely form of the command is however</p>
+
+<p class="syntax">beowulf, gief gold cyninge &nbsp;
+<i>beowulf, give gold to king</i> (Old English)</p>
+
+<p class="normal">where &#8220;cyninge&#8221; is the dative form of 
+&#8220;cyning&#8221;. The ending &#8220;-e&#8221; often indicates a 
+dative in Old English, but there are irregularities, such as &#8220;searo&#8221;
+(device), whose dative is &#8220;searwe&#8221;, not &#8220;searoe&#8221;. 
+In the unlikely event of Beowulf confronting a vending machine:</p>
+
+<p class="syntax">beowulf, gief gold to searo &nbsp;
+<i>beowulf, give gold to device</i> (Old English)<br>
+beowulf, gief gold searwe &nbsp; <i>beowulf, give gold to device</i></p>
+
+<p class="normal">How to manage all this? Here is a laborious way:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; &quot;searo&quot;
+  with name 'searo', dativename 'searwe';
+Object -&gt; &quot;Cyning&quot;
+  with name 'cyning', dativename 'cyninge';
+[ dativenoun;
+  if (NextWord() ~= 'to') {
+      wn--; parser_inflection = dativename;
+  }
+  return ParseToken(ELEMENTARY_TT, NOUN_TOKEN);
+];
+</pre>
+
+<a id="p265" name="p265"></a>
+<p class="normal">The variable <code>parser_inflection</code> tells 
+the parser where to find the name(s) of an object. It must always be 
+equal to <em>either</em> a property <em>or</em> a routine. Most of the
+time it's equal to the property <code>name</code>, the accusative case 
+as normal. If it equals another property, such as <code>dativename</code>, 
+then the parser looks in that property for name-words instead of in 
+<code>name</code>.</p>
+
+<p class="indent">The above solution is laborious because it makes 
+the game designer write out dative forms of every name, even though they 
+are very often the same but with &#8220;-e&#8221; suffixed. It's for 
+this kind of contingency that <code>parser_inflection</code> can be 
+set to a routine name. Such an &#8220;inflection routine&#8221; is 
+called with two arguments: an object and a dictionary word. It returns 
+<code>true</code> if the dictionary word can mean the object and 
+<code>false</code> if not. The word number <code>wn</code> is always
+set to the number of the next word along, and it should not be moved. 
+Two library routines may be particularly helpful:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">DictionaryLookup(text, length)</pre>
+
+<p class="normal">returns 0 if the word held as a <code>-&gt;</code> 
+array of characters</p>
+
+<p class="lynxonly"></p>
+<pre class="code">text-&gt;0, text-&gt;1, ..., text-&gt;(length-1)</pre>
+
+<p class="normal">is not in the game's dictionary, or its dictionary 
+entry if it is.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">WordInProperty(word, object, property)</pre>
+
+<p class="normal">to see if this is one of the words listed in 
+<code>object.property</code>. It may also be useful to know that the 
+variable <code>indef_mode</code> is always set to <code>true</code> when 
+parsing something known to be indefinite (e.g., because an indefinite 
+article or a word like &#8220;all&#8221; has just been typed), and 
+<code>false</code> otherwise.</p>
+
+<a id="ex107" name="ex107"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans107">EXERCISE 107</a></b></span><br>
+Rewrite the <code>dativenoun</code> token so that &#8220;-e&#8221; 
+is recognised as a regular suffix indicating the dative, while still 
+making provision for some nouns to have irregular dative forms.</p>
+
+<a id="ex108" name="ex108"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans108">EXERCISE 108</a></b></span><br>
+Now add an (imaginary, not Old English) dative pronominal adverb 
+&#8220;toit&#8221;, which is to be understood as &#8220;to it&#8221;.</p>
+
+<a id="ex109" name="ex109"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans109">EXERCISE 109</a></b></span><br>
+Define a token <span class="grammartoken"><code>swedishnoun</code></span> 
+to make nouns and adjectives agree with the article (definite or 
+indefinite) applied to them, so for instance:</p>
+
+<p class="syntax">en brun hund &nbsp; <i>a brown dog</i> (Swedish)<br>
+den bruna hunden &nbsp; <i>the brown dog</i><br>
+ett brunt hus &nbsp; <i>a brown house</i><br>
+det bruna huset &nbsp; <i>the brown house</i></p>
+
+<a id="p266" name="p266"></a>
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+The use of grammar tokens is only one way of dealing with flexion 
+and pronominal adverbs. The alternative is to alter the text typed 
+until it resembles normal Informese:</p>
+
+<p class="syntax">gief gold cyninge &nbsp;&rarr;&nbsp; gief gold to cyning<br>
+gief gold toit &nbsp;&rarr;&nbsp; gief gold to it<br>
+den bruna hunden &nbsp;&rarr;&nbsp; den brun hund<br>
+det bruna huset &nbsp;&rarr;&nbsp; det brun hus</p>
+
+<p class="aside">See <a href="s36.html">&#167;36</a> below. In a 
+heavily inflected language with many irregularities, a combination
+of the two techniques may be needed.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch5.html" title="Chapter V: Natural Language">chapter V</a> /
+ <a href="s34.html" title="&#167;34: Linguistics and the Inform parser">prev</a> /
+ <a href="s36.html" title="&#167;36: Parsing non-English languages">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

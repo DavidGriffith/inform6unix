@@ -1,0 +1,947 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 Tables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+<style type="text/css">
+<!--
+td.pt1 {border-bottom: none; padding-bottom: 0; }
+td.pt2 {border-top: none; padding-top: 0; }
+-->
+</style>
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ tables /
+ <a href="sa6.html" title="&#167;A6: Answers to all the exercises">prev</a> /
+ <a href="cited.html" title="Cited Works of Interactive Fiction">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+
+<a id="tbl1a" name="tbl1a"></a>
+<h3 style="text-align:center">T<small>ABLE 1A</small>: G<small>ENERAL</small> O<small>PERATORS</small></h3>
+
+<table border="1" align="center" style="text-align:center">
+<tr><td><i>Lvl</i></td>
+ <td><i>Operator</i></td>
+ <td><i>Placed</i></td>
+ <td><i>Asc</i></td>
+ <td><i>Purpose</i></td></tr>
+<tr><td>0</td>
+ <td><code>,</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>separating values to work out</td></tr>
+<tr><td>1</td>
+ <td><code>=</code></td>
+ <td>between</td>
+ <td>right</td>
+ <td>set equal to</td></tr>
+<tr><td valign="top" rowspan="2">5</td>
+ <td><code>+</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>16-bit signed addition</td></tr>
+<tr><td><code>-</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>16-bit signed subtraction</td></tr>
+<tr><td valign="top" rowspan="6">6</td>
+ <td><code>*</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>16-bit signed multiplication</td></tr>
+<tr><td><code>/</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>16-bit signed integer division</td></tr>
+<tr><td><code>%</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>16-bit signed remainder</td></tr>
+<tr><td><code>&amp;</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>bitwise AND</td></tr>
+<tr><td><code>|</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>bitwise OR</td></tr>
+<tr><td><code>~</code></td>
+ <td>before</td>
+ <td>&nbsp;</td>
+ <td>bitwise NOT</td></tr>
+<tr><td valign="top" rowspan="2">7</td>
+ <td><code>-&gt;</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>byte array entry</td></tr>
+<tr><td><code>--&gt;</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>word array entry</td></tr>
+<tr><td>8</td>
+ <td><code>-</code></td>
+ <td>before</td>
+ <td>&nbsp;</td>
+ <td>16-bit signed negation</td></tr>
+<tr><td valign="top" rowspan="4">9</td>
+ <td><code>++</code></td>
+ <td>before</td>
+ <td>&nbsp;</td>
+ <td>add 1 to then read</td></tr>
+<tr><td><code>++</code></td>
+ <td>after</td>
+ <td>&nbsp;</td>
+ <td>read then add 1 to</td></tr>
+<tr><td><code>--</code></td>
+ <td>before</td>
+ <td>&nbsp;</td>
+ <td>subtract 1 from then read</td></tr>
+<tr><td><code>--</code></td>
+ <td>after</td>
+ <td>&nbsp;</td>
+ <td>read then subtract 1 from</td></tr>
+<tr><td valign="top" rowspan="2">10</td>
+ <td><code>.&amp;</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>property array</td></tr>
+<tr><td><code>.#</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>property array size</td></tr>
+<tr><td>11</td>
+ <td><code>(...)</code></td>
+ <td>after</td>
+ <td>&nbsp;</td>
+ <td>routine call</td></tr>
+<tr><td>12</td>
+ <td><code>.</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>property value</td></tr>
+<tr><td>13</td>
+ <td><code>::</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>&#8220;superclass&#8221; operator</td></tr>
+</table>
+
+<ul>
+<li>&#8220;Lvl&#8221; refers to precedence level: thus <code>*</code>, 
+on level 6, binds more tightly than <code>+</code>, down on level 
+5, so that <code>1+2*3</code> means <code>1+(2*3)</code>.</li>
+<li><code>-</code> is &#8220;left associative&#8221;, so 
+<code>a-b-c</code> means <code>(a-b)-c</code>. 
+<code>=</code> is &#8220;right associative&#8221;, so
+<code>v1=v2=7</code> means <code>v1=(v2=7)</code>, setting both 
+variables equal to 7.</li>
+<li>Although the table of operators has been divided over two pages, 
+conditions and expressions can be freely mixed. When a condition is 
+used as a value, it is always <code>true</code> (1) or <code>false</code> 
+(0). When a value is used as a condition, any non-zero value 
+is considered true, and only zero is considered false.</li>
+</ul>
+
+<a id="tbl1b" name="tbl1b"></a>
+<h3 style="text-align:center">T<small>ABLE 1B</small>: C<small>ONDITION</small> O<small>PERATORS</small></h3>
+
+<table border="1" align="center" style="text-align:center">
+<tr><td><i>Lvl</i></td>
+ <td><i>Operator</i></td>
+ <td><i>Placed</i></td>
+ <td><i>Asc</i></td>
+ <td><i>Purpose</i></td></tr>
+<tr><td valign="top" rowspan="3">2</td>
+ <td><code>&amp;&amp;</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>one condition AND another</td></tr>
+<tr><td><code>||</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>one condition OR another</td></tr>
+<tr><td><code>~~</code></td>
+ <td>before</td>
+ <td>&nbsp;</td>
+ <td>this condition NOT true</td></tr>
+<tr><td valign="top" rowspan="12">3</td>
+ <td><code>==</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>equal to?</td></tr>
+<tr><td><code>~=</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>not equal to?</td></tr>
+<tr><td><code>&gt;</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>greater than?</td></tr>
+<tr><td><code>&gt;=</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>greater than or equal to?</td></tr>
+<tr><td><code>&lt;</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>less than?</td></tr>
+<tr><td><code>&lt;=</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>less than or equal to?</td></tr>
+<tr><td><code>has</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>object has this attribute?</td></tr>
+<tr><td><code>hasnt</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>object hasn't this attribute?</td></tr>
+<tr><td><code>in</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>first obj a child of second?</td></tr>
+<tr><td><code>notin</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>first obj not a child of second?</td></tr>
+<tr><td><code>ofclass</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>obj inherits from class?</td></tr>
+<tr><td><code>provides</code></td>
+ <td>between</td>
+ <td><i>none</i></td>
+ <td>obj provides this property?</td></tr>
+<tr><td>4</td>
+ <td><code>or</code></td>
+ <td>between</td>
+ <td>left</td>
+ <td>separating alternative values</td></tr>
+</table>
+
+<ul>
+<li>Conditions have no associativity and if you type <code>a==b==c</code> 
+then Inform will ask you to add brackets for clarity.</li>
+<li>In the condition <code>(C1 &amp;&amp; C2)</code>, Inform decides 
+on <code>C1</code> first: if <code>C1</code> is <code>false</code> then
+<code>C2</code> is never considered at all. Similarly, if <code>C1</code> 
+is <code>true</code> then <code>(C1 || C2)</code> must be <code>true</code> 
+and <code>C2</code> is never considered.</li>
+</ul>
+
+<a id="tbl2a" name="tbl2a"></a>
+<h3 style="text-align:center">T<small>ABLE 2A</small>: 
+L<small>OWER ZSCII</small> C<small>HARACTER</small> S<small>ET</small></h3>
+
+<table border="1" align="center" class="tbl2">
+<tr><td>&nbsp;</td><td>+0</td><td>+1</td><td>+2</td><td>+3</td>
+ <td>+4</td><td>+5</td><td>+6</td><td>+7</td></tr>
+<tr><td>0</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>8</td><td><i>del</i></td><td>tab</td><td>&nbsp;</td><td>em</td>
+ <td>&nbsp;</td><td>new</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>16</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>24</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><i>esc</i></td></tr>
+<tr><td>32</td><td>sp</td><td>!</td><td>&quot;</td><td>#</td>
+ <td>$</td><td>%</td><td>&amp;</td><td>'</td></tr>
+<tr><td>40</td><td>(</td><td>)</td><td>*</td><td>+</td>
+ <td>,</td><td>-</td><td>.</td><td>/</td></tr>
+<tr><td>48</td><td>0</td><td>1</td><td>2</td><td>3</td>
+ <td>4</td><td>5</td><td>6</td><td>7</td></tr>
+<tr><td>56</td><td>8</td><td>9</td><td>:</td><td>;</td>
+ <td>&lt;</td><td>=</td><td>&gt;</td><td>?</td></tr>
+<tr><td>64</td><td>@</td><td>A</td><td>B</td><td>C</td>
+ <td>D</td><td>E</td><td>F</td><td>G</td></tr>
+<tr><td>72</td><td>H</td><td>I</td><td>J</td><td>K</td>
+ <td>L</td><td>M</td><td>N</td><td>O</td></tr>
+<tr><td>80</td><td>P</td><td>Q</td><td>R</td><td>S</td>
+ <td>T</td><td>U</td><td>V</td><td>W</td></tr>
+<tr><td>88</td><td>X</td><td>Y</td><td>Z</td><td>[</td>
+ <td>\</td><td>]</td><td>^</td><td>_</td></tr>
+<tr><td>96</td><td>`</td><td>a</td><td>b</td><td>c</td>
+ <td>d</td><td>e</td><td>f</td><td>g</td></tr>
+<tr><td>104</td><td>h</td><td>i</td><td>j</td><td>k</td>
+ <td>l</td><td>m</td><td>n</td><td>o</td></tr>
+<tr><td>112</td><td>p</td><td>q</td><td>r</td><td>s</td>
+ <td>t</td><td>u</td><td>v</td><td>w</td></tr>
+<tr><td>120</td><td>x</td><td>y</td><td>z</td><td>{</td>
+ <td>|</td><td>}</td><td>~</td><td>&nbsp;</td></tr>
+</table>
+
+<ul>
+<li>To convert a character to a ZSCII value, add the numbers in the 
+same row and column. For instance, the Inform constant <code>'J'</code> 
+is 72 plus 2 equals 74.</li>
+<li>Blank boxes indicate that no character exists with that value. 
+The value will never be read from the keyboard and it is an error to 
+try to <code>print (char)</code> it.</li>
+<li>Italicised entries can be read from the keyboard but not printed.</li>
+<li>&#8220;em&#8221; (an em-space) and &#8220;tab&#8221; (a tab-skip) 
+are print-only, and only available if Inform is compiling a Version 6 game.</li>
+<li>ZSCII does not (normally) have &#8220;smart quotes&#8221;, that 
+is, different characters for opening and closing quotations &#8220; 
+and &#8221;. Some interpreters automatically smarten them when printed, 
+though. And ZSCII does have &#171;French&#187; and &#187;German&#171; 
+quotation marks (see table 2B).</li>
+</ul>
+
+<a id="tbl2b" name="tbl2b"></a>
+<h3 style="text-align:center">T<small>ABLE 2B</small>: 
+H<small>IGHER ZSCII</small> C<small>HARACTER</small> S<small>ET</small></h3>
+
+<table border="1" align="center" class="tbl2">
+<tr><td>&nbsp;</td><td>+0</td><td>+1</td><td>+2</td><td>+3</td>
+ <td>+4</td><td>+5</td><td>+6</td><td>+7</td></tr>
+<tr><td>128</td><td>&nbsp;</td><td>&uarr;</td><td>&darr;</td><td>&larr;</td>
+ <td>&rarr;</td><td><i>f1</i></td><td><i>f2</i></td><td><i>f3</i></td></tr>
+<tr><td>136</td><td><i>f4</i></td><td><i>f5</i></td><td><i>f6</i></td><td><i>f7</i></td>
+ <td><i>f8</i></td><td><i>f9</i></td><td><i>f10</i></td><td><i>f11</i></td></tr>
+<tr><td>144</td><td><i>f12</i></td><td><i>k0</i></td><td><i>k1</i></td><td><i>k2</i></td>
+ <td><i>k3</i></td><td><i>k4</i></td><td><i>k5</i></td><td><i>k6</i></td></tr>
+
+<tr><td rowspan="2">152</td><td rowspan="2"><i>k7</i></td>
+ <td rowspan="2"><i>k8</i></td><td rowspan="2"><i>k9</i></td>
+ <td class="pt1">&auml;</td><td class="pt1">&ouml;</td>
+ <td class="pt1">&uuml;</td><td class="pt1">&Auml;</td>
+ <td class="pt1">&Ouml;</td></tr>
+<tr><td class="pt2"><code>@:a</code></td><td class="pt2"><code>@:o</code></td>
+ <td class="pt2"><code>@:u</code></td><td class="pt2"><code>@:A</code></td>
+ <td class="pt2"><code>@:O</code></td></tr>
+
+<tr><td rowspan="2">160</td><td class="pt1">&Uuml;</td>
+ <td class="pt1">&szlig;</td><td class="pt1">&#187;</td>
+ <td class="pt1">&#171;</td><td class="pt1">&euml;</td>
+ <td class="pt1">&iuml;</td><td class="pt1">&yuml;</td>
+ <td class="pt1">&Euml;</td></tr>
+<tr><td class="pt2"><code>@:U</code></td>
+ <td class="pt2"><code>@ss</code></td><td class="pt2"><code>@&gt;&gt;</code></td>
+ <td class="pt2"><code>@&lt;&lt;</code></td><td class="pt2"><code>@:e</code></td>
+ <td class="pt2"><code>@:i</code></td><td class="pt2"><code>@:y</code></td>
+ <td class="pt2"><code>@:E</code></td></tr>
+
+<tr><td rowspan="2">168</td><td class="pt1">&Iuml;</td>
+ <td class="pt1">&aacute;</td><td class="pt1">&eacute;</td>
+ <td class="pt1">&iacute;</td><td class="pt1">&oacute;</td>
+ <td class="pt1">&uacute;</td><td class="pt1">&yacute;</td>
+ <td class="pt1">&Aacute;</td></tr>
+<tr><td class="pt2"><code>@:I</code></td>
+ <td class="pt2"><code>@'a</code></td><td class="pt2"><code>@'e</code></td>
+ <td class="pt2"><code>@'i</code></td><td class="pt2"><code>@'o</code></td>
+ <td class="pt2"><code>@'u</code></td><td class="pt2"><code>@'y</code></td>
+ <td class="pt2"><code>@'A</code></td></tr>
+
+<tr><td rowspan="2">176</td><td class="pt1">&Eacute;</td>
+ <td class="pt1">&Iacute;</td><td class="pt1">&Oacute;</td>
+ <td class="pt1">&Uacute;</td><td class="pt1">&Yacute;</td>
+ <td class="pt1">&agrave;</td><td class="pt1">&egrave;</td>
+ <td class="pt1">&igrave;</td></tr>
+<tr><td class="pt2"><code>@'E</code></td>
+ <td class="pt2"><code>@'I</code></td><td class="pt2"><code>@'O</code></td>
+ <td class="pt2"><code>@'U</code></td><td class="pt2"><code>@'Y</code></td>
+ <td class="pt2"><code>@`a</code></td><td class="pt2"><code>@`e</code></td>
+ <td class="pt2"><code>@`i</code></td></tr>
+
+<tr><td rowspan="2">184</td><td class="pt1">&ograve;</td>
+ <td class="pt1">&ugrave;</td><td class="pt1">&Agrave;</td>
+ <td class="pt1">&Egrave;</td><td class="pt1">&Igrave;</td>
+ <td class="pt1">&Ograve;</td><td class="pt1">&Ugrave;</td>
+ <td class="pt1">&acirc;</td></tr>
+<tr><td class="pt2"><code>@`o</code></td>
+ <td class="pt2"><code>@`u</code></td><td class="pt2"><code>@`A</code></td>
+ <td class="pt2"><code>@`E</code></td><td class="pt2"><code>@`I</code></td>
+ <td class="pt2"><code>@`O</code></td><td class="pt2"><code>@`U</code></td>
+ <td class="pt2"><code>@^a</code></td></tr>
+
+<tr><td rowspan="2">192</td><td class="pt1">&ecirc;</td>
+ <td class="pt1">&icirc;</td><td class="pt1">&ocirc;</td>
+ <td class="pt1">&ucirc;</td><td class="pt1">&Acirc;</td>
+ <td class="pt1">&Ecirc;</td><td class="pt1">&Icirc;</td>
+ <td class="pt1">&Ocirc;</td></tr>
+<tr><td class="pt2"><code>@^e</code></td>
+ <td class="pt2"><code>@^i</code></td><td class="pt2"><code>@^o</code></td>
+ <td class="pt2"><code>@^u</code></td><td class="pt2"><code>@^A</code></td>
+ <td class="pt2"><code>@^E</code></td><td class="pt2"><code>@^I</code></td>
+ <td class="pt2"><code>@^O</code></td></tr>
+
+<tr><td rowspan="2">200</td><td class="pt1">&Ucirc;</td>
+ <td class="pt1">&aring;</td><td class="pt1">&Aring;</td>
+ <td class="pt1">&oslash;</td><td class="pt1">&Oslash;</td>
+ <td class="pt1">&atilde;</td><td class="pt1">&ntilde;</td>
+ <td class="pt1">&otilde;</td></tr>
+<tr><td class="pt2"><code>@^U</code></td>
+ <td class="pt2"><code>@oa</code></td><td class="pt2"><code>@oA</code></td>
+ <td class="pt2"><code>@\o</code></td><td class="pt2"><code>@\O</code></td>
+ <td class="pt2"><code>@~a</code></td><td class="pt2"><code>@~n</code></td>
+ <td class="pt2"><code>@~o</code></td></tr>
+
+<tr><td rowspan="2">208</td><td class="pt1">&Atilde;</td>
+ <td class="pt1">&Ntilde;</td><td class="pt1">&Otilde;</td>
+ <td class="pt1">&aelig;</td><td class="pt1">&AElig;</td>
+ <td class="pt1">&ccedil;</td><td class="pt1">&Ccedil;</td>
+ <td class="pt1">&thorn;</td></tr>
+<tr><td class="pt2"><code>@~A</code></td>
+ <td class="pt2"><code>@~N</code></td><td class="pt2"><code>@~O</code></td>
+ <td class="pt2"><code>@ae</code></td><td class="pt2"><code>@AE</code></td>
+ <td class="pt2"><code>@,c</code></td><td class="pt2"><code>@,C</code></td>
+ <td class="pt2"><code>@th</code></td></tr>
+
+<tr><td rowspan="2">216</td><td class="pt1">&eth;</td>
+ <td class="pt1">&THORN;</td><td class="pt1">&ETH;</td>
+ <td class="pt1">&pound;</td><td class="pt1">&oelig;</td>
+ <td class="pt1">&OElig;</td><td class="pt1">&iexcl;</td>
+ <td class="pt1">&iquest;</td></tr>
+<tr><td class="pt2"><code>@et</code></td>
+ <td class="pt2"><code>@Th</code></td><td class="pt2"><code>@Et</code></td>
+ <td class="pt2"><code>@LL</code></td><td class="pt2"><code>@oe</code></td>
+ <td class="pt2"><code>@OE</code></td><td class="pt2"><code>@!!</code></td>
+ <td class="pt2"><code>@??</code></td></tr>
+
+<tr><td>224</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>232</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>240</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>248</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+ <td><i>men</i></td><td><i>dbl</i></td><td><i>clk</i></td><td>&nbsp;</td></tr>
+</table>
+
+<ul>
+<li>The cursor keys, function keys, numeric keypad keys and mouse clicks
+(menu click, double click, single click) are read-only. Mouse support 
+is available only to a Version 6 game.</li>
+<li>The given escape-character sequences can be typed into source code. 
+For instance <code>print &quot;@AEsop&quot;;</code> prints 
+&#8220;&AElig;sop&#8221;.</li>
+<li>&#8220;Eth&#8221; &ETH; and &#8220;Th(orn)&#8221; &THORN; are Icelandic characters.</li>
+<li>Characters 155 to 251 are configurable using the directive 
+<code>Zcharacter</code>, which can in principle move any Unicode character 
+in. See <a href="s36.html">&#167;36</a>.</li>
+</ul>
+
+<a id="tbl3" name="tbl3"></a>
+<h3 style="text-align:center">T<small>ABLE 3</small>: 
+C<small>OMMAND</small> L<small>INE</small> S<small>WITCHES</small></h3>
+
+<table border="1" align="center" class="tbl3">
+<tr><td><i>Sw</i></td><td><i>To</i></td><td><i>Meaning</i></td></tr>
+<tr><td valign="top"><tt>-d*</tt></td>
+ <td valign="top">0 to 2</td>
+ <td>contract double spaces: never (0), after full stops (1),<br>
+ after full stops, exclamation and question marks (2)</td></tr>
+<tr><td valign="top"><tt>-e</tt></td>
+ <td valign="top">off/on</td>
+ <td>economise by using the declared abbreviations</td></tr>
+<tr><td valign="top"><tt>-g*</tt></td>
+ <td valign="top">0 to 2</td>
+ <td>traces calls: none (0), all outside libraries (1), all (2)</td></tr>
+<tr><td valign="top"><tt>-i</tt></td>
+ <td valign="top">off/on</td>
+ <td>ignore default switches set within the file</td></tr>
+<tr><td valign="top"><tt>-k</tt></td>
+ <td valign="top">off/on</td>
+ <td>output Infix debugging information (and switch <tt>-D</tt> on)</td></tr>
+<tr><td valign="top"><tt>-r</tt></td>
+ <td valign="top">off/on</td>
+ <td>record all the text to a transcript file</td></tr>
+<tr><td valign="top"><tt>-v*</tt></td>
+ <td valign="top">3 to 8</td>
+ <td>compile to this Version of story file (default 5)</td></tr>
+<tr><td valign="top"><tt>-C*</tt></td>
+ <td valign="top">0 to 9</td>
+ <td>source is ASCII (0), or ISO 8859-1 to -9 (default 1)</td></tr>
+<tr><td valign="top"><tt>-D</tt></td>
+ <td valign="top">off/on</td>
+ <td>automatically include library's debugging features</td></tr>
+<tr><td valign="top"><tt>-F*</tt></td>
+ <td valign="top">0 or 1</td>
+ <td>use temporary files to reduce memory consumption</td></tr>
+<tr><td valign="top"><tt>-M</tt></td>
+ <td valign="top">off/on</td>
+ <td>compile as a Module for future linking</td></tr>
+<tr><td valign="top"><tt>-S</tt></td>
+ <td valign="top">on/off</td>
+ <td>compile strict error-checking at run-time (on by default)</td></tr>
+<tr><td valign="top"><tt>-U</tt></td>
+ <td valign="top">off/on</td>
+ <td>link in precompiled library modules</td></tr>
+<tr><td valign="top"><tt>-X</tt></td>
+ <td valign="top">off/on</td>
+ <td>include the Infix debugger</td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><td valign="top"><tt>-a</tt></td>
+ <td valign="top">off/on</td>
+ <td>trace assembly-language (without hex dumps; see <tt>-t</tt>)</td></tr>
+<tr><td valign="top"><tt>-c</tt></td>
+ <td valign="top">off/on</td>
+ <td>more concise error messages</td></tr>
+<tr><td valign="top"><tt>-f</tt></td>
+ <td valign="top">off/on</td>
+ <td>frequencies mode: show how useful abbreviations are</td></tr>
+<tr><td valign="top"><tt>-h*</tt></td>
+ <td valign="top">on/1/2</td>
+ <td>print help information: on filenaming (1), switches (2)</td></tr>
+<tr><td valign="top"><tt>-j</tt></td>
+ <td valign="top">off/on</td>
+ <td>list objects as constructed</td></tr>
+<tr><td valign="top"><tt>-l</tt></td>
+ <td valign="top">off/on</td>
+ <td>list every statement run through Inform</td></tr>
+<tr><td valign="top"><tt>-m</tt></td>
+ <td valign="top">off/on</td>
+ <td>say how much memory has been allocated</td></tr>
+<tr><td valign="top"><tt>-n</tt></td>
+ <td valign="top">off/on</td>
+ <td>print numbers of properties, attributes and actions</td></tr>
+<tr><td valign="top"><tt>-o</tt></td>
+ <td valign="top">off/on</td>
+ <td>print offset addresses</td></tr>
+<tr><td valign="top"><tt>-p</tt></td>
+ <td valign="top">off/on</td>
+ <td>give percentage breakdown of story file</td></tr>
+<tr><td valign="top"><tt>-q</tt></td>
+ <td valign="top">off/on</td>
+ <td>keep quiet about obsolete usages</td></tr>
+<tr><td valign="top"><tt>-s</tt></td>
+ <td valign="top">off/on</td>
+ <td>give statistics</td></tr>
+<tr><td valign="top"><tt>-t</tt></td>
+ <td valign="top">off/on</td>
+ <td>trace assembly-language (with full hex dumps; see <tt>-a</tt>)</td></tr>
+<tr><td valign="top"><tt>-u</tt></td>
+ <td valign="top">off/on</td>
+ <td>work out most useful abbreviations (very very slowly)</td></tr>
+<tr><td valign="top"><tt>-w</tt></td>
+ <td valign="top">off/on</td>
+ <td>disable warning messages</td></tr>
+<tr><td valign="top"><tt>-x</tt></td>
+ <td valign="top">off/on</td>
+ <td>print a hash <tt>#</tt> for every 100 lines compiled</td></tr>
+<tr><td valign="top"><tt>-y</tt></td>
+ <td valign="top">off/on</td>
+ <td>trace linking system</td></tr>
+<tr><td valign="top"><tt>-z</tt></td>
+ <td valign="top">off/on</td>
+ <td>print memory map of the Z-machine</td></tr>
+<tr><td valign="top"><tt>-E*</tt></td>
+ <td valign="top">0, 1, 2</td>
+ <td>errors in Acorn (0), Microsoft (1) or Mac (2) style</td></tr>
+</table>
+
+<ul>
+<li>The lower group has no effect except on what is printed out.</li>
+<li>The <tt>*</tt> stands for a decimal digit, 0 to 9. You can also 
+clear any switch with a tilde, so <tt>-~x</tt> turns <tt>-x</tt> off.</li>
+</ul>
+
+<a id="tbl4" name="tbl4"></a>
+<h3 style="text-align:center">T<small>ABLE 4</small>: S<small>TATEMENTS</small></h3>
+
+<p class="syntax"><code>box</code> &#8249;<span class="token">line-1</span>&#8250;
+ &#8249;<span class="token">line-2</span>&#8250; &#8230;
+ &#8249;<span class="token">line-n</span>&#8250;<br>
+<code>break</code><br>
+<code>continue</code><br>
+<code>do</code> 
+ &#8249;<span class="token">code block</span>&#8250; 
+ <code>until</code> 
+ &#8249;<span class="token">condition</span>&#8250;<br>
+<code>font on</code> <i>or</i> <code>off</code><br>
+<code>for (</code>&#8249;<span class="token">initial code</span>&#8250; 
+ <code>:</code> 
+ &#8249;<span class="token">condition to carry on</span>&#8250; 
+ <code>:</code> 
+ &#8249;<span class="token">update code</span>&#8250;<code>)</code> 
+ &#8249;<span class="token">code block</span>&#8250;<br>
+<code>give</code> 
+ &#8249;<span class="token">object</span>&#8250;
+ &#8249;<span class="token">attribute-1</span>&#8250; &#8230;
+ &#8249;<span class="token">attribute-n</span>&#8250;<br>
+<code>if</code> 
+ &#8249;<span class="token">condition</span>&#8250;
+ &#8249;<span class="token">code block</span>&#8250;<br>
+<code>if</code> 
+ &#8249;<span class="token">condition</span>&#8250;
+ &#8249;<span class="token">code block</span>&#8250; 
+ <code>else</code> 
+ &#8249;<span class="token">code-block</span>&#8250;<br>
+<code>jump</code> 
+ &#8249;<span class="token">label</span>&#8250;<br>
+<code>move</code> 
+ &#8249;<span class="token">object</span>&#8250; 
+ <code>to</code> 
+ &#8249;<span class="token">destination</span>&#8250;<br>
+<code>new_line</code><br>
+<code>objectloop</code> 
+ &#8249;<span class="token">condition choosing objects</span>&#8250;
+ &#8249;<span class="token">code block</span>&#8250;<br>
+<code>print</code> 
+ &#8249;<span class="token">list of printing specifications</span>&#8250;<br>
+<code>print_ret</code> 
+ &#8249;<span class="token">list of printing specifications</span>&#8250;<br>
+<code>remove</code> 
+ &#8249;<span class="token">object</span>&#8250;<br>
+<code>return</code> 
+ &#8249;<span class="token">optional value</span>&#8250;<br>
+<code>rfalse</code><br>
+<code>rtrue</code><br>
+<code>spaces</code> 
+ &#8249;<span class="token">number of spaces to print</span>&#8250;<br>
+<code>string</code> 
+ &#8249;<span class="token">number</span>&#8250;
+ &#8249;<span class="token">text</span>&#8250;<br>
+<code>style roman</code> <i>or</i> <code>bold</code> <i>or</i> 
+ <code>underline</code> <i>or</i> <code>reverse</code> <i>or</i> 
+ <code>fixed</code><br>
+<code>switch (</code>&#8249;<span class="token">value</span>&#8250;<code>)</code> 
+ &#8249;<span class="token">block of cases &#8230; <code style="font-style:normal">default:</code> &#8230;</span>&#8250;<br> 
+<code>while</code> 
+ &#8249;<span class="token">condition</span>&#8250;
+ &#8249;<span class="token">code-block</span>&#8250;</p>
+
+<ul>
+<li>Statements must be given in lower case.</li>
+<li>A statement beginning with a double-quoted string instead of 
+a keyword like <code>if</code> is taken as a <code>print_ret</code> 
+statement.</li>
+<li>Code blocks consist of either a single statement or a group of 
+statements enclosed in braces <code>{</code> and <code>}</code>.</li>
+<li>The following low-level statements should not be used for Inform 
+games:
+<p class="syntax"><code>inversion</code><br>
+<code>quit</code><br>
+<code>read</code> 
+ &#8249;<span class="token">text-buffer</span>&#8250;
+ &#8249;<span class="token">parsing-buffer</span>&#8250;<br>
+<code>restore</code> 
+ &#8249;<span class="token">label</span>&#8250;<br>
+<code>save</code> 
+ &#8249;<span class="token">label</span>&#8250;</p>
+</li>
+</ul>
+
+<a id="tbl5" name="tbl5"></a>
+<h3 style="text-align:center">T<small>ABLE 5</small>: D<small>IRECTIVES</small></h3>
+
+<p class="syntax"><code>Abbreviate</code> 
+ &#8249;<span class="token">word-1</span>&#8250; &#8230;
+ &#8249;<span class="token">word-n</span>&#8250;<br>
+<code>Array</code> 
+ &#8249;<span class="token">new-name</span>&#8250;
+ &#8249;<span class="token">type</span>&#8250;
+ &#8249;<span class="token">initial values</span>&#8250;<br>
+<code>Attribute</code> 
+ &#8249;<span class="token">new-name</span>&#8250;<br>
+<code>Class</code> 
+ &#8249;<span class="token">new-name</span>&#8250;
+ &#8249;<span class="token">body of definition</span>&#8250;<br>
+<code>Constant</code> 
+ &#8249;<span class="token">new-name</span>&#8250; 
+ <code>=</code> 
+ &#8249;<span class="token">value</span>&#8250;<br>
+<code>Default</code> 
+ &#8249;<span class="token">possibly-new-name</span>&#8250;<br>
+<code>End</code><br>
+<code>Endif</code><br>
+<code>Extend</code> 
+ &#8249;<span class="token">grammar extension</span>&#8250;<br>
+<code>Global</code> 
+ &#8249;<span class="token">new-name</span>&#8250; 
+ <code>=</code> 
+ &#8249;<span class="token">value</span>&#8250;<br>
+<code>Ifdef</code> 
+ &#8249;<span class="token">symbol-name</span>&#8250;<br>
+<code>Ifndef</code> 
+ &#8249;<span class="token">symbol-name</span>&#8250;<br>
+<code>Ifnot</code><br>
+<code>Iftrue</code> 
+ &#8249;<span class="token">condition</span>&#8250;<br>
+<code>Iffalse</code> 
+ &#8249;<span class="token">condition</span>&#8250;<br>
+<code>Import</code> 
+ &#8249;<span class="token">list of imported goods</span>&#8250;<br>
+<code>Include</code> 
+ &#8249;<span class="token">source code filename</span>&#8250;<br>
+<code>Link</code> 
+ &#8249;<span class="token">module filename</span>&#8250;<br>
+<code>Lowstring</code> 
+ &#8249;<span class="token">text</span>&#8250;<br>
+<code>Message</code> 
+ &#8249;<span class="token">message-type</span>&#8250;
+ &#8249;<span class="token">diagnostic-message</span>&#8250;<br>
+<code>Object</code> 
+ &#8249;<span class="token">header</span>&#8250;
+ &#8249;<span class="token">body of definition</span>&#8250;<br>
+<code>Property</code> 
+ &#8249;<span class="token">new-name</span>&#8250;<br>
+<code>Release</code> 
+ &#8249;<span class="token">number</span>&#8250;<br>
+<code>Replace</code> 
+ &#8249;<span class="token">routine-name</span>&#8250;<br>
+<code>Serial
+ &quot;</code>&#8249;<span class="token">serial number</span>&#8250;<code>&quot;</code><br>
+<code>Switches</code> 
+ &#8249;<span class="token">list of switches</span>&#8250;<br>
+<code>Statusline score </code><i>or</i><code> time</code><br>
+<code>System_file</code><br>
+<code>Verb</code> 
+ &#8249;<span class="token">verb-definition</span>&#8250;<br>
+<code>Zcharacter</code> etc.</p>
+
+<ul>
+<li><code>Nearby</code> is an obsolete abbreviation for 
+<code>Object -&gt;</code>, now deprecated. A few other directives, 
+<code>Dictionary</code>, <code>Fake_action</code>, <code>Ifv3</code>, 
+<code>Ifv5</code>, <code>Stub</code>, <code>Trace</code> and
+<code>Version</code>, are either also obsolete or for compiler 
+maintenance only.</li>
+</ul>
+
+<a id="tbl6a" name="tbl6a"></a>
+<h3 style="text-align:center">T<small>ABLE 6A</small>: 
+ A<small>CTIONS</small> P<small>ROVIDED</small> B<small>Y</small>
+ T<small>HE</small> L<small>IBRARY</small>: G<small>ROUP 1</small></h3>
+
+<table border="1" align="center" class="tbl6">
+<tr><td><i>Action</i></td><td><i>Typically produced by</i></td><td><i>Notes</i></td></tr>
+<tr><td><code>Pronouns</code></td><td>&#8220;pronouns&#8221;</td>
+ <td>lists settings of &#8220;it&#8221; and so on</td></tr>
+<tr><td><code>Quit</code></td><td>&#8220;quit&#8221;</td></tr>
+<tr><td><code>Restart</code></td><td>&#8220;restart&#8221;</td></tr>
+<tr><td><code>Restore</code></td><td>&#8220;restore&#8221;</td></tr>
+<tr><td><code>Save</code></td><td>&#8220;save&#8221;</td></tr>
+<tr><td><code>Verify</code></td><td>&#8220;verify&#8221;</td>
+ <td>checks story file integrity</td></tr>
+<tr><td><code>ScriptOn</code></td><td>&#8220;script on&#8221;</td></tr>
+<tr><td><code>ScriptOff</code></td><td>&#8220;script off&#8221;</td></tr>
+<tr><td><code>NotifyOn</code></td><td>&#8220;notify on&#8221;</td>
+ <td>score change notification on</td></tr>
+<tr><td><code>NotifyOff</code></td><td>&#8220;notify off&#8221;</td>
+ <td>and off</td></tr>
+<tr><td><code>Places</code></td><td>&#8220;places&#8221;</td>
+ <td>list places visited</td></tr>
+<tr><td><code>Objects</code></td><td>&#8220;objects&#8221;</td>
+ <td>list objects moved</td></tr>
+<tr><td><code>Score</code></td><td>&#8220;score&#8221;</td></tr>
+<tr><td><code>FullScore</code></td><td>&#8220;fullscore&#8221;</td>
+ <td>full breakdown of score</td></tr>
+<tr><td><code>Version</code></td><td>&#8220;version&#8221;</td>
+ <td>prints version numbers</td></tr>
+<tr><td><code>LMode1</code></td><td>&#8220;brief&#8221;</td>
+ <td>normal room descriptions</td></tr>
+<tr><td><code>LMode2</code></td><td>&#8220;verbose&#8221;</td>
+ <td>always full room descriptions</td></tr>
+<tr><td><code>LMode3</code></td><td>&#8220;superbrief&#8221;</td>
+ <td>always abbreviated</td></tr>
+</table>
+
+<ul>
+<li>A number of other group 1 actions are present in a game compiled 
+with the <tt>-D</tt> &#8220;Debugging&#8221; switch. These actions 
+come and go with different library releases and their presence 
+shouldn't be relied on. See the library's &#8220;Grammar&#8221;
+file to see the current set.</li>
+<li>The library also defines four fake actions which have nothing 
+to do with the world model. <code>TheSame</code> and 
+<code>PluralFound</code> are defined by the parser as ways for 
+the program to communicate with it. <code>Miscellany</code> and 
+<code>Prompt</code> are defined as slots for <code>LibraryMessages</code>.</li>
+</ul>
+
+<a id="tbl6b" name="tbl6b"></a>
+<h3 style="text-align:center">T<small>ABLE 6B</small>: 
+ A<small>CTIONS</small> P<small>ROVIDED</small> B<small>Y</small>
+ T<small>HE</small> L<small>IBRARY</small>: G<small>ROUP 2</small></h3>
+
+<table border="1" align="center" class="tbl6">
+<tr><td><i>Action</i></td><td><i>Typically produced by</i></td><td><i>Notes</i></td></tr>
+<tr><td><code>Look</code></td><td>&#8220;look&#8221;</td></tr>
+<tr><td><code>Examine</code></td><td>&#8220;examine fish&#8221;</td></tr>
+<tr><td><code>Search</code></td><td>&#8220;look inside cup&#8221;</td></tr>
+<tr><td><code>Inv</code></td><td>&#8220;inventory&#8221;</td></tr>
+<tr><td><code>InvTall</code></td><td>&#8220;inventory tall&#8221;</td>
+ <td><i>becomes</i> <code>Inv</code></td></tr>
+<tr><td><code>InvWide</code></td><td>&#8220;inventory wide&#8221;</td>
+ <td><i>becomes</i> <code>Inv</code></td></tr>
+<tr><td><code>Take</code></td><td>&#8220;take fish&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Drop</code></td><td>&#8220;drop fish&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Remove</code></td><td>&#8220;take dice from cup&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>PutOn</code></td><td>&#8220;put cup on board&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Insert</code></td><td>&#8220;put dice in cup&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>LetGo</code></td><td><i>fake</i></td>
+ <td><i>caused by</i> <code>Remove</code></td></tr>
+<tr><td><code>Receive</code></td><td><i>fake</i></td>
+ <td><i>caused by</i> <code>PutOn</code> <i>and</i> <code>Insert</code></td></tr>
+<tr><td><code>Empty</code></td><td>&#8220;empty sack&#8221;</td>
+ <td><i>becomes</i> <code>EmptyT d_obj</code></td></tr>
+
+<tr><td rowspan="2"><code>EmptyT</code></td><td rowspan="2">&#8220;empty bag on box&#8221;</td>
+ <td class="pt1"><i>for each item inside, becomes</i></td></tr>
+<tr><td class="pt2"><code>Remove</code> <i>then</i> <code>Drop</code>/<code>PutOn</code>/<code>Insert</code></td></tr>
+
+<tr><td><code>Transfer</code></td><td>&#8220;transfer egg to box&#8221;</td>
+ <td><i>becomes</i> <code>Drop</code>/<code>PutOn</code>/<code>Insert</code></td></tr>
+<tr><td><code>Go</code></td><td>&#8220;north&#8221;</td>
+ <td><i>KS &nbsp; special rules apply: see</i> 
+ <a href="s15.html">§15</a></td></tr>
+<tr><td><code>Enter</code></td><td>&#8220;enter cage&#8221;</td>
+ <td><i>KS &nbsp; can become</i> <code>Go</code> 
+ <i>if into a</i> <code>door</code></td></tr>
+<tr><td><code>GetOff</code></td><td>&#8220;get off table&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>GoIn</code></td><td>&#8220;enter&#8221;</td>
+ <td><i>becomes</i> <code>Go in_obj</code></td></tr>
+<tr><td><code>Exit</code></td><td>&#8220;exit&#8221;</td>
+ <td><i>KS &nbsp; can become</i> <code>Go out_obj</code></td></tr>
+<tr><td><code>Unlock</code></td><td>&#8220;unlock door&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Lock</code></td><td>&#8220;lock door&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>SwitchOn</code></td><td>&#8220;switch radio on&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>SwitchOff</code></td><td>&#8220;switch radio off&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Open</code></td><td>&#8220;open door&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Close</code></td><td>&#8220;close door&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Disrobe</code></td><td>&#8220;take hat off&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Wear</code></td><td>&#8220;wear hat&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Eat</code></td><td>&#8220;eat fish&#8221;</td>
+ <td><i>KS</i></td></tr>
+<tr><td><code>Wait</code></td><td>&#8220;wait&#8221;</td></tr>
+</table>
+
+<ul>
+<li>Actions marked <i>KS</i> run &#8220;silently&#8221; when the library's 
+variable <code>keep_silent</code> is set <code>true</code>. 
+This means that if successful they print nothing: if unsuccessful,
+however, they print text as normal.</li>
+<li><code>Look</code> and <code>Examine</code> actions send 
+<code>after</code> messages after printing descriptions.
+<code>Search</code> sends <code>after</code> when the search is 
+known to be possible but before the result is printed.</li>
+</ul>
+
+<a id="tbl6c" name="tbl6c"></a>
+<h3 style="text-align:center">T<small>ABLE 6C</small>: 
+ A<small>CTIONS</small> P<small>ROVIDED</small> B<small>Y</small>
+ T<small>HE</small> L<small>IBRARY</small>: G<small>ROUP 3</small></h3>
+
+<table border="1" align="center" class="tbl6">
+<tr><td><i>Action</i></td><td><i>Typically produced by</i></td><td><i>Notes</i></td></tr>
+<tr><td><code>LookUnder</code></td><td>&#8220;look under doormat&#8221;</td></tr>
+<tr><td><code>Listen</code></td><td>&#8220;listen [to tape]&#8221;</td>
+ <td><code>noun</code> <i>can be</i> <code>nothing</code></td></tr>
+<tr><td><code>Taste</code></td><td>&#8220;taste marinade&#8221;</td></tr>
+<tr><td><code>Touch</code></td><td>&#8220;touch paint&#8221;</td></tr>
+<tr><td><code>Pull</code></td><td>&#8220;pull trolley&#8221;</td></tr>
+<tr><td><code>Push</code></td><td>&#8220;push trolley&#8221;</td></tr>
+<tr><td><code>Wave</code></td><td>&#8220;wave wand&#8221;</td></tr>
+<tr><td><code>Turn</code></td><td>&#8220;turn dial&#8221;</td></tr>
+<tr><td><code>PushDir</code></td><td>&#8220;push trolley north&#8221;</td>
+ <td><i>special rules apply: see</i> <a href="s15.html">&#167;15</a></td></tr>
+<tr><td><code>ThrowAt</code></td><td>&#8220;throw dart at board&#8221;</td></tr>
+<tr><td><code>ThrownAt</code></td><td><i>fake</i></td>
+ <td><i>caused by</i> <code>ThrowAt</code></td></tr>
+<tr><td><code>JumpOver</code></td><td>&#8220;jump over fence&#8221;</td></tr>
+<tr><td><code>Tie</code></td><td>&#8220;tie rope [to hook]&#8221;</td>
+ <td><code>second</code> <i>can be</i> <code>nothing</code></td></tr>
+<tr><td><code>Drink</code></td><td>&#8220;drink absinthe&#8221;</td></tr>
+<tr><td><code>Fill</code></td><td>&#8220;fill bottle&#8221;</td></tr>
+<tr><td><code>Attack</code></td><td>&#8220;fight soldiers&#8221;</td></tr>
+<tr><td><code>Swing</code></td><td>&#8220;swing on rope&#8221;</td></tr>
+<tr><td><code>Blow</code></td><td>&#8220;blow pipe&#8221;</td></tr>
+<tr><td><code>Rub</code></td><td>&#8220;clean table&#8221;</td></tr>
+<tr><td><code>Set</code></td><td>&#8220;set trap&#8221;</td></tr>
+<tr><td><code>SetTo</code></td><td>&#8220;set timer to 10&#8221;</td>
+ <td><code>second</code> <i>not an object</i></td></tr>
+<tr><td><code>Buy</code></td><td>&#8220;buy ice cream&#8221;</td></tr>
+<tr><td><code>Climb</code></td><td>&#8220;climb ladder&#8221;</td></tr>
+<tr><td><code>Squeeze</code></td><td>&#8220;squash tomato&#8221;</td></tr>
+<tr><td><code>Burn</code></td><td>&#8220;burn papers [with match]&#8221;</td>
+ <td><code>second</code> <i>can be</i> <code>nothing</code></td></tr>
+<tr><td><code>Dig</code></td><td>&#8220;dig lawn [with spade]&#8221;</td>
+ <td><code>second</code> <i>can be</i> <code>nothing</code></td>
+<tr><td><code>Cut</code></td><td>&#8220;cut paper&#8221;</td></tr>
+<tr><td><code>Consult</code></td><td>&#8220;look up fish in book&#8221;</td>
+ <td>sets <code>noun</code> and the topic</td></tr>
+<tr><td><code>Tell</code></td><td>&#8220;tell jemima about austin&#8221;</td>
+ <td>sets <code>noun</code> and the topic</td></tr>
+<tr><td><code>Answer</code></td><td>&#8220;say confirmed to avon&#8221;</td>
+ <td>sets <code>noun</code> and the topic</td></tr>
+<tr><td><code>Ask</code></td><td>&#8220;ask jemima about isaac&#8221;</td>
+ <td>sets <code>noun</code> and the topic</td></tr>
+<tr><td><code>Give</code></td><td>&#8220;give coin to troll&#8221;</td></tr>
+<tr><td><code>Show</code></td><td>&#8220;show pass to guard&#8221;</td></tr>
+<tr><td><code>AskFor</code></td><td>&#8220;ask jemima for daisies&#8221;</td></tr>
+<tr><td><code>WakeOther</code></td><td>&#8220;wake sleeper&#8221;</td></tr>
+<tr><td><code>Kiss</code></td><td>&#8220;kiss jemima&#8221;</td></tr>
+<tr><td><code>Sleep</code></td><td>&#8220;sleep&#8221;</td></tr>
+<tr><td><code>Sing</code></td><td>&#8220;sing&#8221;</td></tr>
+<tr><td><code>WaveHands</code></td><td>&#8220;wave&#8221;</td>
+ <td><i>see also</i> <code>Wave</code></td></tr>
+<tr><td><code>Swim</code></td><td>&#8220;swim&#8221;, &#8220;dive&#8221;</td></tr>
+<tr><td><code>Sorry</code></td><td>&#8220;sorry&#8221;</td></tr>
+<tr><td><code>Strong</code></td><td><i>very rude words</i></td></tr>
+<tr><td><code>Mild</code></td><td><i>fairly rude words</i></td></tr>
+<tr><td><code>Jump</code></td><td>&#8220;jump&#8221;</td>
+ <td><i>see also</i> <code>JumpOver</code></td></tr>
+<tr><td><code>Think</code></td><td>&#8220;think&#8221;</td></tr>
+<tr><td><code>Smell</code></td><td>&#8220;smell coffee&#8221;</td>
+ <td><code>noun</code> <i>can be</i> <code>nothing</code></td></tr>
+<tr><td><code>Pray</code></td><td>&#8220;pray&#8221;</td></tr>
+<tr><td><code>VagueGo</code></td><td>&#8220;go&#8221;</td></tr>
+<tr><td><code>Yes</code></td><td>&#8220;yes&#8221;</td></tr>
+<tr><td><code>No</code></td><td>&#8220;no&#8221;</td></tr>
+<tr><td><code>Wake</code></td><td>&#8220;wake up&#8221;</td>
+ <td><i>see also</i> <code>WakeOther</code></td></tr>
+</table>
+
+<a id="tbl6d" name="tbl6d"></a>
+<h3 style="text-align:center">T<small>ABLE 6D</small>: 
+ A<small>CTIONS</small> S<small>ENT</small> T<small>O</small>
+ L<small>IFE</small> R<small>ULES</small></h3>
+
+<table border="1" align="center" class="tbl6">
+<tr><td><i>Action</i></td><td><i>Typically produced by</i></td></tr>
+<tr><td><code>Answer</code></td><td>&#8220;say yes to cashier&#8221;</td></tr>
+<tr><td><code>Ask</code></td><td>&#8220;ask woman about plutonium&#8221;</td></tr>
+<tr><td><code>Attack</code></td><td>&#8220;fight soldiers&#8221;</td></tr>
+<tr><td><code>Give</code></td><td>&#8220;give coin to charon&#8221;</td></tr>
+<tr><td><code>Kiss</code></td><td>&#8220;kiss jemima&#8221;</td></tr>
+<tr><td><code>Order</code></td><td>&#8220;thorin, go west&#8221;</td></tr>
+<tr><td><code>Show</code></td><td>&#8220;show pass to benton&#8221;</td></tr>
+<tr><td><code>Tell</code></td><td>&#8220;tell paris about helen&#8221;</td></tr>
+<tr><td><code>ThrowAt</code></td><td>&#8220;throw axe at dwarf&#8221;</td></tr>
+<tr><td><code>WakeOther</code></td><td>&#8220;wake beauty up&#8221;</td></tr>
+</table>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ tables /
+ <a href="sa6.html" title="&#167;A6: Answers to all the exercises">prev</a> /
+ <a href="cited.html" title="Cited Works of Interactive Fiction">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

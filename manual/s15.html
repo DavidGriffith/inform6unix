@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;15: Things to enter, travel in and push around</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s14.html" title="&#167;14: Switchable objects">prev</a> /
+ <a href="s16.html" title="&#167;16: Reading matter and consultation">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p137" name="p137"></a>
+<h2>&#167;15 &nbsp; Things to enter, travel in and push around</h2>
+
+<blockquote>Vehicles were objects that became, in effect, mobile rooms&#8230;
+The code for the boat itself was not designed to function outside the
+river section, but nothing kept the player from carrying the deflated
+boat to the reservoir and trying to sail across&#8230;<br>
+&#8212; Tim Anderson, <i>The History of Zork</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-137_1.jpg" alt=""></span>
+Quite so. Even the case of an entirely static object which can be
+climbed into or onto poses problems of realism. Sitting on a garden
+roller, is one in the gardens, or not? Can one reasonably reach to
+pick up a leaf on the ground? The Inform library leaves most of these 
+subtleties to the designer but has at least a general concept of 
+&#8220;enterable object&#8221;. These have <code>enterable</code> and 
+the <code>Enter</code> and <code>Exit</code> actions allow the
+player to get in (or on) and out (or off) of them.</p>
+
+<p class="indent">Enterable items might include, say, an open-topped car, a 
+psychiatrist's couch or even a set of manacles attached to a dungeon 
+wall. In practice, though, manacles are an exceptional case, and 
+one usually wants to make an <code>enterable</code> thing also a <code>container</code>, 
+or &#8211; as in the case of the altar from &#8216;Ruins&#8217;
+which appeared in the previous section &#8211; a <code>supporter</code>:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; stone_table &quot;slab altar&quot;
+  with name 'stone' 'table' 'slab' 'altar' 'great',
+       initial &quot;A great stone slab of a table, or altar, dominates the
+           Shrine.&quot;,
+  has  enterable supporter static;
+</pre>
+
+<p class="normal">A chair to sit on, or a bed to lie down on, should 
+also be a <code>supporter</code>.</p>
+
+<p class="indent">Sitting on furniture, one is hardly in a different location altogether. 
+But suppose the player climbs into a <code>container</code> which is not <code>transparent</code> 
+and then closes it from the inside? To all intents and purposes this 
+has become another room. The interior may be dark, but if there's 
+light to see by, the player will want to see some kind of room description. 
+In any case, many enterable objects ought to look different from inside 
+or on top. Inside a vehicle, a player might be able to see a steering 
+wheel and a dashboard, for instance. On top of a cupboard, it might 
+be possible to see through a skylight window.</p>
+
+<p class="indent">For this purpose, any <code>enterable</code> object can provide a property called
+<code>inside_description</code>, which can hold a string of text or 
+else a routine to print some text, as usual.
+If the exterior location is still visible, then the &#8220;inside
+description&#8221; is appended to the normal room description; if 
+not, it replaces the 
+<a id="p138" name="p138"></a>
+room description altogether. As an extreme example, 
+suppose that the player gets into a huge cupboard, closes the door 
+and then gets into a plastic cabinet inside that. The resulting room 
+description might read like so:</p>
+
+<p class="output"><em>The huge cupboard (in the plastic cabinet)</em><br>
+It's a snug little cupboard in here, almost a room in itself.<br>
+In the huge cupboard you can see a pile of clothes.<br>
+The plastic walls of the cabinet distort the view.</p>
+
+<p class="normal">The second line is the <code>inside_description</code> 
+for the huge cupboard, and the fourth is that for the plastic cabinet.</p>
+
+<a id="ex22" name="ex22"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans22">EXERCISE 22</a></b></span><br>
+(Also from &#8216;Ruins&#8217;.) Implement a cage which can be opened, 
+closed and entered.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">All the classic games have vehicles (like boats, 
+or fork lift trucks, or hot air balloons) which the player can journey 
+in, and Inform makes this easy. Here is a simple case:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object car &quot;little red car&quot; cave
+  with name 'little' 'red' 'car',
+       description &quot;Large enough to sit inside. Among the controls is a
+           prominent on/off switch. The numberplate is KAR 1.&quot;,
+       when_on
+           &quot;The red car sits here, its engine still running.&quot;,
+       when_off &quot;A little red car is parked here.&quot;,
+       before [;
+           Go: if (car has on) &quot;Brmm! Brmm!&quot;;
+               print &quot;(The ignition is off at the moment.)^&quot;;
+       ],
+  has  switchable enterable static container open;
+</pre>
+
+<p class="normal">Actually, this demonstrates a special rule. If 
+a player is inside an <code>enterable</code> object and tries to 
+move, say &#8220;north&#8221;, the before routine for the object 
+is called with the action <code>Go n_obj</code>. It may then return:</p>
+
+<p class="output">0 &nbsp; to disallow the movement, printing a refusal;<br>
+1 &nbsp; to allow the movement, moving vehicle and player;<br>
+2 &nbsp; to disallow but print and do nothing; or<br>
+3 &nbsp; to allow but print and do nothing.</p>
+
+<p class="normal">If you want to move the vehicle in your own code, 
+return 3, not 2: otherwise the old location may be restored by subsequent 
+workings. Notice that if you write no code, the default value <code>false</code> 
+will always be returned, so enterable objects won't become 
+vehicular unless you write them that way.</p>
+
+<a id="p139" name="p139"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+Because you might want to drive the car &#8220;out&#8221; of a 
+garage, the &#8220;out&#8221; verb does not make the player get out 
+of the car. Instead the player generally has to type something
+like &#8220;get out&#8221; or &#8220;exit&#8221; to make this happen.</p>
+
+<a id="ex23" name="ex23"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans23">EXERCISE 23</a></b></span><br>
+Alter the car so that it will only drive along roads, and not through 
+all map connections.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Objects like the car or, say, an antiquated wireless 
+on casters, are too heavy to pick up but the player should at least 
+be able to push them from place to place. When the player tries to 
+do this, an action like <code>PushDir wireless</code> is generated.</p>
+
+<p class="indent">Now, if the <code>before</code> routine for the 
+wireless returns <code>false</code>, the game will just say that 
+the player can't move the wireless; and if it returns <code>true</code>, 
+the game will do nothing at all, assuming that the <code>before</code> 
+routine has already printed something more interesting. So how does 
+one actually tell Inform that the push should be allowed? The answer 
+is: first call the <code>AllowPushDir</code> routine (a library 
+routine), and then return true. For example (&#8216;Ruins&#8217; 
+again), here is a ball on a north-south corridor which slopes upward 
+at the northern end:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; huge_ball &quot;huge pumice-stone ball&quot;
+  with name 'huge' 'pumice' 'pumice-stone' 'stone' 'ball',
+       description
+           &quot;A good eight feet across, though fairly lightweight.&quot;,
+       initial
+           &quot;A huge pumice-stone ball rests here, eight feet wide.&quot;,
+       before [;
+           PushDir:
+               if (location == Junction &amp;&amp; second == ne_obj)
+                   &quot;The Shrine entrance is far less than eight feet
+                   wide.&quot;;
+               AllowPushDir(); 
+               rtrue;
+           Pull, Push, Turn:
+               &quot;It wouldn't be so very hard to get rolling.&quot;;
+           Take, Remove:
+               &quot;There's a lot of stone in an eight-foot sphere.&quot;;
+       ],
+       after [;
+           PushDir:
+               if (second == s_obj)
+                   &quot;The ball is hard to stop once underway.&quot;;
+               if (second == n_obj)
+                   &quot;You strain to push the ball uphill.&quot;;<a id="p140" name="p140"></a>
+       ],
+  has  static;
+</pre>
+
+<a id="ex24" name="ex24"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans24">EXERCISE 24</a></b></span><br>
+The library does not normally allow pushing objects up or down. How 
+can the pumice ball allow this?</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+For an <code>enterable supporter</code> puzzle, see the magic carpet in 
+&#8216;Balances&#8217; (and several items in &#8216;Alice Through 
+the Looking-Glass&#8217;). &nbsp;
+<span class="warning">&#8226</span>When a vehicle has a sealed 
+interior large enough to be a location, it is probably best handled 
+as a location with changing map connections and not as a <code>vehicle</code> 
+object moved from room to room. See for instance Martin Braun's 
+<tt>&quot;elevator.inf&quot;</tt> example game, providing an elevator 
+which serves eight floors of a building.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s14.html" title="&#167;14: Switchable objects">prev</a> /
+ <a href="s16.html" title="&#167;16: Reading matter and consultation">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

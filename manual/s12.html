@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;12: Containers, supporters and sub-objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s11.html" title="&#167;11: Clothing">prev</a> /
+ <a href="s13.html" title="&#167;13: Doors">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p128" name="p128"></a>
+<h2>&#167;12 &nbsp; Containers, supporters and sub-objects</h2>
+
+<blockquote>The year has been a good one for the Society
+<i>(hear, hear)</i>. This year our members have put more things 
+on top of other things than ever before. But, I should warn you, 
+this is no time for complacency. No, there are still many things, 
+and I cannot emphasize this too strongly, <em>not</em> on top of other 
+things.<br>&#8212; &#8216;The Royal Society For Putting Things 
+On Top Of Other Things&#8217; sketch, <i>Monty Python's Flying 
+Circus</i>, programme 18 (1970)</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-128_1.jpg" alt=""></span>
+In almost every game, certain objects need to be thought of as on
+top of or inside other objects. The library provides actions <code>Insert</code>
+and <code>PutOn</code> for placing things inside or on top of something, 
+and <code>Remove</code> for taking things out of or off the top of something. 
+Many objects, such as house-bricks, cannot sensibly contain things, 
+and a designer usually only wants certain specific items ever to have 
+other things on top of them. In the model world, then, only objects which 
+the designer has given the <code>container</code> attribute can contain 
+things, and only those given the <code>supporter</code> attribute 
+can have items on top.</p>
+
+<p class="indent">The packing case brought by our archaeologist hero 
+to the scene of the &#8216;Ruins&#8217; (found in the opening location, 
+the Forest) is a thoroughly typical <code>container</code>:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; packing_case &quot;packing case&quot;
+  with name 'packing' 'case' 'box' 'strongbox',
+       initial
+           &quot;Your packing case rests here, ready to hold any important
+           cultural finds you might make, for shipping back to
+           civilisation.&quot;,
+       before [;
+           Take, Remove, PushDir:
+               &quot;The case is too heavy to bother moving, as long as
+               your expedition is still incomplete.&quot;;
+       ],
+  has  static container open openable;
+</pre>
+
+<p class="normal">A container can hold anything up to 100 items, but 
+this limit can be modified by giving the container a <code>capacity</code> 
+property.</p>
+
+<p class="indent">Note that the packing case is defined having an 
+attribute called <code>open</code>. This is essential, because the 
+library will only allow the player to put things in a <code>container</code> 
+if it is currently <code>open</code>. (There is no attribute called 
+<code>closed</code>, as any 
+<a id="p129" name="p129"></a>
+container lacking <code>open</code> is 
+considered closed.) If a container has <code>openable</code>, the
+player can open and close it at will, unless it also has <code>locked</code>. 
+A <code>locked</code> object, whether it be a door or a container, 
+cannot be opened. But if it has <code>lockable</code> then it can 
+be locked or unlocked with the key object given in its <code>with_key</code>
+property. If <code>with_key</code> is undeclared or equal to <code>nothing</code>, 
+then no key will fit, but this will not be told to the player. The 
+actions <code>Open</code>, <code>Close</code>, <code>Lock</code> and
+<code>Unlock</code> handle all of this.</p>
+
+<a id="ex15" name="ex15"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans15">EXERCISE 15</a></b></span><br>
+Construct a musical box with a silver key.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">An object having <code>supporter</code> can have 
+up to 100 items put on top of it, or, once again, its <code>capacity</code> 
+value if one is given. An object cannot be both a <code>container</code> 
+and a <code>supporter</code> at once, and there's no concept of 
+being &#8220;open&#8221; or &#8220;locked&#8221; for supporters. 
+Here is an example from the Shrine:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; stone_table &quot;slab altar&quot;
+  with name 'stone' 'table' 'slab' 'altar' 'great',
+       initial &quot;A great stone slab of a table, or altar, dominates
+           the Shrine.&quot;,
+  has  enterable supporter static;
+</pre>
+
+<p class="normal">See <a href="s15.html">&#167;15</a> for <code>enterable</code> 
+and its consequences.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Containers and supporters are able to react to 
+things being put inside them, or removed from them, by acting on the 
+signal to <code>Receive</code> or <code>LetGo</code>. For example, 
+further down in the &#8216;Ruins&#8217; is a chasm which, perhaps 
+surprisingly, is implemented as a container:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; chasm &quot;horrifying chasm&quot;
+  with name 'blackness' 'chasm' 'pit' 'horrifying' 'bottomless',
+       react_before [;
+           Jump: &lt;&lt;Enter self&gt;&gt;;
+           Go: if (noun == d_obj) &lt;&lt;Enter self&gt;&gt;;
+       ],
+       before [;
+           Enter: deadflag = true;
+               &quot;You plummet through the silent void of darkness!&quot;;
+           JumpOver: &quot;It's far too wide.&quot;;
+       ],
+       after [;
+           Receive: remove noun;<a id="p130" name="p130"></a>
+               print_ret (The) noun, &quot; tumbles silently into the
+                   darkness of the chasm.&quot;;
+           Search: &quot;The chasm is deep and murky.&quot;;
+       ],
+  has  scenery open container;
+</pre>
+
+<p class="normal">(Actually the definition will grow in 
+<a href="s23.html">&#167;23</a>, so that the chasm reacts to an 
+eight-foot pumice-stone ball being rolled into it.) Note the use of 
+an <code>after</code> rule for the <code>Search</code> action: 
+this is because an attempt to &#8220;examine&#8221; or &#8220;look 
+inside&#8221; the chasm will cause this action. <code>Search</code> 
+means, in effect, &#8220;tell me what is inside the container&#8221; 
+and the <code>after</code> rule prevents a message like &#8220;There 
+is nothing inside the chasm.&#8221; from misleading the player. 
+Note also that the chasm &#8216;steals&#8217; any stray <code>Jump</code> 
+action in the vicinity using <code>react_before</code> and
+converts it into an early death.</p>
+
+<a id="ex16" name="ex16"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans16">EXERCISE 16</a></b></span><br>
+Make an acquisitive bag which will swallow things up but refuses to 
+disgorge them.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+<code>Receive</code> is sent to an object <i>O</i> when a player 
+tries to put something in <i>O</i>, or on <i>O</i>. In the rare event 
+that <i>O</i> needs to react differently to these two attempts, 
+it may consult the library's variable <code>receive_action</code> 
+to find out whether <code>##PutOn</code> or <code>##Insert</code> 
+is the cause.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Not all containment is about carrying or supporting 
+things. For instance, suppose a machine has four levers. If the 
+machine is fixed in place somewhere, like a printing press, the 
+levers could be provided as four further <code>static</code> objects. 
+But if it is portable, like a sewing machine, we need to make sure
+that the levers always move whenever it moves, and vice versa. 
+The natural solution is to make the lever-objects children of the 
+machine-object, as though the machine were a container and the 
+levers were its contents.</p>
+
+<p class="indent">However, members of an object which isn't a <code>container</code> 
+or <code>supporter</code> are normally assumed by the library to be 
+hidden invisibly inside. In the case of the levers, this would defeat 
+the point. We can get around this by giving the machine the <code>transparent</code> 
+attribute, making the levers visible but not removable.</p>
+
+<p class="indent">Containers can also be <code>transparent</code>, making 
+their contents visible even when closed. The items on top of a <code>supporter</code> 
+are of course always visible, and it makes no sense for a <code>supporter</code> 
+to be <code>transparent</code>. See <a href="s26.html">&#167;26</a> 
+for further details on when contents are listed in inventories and 
+room descriptions.</p>
+
+<a id="p131" name="p131"></a>
+<a id="ex17" name="ex17"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans17">EXERCISE 17</a></b></span><br>
+Make a glass box and a steel box, which behave differently when a 
+lamp is shut up inside them.</p>
+
+<a id="ex18" name="ex18"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans18">EXERCISE 18</a></b></span><br>
+Make a television set with attached power button and screen.</p>
+
+<a id="ex19" name="ex19"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans19">EXERCISE 19</a></b></span><br>
+Implement a macram&eacute; bag hanging from the ceiling, inside 
+which objects are visible, audible and so forth, but cannot be 
+touched or manipulated in any way.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The most difficult case to handle is when an object needs to be 
+portable, <em>and</em> to have sub-objects like lamps and buttons, and 
+also to be a container in its own right. The solution to this will 
+have to be left until the &#8220;scope addition&#8221; rules in 
+<a href="s32.html">&#167;32</a>, but briefly: an object's 
+<code>add_to_scope</code> property may contain a list of sub-objects 
+to be kept attached to it but which are not its children.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+Containers and supporters abound in the example games (except 
+&#8216;Advent&#8217;, which is too simple, though see the water-and-oil 
+carrying bottle). Interesting containers include the lottery-board 
+and the podium sockets from &#8216;Balances&#8217; and the
+&#8216;Adventureland&#8217; bottle. &nbsp;
+<span class="warning"><b>&#8226;</b></span>For supporters, the 
+hearth-rug, chessboard, armchair and mantelpiece of &#8216;Alice 
+Through the Looking-Glass&#8217; are typical examples; the 
+mantelpiece and spirit level of &#8216;Toyshop&#8217; make a 
+simple puzzle, and the pile of building blocks a complicated
+one; see also the scales in &#8216;Balances&#8217;.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s11.html" title="&#167;11: Clothing">prev</a> /
+ <a href="s13.html" title="&#167;13: Doors">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

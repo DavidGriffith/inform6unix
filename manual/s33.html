@@ -1,0 +1,428 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;33: Helping the parser out of trouble</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s32.html" title="&#167;32: Scope and what you can see">prev</a> /
+ <a href="ch5.html" title="Chapter V: Natural Language">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p247"></a>
+<h2>§33 &nbsp; Helping the parser out of trouble</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-247_1.jpg" alt=""></span>
+Once you begin programming the parser on a large scale, you soon reach 
+the point where the parser's ordinary error messages no longer
+appear sensible. The <code>ParserError</code> entry point can change the 
+rules even at this last hurdle: it takes one argument, the error type, 
+and should return <code>true</code> to tell the parser to shut up, 
+because a better error message has already been printed, or <code>false</code>, 
+to tell the parser to print its usual message.
+The error types are defined as constants:</p>
+
+<p class="lynxonly"></p>
+<div class="inset"><table>
+<tr><td><code>STUCK_PE</code></td>
+ <td>I didn't understand that sentence.</td></tr>
+<tr><td><code>UPTO_PE</code></td>
+ <td>I only understood you as far as&#8230;</td></tr>
+<tr><td><code>NUMBER_PE</code></td>
+ <td>I didn't understand that number.</td></tr>
+<tr><td><code>CANTSEE_PE</code></td>
+ <td>You can't see any such thing.</td></tr>
+<tr><td><code>TOOLIT_PE</code></td>
+ <td>You seem to have said too little!</td></tr>
+<tr><td><code>NOTHELD_PE</code></td>
+ <td>You aren't holding that!</td></tr>
+<tr><td><code>MULTI_PE</code></td>
+ <td>You can't use multiple objects with that verb.</td></tr>
+<tr><td><code>MMULTI_PE</code></td>
+ <td>You can only use multiple objects once on a line.</td></tr>
+<tr><td><code>VAGUE_PE</code></td>
+ <td>I'm not sure what &#8216;it&#8217; refers to.</td></tr>
+<tr><td><code>EXCEPT_PE</code></td>
+ <td>You excepted something not included anyway!</td></tr>
+<tr><td><code>ANIMA_PE</code></td>
+ <td>You can only do that to something animate.</td></tr>
+<tr><td><code>VERB_PE</code></td>
+ <td>That's not a verb I recognise.</td></tr>
+<tr><td><code>SCENERY_PE</code></td>
+ <td>That's not something you need to refer to&#8230;</td></tr>
+<tr><td><code>ITGONE_PE</code></td>
+ <td>You can't see &#8216;it&#8217; (the <em>whatever</em>) at the moment.</td></tr>
+<tr><td><code>JUNKAFTER_PE</code></td>
+ <td>I didn't understand the way that finished.</td></tr>
+<tr><td><code>TOOFEW_PE</code></td>
+ <td>Only five of those are available.</td></tr>
+<tr><td><code>NOTHING_PE</code></td>
+ <td>Nothing to do!</td></tr>
+<tr><td><code>ASKSCOPE_PE</code></td>
+ <td><em>whatever the scope routine prints</em></td></tr>
+</table></div>
+
+<p class="normal">Each unsuccessful grammar line ends in one of these conditions. 
+By the time the parser wants to print an error, every one of the 
+grammar lines in a verb will have failed. The error message chosen 
+it prints is the most &#8220;interesting&#8221; one: meaning, 
+lowest down this list.</p>
+
+<p class="indent">If a general parsing routine you have written returns 
+<code>GPR_FAIL</code>, then the grammar line containing it normally ends in 
+plain <code>STUCK_PE</code>, the least interesting of all errors (unless 
+you did something like calling the library's <code>ParseToken</code> 
+routine before giving up, which might have set a more interesting
+error like <code>CANTSEE_PE</code>). But you can choose to create a new 
+error and put it in the parser's variable <code>etype</code>, 
+as in the following example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ Degrees d;
+  d = TryNumber(wn++);<a id="p248" name="p248"></a>
+  if (d == -1000) return GPR_FAIL;
+  if (d &lt;= 360) { parsed_number = d; return GPR_NUMBER; }
+  etype = &quot;There are only 360 degrees in a circle.&quot;;
+  return GPR_FAIL;
+];
+</pre>
+
+<p class="normal">This parses a number of degrees between 0 and 360. 
+Although etype normally only holds values like <code>VERB_PE</code>, 
+which are numbers lower than 100, here we've set it equal to a string. 
+As this will be a value that the parser doesn't recognise, we need to 
+write a <code>ParserError</code> routine that will take care of it, 
+by reacting to a string in the obvious way &#8211; printing it out.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ ParserError error_type;
+  if (error_type ofclass String) print_ret (string) error_type;
+  rfalse;
+];
+</pre>
+
+<p class="normal">This will result in conversation like so:</p>
+
+<p class="output">&gt;<tt>steer down</tt><br>
+I didn't understand that sentence.<br>
+&gt;<tt>steer 385</tt><br>
+There are only 360 degrees in a circle.</p>
+
+<p class="normal">In the first case, <code>Degrees</code> failed without 
+setting any special error message on finding that the second word 
+wasn't a number; in the second case it gave the new, specific error 
+message.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The <code>VAGUE_PE</code> and <code>ITGONE_PE</code> 
+errors apply to all pronouns (in English, &#8220;it&#8221;, &#8220;him&#8221;, 
+&#8220;her&#8221; and &#8220;them&#8221;). The variable <code>vague_word</code> 
+contains the dictionary address of whichever pronoun is involved 
+(<code>'it'</code>, <code>'him'</code> and so on).</p>
+
+<p class="indent">You can find out the current setting of a pronoun 
+using the library's <code>PronounValue</code> routine: for instance, 
+<code>PronounValue('it')</code> 
+gives the object which &#8220;it&#8221; currently refers to, possibly 
+nothing. Similarly <code>SetPronoun('it', magic_ruby)</code> 
+would set &#8220;it&#8221; to mean the magic ruby object. You might 
+want this because, when something like a magic ruby suddenly appears 
+in the middle of a turn, players will habitually call it &#8220;it&#8221;. 
+A better way to adjust the pronouns is to call 
+<code>PronounNotice(magic_ruby)</code>, which sets whatever pronouns 
+are appropriate. That is, it works out if the object is a thing or
+a person, of what number and gender, which pronouns apply to it in the
+parser's current language, and so on. In code predating Inform 6.1 
+you may see variables called <code>itobj</code>, <code>himobj</code> 
+and <code>herobj</code> holding the English pronoun values: these still 
+work properly, but please use the modern system in new games.</p>
+
+<a id="p249" name="p249"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The Inform parser resolves ambiguous object names with a pragmatic 
+algorithm which has evolved over the years (see below). Experience 
+also shows that no two people ever quite agree on what the parser 
+should &#8220;naturally&#8221; do. Designers have an opportunity 
+to influence this by providing an entry point routine called 
+<code>ChooseObjects</code>:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">ChooseObjects(obj, code)</pre>
+
+<p class="aside">is called in two circumstances. If <code>code</code> is <code>false</code> 
+or <code>true</code>, the parser is considering including the given 
+<code>obj</code> in an &#8220;all&#8221;: <code>false</code> means 
+the parser has decided against, <code>true</code> means it has decided 
+in favour. The routine should reply</p>
+
+<p class="lynxonly"></p>
+<div class="inset"><table>
+<tr><td>0</td><td>&nbsp; to accept the parser's decision;</td></tr>
+<tr><td>1</td><td>&nbsp; to force the object to be included; or</td></tr>
+<tr><td>2</td><td>&nbsp; to force the object to be excluded.</td></tr>
+</table></div>
+
+<p class="aside">It may want to decide using <code>verb_word</code> (the 
+variable storing the current verb word, e.g., <code>'take'</code>) 
+and <code>action_to_be</code>, which is the action which would happen 
+if the current line of grammar were successfully matched.</p>
+
+<p class="aside">The other circumstance is when <code>code</code> is 
+2. This means the parser is choosing between a list of items which 
+made equally good matches against some text, and would like a hint. 
+<code>ChooseObjects</code> should then return a number from 0 to 9 to 
+give <code>obj</code> a score for how appropriate it is.</p>
+
+<p class="aside">For instance, some designers would prefer &#8220;take 
+all&#8221; not to attempt to take <code>scenery</code> objects (which 
+Inform, and the parsers in most of the Infocom games, will do). 
+Let us code this, and also teach the parser that edible things are 
+more likely to be eaten than inedible ones:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ ChooseObjects obj code;
+  if (code &lt; 2) { if (obj has scenery) return 2; rfalse; }
+  if (action_to_be == ##Eat &amp;&amp; obj has edible) return 3;
+  if (obj hasnt scenery) return 2;
+  return 1;
+];
+</pre>
+
+<p class="aside">Scenery is now excluded from &#8220;all&#8221; lists; 
+and is further penalised in that non-scenery objects are always 
+preferred over scenery, all else being equal. Most objects score 2 
+but edible things in the context of eating score 3, so &#8220;eat 
+black&#8221; will now always choose a Black Forest gateau in preference 
+to a black rod with a rusty iron star on the end.</p>
+
+<a id="ex105" name="ex105"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans105">EXERCISE 105</a></b></span><br>
+Allow &#8220;lock&#8221; and &#8220;unlock&#8221; to infer their second 
+objects without being told, if there's an obvious choice (because the 
+player's only carrying one key), but to issue a disambiguation question 
+otherwise. (Use <code>Extend</code>, not <code>ChooseObjects</code>.)</p>
+
+<a id="p250" name="p250"></a>
+<a id="ex106" name="ex106"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans106">EXERCISE 106</a></b></span><br>
+Joyce Haslam's Inform edition of the classic Acornsoft game &#8216;Gateway 
+to Karos&#8217; requires a class called <code>FaintlyLitRoom</code> 
+for rooms so dimly illuminated that &#8220;take all&#8221; is impossible. 
+How might this work?</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Suppose we have a set of objects which have all matched equally well 
+against the textual input, so that some knowledge of the game world 
+is needed to resolve which of the objects &#8211; possibly only one, 
+possibly more &#8211; is or are intended. Deciding this is called 
+&#8220;disambiguation&#8221;, and here in full are the rules used 
+by library 6/10 to do it. The reader is cautioned that after six years, 
+these rules are still evolving.</p>
+
+<p class="lynxonly"></p>
+<table style="text-align:justify">
+<tr><td valign="top" width="30px" style="text-align:right">(1)</td>
+<td>Call an object &#8220;good&#8221; according to a rule depending 
+on what kind of token is being matched:
+ <table cellpadding="4" cellspacing="0" style="margin-left:30px">
+ <tr><td valign="top"><span class="grammartoken"><code>held</code></span></td>
+  <td>Good if its parent is the actor.</td></tr>
+ <tr><td valign="top"><span class="grammartoken"><code>multiheld</code></span></td>
+  <td>Good if its parent is the actor.</td></tr>
+ <tr><td valign="top"><span class="grammartoken"><code>multiexcept</code></span></td>
+  <td>Good if not also the second object, if that's known yet.</td></tr>
+ <tr><td valign="top"><span class="grammartoken"><code>multiinside</code></span></td>
+  <td>Good if not inside the second object, if that's known yet.</td></tr>
+ <tr><td valign="top"><span class="grammartoken"><code>creature</code></span></td>
+  <td>Good if <code>animate</code>, or if the proposed action is 
+  <code>Ask</code>, <code>Answer</code>, <code>Tell</code> or 
+  <code>AskFor</code> and the object is <code>talkable</code>.</td></tr>
+ <tr><td valign="top"><i>other tokens</i></td>
+  <td>All objects are good.</td></tr>
+ </table>
+ If only a single object is good, this is immediately chosen.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(2)</td>
+<td>If the token is <span class="grammartoken"><code>creature</code></span> 
+and no objects are good, fail the token altogether, as no choice can 
+make sense.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(3)</td>
+<td>Objects which don't fit &#8220;descriptors&#8221; used by the 
+player are removed:
+ <table cellspacing="0" style="margin-left:30px">
+ <tr><td>if &#8220;my&#8221;, an object whose parent isn't the actor 
+ is discarded;</td></tr>
+ <tr><td>if &#8220;that&#8221;, an object whose parent isn't the actor's 
+ location is discarded;</td></tr>
+ <tr><td>if &#8220;lit&#8221;, an object which hasn't <code>light</code>
+ is discarded;</td></tr>
+ <tr><td>if &#8220;unlit&#8221;, an object which has <code>light</code> 
+ is discarded;</td></tr>
+ <tr><td>if &#8220;his&#8221; or some similar possessive pronoun, an 
+ object not owned by the person implied is discarded.</td></tr>
+ </table>
+Thus &#8220;his lit torches&#8221; will invoke two of these rules 
+at once.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(4)</td>
+<td>If there are no objects left, fail the token, as no choice can 
+make sense.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(5)</td>
+<td>It is now certain that the token will not fail. The remaining 
+objects are assigned a score as follows:
+ <ol type="i" style="list-style-type:lower-roman;margin-top:0;margin-bottom:0">
+ <li>1000 &#215; <i>C</i> points, where <i>C</i> is the return value of 
+  <code>ChooseObjects(object,2)</code>. (0 &#8804; <i>C</i> &#8804; 9. 
+  If the designer doesn't provide this entry point at all then
+  <i>C</i> = 0.)</li>
+ <li>500 points for being &#8220;good&#8221; (see (1) above).</li>
+ <li>100 points for not having <code>concealed</code>.</li>
+ <li><a id="p251" name="p251"></a><i>P</i> points depending on the object's position:
+  <table cellspacing="0">
+  <tr><td rowspan="4"><i>P</i> =</td>
+   <td rowspan="4"><span style="font-size:500%">{</span></td>
+   <td><i>A</i></td>
+   <td>&nbsp; if object belongs to the actor,</td></tr>
+  <tr><td><i>L</i></td>
+   <td>&nbsp; if object belongs to the actor's visibility ceiling,</td></tr>
+  <tr><td>20</td>
+   <td>&nbsp; if object belongs anywhere else except the compass,</td></tr>
+  <tr><td>0</td>
+   <td>&nbsp; if object belongs to the compass.</td></tr>
+  </table>
+ (Recall that &#8220;visibility ceiling&#8221; usually means &#8220;location&#8221; 
+ and that the objects belonging to the compass are exactly the compass 
+ directions.) The values <i>A</i> and <i>L</i> depend on the token 
+ being parsed:
+ <div class="inset"><table cellpadding="4" cellspacing="0">
+  <tr><td rowspan="2"><span style="font-size:250%">{</span></td>
+  <td><i>A</i> = 60 &nbsp; <i>L</i> = 40 &nbsp; for 
+  <span class="grammartoken"><code>held</code></span> or 
+  <span class="grammartoken"><code>multiheld</code></span> tokens,</td></tr>
+  <tr><td><i>A</i> = 40 &nbsp; <i>L</i> = 60 &nbsp; otherwise.</td></tr>
+ </table></div></li>
+ <li>10 points for not having <code>scenery</code>.</li>
+ <li>5 points for not being the actor object.</li>
+ <li>1 point if the object's gender, number and animation (GNA) matches 
+ one possibility implied by some pronoun typed by the player: for 
+ instance &#8220;them&#8221; in English implying plural, or &#8220;le&#8221; 
+ in French implying masculine singular.</li>
+ </ol></td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(6d)</td>
+<td>In &#8220;definite mode&#8221;, such as if the player has typed 
+a definite article like &#8220;the&#8221;, if any single object has 
+highest score, choose that object.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(7ip)</td>
+<td>The following rule applies only in indefinite mode and provided the 
+player has typed something definitely implying a plural, such 
+as the words &#8220;all&#8221; or &#8220;three&#8221; or &#8220;coins&#8221;. 
+Here the parser already has a target number of objects to choose:
+for instance 3 for &#8220;three&#8221;, or the special value of 100, 
+meaning &#8220;an unlimited number&#8221;, for &#8220;all&#8221; 
+or &#8220;coins&#8221;.<br>Go through the list of objects in &#8220;best 
+guess&#8221; order (see below). Mark each as &#8220;accept&#8221; 
+unless:
+ <ol type="i" style="list-style-type:lower-roman;margin-top:0;margin-bottom:0">
+ <li>it has <code>worn</code> or <code>concealed</code>;</li>
+ <li>or the action is Take or Remove and the object is held by the actor;</li>
+ <li>or the token is <span class="grammartoken"><code>multiheld</code></span> 
+ or <span class="grammartoken"><code>multiexcept</code></span> and the 
+ object isn't held by the actor;</li>
+ <li>or the target number is &#8220;unlimited&#8221; and <i>S</i>/20 
+ (rounded down to the nearest integer) has fallen below its maximum value, 
+ where <i>S</i> is the score of the object.</li>
+ </ol>
+ The entry point <code>ChooseObjects(object,accept_flag)</code> is 
+ now called and can overrule the &#8220;accept&#8221;/&#8220;reject&#8221; 
+ decision either way. We keep accepting objects like this until the 
+ target is reached, or proves impossible to reach.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(8)</td>
+<td>The objects are now grouped so that any set of indistinguishable 
+objects forms a single group. &#8220;Indistinguishable&#8221; means 
+that no further text typed by the player could clarify which is meant 
+(see <a href="s29.html">§29</a>). Note that there is no reason to 
+suppose that two indistinguishable objects have the same score, because 
+they might be in different places.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right"><a id="p252" name="p252"></a>(9d)</td>
+<td>In definite mode, we know that there's a tie for highest score, 
+as otherwise a choice would have been made at step (6d). If these 
+highest-scoring objects belong to more than one group, then ask 
+the player to choose which group:<br><br>
+You can see a bronze coin and four gold coins here.<br>
+&gt;<tt>get coin</tt><br>
+Which do you mean, the bronze coin or a gold coin?<br>
+&gt;<tt>gold</tt><br><br>
+The player's response is inserted textually into the original input 
+and the parsing begins again from scratch with &#8220;get gold coin&#8221; 
+instead of &#8220;get coin&#8221;.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(10)</td>
+<td>Only two possibilities remain: either (i) we are in indefinite 
+but singular mode, or (ii) we are in definite mode and there is a 
+tie for highest-scoring object and all of these equal-highest objects 
+belong to the same group. Either way, choose the &#8220;best guess&#8221; 
+object (see below). Should this parsing attempt eventually prove
+successful, print up an &#8220;inference&#8221; on screen, such as<br><br>
+&gt;<tt>get key</tt><br>
+(the copper key)<br><br>
+only if the number of groups found in (8) is more than 1.</td></tr>
+
+<tr><td valign="top" width="30px" style="text-align:right">(BG)</td>
+<td>It remains to define &#8220;best guess&#8221;. From a set of objects, 
+the best guess is the highest-scoring one not yet guessed; and if several 
+objects have equal highest scores, it is the earliest one to have been 
+matched by the parser. In practice this means the one most recently 
+taken or dropped, because the parser tries to match against objects 
+by traversing the object-tree, and the most recently moved object
+tends to be the first in the list of children of its parent.</td></tr>
+</table>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+See &#8216;Balances&#8217; for a usage of <code>ParserError</code>. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Infocom's parser typically produces
+error messages like &#8220;I don't know the word &#8216;tarantula&#8217;.&#8221; 
+when the player types a word not in the game's dictionary, and some designers 
+prefer this style to Inform's give-nothing-away approach (Inform 
+tries not to let the player carry out experiments to see what is, and 
+what is not, in the dictionary). Neil Cerutti's <tt>&quot;dunno.h&quot;</tt> 
+library extension restores the Infocom format. &nbsp;
+<span class="warning"><b>&#8226;</b></span>The library extension 
+<tt>&quot;calyx_adjectives.h&quot;</tt>, which resolves ambiguities 
+in parsing by placing more weight on matches with nouns than with adjectives, 
+works by using <code>ChooseObjects</code>.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s32.html" title="&#167;32: Scope and what you can see">prev</a> /
+ <a href="ch5.html" title="Chapter V: Natural Language">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;51: The room description</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s50.html" title="&#167;50: The design of puzzles">prev</a> /
+ <a href="s52.html" title="&#167;52: Finishing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p406" name="p406"></a>
+<h2>&#167;51 &nbsp; The room description</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-406_1.jpg" alt=""></span>
+When beginning to code a design, it is tempting to give rooms temporary 
+descriptions (&#8220;Slab room.&#8221; &#8220;Cloister.&#8221;), and 
+leave the writing for later. There is no more depressing point than 
+facing a pile of 50 room descriptions to write, all at once, and feeling
+that one's enthusiasm has altogether gone. (The same applies to making 
+an over-detailed design before doing any coding.) Besides, when testing 
+the rooms concerned, one has no feeling of what the game will look like 
+except tatty, and this is also depressing. Also, writing room descriptions 
+forces the designer to think about what the room is ultimately for. 
+So most designers like to write a few at a time, as coding goes on, 
+but to write them properly: and edit later for consistency and second 
+thoughts.</p>
+
+<p class="indent">In any room description there are usually one to 
+three essentials to get across, and the rest is better cut or relegated 
+to text appearing only if the player chooses to examine something in 
+particular. Even the most tedious junctions deserve description, 
+however, and description is more than a list of exits. Here is 
+&#8216;Advent&#8217; at its most graceful:</p>
+
+<p class="output"><em>Shell Room</em><br>
+You're in a large room carved out of sedimentary rock. The floor and 
+walls are littered with bits of shells embedded in the stone. A 
+shallow passage proceeds downward, and a somewhat steeper one leads 
+up. A low hands and knees passage enters from the south.<br>
+<em>In Limestone Passage</em><br>
+You are walking along a gently sloping north/south passage lined with 
+oddly shaped limestone formations.</p>
+
+<p class="normal">Note the geology, the slight unevenness of the ground 
+and the variation in the size of the tunnels. Nothing happens here, 
+but it seems a real place.</p>
+
+<p class="indent">Flippant room descriptions are best avoided if they 
+will be often revisited. Subtler humour is more durable:</p>
+
+<p class="output">On the wall by the bed is a slightly curved, full-length 
+mirror. You reflect upon this for a while.</p>
+
+<p class="normal">(From the Cambridge University game 
+&#8216;Xenophobia&#8217; (Jonathan Mestel, 1989). This wording is also 
+neat in that it applies equally well on the tenth visit to a location 
+as on the first, whereas text like &#8220;Astonished to see a mirror, 
+you leap back&#8230;&#8221; would not.) About once in a game an author 
+can get away with something like this:</p>
+
+<a id="p407" name="p407"></a>
+<p class="output"><em>Observation Room</em><br>
+Calvin Coolidge once described windows as &#8220;rectangles of 
+glass.&#8221; If so, he may have been thinking about the window which 
+fills the western wall of this room. A tiny closet lies to the north. 
+A sign is posted next to the stairs which lead both upwards and 
+downwards.</p>
+
+<p class="normal">A characteristic piece of Steve Meretzky<a id="s51_fnref1"
+name="s51_fnref1"></a><a href="#s51_fn1">&#8224;</a> from &#8216;Leather 
+Goddesses of Phobos&#8217;, demonstrating the lengths one has to go 
+to when faced with a relentlessly ordinary junction-with-window. The 
+sentence Meretzky is at pains to avoid is &#8220;You can go up, down 
+or north.&#8221; With care it is even possible to remove mention 
+of a room's exits altogether, but only if the information is presented
+in some other way. For instance:</p>
+
+<p class="output"><em>Dark Cave</em><br>
+Little light seeps into this muddy, bone-scattered cave and always you 
+long for fresh air. Strange bubbles, pulsing and shifting as if alive, 
+hang upon the rock at crazy, irregular angles.<br>
+Black crabs scuttle about your feet.<br>
+&gt;<tt>south</tt><br>
+The only exit is back out north to the sea-shore.</p>
+
+<p class="normal">Here, the &#8220;You can't go that way&#8221; message 
+for the room has taken up the slack.</p>
+
+<p class="indent">Experienced players know all of the various formulae 
+used in room descriptions by heart: &#8220;You're in&#8221;, &#8220;You 
+are in&#8221;, &#8220;This is&#8221;, &#8220;You have come to&#8221; 
+and so forth. This, perhaps, is why some designers prefer impersonal room 
+descriptions, not mentioning &#8220;you&#8221; unless to say something 
+other than the obvious fact of being present. Once into the text then, 
+as in all writing, vocabulary counts. If there is a tree, of what species? 
+If a chair, of what style? (&#8216;Cutthroats&#8217; (Mike Berlyn and 
+Jerry Wolper, 1984) describes a cupboard of no particular interest as 
+a &#8220;lopsided wooden dresser&#8221; for the sake of painting the 
+scene.) Room descriptions should not always describe static, fixed 
+things, should bring in senses other than sight and should not always 
+be monochrome. Plainness and repetition are to be avoided at almost 
+any cost:</p>
+
+<p class="output">You're on a winding drive outside a magnificent door. 
+Exits are west to a woodshed, upwards to a vine and in through a door. 
+You can see a vine.<br>
+&gt;<tt>west</tt><br><a id="p408" name="p408"></a>
+You're in a woodshed in the swamp. Exits are east to a winding drive 
+and west to a herb garden. You can see a candle and a woodpile.</p>
+
+<p class="normal">(&#8216;The Price of Magik&#8217;, BBC Micro version 
+&#8211; in the Amiga version of the later &#8216;Time and Magik Trilogy&#8217; 
+re-release, the winding drive description ran to an eighty-word essay, 
+and did away entirely with the mechanically-generated &#8220;exits 
+are&#8221; sentence.) So much for what is bad. The following, from 
+&#8216;Advent&#8217; again, is something much more dangerous: the 
+mediocre room description.</p>
+
+<p class="output"><em>Whirlpool Room</em><br>
+You are in a magnificent cavern with a rushing stream, which cascades 
+over a sparkling waterfall into a roaring whirlpool which disappears 
+through a hole in the floor. Passages exit to the south and west.</p>
+
+<p class="normal">This seems a decent enough try, but no novelist would 
+write like this. Each important noun &#8211; &#8220;cavern&#8221;, 
+&#8220;stream&#8221;, &#8220;waterfall&#8221;, &#8220;whirlpool&#8221; 
+&#8211; has its own adjective &#8211; &#8220;magnificent&#8221;, 
+&#8220;rushing&#8221;, &#8220;sparkling&#8221;, &#8220;roaring&#8221;. 
+The two &#8220;which&#8221; clauses in a row are a little unhappy. 
+&#8220;Cascades&#8221; is good, but does a stream cascade &#8220;over&#8221; 
+a waterfall? Does a whirlpool itself disappear? The &#8220;hole in 
+the floor&#8221; seems incongruous. Surely it must be underwater, indeed
+deep underwater? Come to that, the geography could be better used, 
+which would also help to place the whirlpool within the cave (is 
+it in the middle? on one edge?). And why &#8220;Whirlpool Room&#8221;, 
+which sounds like one of the perks of a health club? Here is a second 
+draft:</p>
+
+<p class="output"><em>Whirlpool Ledge</em><br>
+The path runs a quarter-circle from south to west around a broken ledge
+of this funnel cavern. A waterfall drops out of the darkness, catching 
+the lamplight as it cascades into the basin. Rapid currents whip into 
+a roaring whirlpool below.</p>
+
+<p class="normal">Even so, there is nothing man-made, nothing alive, no 
+colour and besides it seems to miss the essential feature of all the 
+mountain water-caves I've ever been to, so let us add a second paragraph 
+(with a line break, which is easier on the eye):</p>
+
+<p class="output">Blue-green algae hangs in clusters from the old 
+guard-railing, which has almost rusted clean through in the frigid, 
+soaking air.</p>
+
+<p class="normal">The algae and the guard-rail offer possibilities. 
+Perhaps there are frogs who could eat insect-eggs in the algae, or 
+perhaps the player might find a use for iron oxide, and could scrape 
+rust from the railing. Certainly the railing should break if 
+a rope is tied to it. Is it safe to dive in? Does the water have a 
+hypnotic effect on someone staring into it? Is there anything dry 
+which would become damp if the player brought it through here? Might 
+there be a second ledge higher up where the stream falls into the cave?</p>
+
+<a id="p409" name="p409"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+Lack of variety comes in many forms. Brian Howarth's eleven 
+&#8220;Mysterious Adventures&#8221; games written for the Scott Adams 
+game engine invent some interesting milieux (&#8216;Feasibility 
+Experiment&#8217; (1982), with objects like &#8220;Vague Shapes&#8221;, 
+is worth a look) but they are highly repetitive and difficult to tell 
+apart. The main weakness of &#8216;Enchanter&#8217; is a sparse, 
+location-heavy map, especially in the prologue, where many rooms 
+over-describe their neighbours. Slightly at odds with the traditional 
+dungeon elsewhere, &#8216;Enchanter&#8217; blends in horror tableaux: 
+dead grass &#8220;seems to grip at your feet&#8221;, a demon statue 
+&#8220;seems to reach towards you&#8221;. There's a lot of 
+&#8220;seeming&#8221; motion, because the deserted, blasted landscape 
+is largely static: &#8220;listless waves barely stir the flotsam and 
+jetsam&#8221; sums it up only too well. The outcome would have been 
+mediocre had the puzzles in the game not been exceptionally good, 
+and a few of the interior locations appealing. Here is a fine example 
+of the interior room as vista, overlooking a landscape and drawing 
+together the whole game's map:</p>
+
+<p class="output"><em>Map Room</em><br>
+This room in the high tower appears to be a map room, with hundreds of
+ancient maps covering the walls. A huge globe, made of gold, sits on 
+a pedestal in the center of the room. Through the tower windows can 
+be seen a vast forest stretching out to the northeast and the sea, 
+covered in fog, to the east and south. Stairs to the south lead to 
+the bottom of the tower.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">It is a vexed question just how much land occupies a 
+single location. Usually a location represents a single room, perhaps 
+ten yards across at the most. Really large chambers are usually given 
+several locations, so that a ballroom might be divided into corners 
+with names like &#8220;Ballroom Northwest&#8221; and &#8220;Ballroom
+Southwest&#8221;. The &#8220;huge cave about 3,000 feet across&#8221; 
+of &#8216;Acheton&#8217; occupies no less than 16 locations, which 
+although it conveys a sense of space can also seem repetitious and 
+wasteful.</p>
+
+<p class="indent">At the other extreme it is sometimes necessary for 
+a single location to do duty for a great swathe of ground, especially 
+out of doors, where drawing the map can leave one with the same 
+frustration as the set-designer for a Wagnerian opera: everything 
+indistinct and without edges. &#8216;Spellbreaker&#8217;, under 
+tight constraints on locations, includes one-location meadows and 
+volcanos. The reverse position is taken by the distinctive and plausible 
+&#8216;Gateway to Karos&#8217; (Derek Haslam, 1984). Locations are 
+superimposed in a square map-like grid onto the rivers, cliffs, forest 
+and so forth of the island of Karos, so that each location represents 
+perhaps one square kilometer:</p>
+
+<p class="output"><em>Eastlands</em><br>
+You are in a cluster of roofless, abandoned buildings, apparently 
+part of an ore-washing mill. A dry water-channel runs northward, and 
+a path leads west.<br><a id="p410" name="p410"></a>
+A garden spade, well used but still strong and sharp, lies abandoned here.</p>
+
+<p class="normal">(About a dozen neighbouring locations share the short 
+name &#8220;Eastlands&#8221;.) A middle position between &#8216;Spellbreaker&#8217; 
+and &#8216;Gateway to Karos&#8217; is taken by &#8216;She's Got a Thing 
+For a Spring&#8217; (1997), an evocation by the nature photographer 
+Brent VanFossen of the mountains of northwest America. Almost an 
+interactive postcard, this thoroughly appealing game features elks, 
+mooses, eagles and so forth, but is equally vivid with terrain and 
+vegetation:</p>
+
+<p class="output"><em>Granite Canyon</em><br>
+You're on a shelf overlooking a small canyon, apparently carved by 
+the nearby stream and 20 or 30 feet deep. A rocky path enters from the 
+west beside a tangle of blackberries, and dead ends at a ledge overlooking 
+the stream below. Above you, granite walls continue to rise, the pink 
+stones a beautiful contrast to the clear blue sky. An animal trail leads 
+up, too steep to walk, but you might be able to make it in a scramble.<br>
+Beside you stands a small tower supporting one end of a steel cable.<br>
+The end of a spruce branch is just barely visible deep inside the 
+blackberries.</p>
+
+<p class="normal">A single location can also substitute for an infinite 
+expanse, such as the Neverending Lane of &#8216;Jinxter&#8217;.</p>
+
+<p class="indent">Another consideration in outdoor locations is that 
+the slow process of sunrise and sunset ought to affect room descriptions. 
+&#8216;Christminster&#8217; organises time so as to keep the player indoors 
+between seven and ten p.m. so that only two states are needed, full day 
+and full night. &#8216;A Mind Forever Voyaging&#8217; derives most 
+of its impact from its depiction of the same city decaying in ten-year 
+stages, as it rolls forward in history like H. G. Wells's classic (and
+classically filmed) novel <i>Things To Come</i>. The definitive 
+shifting-description game of recent years is Andrew Plotkin's &#8216;A 
+Change in the Weather&#8217; (1995):</p>
+
+<p class="output">You're standing on a ledge, on a rather steep, overgrown 
+hillface. Greenery hides the stream below and the hilltop above, and 
+the meadows and sky beyond sweep away into the incandescent west.</p>
+
+<p class="output">You're standing on a ledge, on a rather steep, overgrown 
+hillface. Rain hides the stream below and the hilltop above, and to the west 
+is only dark.</p>
+
+<p class="normal">Descriptions alter not just through time passing, but 
+also because of differences in perspective. Still the most remarkable 
+example is the &#8216;Suspended&#8217; complex, which a player in suspended 
+animation controls through robots with different sensory perceptions. 
+Here is the same place from four points of view:</p>
+
+<p class="output">I'm in a large room which looks like the inside of 
+a globe. The walls seem sculptured with wiring, swirling around the 
+room's perimeter, leading into a tall column. The column itself has 
+a door on its face. Doorways lead to the west, south, east and northeast.</p>
+
+<a id="p411" name="p411"></a>
+<p class="output">Sonar indicates a large, spherical open area with a hollow column running
+from floor to ceiling. The column reflects sonar evenly indicating 
+no distinguishing external characteristics.</p>
+
+<p class="output">All around me charges flow, shaped by the very nature of this room. The
+electrons are being channeled into an electrical column, central to this
+environment.</p>
+
+<p class="output">A small humming can be detected from a column which extends from floor
+to ceiling.</p>
+
+<p class="normal">Another device, used in the spy thriller &#8216;Border 
+Zone&#8217; (Marc Blank, 1987), is to respond to directions not with 
+a description of the new location but with a response about how you got 
+there:</p>
+
+<p class="output">&gt;<tt>east</tt><br>
+You open the door and walk out into the passageway. You scan the
+passageway, noting guards at either end, machine guns poised at their 
+sides. You don't remember them from the beginning of the trip, so you 
+can only suppose that security has been tightened in the search for 
+the American agent.<br>
+&gt;<tt>look</tt><br>
+<em>Outside Your Compartment</em><br>
+You are standing in the passageway that runs along the length of the 
+car. At either end of the passageway, a guard is standing, machine gun 
+poised at his side. Right now, you're standing outside your own 
+compartment.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+Mike Berlyn (<i>XYZZYnews</i> 17) groups the issues here under the headings 
+Size/Scope, Ceilings, Floor/Ground, Walls, Lighting and Mood (&#8220;a 
+depressed person is not likely to have yellow-and-red throw pillows&#8221;: 
+oh?). &nbsp;
+<span class="warning"><b>&#8226;</b></span>Gerry Kevin Wilson offers three don'ts
+for room descriptions: &#8220;1. Don't mention a player's actions in 
+a description. 2. Don't mention moveable objects in a description. 
+3. Don't exceed one screenful of text in a description.&#8221; &nbsp;
+<span class="warning"><b>&#8226;</b></span>&#8220;Very often, a map or the 
+plan of a building can suggest a plot element that no amount of abstract 
+thought could generate.&#8221; (Gil and Beryl Williamson, in <i>Computer 
+Adventures &#8211; The Secret Art</i>.) &nbsp;
+<span class="warning"><b>&#8226;</b></span>Wisest of all, perhaps: &#8220;It's 
+awful to sit down and think, &#8216;I've got to write fifty room descriptions 
+today, and each one of them has to be clear, crisp and vivid while 
+conveying exactly the information I want it to convey&#8217;&nbsp;&#8221;
+(Gareth Rees, Usenet posting, 7/6/94). Don't write them all at once.</p>
+
+<hr class="footnotebar">
+<p class="aside" style="margin-top:0"><a id="s51_fn1" name="s51_fn1"></a><a
+href="#s51_fnref1">&#8224;</a>&nbsp; But Meretzky was not always as 
+corny as his reputation. Influenced by &#8216;Suspended&#8217;, which 
+he had play-tested and later called &#8220;probably the most interesting 
+and daringly different game Infocom ever did&#8221;, he used a virtual 
+reality theme to construct almost the only work of early IF to contain 
+serious political themes: &#8216;A Mind Forever Voyaging&#8217; (1985).</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s50.html" title="&#167;50: The design of puzzles">prev</a> /
+ <a href="s52.html" title="&#167;52: Finishing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

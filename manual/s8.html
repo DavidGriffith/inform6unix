@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;8: Places and scenery</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">prev</a> /
+ <a href="s9.html" title="&#167;9: Directions and the map">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p116" name="p116"></a>
+<h2>&#167;8 &nbsp; Places and scenery</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-116_1.jpg" alt=""></span>
+In this longer chapter the model world of an Inform game will be
+explored and examples will gradually complete the &#8216;Ruins&#8217; 
+begun in Chapter II. So far, &#8216;Ruins&#8217; contains just a 
+location of rainforest together with some rules about photography. 
+The immediate need is for a more substantial map, beginning with a 
+sunken chamber. Like the Forest, this too has <code>light</code>, however dim. If 
+it didn't, the player would never see it: in Inform's world darkness 
+prevails unless the designer provides some kind of lamp or, as in this 
+case, ambient light.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object Square_Chamber &quot;Square Chamber&quot;
+  with name 'lintelled' 'lintel' 'lintels' 'east' 'south' 'doorways',
+       description
+           &quot;A sunken, gloomy stone chamber, ten yards across. A shaft
+           of sunlight cuts in from the steps above, giving the
+           chamber a diffuse light, but in the shadows low lintelled
+           doorways to east and south lead into the deeper darkness
+           of the Temple.&quot;,
+  has  light;
+</pre>
+
+<p class="normal">This room has a <code>name</code> property even 
+though rooms are not usually referred to by players. The nouns given 
+are words which Inform knows &#8220;you don't need to refer to&#8221;, 
+and it's a convention of the genre that the designer should signpost 
+the game in this way. For the game to talk about something and later
+deny all knowledge &#8211; &#8220;I can't see any such thing&#8221; 
+&#8211; is not merely rude but harmful to the player's illusion of 
+holding a conversation about a real world. Better to parry with:</p>
+
+<p class="output">&gt;<tt>examine lintel</tt><br><a id="p117" name="p117"></a>
+That's not something you need to refer to in the course of this game.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Not all of the Square Chamber's d&eacute;cor is so 
+irrelevant:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; &quot;carved inscriptions&quot;
+  with name 'carved' 'inscriptions' 'carvings' 'marks' 'markings'
+           'symbols' 'moving' 'scuttling' 'crowd' 'of',
+       initial
+           &quot;Carved inscriptions crowd the walls, floor and ceiling.&quot;,
+       description
+           &quot;Each time you look at the carvings closely, they seem
+           to be still. But you have the uneasy feeling when you
+           look away that they're scuttling, moving about. Two
+           glyphs are prominent: Arrow and Circle.&quot;,
+  has  static pluralname;
+</pre>
+
+<p class="normal">The <code>static</code> attribute means that the inscriptions 
+can't be taken or moved. As we went out of our way to describe a shaft 
+of sunlight, we'll include that as well:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; sunlight &quot;shaft of sunlight&quot;
+  with name 'shaft' 'of' 'sunlight' 'sun' 'light' 'beam' 'sunbeam'
+           'ray' 'rays' 'sun^s' 'sunlit' 'air' 'motes' 'dust',
+       description
+           &quot;Motes of dust glimmer in the shaft of sunlit air, so
+           that it seems almost solid.&quot;,
+  has  scenery;
+</pre>
+
+<p class="normal">The <code>^</code> symbol in <code>&quot;sun^s&quot;</code> 
+means an apostrophe, so the word is &#8220;sun's&#8221;. This
+object has been given the constant name <code>sunlight</code> because 
+other parts of the &#8216;Ruins&#8217; source code will need to refer 
+to it later on. Being <code>scenery</code> means that the object is 
+not only static but also not described by the game unless actually
+examined by the player. A perfectionist might add a <code>before</code> 
+rule:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+before [;
+    Examine, Search: ;
+    default: &quot;It's only an insubstantial shaft of sunlight.&quot;;
+],
+</pre>
+
+<p class="normal">so that the player can look at or through the sunlight, 
+but any other request involving them will be turned down. Note that 
+a <code>default</code> rule, if given, means &#8220;any action except 
+those already mentioned&#8221;.</p>
+
+<a id="p118" name="p118"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+Objects having <code>scenery</code> are assumed to be mentioned in 
+the description text of the room, just as the &#8220;shaft of sunlight&#8221; 
+is mentioned in that of the Square Chamber. Giving an object <code>concealed</code> 
+marks it as something which is present to a player who knows about it, 
+but hidden from the casual eye. It will not be cited in lists of objects
+present in the room, and &#8220;take all&#8221; will not take it, but 
+&#8220;take secret dossier&#8221;, or whatever, will work. (Designers 
+seldom need <code>concealed</code>, but the library uses it all the
+time, because the player-object is concealed.)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Some scenery must spread across several rooms. The 
+&#8216;Ruins&#8217;, for instance, are misty, and although we <em>could</em> 
+design them with a different &#8220;mist&#8221; object in every misty 
+location, this would become tiresome. In &#8216;Advent&#8217;, 
+for instance, a stream runs through seven locations, while mist which 
+(we are told) is &#8220;frequently a sign of a deep pit leading down 
+to water&#8221; can be found in ten different caves. Here is a 
+better solution:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object low_mist &quot;low mist&quot;
+  with name 'low' 'swirling' 'mist',
+       description &quot;The mist has an aroma reminiscent of tortilla.&quot;,
+       found_in  Square_Chamber  Forest,
+       before [;
+           Examine, Search: ;
+           Smell: &lt;&lt;Examine self&gt;&gt;;
+           default: &quot;The mist is too insubstantial.&quot;;
+       ],
+  has  scenery;
+</pre>
+
+<p class="normal">The <code>found_in</code> property gives a list 
+of places in which the mist is found: so far, just the Square Chamber 
+and the Forest.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+This allows for up to 32 misty locations. If scenery has to be visible 
+even more widely than that, or if it has to change with circumstances 
+(for instance, if the mist drifts) then it is simpler to give a routine 
+instead of a list. This can look at the current location and say whether 
+or not the object should be present, as in the following example from 
+a game taking place at night:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object Procyon &quot;Procyon&quot;,
+  with name 'procyon' 'alpha' 'canis' 'minoris' 'star',
+       description &quot;A double-star eleven light years distant.&quot;,
+       found_in [;
+           return (location ofclass OutsideRoom);
+       ],
+  has  scenery;
+</pre>
+
+<a id="p119" name="p119"></a>
+<p class="aside"><code>found_in</code> is only consulted when the player's 
+location changes, and works by moving objects around to give the illusion 
+that they are in several places at once: thus, if the player walks from 
+a dark field to a hilltop, Procyon will be moved ahead to the hilltop
+just in advance of the player's move. This illusion is good enough for 
+most practical purposes, but sometimes needs a little extra work to maintain, 
+for instance if the sky must suddenly cloud over, concealing the stars. 
+Since it often happens that an object must be removed from all the 
+places in which it would otherwise appear, an attribute called 
+<code>absent</code> is provided which overrides <code>found_in</code> 
+and declares that the object is found nowhere. Whatever change is made 
+to <code>found_in</code>, or in giving or removing <code>absent</code>, 
+the Inform library needs also to be notified that changes have taken 
+place. For instance, if you need to occult Procyon behind the moon 
+for a while, then:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give Procyon absent; MoveFloatingObjects();</pre>
+
+<p class="aside">The library routine <code>MoveFloatingObjects</code> 
+keeps the books straight after a change of state of <code>found_in</code> 
+or <code>absent</code>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Whereas Procyon is entirely visual, some scenery 
+items may afflict the other four senses. In &#8216;Ruins&#8217;, 
+the <code>Forest</code> contains the rule:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+before [;
+    Listen: &quot;Howler monkeys, bats, parrots, macaw.&quot;;
+],
+</pre>
+
+<p class="normal">Besides which, we have already said that the mist 
+smells of tortilla, which means that if the player types &#8220;smell&#8221; 
+in a place where the mist is, there should clearly be some reaction. 
+For this, a <code>react_before</code> rule attached to the mist is
+ideal:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+react_before [;
+    Smell: if (noun == nothing) &lt;&lt;Smell self&gt;&gt;;
+],
+</pre>
+
+<p class="normal">This is called a &#8220;react&#8221; rule because 
+the mist is reacting to the fact that a <code>Smell</code> action is 
+taking place nearby. <code>noun</code> is compared with <code>nothing</code> 
+to see if the player has indeed just typed &#8220;smell&#8221; and 
+not, say, &#8220;smell crocus&#8221;. Thus, when the action 
+<code>Smell</code> takes place near the mist, it is converted into 
+<code>Smell low_mist</code>, whereas the action <code>Smell 
+crocus</code> would be left alone.
+
+<p class="indent">The five senses all have actions in Inform: 
+<code>Look</code>, <code>Listen</code>, <code>Smell</code>, 
+<code>Taste</code> and <code>Touch</code>. Of these, <code>Look</code> 
+never has a noun attached (because <code>Examine</code>,
+<code>LookUnder</code> and <code>Search</code> are provided for 
+close-up views), <code>Smell</code> and <code>Listen</code> may or 
+may not have while <code>Taste</code> and <code>Touch</code> always 
+have.</p>
+
+<a id="p120" name="p120"></a>
+<a name="ex6"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans6">EXERCISE 6</a></b></span><br>
+(Cf. &#8216;Spellbreaker&#8217;.) Make an orange cloud descend on 
+the player, which can't be seen through or walked out of.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Rooms also react to actions that might occur in them 
+and have their own <code>before</code> and <code>after</code> rules. 
+Here's one for the Square Chamber:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+before [;
+    Insert:
+        if (noun == eggsac &amp;&amp; second == sunlight) {
+            remove eggsac; move stone_key to self;
+            &quot;You drop the eggsac into the glare of the shaft of
+            sunlight. It bubbles obscenely, distends and then
+            bursts into a hundred tiny insects which run in all
+            directions into the darkness. Only spatters of slime
+            and a curious yellow-stone key remain on the chamber
+            floor.&quot;;
+        }
+],
+</pre>
+
+<p class="normal">(The variables <code>noun</code> and <code>second</code> 
+hold the first and second nouns supplied with an action.) As it happens 
+this rule could as easily have been part of the definition of the eggsac 
+or the sunlight, but <code>before</code> and <code>after</code> rules 
+for rooms are invaluable to code up geographical oddities.</p>
+
+<a name="ex7"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans7">EXERCISE 7</a></b></span><br>
+Create a room for &#8216;Ruins&#8217; called the Wormcast, which has 
+the oddity that anything dropped there ends up back in the Square Chamber.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Sometimes the room may be a different one after the action has taken 
+place. The <code>Go</code> action, for instance, is offered to the 
+<code>before</code> routine of the room which is being left, and 
+the <code>after</code> routine of the room being arrived in. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+after [;
+    Go: if (noun == w_obj)
+        print &quot;You feel an overwhelming sense of relief.^&quot;;
+],
+</pre>
+
+<p class="aside">will print the message when its room is entered from 
+the &#8220;west&quot; direction. Note that this routine returns <code>false</code>, 
+in the absence of any code telling it to do otherwise, which means 
+that the usual game rules resume after the printing of the message.</p>
+
+<a id="p121" name="p121"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+&#8216;A Scenic View&#8217; by Richard Barnett demonstrates a system 
+for providing examinable scenery much more concisely (without defining 
+so many objects). &nbsp;
+<span class="warning"><b>&#8226;</b></span><code>found_in</code> 
+can allow a single object to represent many different but similar objects 
+across a game, and a good example is found in Martin Braun's <tt>&quot;elevator.inf&quot;</tt> 
+example game, where every floor of a building has an up-arrow and a 
+down-arrow button to summon an elevator.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">prev</a> /
+ <a href="s9.html" title="&#167;9: Directions and the map">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+
+

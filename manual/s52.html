@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;52: Finishing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s51.html" title="&#167;51: The room description">prev</a> /
+ <a href="app.html" title="Appendices">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p412" name="p412"></a>
+<h2>&#167;52 &nbsp; Finishing</h2>
+
+<blockquote>&#8220;[A game in alpha-testing has] on the order of 4,000 
+bugs. Maybe fifty percent are spelling and punctuation errors, extra 
+spaces, missing blank lines, and so on. Maybe one percent are crashes.&#8221;<br>
+&#8220;I try to make sure that the sun is in the right position, or 
+if you're in outer space the sun and moon are where they're supposed 
+to be &#8211; stuff like that&#8230; The wooden beam [in 
+&#8216;Infidel&#8217;] is described as being a certain length and width, 
+and I calculated that it would have to weigh 500 pounds.&#8221;<br>
+&#8212; Max Buxton and Gary Brennan (Infocom play-testers), 1987</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-412_1.jpg" alt=""></span>
+So the game is built: the wood is rough and splintered, but it's recognisably 
+a game. There is still a good month's work to do, easier work if less 
+creative, and beyond that a good deal of drudgery to fix bug after bug 
+after bug.<a id="s52_fnref1" name="s52_fnref1"></a><a
+href="#s52_fn1"><sup>1</sup></a> The first post-design task is to sort
+out the scoring system, usually awarding points out of some pleasingly 
+round number and dividing them into rankings. Here is &#8216;Zork II&#8217;:</p>
+
+<p class="output">Beginner (0), Amateur Adventurer (40), Novice Adventurer 
+(80), Junior Adventurer (160), Adventurer (240), Master (320), Wizard 
+(360), Master Adventurer (400)</p>
+
+<p class="normal">This is disappointingly bland, and a more pleasing 
+tradition is to name ranks for the player's profession in the game 
+&#8211; so that an orchestral musician might begin as Triangle and 
+rise through Second Violinist to Conductor. (In &#8216;Sherlock&#8217;,
+the lowest rank &#8211; corresponding to zero achievement &#8211; is 
+Chief Superintendent of Scotland Yard.) Among the questions to ask are: 
+will every winner of the game necessarily score exactly 400 out of 400? 
+(This can be difficult to arrange if even small acts are scored.) Will 
+everyone entering the end game already 
+<a id="p413" name="p413"></a>
+have a score of 360, and so 
+have earned the title &#8220;Wizard&#8221;? Will the rank &#8220;Amateur&#8221; 
+correspond exactly to having got out of the prologue and into the
+middle game?</p>
+
+<p class="indent">Unless the scoring system is worked out and the game 
+can pass its entire transcript of the &#8220;winning&#8221; solution 
+without crashing or giving absurd replies, it is too soon to go into 
+play-testing.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Scoring systems vary greatly. &#8216;Adventure Quest&#8217; is scored 
+&#8220;out of about 6,000&#8221;, and exemplifies the pinball-machine-like 
+tendency to offer points by 5s, 10s or 100s. Other games feel that one 
+puzzle is one point, or award percentages, and still others frown on 
+score altogether because &#8220;that's not how life works&#8221;. 
+In &#8216;Moonmist&#8217;, scores are described thus: &#8220;[Well, 
+so far you've met Lord Jack and all of the guests, washed up from 
+your trip... but you haven't found the hidden treasure nor enough 
+evidence nor identified the ghost!]&#8221;. In &#8216;Zork III&#8217;, 
+the player's &#8220;potential&#8221; is given out of 7, corresponding 
+to which of seven challenges have been encountered (so that a score 
+of 7 does not mean the game is over). In &#8216;The Lurking Horror&#8217;, 
+20 major puzzles are awarded 5 points apiece for a maximum of 100: 
+the 20th puzzle is to win the game. In some ports of &#8216;Advent&#8217; 
+1 point is awarded for each room visited for the first time, and 1 
+for never having saved the game, a mean trick, plus the infamous 
+&#8220;Last Lousy Point&#8221;, awarded without any clue for dropping 
+a particular object in a particular place, an irrelevant act achieving 
+nothing. (People used to have to disassemble the mainframe game to 
+discover this.)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">During the writing and maintenance of 
+&#8216;Christminster&#8217;, Gareth Rees kept a log of all 475 
+modifications prompted by play-testers and players. This log is archived 
+with the game's source code at <tt>ftp.gmd.de</tt> and makes an interesting
+case study. 224 reports requested additional interactivity and responses, 
+often to reasonable but wrong guesses made by the player. A further 86 
+arose from incorrect responses or inconsistencies, 32 from typographical 
+errors and 79 from mistakes in computer programming, for instance 
+in the game's complicated algorithms to handle telephony and the mixing 
+of liquids.</p>
+
+<p class="indent">At every stage in writing an interactive fiction 
+it is easy to lapse into the habit of writing an uninteractive one. 
+A designer who has written a linear story and then introduced some 
+puzzles may imagine that the literary style and effect of the game 
+comes from the text originally written, but that isn't altogether true: 
+most of the player's time at the keyboard is spent trying the wrong 
+thing, so most of the player's experience of the game lies in how 
+it deals with wrong guesses. This means that it's essential to respond 
+to as many of attempts as possible, acknowledging that the player has 
+made honest attempts, and so helping to form a sort of relationship:</p>
+
+<a id="p414" name="p414"></a>
+<p class="output">In the aquarium is a baby sea-serpent who eyes 
+you suspiciously. His scaly body writhes about in the huge tank.<br>
+&gt;<tt>take serpent</tt><br>
+He takes you instead. *Uurrp!*</p>
+
+<p class="normal">This is from &#8216;Zork II&#8217;, a program which 
+is at least twice the size of &#8216;Advent&#8217; in spite of implementing 
+a much smaller design. Almost all of that disparity is due to its 
+generous stock of responses. Similarly, &#8216;Zork I&#8217; contains 
+possibly the first examples of alternative solutions to puzzles (the 
+cyclops can be defeated in two different ways, as can the Loud Room). 
+If a play-tester can think of a reasonable solution to which the game 
+does not respond, it is worth considering a redesign of the puzzle 
+to allow both solutions. Even if not, a response should be made which 
+acknowledges that the player has made a good guess.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Bugs in interactive fiction are individually puny, yet 
+daunting by their number, like a column of army ants. Just as the 
+&#8216;Christminster&#8217; log (see above) gives an idea of routine 
+testing, so Graeme Cree's catalogue of bugs in released Infocom games 
+(at <tt>www.xyzzynews.com</tt>) shows what can slip through the most 
+rigorous testing regime. Here are some common types of bug:</p>
+
+<ul>
+<li>Slips of punctuation, spelling or grammar: for instance, &#8220;a 
+orange&#8221;. Infocom's games are quite clean in this respect, in 
+part because an experienced editor of books, John Prince, proof-read their 
+text. (The Inform compiler allows a designer to extract all the text 
+of a game for spell-checking.)</li>
+<li>Rooms being dark when they ought to be light (which tends not to 
+show if the designer habitually carries a lamp when testing), or not 
+changing their state of light/darkness when they should: as for instance 
+when a skylight opens, or when the sun sets, or when the candles in 
+&#8216;Zork I&#8217; are blown out. In &#8216;Sherlock&#8217; (21/871214)
+an expert player can cross fog-bound London without a lamp, exploiting 
+various items and places which turn out to have (undescribed) light.</li>
+<li>Secondary properties of an object neglected: such as a fish being 
+marked as edible, or a door as fixed in place.<a id="s52_fnref2"
+name="s52_fnref2"></a><a href="#s52_fn2"><sup>2</sup></a>
+&#8216;Starcross&#8217; (15/820901) neglected to mark a light beam as 
+being inanimate, so that the player could get rid of it by typing 
+&#8220;beam, go west&#8221;.</li>
+<li>Map connections missed or mismatching. In &#8216;Suspended&#8217; 
+(8/840521), the corridor northeast from East End to Alpha FC has no 
+connection back southwest: the designer simply forgot to make one.</li>
+<li>Something which ought to happen only once being possible more 
+than once: such as the breaking of a window, or a character greeting 
+the player as a stranger. The only known bug in any release of 
+&#8216;Wishbringer&#8217; (68/850501) allowed the player 
+<a id="p415" name="p415"></a>
+to take back a spent gold coin and spend it again, gaining ever more 
+points <i>ad infinitum</i>.</li>
+<li>Failing to properly revise the state of the game after a major 
+event. In &#8216;Deadline&#8217; (18/820311), Ms Dunbar was sometimes 
+able to appear even after her death and, indeed, to be present in 
+the same room as her dead body.</li>
+<li>Small illogicalities: messages such as &#8220;The ball bounces on 
+the ground and returns to your hand.&#8221; in mid-air or while wading 
+through a ford; or being able to swim with a suit of armour on, or 
+wave the coat you're wearing, or eat while wearing a gas mask. In 
+&#8216;Hollywood Hijinx&#8217; (37/861215), you can empty a bucket 
+of water while swimming underwater.</li>
+<li>Failing to check that necessary objects are actually present when 
+the player tries by implication to use them. In &#8216;The Witness&#8217; 
+(22/840924), you can &#8220;get a drink&#8221; anywhere in the game.</li>
+<li>Containers with surreal abilities: such as a purse which can hold 
+a stepladder, or a candle whose flame remains lit, or a book which 
+can still be read even when stowed away inside a rucksack. Infocom's 
+struggle with the &#8216;Zork&#8217; container bug has passed into 
+legend. Numerous cases were attended to, but in all eleven releases of 
+&#8216;Zork I&#8217; you can still put the raft in the coffin, and 
+then the coffin in the raft, causing both to vanish.</li>
+<li>Forgotten names: for instance &#8216;Planetfall&#8217; (20/830708) 
+forgot to allow the player to call the microbe monster &#8220;microbe&#8221;.</li>
+<li>Inadequate namings: in &#8216;Deadline&#8217; (19/820427) the 
+bathroom door on the first floor was impossible to open because the 
+game called it simply &#8220;door&#8221;, but with a closet door in 
+the same location, an ambiguity arose which nothing the player could 
+type would resolve.</li>
+<li>Actual bugs in code intended to extend the game's simulation of 
+the world, and especially with ropes and liquids: in &#8216;Infidel&#8217; 
+(22/830916) filling the chalice when it is already full results in 
+the text &#8220;The silver chalice is filled with water. The silver 
+chalice is empty.&#8221;</li>
+</ul>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The days of play-testing are harrowing. Dave Lebling 
+again, on &#8216;Suspect&#8217;:</p>
+
+<p class="output">&gt;<tt>bartender, give me a drink</tt><br>
+&#8220;Sorry, I've been hired to mix drinks and that's all.&#8221;</p>
+
+<p class="output">&gt;<tt>dance with alicia</tt><br>
+Which Alicia do you mean, Alicia or the overcoat?</p>
+
+<p class="output">Veronica's body is slumped behind the desk, strangled with a lariat.<br>
+&gt;<tt>talk to veronica</tt><br>
+Veronica's body is listening.</p>
+
+<p class="normal">(&#8220;Little bugs, you know? Things no one would 
+notice. At this point the tester's job is fairly easy. The story is 
+like a house of cards &#8211; it looks pretty solid but the slightest 
+touch collapses it.&#8221;)</p>
+
+<a id="p416" name="p416"></a>
+<p class="indent">Good play-testers are worth their weight in gold. 
+Their first contribution is to try things in a systematically perverse 
+way. To quote Michael Kinyon, whose effect may be felt almost everywhere 
+in the present author's games,</p>
+
+<blockquote>A tester with a new verb is like a kid with a hammer; 
+every problem seems like a nail.</blockquote>
+
+<p class="normal">And here is Neil deMause, on one of his play-testers:</p>
+
+<blockquote>He has an odd compulsion, when he plays IF games, to 
+close doors behind him. It's a bizarre fastidiousness, not even remotely 
+useful for an IF player, but I love him for it, because he has uncovered 
+bugs in this way that I never would have found.</blockquote>
+
+<p class="normal">Games substantially grow in play-testing, and come 
+alive. Irene Callaci's acknowledgements could speak for all designers:</p>
+
+<blockquote>I thought perhaps beta testing might reveal a couple of 
+odd, off-the-wall commands that weren't implemented, or maybe a typo 
+here and there, or possibly an adjective or two I had forgotten. Not! 
+I wasn't even close to being finished, and I didn't even know it. 
+&#8216;Mother Loose&#8217; grew from 151K to 199K during the beta testing 
+period alone. Looking back now, if I had released &#8216;Mother 
+Loose&#8217; when I thought it was ready, I would have crawled under 
+a rock from embarrassment. Thank you, thank you, thank you to all
+my beta testers.</blockquote>
+
+<p class="normal">More is true even than this: the play-tester is to 
+interactive fiction as the editor is to the novel, and should be credited 
+and acknowledged as such. Major regions of &#8216;Curses&#8217; and 
+&#8216;Jigsaw&#8217; were thrown out politely but firmly by my own
+play-testers as being substandard or unsuitable.<a id="s52_fnref3"
+name="s52_fnref3"></a><a href="#s52_fn3"><sup>3</sup></a>
+A radical response to the play-tester's doubts is almost always better 
+than papering over cracks.</p>
+
+<p class="indent">After a first pass by one or two play-testers, and 
+a consequent redrafting exercise, the game can go to beta testing at 
+the hands of perhaps six or seven volunteers, who come to it fresh 
+and treat it more as an entertainment and less as an unexploded bomb. 
+(At one time Infocom used two phases of beta-testing, sometimes involving 
+as many as 200 volunteers, even after pre-alpha and alpha-testing 
+in house.) It is wise to insist on reports in writing or email, or
+some concrete form, and to ask for a series of reports, one at a time, 
+rather than waiting a month for an epic list of bugs. It can be useful 
+for play-testers to keep transcripts of their sessions with the 
+game, and send them verbatim, because these transcripts are eloquent 
+of how difficult or easy the puzzles are and which wrong guesses are 
+tried. In its debugging version, &#8216;Jigsaw&#8217; provided a verb
+called &#8220;bug&#8221; purely to help players type comments into 
+such a transcript:</p>
+
+<a id="p417" name="p417"></a>
+<p class="output">&gt;<tt>bug Miss Shutes is known as he</tt><br>
+Oh dear.<br>
+&gt;<tt>bug The corn bread isn't edible</tt><br>
+Is that so?</p>
+
+<p class="normal">It is worth keeping in touch with play-testers to 
+ensure that they are not utterly stuck because of a bug or an unreasonable 
+puzzle, but it's important to give no hints unless they are asked 
+for.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">A game is never finished, only abandoned. There 
+is always one more bug, or one more message which could be improved, or 
+one more wry response to drop in. Debugging is a creative process, even 
+beyond the initial release, and games commonly have four to ten revisions 
+in their first couple of years in play. In the end, of course, the designer 
+walks away. Almost all the pre-1990 designers cited in the bibliography 
+are still alive, but few are still designing, and they often speak of 
+their games as something fun but belonging to another time in their 
+lives: something they feel faintly self-conscious about, perhaps, something 
+that they did years ago: when they were in high school, when their kids 
+were young, when they did a little testing for Infocom, when computers
+were less visual, when it was the state of the art, when the Ph.D. was 
+at an impasse. But if twenty-five years is an epoch in computing, it 
+is not a long time in the history of art, and the early designers remain 
+a presence in a genre which is younger and less settled than sometimes 
+appears. Once in a while Scott Adams causes a frisson by throwing a 
+remark into a newsgroup mostly read by designers to whom he seems a 
+historical figure coeval with Scott of the Antarctic. Can such a man 
+really have an email address?</p>
+
+<p class="indent">In a recent radio broadcast (1999), Douglas Adams 
+said that the great enjoyability of working on his games with Infocom 
+was having fun with a new medium before it became an art form and had 
+serious articles written about it. (Which pretty much puts this chapter 
+in its place.) But that original fascination dies hard, and the first 
+and happiest discovery of anyone researching into interactive fiction 
+is that designers past are only too pleased to be rediscovered, and 
+willing to go to great trouble &#8211; hunting through archives, attics 
+and obsolete equipment &#8211; to see that their games can be trodden 
+again.</p>
+
+<p class="indent">An adventure game can be one of the most satisfying 
+of works to have written: perhaps because one can always polish it 
+a little further, perhaps because it has hidden and secret possibilities.
+But perhaps too because something is made as well as written: and 
+once made can never be unmade, so that there will always be a small 
+brick building by the end of the road, and in it there will always 
+be keys, food, a bottle and the lamp.</p>
+
+<hr class="footnotebar">
+
+<p class="aside" style="margin-top:0"><a id="s52_fn1" name="s52_fn1"></a><a 
+href="#s52_fnref1"><sup>1</sup></a>&nbsp;
+Dave Lebling starts work in the morning: &#8220;Even a cup of yummy coffee 
+won't improve things when you see &#8216;page 1 of 12&#8217; on the 
+first bug report form.&#8221; Many good-natured pieces about testing 
+appear in Infocom's publicity newspapers. At best, it was enormous 
+fun, and Liz Cyr-Jones's testing department made a lively and exhilarating
+summer job. But there were also tensions. The tester who wrote that 12-page 
+form saw it not as dismaying but as the proud result of a job well done. 
+It could be frustrating that the bugs would be fixed at random intervals, 
+or not at all, while revised versions of the game would sometimes arrive 
+without any clear indication of what had altered. Brian Moriarty redesigned 
+great swathes of game at the last minute, and the fact that he had 
+always said he would did not make this any less maddening.</p>
+
+<p class="aside"><a id="s52_fn2" name="s52_fn2"></a><a
+href="#s52_fnref2"><sup>2</sup></a>&nbsp;
+It wasn't until the fifth proofs of <a href="s12.html">&#167;12</a> 
+of this manual that any of us noticed that the &#8220;great stone slab&#8221; 
+altar of &#8216;Ruins&#8217; had never been made <code>static</code>.</p>
+
+<p class="aside"><a id="s52_fn3" name="s52_fn3"></a><a
+href="#s52_fnref3"><sup>3</sup></a>&nbsp;
+Similarly, the published source code to 
+&#8216;Christminster&#8217; contains &#8220;offcuts&#8221; such 
+as a pulley-and-rope puzzle in the clock tower.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s51.html" title="&#167;51: The room description">prev</a> /
+ <a href="app.html" title="Appendices">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

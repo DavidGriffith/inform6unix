@@ -1,0 +1,307 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;5: Introducing messages and classes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch2.html" title="Chapter II: Introduction to Designing">chapter II</a> /
+ <a href="s4.html" title="&#167;4: &#8216;Ruins&#8217; begun">prev</a> /
+ <a href="s6.html" title="&#167;6: Actions and reactions">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p92" name="p92"></a>
+<h2>&#167;5 &nbsp; Introducing messages and classes</h2>
+
+<blockquote>
+On a round ball<br>
+A workman that hath copies by, can lay<br>
+An Europe, Afrique and an Asia,<br>
+And quickly make that, which was nothing, All.<br>
+&#8212; John Donne (1571?&#8211;1631), <i>Valediction: Of Weeping</i>
+</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-092_1.jpg" alt=""></span>
+Though <a href="s4.html">&#167;4</a> was a little vague 
+in saying &#8220;the library asks the mushroom if it would like to react&#8221;, 
+something basic was happening in Inform terms: the object 
+<code>InformLibrary</code> was sending the message <code>before</code> to the 
+object <code>mushroom</code>. Much more on how actions take place in 
+<a href="s6.html">&#167;6</a>, but here is roughly what the library does 
+if the player types &#8220;eat mushroom&#8221;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+if (mushroom.before() == false) {
+    remove mushroom;
+    if (mushroom.after() == false)
+        print &quot;You eat the mushroom. Not bad.^&quot;;
+}
+</pre>
+
+<p class="normal">The library sends the message <code>before</code> to ask the 
+<code>mushroom</code> if it minds being eaten; then, if not, it consumes 
+the mushroom; then it sends the message <code>after</code> to ask if 
+the mushroom wishes to react in some way; then, if not, it prints 
+the usual eating-something text. In response to the messages <code>before</code>
+and <code>after</code>, the mushroom is expected to reply either <code>true</code>, 
+meaning &#8220;I'll take over from here&#8221;, or <code>false</code>, 
+meaning &#8220;carry on&#8221;.</p>
+
+<p class="indent">Most of the other properties in 
+<a href="s4.html">&#167;4</a> are also receiving messages.
+For example, the message</p>
+
+<p class="lynxonly"></p>
+<pre class="code">mushroom.description();</pre>
+
+<p class="normal">is sent when the player tries to examine the 
+mushroom: if the reply is <code>false</code> then the library prints 
+&#8220;You see nothing special about the speckled mushroom.&#8221;
+Now the mushroom was set up with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+description
+    &quot;The mushroom is capped with blotches, and you aren't at all
+    sure it's not a toadstool.&quot;,
+</pre>
+
+<a id="p93" name="p93"></a>
+<p class="normal">which doesn't look like a rule for receiving a message, 
+but it is one all the same: it means &#8220;print this text out, print 
+a new-line and reply <code>true</code>&#8221;. A more complicated 
+rule could have been given instead, as in the following elaboration
+of the stone-cut steps in &#8216;Ruins&#8217;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+description [;
+    print &quot;The cracked and worn steps descend into a dim chamber.
+           Yours might &quot;;
+    if (Square_Chamber hasnt visited)
+        print &quot;be the first feet to tread&quot;;
+    else print &quot;have been the first feet to have trodden&quot;;
+    &quot; them for five hundred years. On the top step is inscribed
+    the glyph Q1.&quot;;
+],
+</pre>
+
+<p class="normal"><code>visited</code> is an attribute which is currently held 
+only by rooms which the player has been to. The glyphs will come into 
+the game later on.</p>
+
+<p class="indent">The library can send out about 40 different kinds 
+of message, <code>before</code>and <code>description</code> being 
+two of these. The more interesting an object is, the more ingeniously 
+it will respond to these messages. An object which ignores all incoming 
+messages will be lifeless and inert in play, like a small stone.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Some properties are just properties, and don't receive messages. 
+Nobody ever sends a <code>name</code> message, for instance: 
+the <code>name</code> property is just what it seems to be, a list
+of words.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">So the library is sending out messages to your 
+objects all the time during play. Your objects can also send each 
+other messages, including &#8220;new&#8221; ones that the library 
+would never send. It's sometimes convenient to use these to trigger
+off happenings in the game. For example, one way to provide hints 
+in &#8216;Ruins&#8217; might be to include a macaw which squawks 
+from time to time, for a variety of reasons:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; macaw &quot;red-tailed macaw&quot;
+  with name 'red' 'tailed' 'red-tailed' 'macaw' 'bird',
+       initial &quot;A red-tailed macaw eyes you from an upper branch.&quot;,
+       description &quot;Beautiful plumage.&quot;,
+       before [;
+           Take: &quot;The macaw flutters effortlessly out of reach.&quot;;
+       ],
+       squawk [ utterance;
+           if (self in location)<a id="p94" name="p94"></a>
+               print &quot;The macaw squawks, ~&quot;, (string) utterance,
+                     &quot;! &quot;, (string) utterance, &quot;!~^^&quot;;
+       ],
+  has  animate;
+</pre>
+
+<p class="normal">(For the final version of &#8216;Ruins&#8217; the 
+designer thought better of the macaw and removed it, but it still 
+makes a good example.) We might then, for instance, change the <code>after</code> 
+rule for dropping the mushroom to read:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Drop: macaw.squawk(&quot;Drop the mushroom&quot;);
+      &quot;The mushroom drops to the ground, battered slightly.&quot;;
+</pre>
+
+<p class="normal">so that the maddening creature would squawk &#8220;Drop 
+the mushroom! Drop the mushroom!&#8221; each time this was done. At 
+present it would be an error to send a <code>squawk</code> message to any object 
+other than the macaw, since only the macaw has been given a rule 
+telling it what to do if it receives one.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">In most games there are groups of objects with 
+certain rules in common, which it would be tiresome to have to write 
+out many times. For making such a group, a class definition is 
+simpler and more elegant. These closely resemble object definitions, 
+but since they define prototypes rather than actual things, they 
+have no initial location. (An individual tree may be somewhere, 
+but the concept of being a tree has no particular place.) So the 
+&#8216;header&#8217; part of the definition is simpler.</p>
+
+<p class="indent">For example, the scoring system in &#8216;Ruins&#8217; 
+works as follows: the player, an archaeologist of the old school, gets 
+a certain number of points for each &#8216;treasure&#8217; (i.e., 
+cultural artifact) he can filch and put away into his packing case. 
+Treasures clearly have rules in common, and the following class 
+defines them:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Treasure
+  with cultural_value 5, photographed_in_situ false,
+       before [;
+           Take, Remove:
+               if (self in packing_case)
+                   &quot;Unpacking such a priceless artifact had best wait
+                   until the Carnegie Institution can do it.&quot;;
+               if (self.photographed_in_situ == false)
+                   &quot;This is the 1930s, not the bad old days. Taking an
+                   artifact without recording its context is simply
+                   looting.&quot;;
+           Photograph:<a id="p95" name="p95"></a>
+               if (self has moved)
+                   &quot;What, and fake the archaeological record?&quot;;
+               if (self.photographed_in_situ) 
+                   &quot;Not again.&quot;;
+       ],
+       after [;
+           Insert:
+               if (second == packing_case)
+               {   score = score + self.cultural_value;
+                   &quot;Safely packed away.&quot;;
+               }
+           Photograph: self.photographed_in_situ = true;
+       ];
+</pre>
+
+<p class="normal">(The packing case won't be defined until 
+<a href="s12.html">&#167;12</a>, which is about containers.) 
+Note that <code>self</code> is a variable, which always means 
+&#8220;whatever object I am&#8221;. If we used it in the definition 
+of the mushroom it would mean the mushroom: used here, it means 
+whatever treasure happens to be being dealt with. Explanations
+about <code>Insert</code> and <code>Remove</code> will come later 
+(in <a href="s12.html">&#167;12</a>). The action <code>Photograph</code> 
+is not one of the standard actions built in to the library, and will 
+be added to &#8216;Ruins&#8217; in the next section.</p>
+
+<p class="indent">An object of the class <code>Treasure</code> automatically 
+inherits the properties and attributes given in the class definition. 
+Here for instance is an artifact which will eventually be found in 
+the Stooped Corridor of &#8216;Ruins&#8217;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Treasure -&gt; statuette &quot;pygmy statuette&quot;
+  with name 'snake' 'mayan' 'pygmy' 'spirit' 'precious' 'statuette',
+       description
+          &quot;A menacing, almost cartoon-like statuette of a pygmy spirit
+           with a snake around its neck.&quot;,
+       initial &quot;A precious Mayan statuette rests here!&quot;;
+</pre>
+
+<p class="normal">From <code>Treasure</code>, this statuette inherits 
+a <code>cultural_value</code> score of 5 and the rules about taking 
+and dropping treasures. If it had itself set <code>cultural_value</code>
+to 15, say, then the value would be 15, because the object's actual 
+definition always takes priority over anything the class might have 
+specified. Another of the five &#8216;Ruins&#8217; treasures, which 
+will be found in the Burial Shaft, has a subtlety in its definition:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Treasure -&gt; honeycomb &quot;ancient honeycomb&quot;
+  with article &quot;an&quot;,
+       name 'ancient' 'old' 'honey' 'honeycomb',
+       description &quot;Perhaps some kind of funerary votive offering.&quot;,
+       initial
+          &quot;An exquisitely preserved, ancient honeycomb rests here!&quot;,<a id="p96" name="p96"></a>
+       after [;
+           Eat: &quot;Perhaps the most expensive meal of your life.
+               The honey tastes odd, perhaps because it was used to
+               store the entrails of the Lord buried here, but still
+               like honey.&quot;;
+       ],
+  has  edible;
+</pre>
+
+<p class="normal">The subtlety is that the honeycomb now has two 
+<code>after</code> rules: a new one of its own, plus the existing 
+one that all treasures have. Both apply, but the new one happens 
+first.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+So comparing <code>cultural_value</code> and <code>after</code>, there 
+seems to be an inconsistency. In the case of <code>cultural_value</code>, 
+an object's own given value wiped out the value from the class, 
+but in the case of <code>after</code>, the two values were joined 
+up into a list. Why? The reason is that some of the library's properties 
+are &#8220;additive&#8221;, so that their values accumulate into 
+a list when class inheritance takes place. Three useful examples are
+<code>before</code>, <code>after</code> and <code>name</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Non-library properties you invent (like <code>squawk</code> or 
+<code>cultural_value</code>) will never be additive, unless you declare 
+them so with a directive like</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Property additive squawk;</pre>
+
+<p class="aside">before <code>squawk</code> is otherwise mentioned. 
+(Or you could imitate similar kinds of inheritance using the 
+superclass operator.)</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+See &#8216;Balances&#8217; for an extensive use of message-sending. 
+The game defines several complicated classes, among them the white 
+cube, spell and scroll classes. &nbsp;
+<span class="warning"><b>&#8226;</b></span>&#8216;Advent&#8217;
+has a treasure-class similar to this one, and uses class definitions 
+for the many similar maze and dead-end rooms, as well as the sides 
+of the fissure. &nbsp;
+<span class="warning"><b>&#8226;</b></span>&#8216;Toyshop&#8217;
+contains one easy class (the wax candles) and one unusually hard one 
+(the building blocks). &nbsp;
+<span class="warning"><b>&#8226;</b></span>Class definitions can be worthwhile 
+even when as few as two objects use them, as can be seen from the two 
+kittens in &#8216;Alice Through the Looking-Glass&#8217;.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch2.html" title="Chapter II: Introduction to Designing">chapter II</a> /
+ <a href="s4.html" title="&#167;4: &#8216;Ruins&#8217; begun">prev</a> /
+ <a href="s6.html" title="&#167;6: Actions and reactions">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,402 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;32: Scope and what you can see</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s31.html" title="&#167;31: Tokens of grammar">prev</a> /
+ <a href="s33.html" title="&#167;33: Helping the parser out of trouble">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p241" name="p241"></a>
+<h2>&#167;32 &nbsp; Scope and what you can see</h2>
+
+<blockquote>He cannot see beyond his own nose. Even the fingers he 
+out-stretches from it to the world are (as I shall suggest) often invisible
+to him.<br>&#8212; Max Beerbohm (1872&#8211;1956), of George Bernard Shaw</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-241_1.jpg" alt=""></span>
+Time to say what &#8220;in scope&#8221; means. This definition is one 
+of the most important rules of play, because it decides what the player
+is allowed to refer to. You can investigate this experimentally by
+compiling any game with the debugging suite of verbs included (see
+<a href="s7.html">&#167;7</a>) and typing &#8220;scope&#8221; in 
+interesting places. &#8220;In scope&#8221; roughly means &#8220;the
+compass directions, what you're carrying and what you can see&#8221;. 
+It exactly means this:</p>
+
+<ol style="list-style-type:decimal">
+<li>the compass directions;</li>
+<li>the player's immediate possessions;</li>
+<li>if there is light, then the contents of the player's visibility 
+ceiling (see <a href="s21.html">&#167;21</a> for definition, but 
+roughly speaking the outermost object containing the player which
+remains visible, which is usually the player's location);</li>
+<li>if there is darkness, then the contents of the library's object 
+<code>thedark</code> (by default there are no such contents, but 
+some designers have been known to move objects into <code>thedark</code>: 
+see &#8216;Ruins&#8217;);</li>
+<li>if the player is inside a <code>container</code>, then that 
+container;</li>
+<li>if <i>O</i> is in scope and is see-through (see 
+<a href="s21.html">&#167;21</a>), then the contents of <i>O</i>;</li>
+<li>if <i>O</i> is in scope, then any object which it &#8220;adds 
+to scope&#8221; (see below).</li>
+</ol>
+
+<p class="normal">with the proviso that the <code>InScope</code> entry 
+point (see below) can add to or replace these rules, if you write one.</p>
+
+<p class="indent">It's significant that rule (3) doesn't just say 
+&#8220;whatever is in the current location&#8221;. For instance, if 
+the player is in a closed cupboard in the Stores Room, then rule (3) 
+means that the contents of the cupboard are in scope, but other items 
+in the Stores Room are not.</p>
+
+<p class="indent">Even in darkness the player's possessions are in 
+scope, so the player can still turn on a lamp being carried. On the 
+other hand, a player who puts the lamp on the ground and turns it off 
+then loses the ability to turn it back on again, because it is out of 
+scope. This can be changed; see below.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Compass directions make sense as things as well as directions, and 
+they respond to names like &#8220;the south wall&#8221; and &#8220;the 
+floor&#8221; as well as &#8220;south&#8221; and &#8220;down&#8221;.</p>
+
+<a id="p242" name="p242"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+The <code>concealed</code> attribute only hides objects from room 
+descriptions, and doesn't remove them from scope. If you want things 
+to be unreferrable-to, put them somewhere else!</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The small print: 1. For &#8220;player&#8221;, read &#8220;actor&#8221;. 
+Thus &#8220;dwarf, drop sword&#8221; will be accepted if the dwarf can 
+see the sword even if the player can't. 2. Scope varies depending on 
+the token being parsed: for the <span class="grammartoken"><code>multi-</code></span> 
+tokens, compass directions are not in scope; for 
+<span class="grammartoken"><code>multiexcept</code></span> the other 
+object isn't in scope; for <span class="grammartoken"><code>multiinside</code></span> 
+only the contents of the other object are in scope.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Two library routines enable you to see what's in scope 
+and what isn't. The first, <code>TestScope(obj, actor)</code>, simply 
+returns <code>true</code> or <code>false</code> according to whether
+or not <code>obj</code> is in scope. The second is 
+<code>LoopOverScope(routine, actor)</code> and calls the given routine 
+for each object in scope. In each case the <code>actor</code> given
+is optional, and if it's omitted, scope is worked out for the player 
+as usual.</p>
+
+<a id="ex97" name="ex97"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans97">EXERCISE 97</a></b></span><br>
+Implement the debugging suite's &#8220;scope&#8221; verb, which lists 
+all the objects currently in scope.</p>
+
+<a id="ex98" name="ex98"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans98">EXERCISE 98</a></b></span><br>
+Write a &#8220;megalook&#8221; verb, which looks around and examines 
+everything in scope except the walls, floor and ceiling.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Formally, scope determines what you can talk about, 
+which usually means what you can see or hear. But what can you touch? 
+Suppose a locked chest is inside a sealed glass cabinet. The Inform parser 
+will allow the command &#8220;unlock chest with key&#8221; and generate 
+the appropriate action, <code>&lt;Unlock chest key&gt;</code>, 
+because the chest is in scope, so the command at least makes sense.</p>
+
+<p class="indent">But it's impossible to carry out, because the player 
+can't reach through the solid glass. So the library's routine for handling 
+the <code>Unlock</code> action needs to enforce this. The library does 
+this using a stricter rule called &#8220;touchability&#8221;. The 
+rule is that you can touch anything in scope unless there's a closed
+<code>container</code> between you and it. This applies either if 
+you're in the container, or if it is.</p>
+
+<p class="indent">Some purely visual actions, such as <code>Examine</code> 
+or <code>LookUnder</code>, don't require touchability. But most actions 
+are tactile, and so are many actions created by designers. If you 
+want to make your own action routines enforce touchability, you can 
+call the library routine <code>ObjectIsUntouchable(obj)</code>. This 
+either returns <code>false</code> and prints nothing if there's no 
+problem in touching <code>obj</code>, or 
+<a id="p243" name="p243"></a>
+returns <code>true</code> and 
+prints a suitable message, such as &#8220;The solid glass cabinet is
+in the way.&#8221; Thus, the first line of many of the library's 
+action routines is:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (ObjectIsUntouchable(noun)) return;</pre>
+
+<p class="normal">You can also call <code>ObjectIsUntouchable(obj, true)</code> 
+to simply return <code>true</code> or <code>false</code>, printing nothing, 
+if you'd rather provide your own failure message.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The rest of this section is about how to change the 
+scope rules. As usual with Inform, you can change them globally, but 
+it's more efficient and safer to work locally. To take a typical example: 
+how do we allow the player to ask questions like the traditional 
+&#8220;what is a grue&#8221;? The &#8220;grue&#8221; part ought to be 
+parsed as if it were a noun, so that we could distinguish between, say, 
+a &#8220;garden grue&#8221; and a &#8220;wild grue&#8221;. So it isn't 
+good enough to look only at a single word. Here is one solution:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ QuerySub; 
+  noun.description(); return;
+];
+[ QueryTopic;
+  switch (scope_stage) {
+      1: rfalse;
+      2: ScopeWithin(questions); rtrue;
+      3: &quot;At the moment, even the simplest questions confuse you.&quot;;
+  }
+];
+Object questions;
+</pre>
+
+<p class="normal">where the actual questions at any time are the current 
+children of the <code>questions</code> object, like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; &quot;long count&quot;
+  with name 'long' 'count',
+       description &quot;The Long Count is the great Mayan cycle of
+           time, which began in 3114 BC and will finish with
+           the world's end in 2012 AD.&quot;;
+</pre>
+
+<p class="normal">(which might be helpful in &#8216;Ruins&#8217;) 
+and we also have a grammar line:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'what' * 'is'/'was' scope=QueryTopic -&gt; Query;</pre>
+
+<p class="normal">The individual questions have short names so that 
+the parser might be able to say &#8220;Which do you mean, the long count 
+or the short count?&#8221; if the player asked &#8220;what is the 
+count&#8221;. (As it stands this won't recognise &#8220;what is the
+count?&#8221;. Conventionally players are supposed not to type question 
+marks or quotes in their commands. To allow this one could always add 
+<code>'count?'</code> as one of the names above.)</p>
+
+<a id="p244" name="p244"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Here is the specification. When the parser reaches 
+<span class="grammartoken"><code>scope=Whatever</code></span>, it 
+calls the <code>Whatever</code> routine with the variable <code>scope_stage</code> 
+set to 1. The routine should return <code>true</code> if it is prepared 
+to allow multiple objects to be accepted here, and <code>false</code> 
+otherwise. (In the example, as we don't want &#8220;what is
+everything&#8221; to list all the questions and answers in the game, 
+we return <code>false</code>.)</p>
+
+<p class="indent">A little later the parser calls <code>Whatever</code> 
+again with <code>scope_stage</code> now set to 2. <code>Whatever</code> 
+is then obliged to tell the parser which objects are to be in scope.
+It can call two parser routines to do this:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">ScopeWithin(obj)</pre>
+
+<p class="normal">which puts everything inside <code>obj</code>, but 
+not <code>obj</code> itself, into scope, and then works through rules 
+(6) and (7) above, so that it may continue to add the contents of
+the contents, and so on; and</p>
+
+<p class="lynxonly"></p>
+<pre class="code">PlaceInScope(obj)</pre>
+
+<p class="normal">which puts just <code>obj</code> into scope. It is 
+perfectly legal to declare something in scope that &#8220;would have been 
+in scope anyway&#8221;: or something which is in a different room 
+altogether from the actor concerned, say at the other end of a
+telephone line. The scope routine <code>Whatever</code> should then 
+return <code>false</code> if the nominated items are additional to the 
+usual scope, or <code>true</code> if they are the only items in scope. 
+(In the example, <code>QueryTopic</code> returns <code>true</code> because 
+it wants the only items in scope to be its question topics, not the 
+usual miscellany near the player.)</p>
+
+<p class="indent">This is fine if the token is correctly parsed. If 
+not, the parser may choose to ask the token routine to print a suitable 
+error message, by calling <code>Whatever</code> with <code>scope_stage</code> 
+set to 3. (In the example, this will happen if the player types
+&#8220;what is the lgon count&#8221;, and <code>QueryTopic</code> 
+replies &#8220;At the moment, even the simplest questions confuse you.&#8221;, 
+because it comes from a faintly dream-like game called &#8216;Balances&#8217;.)</p>
+
+<a id="ex99" name="id99"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans99">EXERCISE 99</a></b></span><br>
+Write a token which puts everything in scope, so that you could have 
+a debugging &#8220;purloin&#8221; which could take anything, regardless 
+of where it was and the rules applying to it.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="p245" name="p245"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+The global scope rules can be tampered with by providing an entry 
+point routine called <code>InScope(actor)</code>, where <code>actor</code> 
+is the actor whose scope is worked out. In effect, this defines 
+the &#8220;ordinary&#8221; scope by making calls to <code>ScopeWithin</code> 
+and <code>PlaceInScope</code>, then returning <code>true</code> or 
+<code>false</code>, exactly as if it were a scope token at stage 2. 
+For instance, here as promised is how to change the rule that &#8220;things 
+you've just dropped disappear in the dark&#8221;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ InScope person i;
+  if (person == player &amp;&amp; location == thedark)
+      objectloop (i in parent(player))
+          if (i has moved) PlaceInScope(i);
+  rfalse;
+];
+</pre>
+
+<p class="aside">With this routine added, objects near the player in 
+a dark room are in scope only if they have moved (that is, have been 
+held by the player in the past), and even then are in scope only 
+to the player, not to anyone else.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The token <span class="grammartoken"><code>scope=</code>&#8249;<span class="token">Routine</span>&#8250;</span>
+takes precedence over <code>InScope</code>, which will only be reached 
+if the routine returns <code>false</code> to signify &#8220;carry on&#8221;.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+There are seven reasons why <code>InScope</code> might be being called; 
+the <code>scope_reason</code> variable is set to the current one:</p>
+
+<div class="inset"><dl>
+<dt><code>PARSING_REASON</code></dt>
+ <dd>The usual reason. Note that <code>action_to_be</code> holds 
+ <code>NULL</code> in the early stages (before the verb has been decided) 
+ and later on the action which would result from a successful match.</dd>
+<dt><code>TALKING_REASON</code></dt>
+ <dd>Working out which objects are in scope for being spoken to (see 
+ the end of <a href="s18.html">&#167;18</a> for exercises using this).</dd>
+<dt><code>EACHTURN_REASON</code></dt>
+ <dd>When running <code>each_turn</code> routines for anything nearby, 
+ at the end of each turn.</dd>
+<dt><code>REACT_BEFORE_REASON</code></dt>
+ <dd>When running <code>react_before</code>.</dd>
+<dt><code>REACT_AFTER_REASON</code></dt>
+ <dd>When running <code>react_after</code>.</dd>
+<dt><code>TESTSCOPE_REASON</code></dt>
+ <dd>When performing a <code>TestScope</code>.</dd>
+<dt><code>LOOPOVERSCOPE_REASON</code></dt>
+ <dd>When performing a <code>LoopOverScope</code>.</dd>
+</dl></div>
+
+<a id="ex100" name="ex100"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans100">EXERCISE 100</a></b></span><br>
+Construct a long room divided by a glass window. Room descriptions on 
+either side should describe what's in view on the other; the window 
+should be possible to look through; objects on the far side should 
+be in scope, but not manipulable.</p>
+
+<a id="ex101" name="ex101"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans101">EXERCISE 101</a></b></span><br>
+Code the following puzzle. In an initially dark room there is a light 
+switch. Provided you've seen the switch at some time in the past, you 
+can turn it on and off &#8211; but before you've ever seen it, you 
+can't. Inside the room is nothing you can see, but you can hear the 
+distinctive sound of a dwarf breathing. If you tell this dwarf to turn 
+the light on, he will.</p>
+
+<a id="p246" name="p246"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Each object has the ability to drag other objects into 
+scope whenever it is in scope. This is especially useful for giving 
+objects component parts: e.g., giving a washing-machine a temperature 
+dial. (The dial can't be a child object because that would throw it 
+in with the clothes: and it ought to be attached to the machine 
+in case the machine is moved from place to place.) For this purpose, 
+the property <code>add_to_scope</code> may contain a list of objects 
+to add.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Alternatively, it may contain a routine. This routine can then call 
+<code>AddToScope(x)</code> to add any object <code>x</code> to scope. 
+It may not, however, call <code>ScopeWithin</code> or any other scoping 
+routines.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Scope addition does <em>not</em> occur for an object moved into scope 
+by an explicit call to <code>PlaceInScope</code>, since this must 
+allow complete freedom in scope selections. But it does happen when 
+objects are moved in scope by calls to <code>ScopeWithin(domain)</code>.</p>
+
+<a id="ex102" name="ex102"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans102">EXERCISE 102</a></b></span><br>
+(From the tiny example game &#8216;A Nasal Twinge&#8217;.) Give the 
+player a nose, which is always in scope and can be held, reducing 
+the player's carrying capacity.</p>
+
+<a id="ex103" name="ex103"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans103">EXERCISE 103</a></b></span><br>
+(Likewise.) Create a portable sterilising machine, with a &#8220;go&#8221; 
+button, a top which things can be put on and an inside to hold objects 
+for sterilisation. Thus it is a container, a supporter and a possessor 
+of sub-objects all at once.</p>
+
+<a id="ex104" name="ex104"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans104">EXERCISE 104</a></b></span><br>
+Create a red sticky label which the player can affix to any object in 
+the game. (Hint: use <code>InScope</code>, not <code>add_to_scope</code>.)</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+&#8216;Balances&#8217; uses <span class="grammartoken"><code>scope = </code>&#8249;<span class="token">routine</span>&#8250;</span>
+tokens for legible spells and memorised spells. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Jesse Burneko's library extension 
+<tt>&quot;Info.h&quot;</tt> is a helpful model to follow: using a
+simple scope token, it allows for &#8220;consult&#8221; and &#8220;ask&#8221; 
+commands to access topics which are provided as objects. &nbsp;
+<span class="warning"><b>&#8226;</b></span>See also the exercises at the 
+end of <a href="s18.html">&#167;18</a> for further scope trickery. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Similarly, L. Ross Raszewski's 
+<tt>&quot;whatis.h&quot;</tt> (adapted to Inform 6 by Andrew C. Murie) 
+and David Cornelson's <tt>&quot;whowhat.h&quot;</tt> field questions 
+such as &#8220;what is&#8230;&#8221; and &#8220;who is&#8230;&#8221;.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s31.html" title="&#167;31: Tokens of grammar">prev</a> /
+ <a href="s33.html" title="&#167;33: Helping the parser out of trouble">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;28: How nouns are parsed</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s27.html" title="&#167;27: Listing and grouping objects">prev</a> /
+ <a href="s29.html" title="&#167;29: Plural names for duplicated objects">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p216" name="p216"></a>
+<h2>&#167;28 &nbsp; How nouns are parsed</h2>
+
+<blockquote>The Naming of Cats is a difficult matter,<br>
+It isn't just one of your holiday games;<br>
+You may think at first I'm as mad as a hatter<br>
+When I tell you, a cat must have THREE DIFFERENT NAMES.<br>
+&#8212; T. S. Eliot (1888&#8211;1965), <i>The Naming of Cats</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-216_1.jpg" alt=""></span>
+Suppose we have a tomato defined with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">name 'fried' 'green' 'tomato',</pre>
+
+<p class="normal">but which is going to redden later and need to be 
+referred to as &#8220;red tomato&#8221;. The <code>name</code> property 
+holds an array of dictionary words, so that</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+(tomato.#name)/2 == 3
+tomato.&amp;name--&gt;0 == 'fried'
+tomato.&amp;name--&gt;1 == 'green'
+tomato.&amp;name--&gt;2 == 'tomato'
+</pre>
+
+<p class="normal">(Recall that <code>X.#Y</code> tells you the number of 
+<code>-&gt;</code> entries in such a property array, in this case six, 
+so that <code>X.#Y/2</code> tells you the number of <code>--&gt;</code> 
+entries, in this case three.) You are quite free to alter this array 
+during play:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">tomato.&amp;name--&gt;1 = 'red';</pre>
+
+<p class="normal">The down side of this technique is that it's clumsy, 
+when all's said and done, and not so very flexible, because you can't 
+change the length of the <code>tomato.&amp;name</code> array during 
+play. Of course you <em>could</em> define the tomato</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+with name 'fried' 'green' 'tomato' 'blank.' 'blank.' 'blank.'
+          'blank.' 'blank.' 'blank.' 'blank.' 'blank.' 'blank.'
+          'blank.' 'blank.' 'blank.' 'blank.' 'blank.' 'blank.',
+</pre>
+
+<p class="normal">or something similar, giving yourself another (say) 
+fifteen &#8220;slots&#8221; to put new names into, but this is 
+inelegant even by Inform standards. Instead, an object like the tomato 
+can be given a <code>parse_name</code> routine, allowing complete flexibility
+for the designer to specify just what names it does and doesn't match. 
+It is time to begin looking into the parser and how it works.</p>
+
+<a id="p217" name="p217"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The Inform parser has two cardinal principles: 
+firstly, it is designed to be as &#8220;open-access&#8221; as possible, 
+because a parser cannot ever be general enough for every game without 
+being highly modifiable. This means that there are many levels on 
+which you can augment or override what it does. Secondly, it tries
+to be generous in what it accepts from the player, understanding the 
+broadest possible range of commands and making no effort to be strict 
+in rejecting ungrammatical requests. For instance, given a shallow 
+pool nearby, &#8220;examine shallow&#8221; has an adjective without 
+a noun: but it's clear what the player means. In general, all sensible 
+commands should be accepted but it is not important whether or not 
+nonsensical ones are rejected.</p>
+
+<p class="indent">The first thing the parser does is to read in text 
+from the keyboard and break it up into a stream of words: so the text 
+&#8220;wizened man, eat the grey bread&#8221; becomes</p>
+
+<p class="syntax"><tt>wizened</tt> / <tt>man</tt> / <tt>,</tt> / 
+<tt>eat</tt> / <tt>the</tt> / <tt>grey</tt> / <tt>bread</tt></p>
+
+<p class="normal">and these words are numbered from 1. At all times 
+the parser keeps a &#8220;word number&#8221; marker to keep its place 
+along this line, and this is held in the variable <code>wn</code>. 
+The routine <code>NextWord()</code> returns the word at the current 
+position of the marker, and moves it forward, i.e., adds 1 to <code>wn</code>. 
+For instance, the parser may find itself at word 6 and trying to 
+match &#8220;grey bread&#8221; as the name of an object. Calling 
+<code>NextWord()</code> returns the value <code>'grey'</code> and 
+calling it again gives <code>'bread'</code>.</p>
+
+<p class="indent">Note that if the player had mistyped &#8220;grye bread&#8221;, 
+&#8220;grye&#8221; being a word which isn't mentioned anywhere in the 
+program or created by the library, then <code>NextWord()</code> returns 
+0 for &#8216;not in the dictionary&#8217;. Inform creates the dictionary 
+of a story file by taking all the <code>name</code> words of objects, all 
+the verbs and prepositions from grammar lines, and all the words used 
+in constants like <code>'frog'</code> written in the source code, 
+and then sorting these into alphabetical order.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+However, the story file's dictionary only has 9-character resolution. 
+(And only 6 if Inform has been told to compile an early-model story 
+file: see <a href="s45.html">&#167;45</a>.) Thus the values of 
+<code>'polyunsaturate'</code> and <code>'polyunsaturated'</code> 
+are equal. Also, upper case and lower case letters are considered the 
+same. Although dictionary words are permitted to contain numerals 
+or typewriter symbols like <code>-</code>, <code>:</code> or 
+<code>/</code>, these cost as much as two ordinary letters, so 
+<code>'catch-22'</code> looks the same as <code>'catch-2'</code> or 
+<code>'catch-207'</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+A dictionary word can even contain spaces, full stops or commas, but 
+if so it is &#8216;untypeable&#8217;. For instance, <code>'in,out'</code> 
+is an untypeable word because if the player were to type something 
+like &#8220;go in,out&#8221;, the text would be broken up into four 
+words, <code>go</code> / 
+<a id="p218" name="p218"></a>
+<code>in</code> / <code>,</code> / <code>out</code>. 
+Thus <code>'in,out'</code> may be in the story file's dictionary but 
+it will never match against any word of what the player typed. Surprisingly, 
+this can be useful, as it was at the end of <a href="s18.html">&#167;18</a>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Since the story file's dictionary isn't always perfect, 
+there is sometimes no alternative but to actually look at the player's 
+text one character at a time: for instance, to check that a 12-digit 
+phone number has been typed correctly and in full.</p>
+
+<p class="indent">The routine <code>WordAddress(wordnum)</code> returns 
+a byte array of the characters in the word, and <code>WordLength(wordnum)</code> 
+tells you how many characters there are in it. Given the above example 
+text of &#8220;wizened man, eat the grey bread&#8221;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+WordLength(4) == 3
+WordAddress(4)-&gt;0 == 'e'
+WordAddress(4)-&gt;1 == 'a'
+WordAddress(4)-&gt;2 == 't'
+</pre>
+
+<p class="normal">because word number 4 is &#8220;eat&#8221;. (Recall 
+that the comma is considered as a word in its own right.)</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The parser provides a basic routine for comparing a word against the 
+texts <code>'0'</code>, <code>'1'</code>, <code>'2'</code>, &#8230;, 
+<code>'9999'</code>, <code>'10000'</code> or, in other words, against 
+small numbers. This is the library routine <code>TryNumber(wordnum)</code>, 
+which tries to parse the word at <code>wordnum</code> as a number and 
+returns that number, if it finds a match. Besides numbers written 
+out in digits, it also recognises the texts <code>'one'</code>, 
+<code>'two'</code>, <code>'three'</code>, &#8230;, <code>'twenty'</code>. 
+If it fails to recognise the text as a number, it returns &#8722;1,000; 
+if it finds a number greater than 10,000, it rounds down and returns 
+10,000.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">To return to the naming of objects, the parser normally 
+recognises any arrangement of some or all of the <code>name</code> words of an 
+object as a noun which refers to it: and the more words, the better the 
+match is considered to be. Thus &#8220;fried green tomato&#8221; is 
+a better match than &#8220;fried tomato&#8221; or &#8220;green tomato&#8221; 
+but all three are considered to match. On the other hand, so is 
+&#8220;fried green&#8221;, and &#8220;green green tomato green fried 
+green&#8221; is considered a very good match indeed. The method is quick 
+and good at understanding a wide variety of sensible texts, though 
+poor at throwing out foolish ones. (An example of the parser's strategy 
+of being generous rather than strict.) To be more precise, here is what 
+happens when the parser wants to match some text against an object:</p>
+
+<a id="p219" name="p219"></a>
+<ol style="list-style-type:decimal">
+<li>If the object provides a <code>parse_name</code> routine, ask 
+this routine to determine how good a match there is.</li>
+<li>If there was no <code>parse_name</code> routine, or if there was 
+but it returned &#8722;1, ask the entry point routine <code>ParseNoun</code>, 
+if the game has one, to make the decision.</li>
+<li>If there was no <code>ParseNoun</code> entry point, or if there 
+was but it returned &#8722;1, look at the <code>name</code> of the object 
+and match the longest possible sequence of words given in the <code>name</code>.</li>
+</ol>
+
+<p class="normal">So: a <code>parse_name</code> routine, if provided, 
+is expected to try to match as many words as possible starting from 
+the current position of <code>wn</code> and reading them in one at 
+a time using the <code>NextWord()</code> routine. Thus it must not stop 
+just because the first word makes sense, but must keep reading and find 
+out how many words in a row make sense. It should return:
+
+<p class="lynxonly"></p>
+<div class="inset"><table>
+<tr><td>0</td><td>&nbsp; if the text didn't make any sense at all,</td></tr>
+<tr><td><i>k</i></td><td>&nbsp; if <i>k</i> words in a row of the text seem to refer to the 
+object, or</td></tr>
+<tr><td>&#8722;1</td><td>&nbsp; to tell the parser it doesn't want to decide 
+after all.</td></tr>
+</table></div>
+
+<p class="normal">The word marker <code>wn</code> can be left anywhere 
+afterwards. For example, here is the fried tomato with which this section 
+started:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+parse_name [ n colour;
+    if (self.ripe) colour = 'red'; else colour = 'green';
+    while (NextWord() == 'tomato' or 'fried' or colour) n++;
+    return n;
+],
+</pre>
+
+<p class="normal">The effect of this is that if <code>tomato.ripe</code> is 
+true then the tomato responds to the names &#8220;tomato&#8221;, &#8220;fried&#8221; 
+and &#8220;red&#8221;, and otherwise to &#8220;tomato&#8221;, &#8220;fried&#8221;
+and &#8220;green&#8221;.</p>
+
+<p class="indent">As a second example of how <code>parse_name</code> can 
+be useful, suppose you define:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; &quot;fly in amber&quot;
+  with name 'fly' 'in' 'amber';
+</pre>
+
+<p class="normal">If the player then types &#8220;put fly in amber in 
+hole&#8221;, the parser will be thrown, because it will think &#8220;fly 
+in amber in&#8221; is all just naming the object and then it won't 
+know what the word &#8220;hole&#8221; is doing at the end. However:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; &quot;fly in amber&quot;
+  with parse_name [;
+           if (NextWord() ~= 'fly' or 'amber') return 0;
+           if (NextWord() == 'in' &amp;&amp; NextWord() == 'amber')
+               return 3;
+           return 1;
+       ];
+</pre>
+
+<a id="p220" name="p220"></a>
+<p class="normal">Now the word &#8220;in&#8221; is only recognised as 
+part of the fly's name if it is followed by the word &#8220;amber&#8221;, 
+and the ambiguity goes away. (&#8220;amber in amber&#8221; is also 
+recognised, but then it's not worth the bother of excluding.)</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+<code>parse_name</code> is also used to spot plurals: see 
+<a href="s29.html">&#167;29</a>.</p>
+
+<a id="ex71" name="ex71"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans71">EXERCISE 71</a></b></span><br>
+Rewrite the tomato's <code>parse_name</code> to insist that the adjectives 
+must come before the noun, which must be present.</p>
+
+<a id="ex72" name="ex72"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans72">EXERCISE 72</a></b></span><br>
+Create a musician called Princess who, when kissed, is transformed 
+into &#8220;<tt>/?%?/</tt> (the artiste formerly known as Princess)&#8221;.</p>
+
+<a id="ex73" name="ex73"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans73">EXERCISE 73</a></b></span><br>
+Construct a drinks machine capable of serving cola, coffee or tea, 
+using only one object for the buttons and one for the possible drinks.</p>
+
+<a id="ex74" name="ex74"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans74">EXERCISE 74</a></b></span><br>
+Write a <code>parse_name</code> routine which looks through <code>name</code>
+in just the way that the parser would have done anyway if there hadn't 
+been a <code>parse_name</code> in the first place.</p>
+
+<a id="ex75" name="ex75"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans75">EXERCISE 75</a></b></span><br>
+Some adventure game parsers split object names into &#8216;adjectives&#8217; 
+and &#8216;nouns&#8217;, so that only the pattern &#8249;<span class="token">0 or more adjectives</span>&#8250;
+&#8249;<span class="token">1 or more nouns</span>&#8250; is recognised. Implement this.</p>
+
+<a id="ex76" name="ex76"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans76">EXERCISE 76</a></b></span><br>
+During debugging it sometimes helps to be able to refer to objects by 
+their internal numbers, so that &#8220;put object 31 on object 5&#8221; 
+would work. Implement this.</p>
+
+<a id="ex77" name="ex77"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans77">EXERCISE 77</a></b></span><br>
+How could the word &#8220;<tt>#</tt>&#8221; be made a wild-card, 
+meaning &#8220;match any single object&#8221;?</p>
+
+<a id="ex78" name="ex78"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans78">EXERCISE 78</a></b></span><br>
+And how could &#8220;<tt>*</tt>&#8221; be a wild-card for &#8220;match 
+any collection of objects&#8221;? (Note: you need to have read 
+<a href="s29.html">&#167;29</a> to answer this.)</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+Straightforward <code>parse_name</code> examples are the chess pieces 
+object and the kittens class of &#8216;Alice Through the Looking-Glass&#8217;. 
+Lengthier ones are found in &#8216;Balances&#8217;, especially 
+in the white cubes class. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Miron Schmidt's library 
+extension <tt>&quot;calyx_adjectives.h&quot;</tt>, based on earlier 
+work by Andrew Clover, provides for objects to have &#8220;adnames&#8221; 
+as well as &#8220;names&#8221;: &#8220;adnames&#8221; are usually 
+adjectives, and are regarded as being less good 
+<a id="p221" name="p221"></a>
+matches for an object 
+than &#8220;names&#8221;. In this system &#8220;get string&#8221; 
+would take either a string bag or a ball of string, but if both were 
+present would take the ball of string, because &#8220;string&#8221; 
+is in that case a noun rather than an adjective.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s27.html" title="&#167;27: Listing and grouping objects">prev</a> /
+ <a href="s29.html" title="&#167;29: Plural names for duplicated objects">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

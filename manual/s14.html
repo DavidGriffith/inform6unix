@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;14: Switchable objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s13.html" title="&#167;13: Doors">prev</a> /
+ <a href="s15.html" title="&#167;15: Things to enter, travel in and push around">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p135" name="p135"></a>
+<h2>&#167;14 &nbsp; Switchable objects</h2>
+
+<blockquote>Steven: &#8216;Well, what does this do?&#8217;
+Doctor: &#8216;That is the dematerialising control. And that over yonder 
+is the horizontal hold. Up there is the scanner, these are the doors, 
+that is a chair with a panda on it. Sheer poetry, dear boy. Now please 
+stop bothering me.&#8217;<br>
+&#8212; Dennis Spooner, <i>The Time Meddler</i> (a <i>Doctor Who</i> 
+serial, 1965)</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-135_1.jpg" alt=""></span>
+A <code>switchable</code> object is one which can be switched off or 
+on, usually because it has some obvious button, lever or switch on it. 
+The object has the attribute <code>on</code> if it's on, and doesn't 
+have it if it's off. (So there's no attribute called <code>off</code>, 
+just as there's no attribute called <code>closed</code>.) 
+The actions <code>SwitchOn</code> and <code>SwitchOff</code> allow 
+the player to manipulate anything which is <code>switchable</code>. 
+For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object searchlight &quot;Gotham City searchlight&quot; skyscraper
+  with name 'search' 'light' 'searchlight' 'template',
+       article &quot;the&quot;,
+       description &quot;It has some kind of template on it.&quot;,
+       when_on &quot;The old city searchlight shines out a bat against
+           the feather-clouds of the darkening sky.&quot;,
+       when_off &quot;The old city searchlight, neglected but still
+           functional, sits here.&quot;
+  has  switchable static;
+</pre>
+
+<p class="normal">Something more portable would come in handy for the 
+explorer of &#8216;Ruins&#8217;, who would hardly have embarked on 
+his expedition without a decent lamp:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object sodium_lamp &quot;sodium lamp&quot;
+  with name 'sodium' 'lamp' 'heavy',
+       describe [;
+           if (self has on)
+               &quot;^The sodium lamp squats on the ground, burning away.&quot;;
+           &quot;^The sodium lamp squats heavily on the ground.&quot;;
+       ],
+       battery_power 100,
+       before [;
+           Examine: print &quot;It is a heavy-duty archaeologist's lamp, &quot;;
+               if (self hasnt on) &quot;currently off.&quot;;
+               if (self.battery_power &lt; 10) &quot;glowing a dim yellow.&quot;;
+               &quot;blazing with brilliant yellow light.&quot;;
+           Burn: &lt;&lt;SwitchOn self&gt;&gt;;<a id="p136" name="p136"></a>
+           SwitchOn:
+               if (self.battery_power &lt;= 0)
+                   &quot;Unfortunately, the battery seems to be dead.&quot;;
+               if (parent(self) hasnt supporter
+                   &amp;&amp; self notin location)
+                   &quot;The lamp must be securely placed before being
+                   lit.&quot;;
+           Take, Remove:
+               if (self has on)
+                   &quot;The bulb's too delicate and the metal handle's too
+                   hot to lift the lamp while it's switched on.&quot;;
+       ],
+       after [;
+           SwitchOn: give self light;
+           SwitchOff: give self ~light;
+       ],
+  has  switchable;
+</pre>
+
+<p class="normal">The &#8216;Ruins&#8217; lamp will eventually be a 
+little more complicated, with a daemon to make the battery power run 
+down and to extinguish the lamp when it runs out; and it will be pushable 
+from place to place, making it not quite as useless as the player 
+will hopefully think at first.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The reader may be wondering why the lamp needs to use a <code>describe</code> 
+routine to give itself a description varying with its condition: why 
+not simply write the following?</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+when_off &quot;The sodium lamp squats heavily on the ground.&quot;,
+when_on &quot;The sodium lamp squats on the ground, burning away.&quot;,
+</pre>
+
+<p class="aside">The answer is that <code>when_on</code> and <code>when_off</code> 
+properties, like <code>initial</code>, only apply until an object 
+has been held by the player, after which it is normally given only a 
+perfunctory mention in room descriptions. 
+&#8220;You can also see a sodium lamp here.&#8221; As the <code>describe</code> 
+property has priority over the whole business of how objects are described 
+in room descriptions, the above ensures that the full message always 
+appears even if the object has become old and familiar. For much more 
+on room descriptions, see <a href="s26.html">&#167;26</a>.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+The original switchable object was the brass lamp from &#8216;Advent&#8217;, 
+which even provides verbs &#8220;on&#8221; and &#8220;off&#8221; to 
+switch it. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Jayson Smith's library extension 
+<tt>&quot;links.h&quot;</tt> imitates a set of gadgets found in Andrew 
+Plotkin's game &#8216;Spider and Web&#8217;. In this scheme, &#8220;linkable&#8221; 
+machines only work when linked to &#8220;actuators&#8221;, which are 
+switches of different kinds (remote controls, attachable push-buttons 
+and so on).</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s13.html" title="&#167;13: Doors">prev</a> /
+ <a href="s15.html" title="&#167;15: Things to enter, travel in and push around">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

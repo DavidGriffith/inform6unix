@@ -1,0 +1,439 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;18: Making conversation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s17.html" title="&#167;17: People and animals">prev</a> /
+ <a href="s19.html" title="&#167;19: The light and the dark">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p148" name="p148"></a>
+<h2>&#167;18 &nbsp; Making conversation</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-148_1.jpg" alt=""></span>
+To listen is far harder than to speak. This section overlaps with
+<a href="ch4.html">Chapter IV</a>, the chapter on parsing text, 
+and the later exercises are among the hardest in the book. As the 
+following summary table shows, the simpler ways for the player to 
+speak to people were covered in the previous section: this section 
+is about &#8220;orders&#8221;.</p>
+
+<p class="lynxonly"></p>
+<table style="margin-left:30px;margin-top:1em;margin-bottom:1em;
+ border-top:1px solid black;border-bottom:1px solid black">
+<tr><td style="border-bottom:1px solid black"><i>Example command</i></td>
+ <td valign="bottom" style="border-bottom:1px solid black"><i>Rule</i></td>
+ <td valign="bottom" style="border-bottom:1px solid black"><code>action</code></td>
+ <td valign="bottom" style="border-bottom:1px solid black"><code>noun</code></td>
+ <td valign="bottom" style="border-bottom:1px solid black"><code>second</code></td>
+ <td valign="bottom" style="border-bottom:1px solid black" colspan="2"><i>consult</i></td></tr>
+<tr><td>&#8220;say troll to orc&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Answer</code></td>
+ <td><code>'troll'</code></td>
+ <td><code>orc</code></td>
+ <td>2</td><td>1</td></tr>
+<tr><td>&#8220;answer troll to orc&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Answer</code></td>
+ <td><code>'troll'</code></td> 
+ <td><code>orc</code></td>
+ <td>2</td><td>1</td></tr>
+<tr><td>&#8220;orc, tell me about coins&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Ask</code></td>
+ <td><code>orc</code></td>
+ <td><code>'coins'</code></td>
+ <td>6</td><td>1</td></tr>
+<tr><td>&#8220;ask orc about the big troll&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Ask</code></td>
+ <td><code>orc</code></td>
+ <td><code>'big'</code></td>
+ <td>4</td><td>3</td></tr>
+<tr><td>&#8220;ask orc about wyvern&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Ask</code></td>
+ <td><code>orc</code></td>
+ <td>0</td>
+ <td>4</td><td>1</td></tr>
+<tr><td>&#8220;tell orc about lost troll&#8221;</td>
+ <td><code>life</code></td>
+ <td><code>Tell</code></td>
+ <td><code>orc</code></td>
+ <td><code>'lost'</code></td>
+ <td>4</td><td>2</td></tr>
+<tr><td>&#8220;orc, take axe&#8221;</td>
+ <td><code>order</code></td>
+ <td><code>Take</code></td>
+ <td><code>axe</code></td>
+ <td>0</td>
+ <td colspan="2"></td></tr>
+<tr><td>&#8220;orc, yes&#8221;</td>
+ <td><code>order</code></td>
+ <td><code>Yes</code></td>
+ <td>0</td>
+ <td>0</td>
+ <td colspan="2"></td></tr>
+<tr><td>&#8220;ask orc for the shield&#8221;</td>
+ <td><code>order</code></td>
+ <td><code>Give</code></td>
+ <td><code>shield</code></td>
+ <td><code>player</code></td>
+ <td colspan="2"></td></tr>
+<tr><td>&#8220;orc, troll&#8221;</td>
+ <td><code>order</code></td>
+ <td><code>NotU...</code></td>
+ <td><code>'troll'</code></td> 
+ <td><code>orc</code></td>
+ <td>3</td><td>1</td></tr>
+</table>
+
+<p class="normal">Here we're supposing that the game's dictionary 
+includes &#8220;troll&#8221;, &#8220;orc&#8221; and so forth, but 
+not &#8220;wyvern&#8221;, which is why &#8220;ask orc about wyvern&#8221; 
+results in the action <code>Ask orc 0</code>. The notation <code>NotU...</code>
+is an abbreviation for <code>NotUnderstood</code>, of which more later. 
+The two numbers in the &#8220;consult&#8221; column are the values 
+of <code>consult_from</code> and <code>consult_words</code>, in 
+cases where they are set.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">When the player types in something like &#8220;pilot, 
+fly south&#8221;, addressing an object which has <code>animate</code> or 
+at least <code>talkable</code>, the result is called an &#8216;order&#8217;.</p>
+
+<p class="indent">The order is sent to the pilot's <code>orders</code> property, 
+which may if it wishes comply or react in some other way. Otherwise, 
+the standard game rules will simply print something like &#8220;The 
+pilot has better things to do.&#8221; The &#8216;Ruins&#8217; priest 
+is especially unhelpful:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+orders [;
+    Go: &quot;~I must not leave the Shrine.~&quot;;
+    NotUnderstood: &quot;~You speak in riddles.~&quot;;
+    default: &quot;~It is not your orders I serve.~&quot;;
+],
+</pre>
+
+<p class="normal">The <code>NotUnderstood</code> clause of an <code>orders</code> 
+rule is run when the parser couldn't understand what the player typed: 
+e.g., &#8220;pilot, fly somersaults&#8221;.</p>
+
+<a id="p149" name="p149"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+The Inform library regards 
+the words &#8220;yes&#8221; and &#8220;no&#8221; as being verbs, 
+so it parses &#8220;delores, yes&#8221; into a <code>Yes</code> 
+order. This can be a slight nuisance, as &#8220;say yes to delores&#8221;
+is treated differently: it gets routed through the <code>life</code> 
+routine as an <code>Answer</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+When a <code>NotUnderstood</code> order is being passed to <code>orders</code>, 
+the library sets up some variables to help you parse by hand if you 
+need to. The actual order, say &#8220;fly somersaults&#8221;, becomes 
+a sort of consultation topic, with <code>consult_from</code> and
+<code>consult_words</code> set to the first word number and the number 
+of words. The variable <code>etype</code> holds the parser error that 
+would have been printed out, had it been a command by the player himself. 
+See <a href="s33.html">&#167;33</a>: for instance, the value 
+<code>CANTSEE_PE</code> would mean &#8220;the pilot can't see any 
+such object&#8221;.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+If the <code>orders</code> property returns <code>false</code> or 
+if there wasn't an <code>orders</code> property in the first place, 
+the order is sent on either to the <code>Order:</code> part of the 
+<code>life</code> property, if it was understood, or to the 
+<code>Answer:</code> part, if it wasn't. (This is how all orders 
+used to be processed, and it's retained to avoid making old Inform 
+code go wrong.) If these also return <code>false</code>, a message 
+like &#8220;<i>X</i> has better things to do&#8221; (if understood) 
+or &#8220;There is no reply&#8221; (if not) is finally printed.</p>
+
+<a id="ex27" name="ex27"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans27">EXERCISE 27</a></b></span><br>
+(Cf. &#8216;Starcross&#8217;.) Construct a computer responding to 
+&#8220;computer, theta is 180&#8221;.</p>
+
+<a id="ex28" name="ex28"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans28">EXERCISE 28</a></b></span><br>
+For many designers, <code>Answer</code> and <code>Tell</code> are 
+just too much trouble. How can you make attempts to use these 
+produce a message saying &#8220;To talk to someone, try &#8216;someone,
+something&#8217;.&#8221;?</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">When the player issues a request to an <code>animate</code> or 
+<code>talkable</code> object, they're normally parsed in the standard 
+way. &#8220;avon, take the bracelet&#8221; results in the order 
+<code>Take bracelet</code> being sent to Kerr Avon, just as typing 
+&#8220;take the bracelet&#8221; results in the action <code>Take 
+bracelet</code> passing to the player. The range of text understood 
+is the same, whether or not the person addressed is Avon. Sometimes, 
+though, one would rather that different people understood entirely
+different grammars.</p>
+
+<p class="indent">For instance, consider Zen, the flight computer 
+of an alien spacecraft. It's inappropriate to tell Zen to pick up 
+a teleport bracelet and the crew tend to give commands more like:</p>
+
+<p class="output">&#8220;Zen, set course for Centauro&#8221;<br>
+&#8220;Zen, speed standard by six&#8221;<br>
+&#8220;Zen, scan 360 orbital&#8221;<br>
+&#8220;Zen, raise the force wall&#8221;<br><a id="p150" name="p150"></a>
+&#8220;Zen, clear the neutron blasters for firing&#8221;</p>
+
+<p class="normal">For such commands, an <code>animate</code> or 
+<code>talkable</code> object can if it likes provide a <code>grammar</code> 
+property. This is called at a time when the parser has worked out 
+the object being addressed and has set the variables <code>verb_wordnum</code> 
+and <code>verb_word</code> to the word number of the &#8216;verb&#8217; 
+and its dictionary entry, respectively. For example, in &#8220;orac, 
+operate the teleport&#8221; <code>verb_wordnum</code> would be 3, 
+because the comma counts as a word on its own, and <code>verb_word</code> 
+would be <code>'operate'</code>.</p>
+
+<p class="indent">Once called, the <code>grammar</code> routine can 
+reply to the parser by returning:</p>
+
+<div class="inset"><dl>
+<dt><code>false</code></dt> 
+ <dd>Meaning &#8220;carry on as usual&#8221;.</dd>
+<dt><code>true</code></dt>
+ <dd>Meaning &#8220;you can stop parsing now because I have done 
+ it all, and put the resulting order into the variables <code>action</code>, 
+ <code>noun</code> and <code>second</code>&#8221;.</dd>
+<dt><code>'verb'</code></dt>
+ <dd>Meaning &#8220;don't use the standard game grammar: use the 
+ grammar lines for this verb instead&#8221;.</dd>
+<dt><code>-'verb'</code></dt>
+ <dd>Meaning &#8220;use the grammar lines for this verb, and if none 
+ of them match, use the standard game grammar as usual&#8221;.</dd>
+</dl></div>
+
+<p class="normal">In addition, the <code>grammar</code> routine is 
+free to do some partial parsing of the early words provided it moves 
+on <code>verb_wordnum</code> accordingly to show how much it's got 
+through.</p>
+
+<a id="ex29" name="ex29"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans29">EXERCISE 29</a></b></span><br>
+Implement Charlotte, a little girl who's playing Simon Says (a game 
+in which she only follows your instructions if you remember to 
+say &#8220;Simon says&#8221; in front of them: so she'll disobey 
+&#8220;charlotte, wave&#8221; but obey &#8220;charlotte, simon 
+says wave&#8221;).</p>
+
+<a id="ex30" name="ex30"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans30">EXERCISE 30</a></b></span><br>
+Another of Charlotte's rules is that if you say a number, she has to 
+clap that many times. Can you play?</p>
+
+<a id="ex31" name="ex31"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans31">EXERCISE 31</a></b></span><br>
+Regrettably, Dyslexic Dan has always mixed up the words &#8220;take&#8221; 
+and &#8220;drop&#8221;. Implement him anyway.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+When devising unusual grammars, you sometimes want to define grammar 
+lines that the player can only use when talking to other people. The 
+vile trick to achieve this is to attach these grammar lines to an 
+&#8220;untypeable verb&#8221;, such as <code>'comp,'</code>. This 
+can never match what the player typed because the parser automatically 
+separates the text &#8220;comp,&#8221; into two words, &#8220;comp&#8221; 
+and &#8220;,&#8221;, with a space between them. The same will happen 
+with any word of up to 7 letters followed by a comma or full stop. 
+For instance, here's one way to solve the &#8216;Starcross&#8217; 
+computer exercise, using an untypeable verb:</p>
+
+<p class="lynxonly"></p>
+<a id="p151" name="p151"></a>
+<pre class="code">
+[ Control;
+  switch (NextWord()) {
+      'theta': parsed_number = 1; return GPR_NUMBER;
+      'phi':   parsed_number = 2; return GPR_NUMBER;
+      'range': parsed_number = 3; return GPR_NUMBER;
+      default: return GPR_FAIL;
+  }
+];
+Verb 'comp,' * Control 'is' number -&gt; SetTo;
+</pre>
+
+<p class="aside">(Here, <code>Control</code> is a &#8220;general 
+parsing routine&#8221;: see <a href="s31.html">&#167;31</a>.) 
+The computer itself then needs these properties:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+grammar [; return 'comp,'; ],
+orders [;
+    SetTo:
+        switch (noun) {
+            1: print &quot;~Theta&quot;; 2: print &quot;~Phi&quot;; 3: print &quot;~Range&quot;;
+        }
+        &quot; set to &quot;, second, &quot;.~&quot;;
+    default: &quot;~Does not compute!~&quot;;
+];
+</pre>
+
+<p class="aside">This may not look easier, but it's much more flexible, 
+as the exercises below may demonstrate.</p>
+
+<a id="ex32" name="ex32"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans32">EXERCISE 32</a></b></span><br>
+How can you make a grammar extension to an ordinary verb that will 
+apply only to Dan?</p>
+
+<a id="ex33" name="ex33"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans33">EXERCISE 33</a></b></span><br>
+Make an alarm clock responding to &#8220;alarm, off&#8221;, &#8220;alarm, 
+on&#8221; and &#8220;alarm, half past seven&#8221; (the latter to 
+set its alarm time).</p>
+
+<a id="ex34" name="ex34"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans34">EXERCISE 34</a></b></span><br>
+Implement a tricorder (from Star Trek) which analyses nearby objects 
+on a request like &#8220;tricorder, the quartz stratum&#8221;.</p>
+
+<a id="ex35" name="ex35"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans35">EXERCISE 35</a></b></span><br>
+And, for good measure, a replicator responding to commands like 
+&#8220;replicator, tea earl grey&#8221; and &#8220;replicator, 
+aldebaran brandy&#8221;.</p>
+
+<a id="ex36" name="ex36"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans36">EXERCISE 36</a></b></span><br>
+And a communications badge in contact with the ship's computer, 
+which answers questions like &#8220;computer, where is Admiral Blank&#8221;. 
+(This is best done with &#8220;scope hacking&#8221;, for which see 
+<a href="s32.html">&#167;32</a>.)</p>
+
+<a id="p152" name="p152"></a>
+<a id="ex37" name="ex37"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans37">EXERCISE 37</a></b></span><br>
+Finally, construct the formidable flight computer Zen. (Likewise.)</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+To trump one vile trick with another, untypeable verbs are also 
+sometimes used to create what might be called &#8216;fake fake 
+actions&#8217;. Recall that a fake action is one which is never 
+generated by the parser, and has no action routine. For instance, 
+there's no <code>ThrownAtSub</code>, because <code>ThrownAt</code> 
+is a fake. A fake fake action is a half-measure: it's a full action 
+in every respect, including having an action routine, except that 
+it can never be generated by the parser. The following grammar line 
+creates three of them, called <code>Prepare</code>, <code>Simmer</code> 
+and <code>Cook</code>:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'fakes.' * -&gt; Prepare * -&gt; Simmer * -&gt; Cook;</pre>
+
+<p class="aside">The author is indebted for this terminology to an 
+algebraic geometry seminar by Peter Kronheimer on fake and fake 
+fake K3 surfaces.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Difficult &#8220;someone on the other end of a phone&#8221; situations 
+turn up quite often in one form or another (see, for instance, the 
+opening scene of &#8216;Seastalker&#8217;) and often a quite simple 
+solution is fine. If you just want to make something like 
+&#8220;michael, tell me about the crystals&#8221; work, when Michael 
+is at the other end of the line, give the phone the talkable attribute 
+and make the word 'michael' one of its names. If several people 
+are on the phone at different times, you can always give the phone 
+a <code>parse_name</code> property (see <a href="s28.html">&#167;28</a>) 
+to respond to different names at different times.</p>
+
+<a id="ex38" name="ex38"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans38">EXERCISE 38</a></b></span><br>
+Via the main screen of the Starship Enterprise, Captain Jean-Luc 
+Picard wants to see and talk to Noslen Maharg, the notorious tyrant, 
+who is down on the planet Mrofni. Make it so.</p>
+
+<a id="ex39" name="ex39"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans39">EXERCISE 39</a></b></span><br>
+Put the player in telepathic contact with Martha, who is in a sealed 
+room some distance away, but who has a talent for telekinesis. 
+Martha should respond to &#8220;martha, look&#8221;, &#8220;ask 
+martha about&#8230;&#8221;, &#8220;say yes to martha&#8221;, 
+&#8220;martha, give me the red ball&#8221; and the like.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+A much fuller example of a &#8216;non-player character&#8217; is 
+given in the example game &#8216;The Thief&#8217;, by Gareth Rees 
+(though it's really an implementation of the gentleman in 
+&#8216;Zork I&#8217;, himself an imitation of the pirate in 
+&#8216;Advent&#8217;). The thief is capable of walking around, being 
+followed, stealing things, picking locks, opening doors and so on. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Other good definitions of 
+<code>animate</code> objects to look at are Christopher in 
+&#8216;Toyshop&#8217;, who will stack up building blocks on request; 
+the kittens in &#8216;Alice Through the Looking-Glass&#8217;; the 
+barker in &#8216;Balances&#8217;, and the animals and dwarves of 
+&#8216;Advent&#8217;. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Following 
+<a id="p153" name="p153"></a>
+people means being 
+able to refer to them after they've left the room: see the library
+extension <tt>&quot;follower.h&quot;</tt> by Gareth Rees, Andrew 
+Clover and Neil James Brown. &nbsp;
+<span class="warning"><b>&#8226;</b></span>A wandering character with 
+a destination to aim for needs to be able to navigate from room to 
+room, and possibly through doors. Ideally, a designer should be 
+able to make a simple instruction like &#8220;head for the West 
+Ballroom&#8221; without specifying any route. Two independent library 
+extensions allow this: <tt>&quot;MoveClass.h&quot;</tt>, by Neil James
+Brown and Alan Trewartha, is compatible with <tt>&quot;follower.h&quot;</tt> 
+and is especially strong on handling doors. Volker Lanz's <tt>&quot;NPCEngine&quot;</tt> 
+is designed for what might be called detective-mystery situations, 
+in which the people inside a country house are behaving independently 
+in ways which must frequently be described to the player. &nbsp;
+<span class="warning"><b>&#8226;</b></span>Irene Callaci's <tt>&quot;AskTellOrder.h&quot;</tt> 
+library extension file automatically handles commands in the form 
+&#8220;ask/tell someone to do something&#8221;.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s17.html" title="&#167;17: People and animals">prev</a> /
+ <a href="s19.html" title="&#167;19: The light and the dark">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

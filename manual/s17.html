@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;17: People and animals</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s16.html" title="&#167;16: Reading matter and consultation">prev</a> /
+ <a href="s18.html" title="&#167;18: Making conversation">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p144" name="p144"></a>
+<h2>&#167;17 &nbsp; People and animals</h2>
+
+<blockquote>To know how to live is my trade and my art.<br>
+&#8212; Michel de Montaigne (1533&#8211;1592), <i>Essays</i></blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-144_1.jpg" alt=""></span>
+Living creatures should be given the attribute <code>animate</code> so that the
+library knows such an object can be talked to, given things, woken from 
+sleep and so on. When the player treats an <code>animate</code> object 
+as living in this way, the library calls upon that object's <code>life</code> property.
+This looks like <code>before</code> or <code>after</code>, but only 
+applies to the following actions:</p>
+
+<div class="inset"><dl>
+<dt><code>Attack</code></dt><dd>The player is making hostile advances&#8230;</dd>
+<dt><code>Kiss</code></dt><dd>&#8230; or amorous ones&#8230;</dd> 
+<dt><code>WakeOther</code></dt><dd>&#8230; or simply trying to rouse the creature from sleep.</dd>
+<dt><code>ThrowAt</code></dt><dd>The player asked to throw <code>noun</code> at the creature.</dd>
+<dt><code>Give</code></dt><dd>The player asked to give <code>noun</code> to the creature&#8230;</dd>
+<dt><code>Show</code></dt><dd>&#8230; or, tantalisingly, just to show it.</dd>
+<dt><code>Ask</code></dt><dd>The player asked about something. Just as with a 
+&#8220;consult&#8221; topic (see <a href="s16.html">&#167;16</a> 
+above), the variables <code>consult_from</code> and <code>consult_words</code>
+are set up to indicate which words the object might like to think
+about. (In addition, <code>second</code> holds the dictionary value 
+for the first word which isn't <tt>'the'</tt>, but this is much 
+cruder.)</dd>
+<dt><code>Tell</code></dt><dd>The player is trying to tell the creature about 
+something. The topic is set up just as for <code>Ask</code> (that 
+is, <code>consult_from</code> and <code>consult_words</code> are 
+set, and <code>second</code> also holds the first interesting
+word).</dd>
+<dt><code>Answer</code></dt><dd>This can happen in two ways. One is if the player 
+types &#8220;answer some text to troll&quot; or &#8220;say some text 
+to troll&#8221;; the other is if an order is given which the parser 
+can't sort out, such as &#8220;troll, og south&quot;, and which the 
+<code>orders</code> property hasn't handled already. Once again, 
+variables are set as if it were a &#8220;consult&#8221; topic. 
+(In addition, <code>noun</code> is set to the first word, and an 
+attempt to read the text as a number is stored in the variable 
+<code>special_number</code>: for instance, &#8220;computer, 143&#8221; 
+will cause <code>special_number</code> to be set to 143.)</dd>
+<dt><code>Order</code></dt><dd>This catches any &#8216;orders&#8217; which 
+aren't handled by the <code>orders</code> property (see the next 
+section); <code>action</code>, <code>noun</code> and <code>second</code> 
+are set up as usual.</dd>
+</dl></div>
+
+<a id="p145" name="p145"></a>
+<p class="normal">If the <code>life</code> rule isn't given, or 
+returns <code>false</code>, events take their usual course.
+<code>life</code> rules vary dramatically in size. The coiled snake 
+from &#8216;Balances&#8217; shows that even the tiniest <code>life</code> 
+routine can be adequate for an animal:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object -&gt; snake &quot;hissing snake&quot;
+  with name 'hissing' 'snake',
+       initial &quot;Tightly coiled at the edge of the chasm is a
+           hissing snake.&quot;,
+       life &quot;The snake hisses angrily!&quot;,
+  has  animate;
+</pre>
+
+<p class="normal">It's far from unknown for people in interactive 
+fiction to be almost as simplistic as that, but in most games even 
+relatively passive characters have some ability to speak or react. 
+Here is the funerary priest standing in the &#8216;Ruins&#8217; Shrine:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object priest &quot;mummified priest&quot;
+  with name 'mummified' 'priest',
+       description
+           &quot;He is desiccated and hangs together only by will-power.
+           Though his first language is presumably local Mayan,
+           you have the curious instinct that he will understand
+           your speech.&quot;,
+       initial &quot;Behind the slab, a mummified priest stands waiting,
+           barely alive at best, impossibly venerable.&quot;,
+       life [;
+           Answer: &quot;The priest coughs, and almost falls apart.&quot;;
+           Ask: switch (second) {
+               'dictionary', 'book':
+                   if (dictionary.correct == false)
+                       &quot;~The ~bird~ glyph... very funny.~&quot;;
+                   &quot;~A dictionary? Really?~&quot;;
+               'glyph', 'glyphs', 'mayan', 'dialect':
+                   &quot;~In our culture, the Priests are ever
+                   literate.~&quot;;
+               'lord', 'tomb', 'shrine', 'temple':
+                   &quot;~This is a private matter.~&quot;;
+               'ruins': &quot;~The ruins will ever defeat thieves.
+                   In the underworld, looters are tortured
+                   throughout eternity.~ A pause. ~As are
+                   archaeologists.~&quot;;<a id="p146" name="p146"></a>
+               'web', 'wormcast':
+                   &quot;~No man can pass the Wormcast.~&quot;;
+               'xibalba': if (Shrine.sw_to == Junction)
+                       &quot;The priest shakes his bony finger.&quot;;
+                   Shrine.sw_to = Junction;
+                   &quot;The priest extends one bony finger
+                   southwest toward the icicles, which
+                   vanish like frost as he speaks.
+                   ~Xibalb@'a, the Underworld.~&quot;;
+               }
+               &quot;~You must find your own answer.~&quot;;
+           Tell: &quot;The priest has no interest in your sordid life.&quot;;
+           Attack, Kiss:
+               remove self;
+               &quot;The priest desiccates away into dust until nothing
+               remains, not a breeze nor a bone.&quot;;
+           ThrowAt: move noun to location; &lt;&lt;Attack self&gt;&gt;;
+           Show, Give:
+               if (noun == dictionary &amp;&amp; dictionary.correct == false) {
+                   dictionary.correct = true;
+                   &quot;The priest reads a little of the book, laughing
+                   in a hollow, whispering way. Unable to restrain
+                   his mirth, he scratches in a correction somewhere
+                   before returning the book.&quot;;
+               }
+               &quot;The priest is not interested in earthly things.&quot;;
+       ],
+  has  animate;
+</pre>
+
+<p class="normal">The Priest only stands and waits, but some 
+characters need to move around, or to appear and reappear throughout 
+a game, changing in their responses and what they know. This makes 
+for a verbose object definition full of cross-references to 
+items and places scattered across the source code. An 
+alternative is to use different objects to represent the character 
+at different times or places: in &#8216;Jigsaw&#8217;, for instance, 
+the person called &#8220;Black&#8221; is seven different objects.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Animate objects representing people with proper 
+names, like &#8220;Mark Antony&#8221;, need to be given the <code>proper</code> 
+attribute, and those with feminine names, such as &#8220;Cleopatra&#8221;, 
+need to be both <code>female</code> and <code>proper</code>, 
+though of course history would have been very different if&#8230; 
+Inanimate objects sometimes have proper names, too: Waldeck's 
+Mayan dictionary in <a href="s16.html">&#167;16</a> was given 
+<code>proper</code>. See <a href="s26.html">&#167;26</a> for
+more on naming.</p>
+
+<a id="p147" name="p147"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Some objects are not alive as such, but can still 
+be spoken to: microphones, tape recorders and so on. It would be 
+a nuisance to implement these as <code>animate</code>, since 
+they have none of the other characteristics of life. Instead,
+they can be given just the attribute <code>talkable</code>, making 
+them responsive only to conversation. They have a <code>life</code> property 
+to handle <code>Answer</code> and so on, but it will never be asked 
+to deal with, for instance, <code>Kiss</code>. Talkable objects can 
+also receive orders: see the next section.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Designers often imagine animate objects as 
+being altogether different from things, so it's worth noting that 
+all the usual Inform rules apply equally well to the living. An 
+<code>animate</code> object still has <code>before</code> and 
+<code>after</code> routines like any other, so the short list of 
+possible <code>life</code> rules is not as restrictive as it appears.
+Animate objects can also <code>react_before</code> and 
+<code>react_after</code>, and it's here that these properties really 
+come into their own:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+react_before [;
+    Drop: if (noun == satellite_gadget)
+        print &quot;~I wouldn't do that, Mr Bond,~ says Blofeld.^^&quot;;
+    Shoot: remove beretta;
+        &quot;As you draw, Blofeld snaps his fingers and a giant
+        magnet snatches the gun from your hand. It hits the
+        ceiling with a clang. Blofeld silkily strokes his cat.&quot;;
+];
+</pre>
+
+<p class="normal">If Blofeld moves from place to place, these rules 
+usefully move with him.</p>
+
+<p class="indent">Animate objects often have possessions as part 
+of the game design. Two examples, both from &#8216;The Lurking 
+Horror&#8217;:</p>
+
+<ul>
+<li>an urchin with something bulging inside his jacket pocket;</li>
+<li>a hacker who has a bunch of keys hanging off his belt.</li>
+</ul>
+
+<p class="normal">Recall from <a href="s12.html">&#167;12</a> 
+that the child-objects of an object which isn't a <code>container</code>
+or <code>supporter</code> are outwardly visible only if the object 
+has the <code>transparent</code> attribute. Here, the hacker should 
+have <code>transparent</code> and the urchin not. The parser then 
+prevents the player from referring to whatever the urchin is hiding,
+even if the player has played the game before and knows what is 
+in there.</p>
+
+<a id="ex26" name="ex26"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans26">EXERCISE 26</a></b></span><br>
+Arrange for a bearded psychiatrist to place the player under observation, 
+occasionally mumbling insights such as &#8220;Subject puts green 
+cone on table. Interesting.&#8221;</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s16.html" title="&#167;16: Reading matter and consultation">prev</a> /
+ <a href="s18.html" title="&#167;18: Making conversation">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+
+

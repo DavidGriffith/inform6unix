@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;31: Tokens of grammar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s30.html" title="&#167;30: How verbs are parsed">prev</a> /
+ <a href="s32.html" title="&#167;32: Scope and what you can see">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p232" name="p232"></a>
+<h2>&#167;31 &nbsp; Tokens of grammar</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-232_1.jpg" alt=""></span>
+The complete list of grammar tokens is given in the table below.
+These tokens are all described in this section except for
+<span class="grammartoken"><code>scope&nbsp;=&nbsp;</code>&#8249;<span class="token">Routine</span>&#8250;</span>, 
+which is postponed to the next.</p>
+
+<!-- editing note: cellpadding is necessary, or the grammartoken boxes get sheared in IE -->
+<p class="lynxonly"></p>
+<div class="inset"><table cellspacing="4" cellpadding="4">
+<tr><td><span class="grammartoken"><code>'</code>&#8249;<span class="token">word</span>&#8250;<code>'</code></span></td>
+ <td>that literal word only</td></tr>
+<tr><td><span class="grammartoken"><code>noun</code></span></td>
+ <td>any object in scope</td></tr>
+<tr><td><span class="grammartoken"><code>held</code></span></td>
+ <td>object held by the actor</td></tr>
+<tr><td><span class="grammartoken"><code>multi</code></span></td>
+ <td>one or more objects in scope</td></tr>
+<tr><td><span class="grammartoken"><code>multiheld</code></span></td>
+ <td>one or more held objects</td></tr>
+<tr><td><span class="grammartoken"><code>multiexcept</code></span></td>
+ <td>one or more in scope, except the other object</td></tr>
+<tr><td><span class="grammartoken"><code>multiinside</code></span></td>
+ <td>one or more in scope, inside the other object</td></tr>
+<tr><td><span class="grammartoken">&#8249;<span class="token">attribute</span>&#8250;</span></td>
+ <td>any object in scope which has the attribute</td></tr>
+<tr><td><span class="grammartoken"><code>creature</code></span></td>
+ <td>an object in scope which is <code>animate</code></td></tr>
+<tr><td><span class="grammartoken"><code>noun = </code>&#8249;<span class="token">Routine</span>&#8250;</span></td>
+ <td>any object in scope passing the given test</td></tr>
+<tr><td><span class="grammartoken"><code>scope = </code>&#8249;<span class="token">Routine</span>&#8250;</span></td>
+ <td>an object in this definition of scope</td></tr>
+<tr><td><span class="grammartoken"><code>number</code></span></td>
+ <td>a number only</td></tr>
+<tr><td><span class="grammartoken">&#8249;<span class="token">Routine</span>&#8250;</span></td>
+ <td>any text accepted by the given routine</td></tr>
+<tr><td><span class="grammartoken"><code>topic</code></span></td>
+ <td>any text at all</td></tr>
+</table></div>
+
+<p class="normal">To recap, the parser goes through a line of grammar 
+tokens trying to match each against some text from the player's input. 
+Each token that matches must produce one of the following five results:</p>
+
+<ol type="a">
+<li>a single object;</li>
+<li>a &#8220;multiple object&#8221;, that is, a set of objects;</li>
+<li>a number;</li>
+<li>a &#8220;consultation topic&#8221;, that is, a collection of words 
+left unparsed to be looked through later;</li>
+<li>no information at all.
+</ol>
+
+<p class="normal">Ordinarily, a single line, though it may contain many 
+tokens, can produce at most two substantial results ((a) to (d)), 
+at most one of which can be multiple 
+<a id="p233" name="p233"></a>
+(b). (See the exercises below 
+if this is a problem.) For instance, suppose the text &#8220;green 
+apple on the table&#8221; is parsed against the grammar line:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">* multi 'on' noun -&gt; Insert</pre>
+
+<p class="normal">The <span class="grammartoken"><code>multi</code></span> 
+token matches &#8220;green apple&#8221; (result: a single object, since
+although <span class="grammartoken"><code>multi</code></span> can match 
+a multiple object, it doesn't have to), <span class="grammartoken"><code>'on'</code></span>
+matches &#8220;on&#8221; (result: nothing) and the second 
+<span class="grammartoken"><code>noun</code></span> token matches 
+&#8220;the table&#8221; (result: a single object again). There are two 
+substantial results, both objects, so the action that comes out is 
+<code>&lt;Insert apple table&gt;</code>. If the text had been &#8220;all 
+the fruit on the table&#8221;, the <span class="grammartoken"><code>multi</code></span> 
+token might have resulted in a list: perhaps of an apple, an orange 
+and a pear. The parser would then have generated and run through three 
+actions in turn: <code>&lt;Insert apple table&gt;</code>, then
+<code>&lt;Insert orange table&gt;</code> and finally 
+<code>&lt;Insert pear table&gt;</code>, printing out the name of each 
+item and a colon before running the action:</p>
+
+<p class="output">&gt;<tt>put all the fruit on the table</tt><br>
+Cox's pippin: Done.<br>
+orange: Done.<br>
+Conference pear: Done.</p>
+
+<p class="normal">The library's routine <code>InsertSub</code>, which 
+actually handles the action, only deals with single objects at a time, 
+and in each case it printed &#8220;Done.&#8221;</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="tokendef"><span class="grammartoken"><code>'</code>&#8249;<span class="token">word</span>&#8250;<code>'</code></span>
+&nbsp; &nbsp; This matches only the literal word given, sometimes called 
+a preposition because it usually is one, and produces no resulting 
+information. (There can therefore be as many or as few of them on a 
+grammar line as desired.) It often happens that several prepositions really 
+mean the same thing for a given verb: for instance &#8220;in&#8221;, 
+&#8220;into&#8221; and &#8220;inside&#8221; are often synonymous.
+As a convenient shorthand, then, you can write a series of prepositions 
+(only) with slashes <code>/</code> in between, to mean &#8220;one of 
+these words&#8221;. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">* noun 'in'/'into'/'inside' noun -&gt; Insert</pre>
+
+<p class="tokendef"><span class="grammartoken"><code>noun</code></span>
+&nbsp; &nbsp; Matches any single object &#8220;in scope&#8221;, a 
+term defined in the next section and which roughly means &#8220;visible 
+to the player at the moment&#8221;.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>held</code></span>
+&nbsp; &nbsp; Matches any single object which is an immediate possession 
+of the actor. (Thus, if a key is inside a box being carried by the actor, 
+the box might match but the key cannot.) This is convenient for two reasons. Firstly, 
+<a id="p234" name="p234"></a>
+many actions, such as <code>Eat</code> or <code>Wear</code>, 
+only sensibly apply to things being held. Secondly, suppose we have grammar</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'eat' * held -&gt; Eat;</pre>
+
+<p class="normal">and the player types &#8220;eat the banana&#8221; while 
+the banana is, say, in plain view on a shelf. It would be petty of the 
+game to refuse on the grounds that the banana is not being held. 
+So the parser will generate a <code>Take</code> action for the banana 
+and then, if the <code>Take</code> action succeeds, an <code>Eat</code>
+action. Notice that the parser does not just pick up the object, but 
+issues an action in the proper way &#8211; so if the banana had rules 
+making it too slippery to pick up, it won't be picked up. This is 
+called &#8220;implicit taking&#8221;, and happens only for the player, 
+not for other actors.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>multi</code></span>
+&nbsp; &nbsp; Matches one or more objects in scope. The 
+<span class="grammartoken"><code>multi-</code></span> tokens indicate 
+that a list of one or more objects can go here. The parser works out
+all the things the player has asked for, sorting out plural nouns and 
+words like &#8220;except&#8221; in the process. For instance, &#8220;all 
+the apples&#8221; and &#8220;the duck and the drake&#8221; could match 
+a <span class="grammartoken"><code>multi</code></span> token but not 
+a <span class="grammartoken"><code>noun</code></span> token.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>multiexcept</code></span>
+&nbsp; &nbsp; Matches one or more objects in scope, except that it does
+not match the other single object parsed in the same grammar line. This 
+is provided to make commands like &#8220;put everything in the rucksack&#8221; 
+come out right: the &#8220;everything&#8221; is matched by all of the 
+player's possessions except the rucksack, which stops the parser from 
+generating an action to put the rucksack inside itself.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>multiinside</code></span>
+&nbsp; &nbsp; Similarly, this matches anything inside the other single
+object parsed on the same grammar line, which is good for parsing 
+commands like &#8220;remove everything from the cupboard&#8221;.</p>
+
+<p class="tokendef"><span class="grammartoken">&#8249;<span class="token">attribute</span>&#8250;</span>
+&nbsp; &nbsp; Matches any object in scope which has the given attribute.
+This is useful for sorting out actions according to context, and perhaps 
+the ultimate example might be an old-fashioned &#8220;use&#8221; verb:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Verb 'use' 'employ' 'utilise'
+    * edible    -&gt; Eat
+    * clothing  -&gt; Wear
+    ...
+    * enterable -&gt; Enter;
+</pre>
+
+<a id="p235" name="p235"></a>
+<p class="tokendef"><span class="grammartoken"><code>creature</code></span>
+&nbsp; &nbsp; Matches any object in scope which behaves as if living. 
+This normally means having <code>animate</code>: but, as an exceptional 
+rule, if the action on the grammar line is <code>Ask</code>, 
+<code>Answer</code>, <code>Tell</code> or <code>AskFor</code> then 
+having <code>talkable</code> is also acceptable.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>noun = </code>&#8249;<span class="token">Routine</span>&#8250;</span>
+&nbsp; &nbsp; &#8220;Any single object in scope satisfying some condition&#8221;. 
+When determining whether an object passes this test, the parser sets the 
+variable <code>noun</code> to the object in question and calls the routine. 
+If it returns <code>true</code>, the parser accepts the object, and 
+otherwise it rejects it. For example, the following should only apply 
+to animals kept in a cage:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ CagedCreature;
+  if (noun in wicker_cage) rtrue; rfalse;
+];
+Verb 'free' 'release'
+     * noun=CagedCreature -&gt; FreeAnimal;
+</pre>
+
+<p class="normal">So that only nouns which pass the <code>CagedCreature</code> 
+test are allowed. The <code>CagedCreature</code> routine can appear anywhere 
+in the source code, though it's tidier to keep it nearby.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>scope = </code>&#8249;<span class="token">Routine</span>&#8250;</span>
+&nbsp; &nbsp; An even more powerful token, which means &#8220;an object 
+in scope&#8221; where scope is redefined specially. You can also choose
+whether or not it can accept a multiple object. See <a href="s32.html">&#167;32</a>.</p>
+
+<p class="tokendef"><span class="grammartoken"><code>number</code></span>
+&nbsp; &nbsp; Matches any decimal number from 0 upwards (though it rounds
+off large numbers to 10,000), and also matches the numbers &#8220;one&#8221; 
+to &#8220;twenty&#8221; written in English. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Verb 'type' * number -&gt; TypeNum;</pre>
+
+<p class="normal">causes actions like <code>&lt;Typenum 504&gt;</code> when 
+the player types &#8220;type 504&#8221;. Note that <code>noun</code> is 
+set to 504, not to an object. (While <code>inp1</code> is set to 1, 
+indicating that this &#8220;first input&#8221; is intended as a number: 
+if the noun had been the object which happened to have number 504, 
+then <code>inp1</code> would have been set to this object, the same 
+as <code>noun</code>.) If you need more exact number parsing, without
+rounding off, and including negative numbers, see the exercise below.</p>
+
+<a id="p236" name="p236"></a>
+<a id="ex83" name="ex83"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans83">EXERCISE 83</a></b></span><br>
+Some games, such as David M. Baggett's game &#8216;The Legend Lives!&#8217; 
+produce footnotes every now and then. Arrange matters so that these 
+are numbered <code>[1]</code>, <code>[2]</code> and so on in order 
+of appearance, to be read by the player when &#8220;footnote 1&#8221; 
+is typed.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+The entry point <code>ParseNumber</code> allows you to provide your 
+own number-parsing routine, which opens up many sneaky possibilities &#8211; 
+Roman numerals, coordinates like &#8220;J4&#8221;, very long telephone 
+numbers and so on. This takes the form</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ ParseNumber buffer length;
+  ...returning false if no match is made, or the number otherwise...
+];
+</pre>
+
+<p class="aside">and examines the supposed &#8216;number&#8217; held 
+at the byte address <code>buffer</code>, a row of characters of the 
+given length. If you provide a <code>ParseNumber</code> routine but 
+return <code>false</code> from it, then the parser falls back on 
+its usual number-parsing mechanism to see if that does any better.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Note that <code>ParseNumber</code> can't return 0 to mean the number 
+zero, because 0 is the same as <code>false</code>. Probably 
+&#8220;zero&#8221; won't be needed too often, but if it is you can always
+return some value like 1000 and code the verb in question to understand 
+this as 0. (Sorry: this was a poor design decision made too long ago 
+to change now.)</p>
+
+<p class="tokendef"><span class="grammartoken"><code>topic</code></span>
+&nbsp; &nbsp; This token matches as much text as possible, regardless 
+of what it says, producing no result. As much text as possible means 
+&#8220;until the end of the typing, or, if the next token is a 
+preposition, until that preposition is reached&#8221;. The only way 
+this can fail is if it finds no text at all. Otherwise, the variable
+<code>consult_from</code> is set to the number of the first word of the 
+matched text and <code>consult_words</code> to the number of words. 
+See <a href="s16.html">&#167;16</a> and <a href="s18.html">&#167;18</a> 
+for examples of topics being used.</p>
+
+<p class="tokendef"><span class="grammartoken">&#8249;<span class="token">Routine</span>&#8250;</span>
+&nbsp; &nbsp; The most flexible token is simply the name of a &#8220;general
+parsing routine&#8221;. As the name suggests, it is a routine to do some 
+parsing which can have any outcome you choose, and many of the interesting 
+things you can do with the parser involve writing one. A general parsing 
+routine looks at the word stream using <code>NextWord</code> and 
+<code>wn</code> (see <a href="s28.html">&#167;28</a>) to make its decisions, 
+and should return one of the following. Note that the values beginning 
+<code>GPR_</code> are constants defined by the library.</p>
+
+<p class="lynxonly"></p>
+<div class="inset"><table>
+<tr><td><code>GPR_FAIL</code></td><td>if there is no match;</td></tr>
+<tr><td><code>GPR_MULTIPLE</code></td><td>if the result is a multiple object;</td></tr>
+<tr><td><code>GPR_NUMBER</code></td><td>if the result is a number;</td></tr>
+<tr><td><code>GPR_PREPOSITION</code></td><td>if there is a match but no result;</td></tr>
+<tr><td><a id="p237" name="p237"></a><code>GPR_REPARSE</code></td><td>to reparse the whole command from scratch; or</td></tr>
+<tr><td><i>O</i></td><td>if the result is a single object <i>O</i>.</td></tr>
+</table></div>
+
+<p class="normal">On an unsuccessful match, returning <code>GPR_FAIL</code>, 
+it doesn't matter what the final value of <code>wn</code> is. On a 
+successful match it should be left pointing to the next thing <em>after</em> 
+what the routine understood. Since <code>NextWord</code> moves <code>wn</code> 
+on by one each time it is called, this happens automatically unless 
+the routine has read too far. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ OnAtorIn;
+  if (NextWord() == 'on' or 'at' or 'in') return GPR_PREPOSITION;
+  return GPR_FAIL;
+];
+</pre>
+
+<p class="normal">duplicates the effect of 
+<span class="grammartoken"><code>'on'/'at'/'in'</code></span>, 
+that is, it makes a token which accepts any of the words &#8220;on&quot;, 
+&#8220;at&quot; or &#8220;in&quot; as prepositions. Similarly,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ Anything;
+  while (NextWordStopped() ~= -1) ; return GPR_PREPOSITION;
+];
+</pre>
+
+<p class="normal">accepts the entire rest of the line (even an empty 
+text, if there are no more words on the line), ignoring it. 
+<code>NextWordStopped</code> is a form of <code>NextWord</code> which
+returns the special value &#8722;1 once the original word stream has 
+run out.</p>
+
+<p class="indent">If you return <code>GPR_NUMBER</code>, the number 
+which you want to be the result should be put into the library's 
+variable <code>parsed_number</code>.</p>
+
+<p class="indent">If you return <code>GPR_MULTIPLE</code>, place your 
+chosen objects in the table <code>multiple_object</code>: that is, 
+place the number of objects in <code>multiple_object--&gt;0</code> 
+and the objects themselves in <code>--&gt;1</code>, &#8230;</p>
+
+<p class="indent">The value <code>GPR_REPARSE</code> should only be 
+returned if you have actually altered the text you were supposed to be 
+parsing. This is a feature used internally by the parser when it asks 
+&#8220;Which do you mean&#8230;?&#8221; questions, and you can use 
+it too, but be wary of loops in which the parser eternally changes
+and reparses the same text.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+To parse a token, the parser uses a routine called <code>ParseToken</code>. 
+This behaves almost exactly like a general parsing routine, and returns 
+the same range of values. For instance,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">ParseToken(ELEMENTARY_TT, NUMBER_TOKEN)</pre>
+
+<a id="p238" name="p238"></a>
+<p class="aside">parses exactly as <span class="grammartoken"><code>number</code></span> 
+does: similarly for <code>NOUN_TOKEN</code>, <code>HELD_TOKEN</code>, 
+<code>MULTI_TOKEN</code>, <code>MULTIHELD_TOKEN</code>, 
+<code>MULTIEXCEPT_TOKEN</code>, <code>MULTIINSIDE_TOKEN</code> and 
+<code>CREATURE_TOKEN</code>. The call</p>
+
+<p class="lynxonly"></p>
+<pre class="code">ParseToken(SCOPE_TT, MyRoutine)</pre>
+
+<p class="aside">does what <span class="grammartoken"><code>scope=MyRoutine</code></span> 
+does. In fact <code>ParseToken</code> can parse any kind of token,
+but these are the only cases which are both useful enough to mention 
+and safe enough to use. It means you can conveniently write a token 
+which matches, say, <em>either</em> the word &#8220;kit&#8221; <em>or</em> 
+any named set of items in scope:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ KitOrStuff; if (NextWord() == 'kit') return GPR_PREPOSITION;
+  wn--; return ParseToken(ELEMENTARY_TT, MULTI_TOKEN);
+];
+</pre>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="ex84" name="ex84"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans84">EXERCISE 84</a></b></span><br>
+Write a token to detect small numbers in French, &#8220;un&#8221; 
+to &#8220;cinq&#8221;.</p>
+
+<a id="ex85" name="ex85"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans85">EXERCISE 85</a></b></span><br>
+Write a token called <code>Team</code>, which matches only against 
+the word &#8220;team&#8221; and results in a multiple object containing 
+each member of a team of adventurers in a game.</p>
+
+<a id="ex86" name="ex86"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans86">EXERCISE 86</a></b></span><br>
+Write a token to detect non-negative floating-point numbers like 
+&#8220;21&#8221;, &#8220;5.4623&#8221;, &#8220;two point oh eight&#8221; 
+or &#8220;0.01&#8221;, rounding off to two decimal places.</p>
+
+<a id="ex87" name="ex87"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans87">EXERCISE 87</a></b></span><br>
+Write a token to match a phone number, of any length from 1 to 30 digits, 
+possibly broken up with spaces or hyphens (such as &#8220;01245 666 
+737&#8221; or &#8220;123-4567&#8221;).</p>
+
+<a id="ex88" name="ex88"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans88">EXERCISE 88</a></b></span><br>
+(Adapted from code in <tt>&quot;timewait.h&quot;</tt>: see the references 
+below.) Write a token to match any description of a time of day, such 
+as &#8220;quarter past five&#8221;, &#8220;12:13 pm&#8221;,
+&#8220;14:03&#8221;, &#8220;six fifteen&#8221; or &#8220;seven 
+o'clock&#8221;.</p>
+
+<a id="ex89" name="ex89"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans89">EXERCISE 89</a></b></span><br>
+Code a spaceship control panel with five sliding controls, each 
+set to a numerical value, so that the game looks like:</p>
+
+<a id="p239" name="p239"></a>
+<p class="output">&gt;<tt>look</tt><br>
+<em>Machine Room</em><br>
+There is a control panel here, with five slides, each of which can 
+be set to a numerical value.<br>
+&gt;<tt>push slide one to 5</tt><br>
+You set slide one to the value 5.<br>
+&gt;<tt>examine the first slide</tt><br>
+Slide one currently stands at 5.<br>
+&gt;<tt>set four to six</tt><br>
+You set slide four to the value 6.</p>
+
+<a id="ex90" name="ex90"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;
+<b><a href="sa6.html#ans90">EXERCISE 90</a></b></span><br>
+Write a general parsing routine accepting any amount of text, including 
+spaces, full stops and commas, between double-quotes as a single token.</p>
+
+<a id="ex91" name="ex91"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans91">EXERCISE 91</a></b></span><br>
+On the face of it, the parser only allows two parameters to an action, 
+<code>noun</code> and <code>second</code>. Write a general parsing routine 
+to accept a <code>third</code>. (This is easier than it looks: see 
+the specification of the <code>NounDomain</code> library routine 
+in <a href="sa3.html">&#167;A3</a>.)</p>
+
+<a id="ex92" name="ex92"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans92">EXERCISE 92</a></b></span><br>
+Write a token to match any legal Inform decimal, binary or hexadecimal 
+constant (such as <code>-321</code>, <code>$4a7</code> or 
+<code>$$1011001</code>), producing the correct numerical value in 
+all cases, while not matching any number which overflows or underflows 
+the legal Inform range of &#8722;32,768 to 32,767.</p>
+
+<a id="ex93" name="ex93"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans93">EXERCISE 93</a></b></span><br>
+Add the ability to match the names of the built-in Inform constants 
+<code>true</code>, <code>false</code>, <code>nothing</code> and 
+<code>NULL</code>.</p>
+
+<a id="ex94" name="ex94"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans94">EXERCISE 94</a></b></span><br>
+Now add the ability to match character constants like <code>'7'</code>, 
+producing the correct character value (in this case 55, the ZSCII 
+value for the character &#8216;7&#8217;).</p>
+
+<a id="ex95" name="ex95"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans95">EXERCISE 95</a></b></span><br>
+Next add the ability to match the names of attributes, such as 
+<code>edible</code>, or negated attributes with a tilde in front, 
+such as <code>~edible</code>. An ordinary attribute should parse 
+to its number, a negated one should parse to its number plus 100. 
+(Hint: the library has a printing rule called <code>DebugAttribute</code> 
+which prints the name of an attribute.)</p>
+
+<a id="ex96" name="ex96"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans96">EXERCISE 96</a></b></span><br>
+And now add the names of properties.</p>
+
+<a id="p240" name="p240"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+Once upon a time, Andrew Clover wrote a neat library extension called 
+<tt>&quot;timewait.h&quot;</tt> for parsing times of day, and allowing 
+commands such as &#8220;wait until quarter to three&#8221;. L. Ross 
+Raszewski, Nicholas Daley and Kevin Forchione each tinkered with and
+modernised this, so that there are now also <tt>&quot;waittime.h&quot;</tt> 
+and <tt>&quot;timesys.h&quot;</tt>. Each has its merits.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch4.html" title="Chapter IV: Describing and Parsing">chapter IV</a> /
+ <a href="s30.html" title="&#167;30: How verbs are parsed">prev</a> /
+ <a href="s32.html" title="&#167;32: Scope and what you can see">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

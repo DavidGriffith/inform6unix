@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;38: Controlling compilation from within</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">chapter VI</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">prev</a> /
+ <a href="s39.html" title="&#167;39: Controlling compilation from without">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p288" name="p288"></a>
+<h2>&#167;38 &nbsp; Controlling compilation from within</h2>
+
+<p class="normal"><span class="atleft"><img src="dm4-288_1.jpg" alt=""></span>
+Inform has a number of directives for controlling which pieces of
+source code are compiled: for instance, you can divide your source
+code into several files, compiled together or separately, or you can
+write source code in which different passages will be compiled on
+different occasions. Most of these directives are seldom seen, but almost every
+game uses:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Include &quot;filename&quot;;</pre>
+
+<p class="normal">which instructs Inform to glue the whole of that source 
+code file into the program right here. It is exactly equivalent to removing 
+the <code>Include</code> directive and replacing it with the whole file 
+<tt>&quot;filename&quot;</tt>. (The rules for how Inform interprets 
+<tt>&quot;filename&quot;</tt> vary from machine to machine: for instance, 
+it may automatically add an extension such as &#8220;<tt>.inf</tt>&#8221; 
+if your operating system normally uses filename extensions and it may 
+look in some special directory. Run Inform with the <tt>-h1</tt> switch 
+for further information.) Note that you can write</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Include &quot;&gt;shortname&quot;;</pre>
+
+<p class="normal">to mean &#8220;the file called <tt>&quot;shortname&quot;</tt> 
+which is in the same directory that the present file came from&#8221;. 
+This is convenient if all the files making up the source code of your 
+game are housed together.</p>
+
+<p class="indent">Next, there are a number of &#8220;conditional compilation&#8221; 
+directives. They take the general form of a condition:</p>
+
+<p class="lynxonly"></p>
+<a id="p289" name="p289"></a>
+<div class="inset"><table>
+<tr><td><code>Ifdef</code> &#8249;<span class="token">name</span>&#8250;<code>;</code></td>
+ <td>Is &#8249;<span class="token">name</span>&#8250; defined as having some meaning?</td></tr>
+<tr><td><code>Ifndef</code> &#8249;<span class="token">name</span>&#8250;<code>;</code></td>
+ <td>Is &#8249;<span class="token">name</span>&#8250; undefined?</td></tr>
+<tr><td><code>Iftrue</code> &#8249;<span class="token">condition</span>&#8250;<code>;</code></td>
+ <td>Is this &#8249;<span class="token">condition</span>&#8250; true?</td></tr>
+<tr><td><code>Iffalse</code> &#8249;<span class="token">condition</span>&#8250;<code>;</code></td>
+ <td>Is this &#8249;<span class="token">condition</span>&#8250; false?</td></tr>
+</table></div>
+
+<p class="normal">followed by a chunk of Inform and then, optionally,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Ifnot;</pre>
+
+<p class="normal">and another chunk of Inform; and finally</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Endif;</pre>
+
+<p class="normal">At this point it is perhaps worth mentioning that 
+(most) directives can also be interspersed with statements in routine 
+declarations, provided they are preceded by a <code>#</code> sign. 
+For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+[ MyRoutine;
+#Iftrue MAX_SCORE &gt; 1000;
+  print &quot;My, what a long game we're in for!^&quot;;
+#Ifnot;
+  print &quot;Let's have a quick game, then.^&quot;;
+#Endif;
+  PlayTheGame();
+];
+</pre>
+
+<p class="normal">which actually only compiles one of the two print 
+statements, according to what the value of the constant <code>MAX_SCORE</code> 
+is.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+One kind of &#8220;if-defined&#8221; manoeuvre is so useful that it 
+has an abbreviation:</p>
+
+<p class="syntax"><code>Default</code>
+&#8249;<span class="token">name</span>&#8250;
+&#8249;<span class="token">value</span>&#8250;<code>;</code></p>
+
+<p class="aside">defines &#8249;<span class="token">name</span>&#8250;
+as a constant if it wasn't already the name of something: so it's 
+equivalent to</p>
+
+<p class="syntax"><code>Ifndef</code> 
+&#8249;<span class="token">name</span>&#8250;<code>; Constant</code>
+&#8249;<span class="token">name</span>&#8250; <code>=</code>
+&#8249;<span class="token">value</span>&#8250;<code>; Endif;</code></p>
+
+<p class="aside">Similarly, though far less often used, 
+<code>Stub &lt;name&gt; &lt;number&gt;;</code> defines a do-nothing
+routine with this name and number (0 to 3) of local variables, 
+if it isn't already the name of something: it is equivalent to</p>
+
+<p class="syntax"><code>Ifndef</code> 
+&#8249;<span class="token">name</span>&#8250;<code>; [</code>
+&#8249;<span class="token">name</span>&#8250; 
+<code>x1 x2</code> &#8230; 
+<code>x</code>&#8249;<span class="token">number</span>&#8250;<code>; ]; Endif;</code></p>
+
+<a id="p290" name="p290"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Large standard chunks of Inform source code are often 
+bundled up into &#8220;libraries&#8221; which can be added to any 
+Inform story file using the <code>Include</code> directive. Almost 
+all Inform adventure games include three library files called
+&#8220;Parser&#8221;, &#8220;VerbLib&#8221; and &#8220;Grammar&#8221;, 
+and several dozen smaller libraries have also been written. 
+Sometimes, though, what you want to do is &#8220;include all of this 
+library file except for the definition of <code>SomeRoutine</code>&#8221;. 
+You can do this by declaring:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Replace SomeRoutine;</pre>
+
+<p class="normal">before the relevant library file is included. You 
+still have to define your own <code>SomeRoutine</code>, hence the 
+term &#8220;replace&#8221;.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+How does Inform know to ignore the <code>SomeRoutine</code> definition 
+in the library file, but to accept yours as valid? The answer is that 
+a library file is marked out as having routines which can be replaced, 
+by containing the directive</p>
+
+<p class="lynxonly"></p>
+<pre class="code">System_file;</pre>
+
+<p class="aside">All eight of the standard Inform library files (the 
+three you normally <code>Include</code> in games, plus the five others 
+which they <code>Include</code> for you) begin with this directive. 
+It also has the effect of suppressing all compilation warnings 
+(but not errors) arising from the file.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">One way to follow what is being compiled is to use the 
+<code>Message</code> directive. This makes the compiler print messages 
+as it compiles:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Message &quot;An informational message&quot;;
+Message error &quot;An error message&quot;;
+Message fatalerror &quot;A fatal error message&quot;;
+Message warning &quot;A warning message&quot;;
+</pre>
+
+<p class="normal">Errors, fatal errors and warnings are treated as if 
+they had arisen from faults in the source code in the normal way. See 
+<a href="s40.html">&#167;40</a> for more about the kinds of error 
+Inform can produce, but for now, note that an error or fatal error will 
+prevent any story file from being produced, and that messages issued 
+by <code>Message warning</code> will be suppressed if they occur in 
+a &#8220;system file&#8221; (one that you have marked with a 
+<code>System_file</code> directive). Informational messages are
+simply printed:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Message &quot;Geometry library by Boris J. Parallelopiped&quot;;</pre>
+
+<p class="normal">prints this text, followed by a new-line.</p>
+
+<a id="p291" name="p291"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+One reason to use this might be to ensure that a library file fails 
+gracefully if it needs to use a feature which was only introduced on 
+a later version of the Inform compiler than the one it finds itself 
+running through. For example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Ifndef VN_1610;
+Message fatalerror
+    &quot;The geometry extension needs Inform 6.1 or later&quot;;
+Endif;
+</pre>
+
+<p class="aside">By special rule, the condition &#8220;<code>VN_1610</code> 
+is defined&#8221; is true if and only if the compiler's release number 
+is 6.10 or more; similarly for the previous releases 6.01, first to 
+include message-sending, 6.02, 6.03, 6.04, 6.05, 6.10, which expanded 
+numerous previous limits on grammar, 6.11, 6.12, which allowed Inform 
+to read from non-English character sets, 6.13, 6.15, which allowed 
+parametrised object creation, 6.20, which introduced strict error checking, 
+and finally (so far) 6.21, the first to feature Infix. A full history 
+can be found in the <i>Technical Manual</i>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Inform also has the ability to link together separately-compiled 
+pieces of story file into the current compilation. This feature is provided 
+primarily for users with slowish machines who would sooner not waste time 
+compiling the standard Inform library routines over and over again. Linking 
+isn't something you can do entirely freely, though, and if you have a fast 
+machine you may prefer not to bother with it: the time taken to compile 
+a story file is now often dominated by disc access times, so little 
+or no time will be saved.</p>
+
+<p class="indent">The pieces of pre-compiled story file are called &#8220;modules&#8221; 
+and they cannot be interpreted or used for anything other than linking.</p>
+
+<p class="indent">The process is as follows. A game being compiled (called 
+the &#8220;external&#8221; program) may <code>Link</code> one or more 
+pre-compiled sections of code called &#8220;modules&#8221;. Suppose 
+the game Jekyll has a subsection called Hyde. Then these two methods 
+of making Jekyll are, very nearly, equivalent:</p>
+
+<ol style="list-style-type:decimal">
+<li>Putting <code>Include &quot;Hyde&quot;;</code> in the source for 
+<tt>&quot;Jekyll&quot;</tt>, and compiling <tt>&quot;Jekyll&quot;</tt>.</li>
+<li>Compiling <tt>&quot;Hyde&quot;</tt> with the <tt>-M</tt> 
+(&#8220;module&#8221;) switch set, then putting <code>Link &quot;Hyde&quot;;</code> 
+into the same point in the source for <tt>&quot;Jekyll&quot;</tt>, and 
+compiling <tt>&quot;Jekyll&quot;</tt>.</li>
+</ol>
+
+<p class="normal">Option (2) is faster as long as <tt>&quot;Hyde&quot;</tt> 
+does not change very often, since its ready-compiled module can be 
+left lying around while <tt>&quot;Jekyll&quot;</tt> is being developed.</p>
+
+<p class="indent">Because &#8220;linking the library&#8221; is by far 
+the most common use of the linker, this is made simple. All you have to 
+do is compile your game with the <tt>-U</tt> 
+<a id="p292" name="p292"></a>
+switch set, or, equivalently, to begin your source code with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Constant USE_MODULES;</pre>
+
+<p class="normal">This assumes that you already have pre-compiled copies 
+of the two library modules: if not, you'll need to make them with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+inform -M library/parserm.h
+inform -M library/verblibm.h
+</pre>
+
+<p class="normal">where <tt>library/parserm.h</tt> should be replaced with 
+whatever filename you keep the library file &#8220;<tt>parserm</tt>&#8221; 
+in, and likewise for &#8220;<tt>verblibm</tt>&#8221;. This sounds
+good, but here are four caveats:</p>
+
+<ol style="list-style-type:decimal">
+<li>You can only do this for a game compiled as a Version 5 story file. 
+This is the version Inform normally compiles to, but some authors 
+of very large games need to use Version 8. Such authors usually have 
+relatively fast machines and don't need the marginal speed gain from 
+linking rather than including.</li>
+<li>It's essential not to make any <code>Attribute</code> or 
+<code>Property</code> declarations <em>before</em> the <code>Include 
+&quot;Parser&quot;</code> line in the source code, though <em>after</em> 
+that point is fine. Inform will warn you if you get this wrong.</li>
+<li>Infix debugging, <tt>-X</tt>, is not compatible with linking, and 
+strict error checking <tt>-S</tt> does not apply within modules.</li>
+<li>The precompiled library modules always include the <tt>-D</tt> 
+debugging verbs, so when you come to compile the final release version 
+of a game, you'll have to compile it the slow way, i.e., without linking 
+the library.</li>
+</ol>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+If you intend to write your own pre-compilable library modules, or 
+intend to subdivide a large game into many modular parts, you will need 
+to know what the limitations are on linking. (In the last recourse you 
+may want to look at the <i>Technical Manual</i>.) Here's a brief list:</p>
+
+<ol style="list-style-type:decimal">
+<li>The module must make the same <code>Property</code> and 
+<code>Attribute</code> directives as the main program and in the 
+same order. Including the library file <tt>&quot;linklpa.h&quot;</tt> 
+(&#8220;link library properties and attributes&#8221;) declares the 
+library's own stock, so it might be sensible to do this first, and 
+then include a similar file defining any extra common properties and 
+attributes you need.</li>
+<li>The module cannot contain grammar (i.e., use <code>Verb</code> 
+or <code>Extend</code> directives) or create &#8220;fake actions&#8221;.</li>
+<li>The module can only use global variables defined outside the module 
+if they are explicitly declared before use using the <code>Import</code> directive. 
+For example, writing <code>Import global frog;</code> allows the rest 
+of the module's source code to refer to the 
+<a id="p293" name="p293"></a>
+variable <code>frog</code> 
+(which must be defined in the outside program). Note that the Include 
+file <tt>&quot;linklv.h&quot;</tt> (&#8220;link library variables&#8221;) 
+imports all the library variables, so it would be sensible to include 
+this.</li>
+<li>An object in the module can't inherit from a class defined outside 
+the module. (But an object outside can inherit from a class inside.)</li>
+<li>Certain constant values in the module must be known at module-compile-time
+(and must not, for instance, be a symbol only defined outside the module). 
+For instance: the size of an array must be known now, not later; so 
+must the number of duplicate members of a <code>Class</code>; and 
+the quantities being compared in an <code>Iftrue</code> or 
+<code>Iffalse</code>.</li>
+<li>The module can't: define the <code>Main</code> routine; use 
+the <code>Stub</code> or <code>Default</code> directives; or define 
+an object whose parent object is not also in the same module.</li>
+</ol>
+
+<p class="aside">These restrictions are mild in practice. As an example, 
+here is a short module to play with:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Include &quot;linklpa&quot;;        ! Make use of the properties, attributes
+Include &quot;linklv&quot;;         ! and variables from the Library
+[ LitThings x;
+  objectloop (x has light)
+      print (The) x, &quot; is currently giving off light.^&quot;;
+];
+</pre>
+
+<p class="aside">It should be possible to compile this <tt>-M</tt> and then 
+to <code>Link</code> it into another game, making the routine 
+<code>LitThings</code> exist in that game.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Every story file has a release number and a serial 
+code. Games compiled with the Inform library print these numbers 
+in one line of the &#8220;banner&#8221;. For instance, a game compiled 
+in December 1998 might have the banner line:</p>
+
+<p class="output">Release 1 / Serial number 981218 / Inform v6.20 Library 6/8</p>
+
+<p class="normal">The release number is 1 unless otherwise specified with the directive</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Release &lt;number&gt;;</pre>
+
+<p class="normal">This can be any Inform number, but convention is for 
+the first published copy of a game to be numbered 1, and releases 2, 
+3, 4,&#8230; to be amended re-releases.</p>
+
+<p class="indent">The serial number is set automatically to the date 
+of compilation in the form &#8220;yymmdd&#8221;, so that <code>981218</code> means 
+&#8220;18th December 1998&#8221; and <code>000101</code> means 
+&#8220;1st January 2000&#8221;. You can fix the date differently by setting</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Serial &quot;dddddd&quot;;</pre>
+
+<p class="normal">where the text must be a string of 6 (decimal) digits. 
+Inform's standard example games do this, so that the serial number will 
+be the date of last modification of the source code, regardless of 
+when the story file is eventually compiled.</p>
+
+<a id="p294" name="p294"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+The Inform release number is written into the story file by Inform 
+itself, and you can't change it. But you can make the story file print 
+out this number with the special statement <code>inversion;</code>.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">chapter VI</a> /
+ <a href="ch6.html" title="Chapter VI: Using the Compiler">prev</a> /
+ <a href="s39.html" title="&#167;39: Controlling compilation from without">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

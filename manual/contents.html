@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 Contents</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+<style type="text/css">
+<!--
+h3 {font-style: italic; }
+p.section_header {margin-bottom: 0; font-style: italic; }
+p.section_detail {margin-top: 0; margin-left: 30px; text-align: justify; }
+ul.section_detail {list-style-type: none; margin-top: 0; margin-left: 30px; }
+-->
+</style>
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ contents /
+ contents /
+ <a href="index.html">prev</a> /
+ <a href="intro.html" title="Introduction">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+
+<h1>Contents</h1>
+
+<p class="section_header"><a href="intro.html">Introduction</a></p>
+
+<h3><a href="ch1.html">Chapter I</a>: The Inform Language</h3>
+
+<p class="section_header"><a href="s1.html">&#167;1</a> &nbsp; Routines</p>
+<ul class="section_detail">
+<li><a href="s1.html#s1_1">1.1.</a> &nbsp; Getting started</li>
+<li><a href="s1.html#s1_2">1.2.</a> &nbsp; Hello World</li>
+<li><a href="s1.html#s1_3">1.3.</a> &nbsp; Routine calls, errors and warnings</li>
+<li><a href="s1.html#s1_4">1.4.</a> &nbsp; Numbers and other constants</li>
+<li><a href="s1.html#s1_5">1.5.</a> &nbsp; Variables</li>
+<li><a href="s1.html#s1_6">1.6.</a> &nbsp; Arithmetic, assignment and bitwise operators</li>
+<li><a href="s1.html#s1_7">1.7.</a> &nbsp; Arguments and return values</li>
+<li><a href="s1.html#s1_8">1.8.</a> &nbsp; Conditions: <code>if</code>, <code>true</code> and <code>false</code></li>
+<li><a href="s1.html#s1_9">1.9.</a> &nbsp; Code blocks, <code>else</code> and <code>switch</code></li>
+<li><a href="s1.html#s1_10">1.10.</a> &nbsp; <code>while</code>, <code>do</code>&#8230; <code>until</code>,
+ <code>for</code>, <code>break</code>, <code>continue</code></li>
+<li><a href="s1.html#s1_11">1.11.</a> &nbsp; How text is printed</li>
+<li><a href="s1.html#s1_12">1.12.</a> &nbsp; The <code>print</code> and <code>print_ret</code> statements</li>
+<li><a href="s1.html#s1_13">1.13.</a> &nbsp; Other printing statements</li>
+<li><a href="s1.html#s1_14">1.14.</a> &nbsp; Generating random numbers</li>
+<li><a href="s1.html#s1_15">1.15.</a> &nbsp; Deprecated ways to jump around</li>
+</ul>
+
+<p class="section_header"><a href="s2.html">&#167;2</a> &nbsp; The state of play</p>
+<ul class="section_detail">
+<li><a href="s2.html#s2_1">2.1.</a> &nbsp; Directives construct things</li>
+<li><a href="s2.html#s2_2">2.2.</a> &nbsp; Constants</li>
+<li><a href="s2.html#s2_3">2.3.</a> &nbsp; Global variables</li>
+<li><a href="s2.html#s2_4">2.4.</a> &nbsp; Arrays</li>
+<li><a href="s2.html#s2_5">2.5.</a> &nbsp; Reading into arrays from the keyboard</li>
+</ul>
+
+<p class="section_header"><a href="s3.html">&#167;3</a> &nbsp; Objects</p>
+<ul class="section_detail">
+<li><a href="s3.html#s3_1">3.1.</a> &nbsp; Objects, classes, metaclasses and <code>nothing</code></li>
+<li><a href="s3.html#s3_2">3.2.</a> &nbsp; The object tree</li>
+<li><a href="s3.html#s3_2">3.3.</a> &nbsp; Declaring objects 1: setting up the object tree</li>
+<li><a href="s3.html#s3_4">3.4.</a> &nbsp; Tree statements: <code>move</code>, <code>remove</code>, <code>objectloop</code></li>
+<li><a href="s3.html#s3_5">3.5.</a> &nbsp; Declaring objects 2: <code>with</code> and <code>provides</code></li>
+<li><a href="s3.html#s3_6">3.6.</a> &nbsp; Declaring objects 3: <code>private</code> properties</li>
+<li><a href="s3.html#s3_7">3.7.</a> &nbsp; Declaring objects 4: <code>has</code> and <code>give</code></li>
+<li><a href="s3.html#s3_8">3.8.</a> &nbsp; Declaring objects 5: <code>class</code> inheritance</li>
+<li><a href="s3.html#s3_9">3.9.</a> &nbsp; Messages</li>
+<li><a href="s3.html#s3_10">3.10.</a> &nbsp; Passing messages up to the superclass</li>
+<li><a href="s3.html#s3_11">3.11.</a> &nbsp; Creating and deleting objects during play</li>
+<li><a href="s3.html#s3_12">3.12.</a> &nbsp; Sending messages to routines and strings</li>
+<li><a href="s3.html#s3_13">3.13.</a> &nbsp; Common properties and <code>Property</code></li>
+<li><a href="s3.html#s3_14">3.14.</a> &nbsp; Philosophy</li>
+</ul>
+
+<h3><a href="ch2.html">Chapter II:</a> Introduction to Designing</h3>
+
+<p class="section_header"><a href="s4.html">&#167;4</a> &nbsp; &#8216;Ruins&#8217; begun</p>
+<p class="section_detail">Beginning to lay &#8216;Ruins&#8217;; including library files; the <code>Initialise</code> routine;
+some properties of mushrooms; <code>name</code>, <code>description</code> and <code>initial</code>; <code>edible</code>
+foodstuffs; introducing <code>before</code> and <code>after</code> rules; the stone steps.</p>
+
+<p class="section_header"><a href="s5.html">&#167;5</a> &nbsp; Introducing messages and classes</p>
+<p class="section_detail">Recap of message-sending: a parrot; classes for treasure artifacts: the pygmy
+statuette, the honeycomb; how clashes are sorted out in class inheritance,
+additivity.</p>
+
+<p class="section_header"><a href="s6.html">&#167;6</a> &nbsp; Actions and reactions</p>
+<p class="section_detail">Actions are attempts; generating them with <code>&lt;</code>, <code>&lt;&lt;</code>; the <code>actor</code>, <code>action</code>, <code>noun</code>
+and <code>second</code> noun; the <code>##</code> notation; actions fall into three groups; fake actions
+like <code>ThrownAt</code>; creating new actions, the <code>Blorple</code> example; how actions are
+processed, over &#8216;Before&#8217;, &#8216;During&#8217; and &#8216;After&#8217; stages.</p>
+
+<p class="section_header"><a href="s7.html">&#167;7</a> &nbsp; Infix and the debugging verbs</p>
+<p class="section_detail">Three levels; general strategies; command lists and &#8220;recording&#8221;, &#8220;replay&#8221;
+and &#8220;random&#8221; debugging verbs; &#8220;showobj&#8221;, &#8220;tree&#8221;, &#8220;showverb&#8221;, &#8220;scope&#8221;;
+keeping watch of &#8220;actions&#8221;, &#8220;changes&#8221;, &#8220;messages&#8221;, &#8220;timers&#8221;; tracing
+the parser with &#8220;trace&#8221;; supernatural ability to &#8220;purloin&#8221;, &#8220;abstract&#8221;,
+&#8220;goto&#8221;, &#8220;gonear&#8221;; the Infix &#8220;; &#8221;, &#8220;;give&#8221;, &#8220;;move&#8221;, &#8220;;remove&#8221;, &#8220;;examine&#8221;,
+&#8220;;watch&#8221;, &#8220;;inventory&#8221;; marking routines with a * to be watched.</p>
+
+<h3><a href="ch3.html">Chapter III:</a> The Model World</h3>
+
+<p class="section_header"><a href="s8.html">&#167;8</a> &nbsp; Places and scenery</p>
+<p class="section_detail">The Square Chamber of &#8216;Ruins&#8217;; what &#8220;you don't need to refer to&#8221;; <code>static</code>
+and <code>scenery</code> objects; spreading mist with <code>found_in</code>; &alpha; Canis Minoris; the
+five senses and reaction rules; rooms have <code>before</code> and <code>after</code> too.</p>
+
+<p class="section_header"><a href="s9.html">&#167;9</a> &nbsp; Directions and the map</p>
+<p class="section_detail">Giving &#8216;Ruins&#8217; a small map; <code>n_to</code>, <code>d_to</code>, etc.; when you <code>cant_go</code>; direction
+objects in the <code>compass</code>; not the same as direction properties.</p>
+
+<p class="section_header"><a href="s10.html">&#167;10</a> &nbsp; Food and drink</p>
+<p class="section_detail"><code>edible</code> foodstuffs; the <code>Drink</code> action; difficulties with liquids.</p>
+
+<p class="section_header"><a href="s11.html">&#167;11</a> &nbsp; Clothing</p>
+<p class="section_detail"><code>Wear</code> and <code>Disrobe</code>; <code>wearable</code> items of clothing; a jade face mask.</p>
+
+<p class="section_header"><a href="s12.html">&#167;12</a> &nbsp; Containers, supporters and sub-objects</p>
+<p class="section_detail">Containers: <code>container</code>, <code>supporter</code>, <code>capacity</code>, <code>open</code>, <code>openable</code>; locks and
+keys: <code>locked</code>, <code>lockable</code>, <code>with_key</code>; <code>LetGo</code> and <code>Receive</code> to trap use of a
+container: a chasm; transparency and component parts.</p>
+
+<p class="section_header"><a href="s13.html">&#167;13</a> &nbsp; Doors</p>
+<p class="section_detail">How to create a <code>door</code>; 
+<code>door_to</code>, <code>door_dir</code>; <code>when_open</code>, 
+<code>when_closed</code>; a stone door for &#8216;Ruins&#8217;; a 
+two-way door, the &#8216;Advent&#8217; grate; why <code>door_dir</code> is
+needed and how to trap every attempt to go through.</p>
+
+<p class="section_header"><a href="s14">&#167;14</a> &nbsp; Switchable objects</p>
+<p class="section_detail"><code>switchable</code> and <code>on</code>: 
+<code>when_on</code>, <code>when_off</code>; the Gotham City searchlight; 
+a sodium lamp; <code>describe</code> taking precedence.</p>
+
+<p class="section_header"><a href="s15">&#167;15</a> &nbsp; Things to enter, travel in and push around</p>
+<p class="section_detail"><code>enterable</code> objects: a slab altar; 
+vehicles: KAR 1; special rule about the <code>Go</code> action when 
+inside something <code>enterable</code>; the <code>PushDir</code> 
+action: a huge pumice-stone ball; pushing up and down.</p>
+
+<p class="section_header"><a href="s16.html">&#167;16</a> &nbsp; Reading matter and consultation</p>
+<p class="section_detail">The <code>Consult</code> action, &#8220;look 
+up&#8221;; <code>consult_from</code> and <code>consult_words</code>: 
+a dictionary of glyphs, Tyndale's Bible; making &#8220;read&#8221; 
+and &#8220;examine&#8221; different.</p>
+
+
+<p class="section_header"><a href="s17.html">&#167;17</a> &nbsp; People and animals</p>
+<p class="section_detail"><code>animate</code> objects and the <code>life</code> 
+rule; a coiled snake and a mummified priest; Blofeld's reactions; 
+<code>talkable</code> objects; some people are <code>transparent</code>.</p>
+
+<p class="section_header"><a href="s18.html">&#167;18</a> &nbsp; Making conversation</p>
+<p class="section_detail">Orders are actions for other people; 
+giving people their own grammars; untypeable verbs; several 
+voice-activated machines; fake fake actions; telephony.</p>
+
+<p class="section_header"><a href="s19.html">&#167;19</a> &nbsp; The light and the dark</p>
+<p class="section_detail">Light versus darkness is automatic; modifying 
+the darkness; going from dark into dark and the <code>DarkToDark</code> 
+entry point; rules on &#8216;when there is light&#8217;.</p>
+
+<p class="section_header"><a href="s20.html">&#167;20</a> &nbsp; Daemons and the passing 
+of time</p>
+<p class="section_detail">Daemons and the <code>daemon</code> property; 
+starting and stopping them; background daemons; timers (fuses); 
+<code>time_left</code> and <code>time_out</code>; <code>each_turn</code> 
+events for places and nearby objects; the time of day; changing it 
+with <code>SetTime</code>; on the status line; midnight, sunrise, sunset; 
+the exact sequence of events at end-of-turn.</p>
+
+<p class="section_header"><a href="s21.html">&#167;21</a> &nbsp; Starting, moving, changing 
+and killing the player</p>
+<p class="section_detail">What <code>Initialise</code> should do; 
+the <code>location</code>; <code>initial</code> restoration; 
+teleportation and the <code>PlayerTo</code> routine; what happens 
+when the room changes: <code>NewRoom</code>, <code>initial</code> 
+for a room, <code>visited</code>; giving the player his own <code>before</code> 
+rule; using <code>ChangePlayer</code> to transform him into any object; 
+multi-character games; <code>life</code> and <code>deadflag</code>; 
+the <code>DeathMessage</code> routine; resurrection and the <code>AfterLife</code>.</p>
+
+<p class="section_header"><a href="s22.html">&#167;22</a> &nbsp; Miscellaneous constants, 
+scoring, quotations</p>
+<p class="section_detail"><code>Story</code> and <code>Headline</code>; 
+<code>MAX_CARRIED</code>; the automatic &#8220;sack object&#8221;; 
+&#8216;amusing&#8217; rewards for the victorious; two scoring systems: 
+for places and items, or for completing tasks; rankings and <code>PrintRank</code>; 
+automatic score notification and <code>notify_mode</code>; &#8220;objects&#8221; 
+and &#8220;places&#8221; verbs, removable with <code>NO_PLACES</code>;
+boxed quotations.</p>
+
+<p class="section_header"><a href="s23.html">&#167;23</a> &nbsp; &#8216;Ruins&#8217; revisited</p>
+<p class="section_detail">Further examples to complete &#8216;Ruins&#8217;; 
+a map and a step by step solution of the final game.</p>
+
+<p class="section_header"><a href="s24.html">&#167;24</a> &nbsp; The world model described</p>
+<p class="section_detail">&#182;1. Substance &#8211; 
+&#182;2. Containment &#8211; &#182;3. Space &#8211; &#182;4. Sense &#8211; 
+&#182;5. Time &#8211; &#182;6. Action.</p>
+
+<p class="section_header"><a href="s25.html">&#167;25</a> &nbsp; Extending and redefining the world model</p>
+<p class="section_detail">Enriching the model; Egyptian amulets and 
+their spells; making a new library file; the <code>LibraryMessages</code> 
+system for changing messages like &#8220;Dropped.&#8221;; changing 
+the prompt; the last resort of <code>Replace</code> directives; using 
+the world model description; fire and flammability.</p>
+
+<h3><a href="ch4.html">Chapter IV</a>: &nbsp; Describing and Parsing</h3>
+
+<p class="section_header"><a href="s26.html">&#167;26</a> &nbsp; Describing objects and rooms</p>
+<p class="section_detail"><code>print (The) obj, ... (the) obj</code> and 
+so on; indefinite and definite <code>article</code>; <code>proper</code> 
+nouns; the <code>short_name</code> of an object; <code>invent</code> 
+strings and routines; exactly how inventory lines are printed; a matchbook; 
+<code>describe</code> routines; exactly how rooms 
+are described; <code>Locale</code>.</p>
+
+<p class="section_header"><a href="s27.html">&#167;27</a> &nbsp; Listing and grouping objects</p>
+<p class="section_detail">The list-maker <code>WriteListFrom</code>; its style 
+bitmap; examples: tall and wide inventories; grouping similar items 
+together in lists: foodstuffs, Scrabble pieces and denominations 
+of coin.</p>
+
+<p class="section_header"><a href="s28.html">&#167;28</a> &nbsp; How nouns are parsed</p>
+<p class="section_detail">How <code>name</code> is used; a fried green tomato 
+turning red; the parser breaks text into a stream of words; 
+<code>wn</code> and <code>NextWord</code>; reading words as numbers or from their 
+raw text; a <code>parse_name</code> routine is much more flexible than <code>name</code>; 
+the <code>ParseNoun</code> entry point; distinguishing adjectives from nouns.</p>
+
+<p class="section_header"><a href="s29.html">&#167;29</a> &nbsp; Plural names for duplicated objects</p>
+<p class="section_detail">Collections of indistinguishable objects; 
+a bag of six coins; the <code>plural</code> property for printing out plurals; 
+definition of &#8216;indistinguishable&#8217;; writing <code>parse_name</code> 
+routines to allow plurals to be understood; class of crowns.</p>
+
+<p class="section_header"><a href="s30.html">&#167;30</a> &nbsp; How verbs are parsed</p>
+<p class="section_detail">The parser's fundamental method; <code>BeforeParsing</code> 
+entry point; the actor and verb word; synonyms for verbs; definitions 
+of grammar, line and token; <code>action_to_be</code>; <code>Verb</code> directive: a 
+simplified &#8220;take&#8221; grammar; <code>meta</code> verbs; grammar creates 
+actions; creating an &#8220;xyzzy&#8221; verb; how to <code>Extend</code> grammar
+for an existing verb: pushing numbered buttons; priority: <code>replace</code>, 
+<code>first</code>, <code>last</code>; splitting synonymous verbs apart with <code>Extend only</code>; 
+the <code>UnknownVerb</code> and <code>PrintVerb</code> entry points.</p>
+
+<p class="section_header"><a href="s31.html">&#167;31</a> &nbsp; Tokens of grammar</p>
+<p class="section_detail">Full list of grammar tokens; prepositions; 
+<code>noun</code> and <code>held</code>; implicit taking; tokens allowing multiple objects 
+like &#8220;all&#8221;; filtering out nouns by attribute:
+&#8220;use&#8221; verb; and by general routine: &#8220;free&#8221; 
+verb; parsing numbers: &#8220;type&#8221; verb, <code>ParseNumber</code>; 
+general parsing routines; reading from the parser's raw text 
+<code>buffer</code> and <code>parse</code> table; exercises, including French, telephone
+and floating-point numbers, times of day, adding a <code>third</code> parameter 
+to a grammar line.</p>
+
+<p class="section_header"><a href="s32.html">&#167;32</a> &nbsp; Scope and what you can see</p>
+<p class="section_detail">The definition of &#8216;in scope&#8217;; 
+touchability is stricter than scope; answering questions: 
+&#8220;what is a grue&#8221;; <code>scope=...</code> tokens with programmable 
+scope; <code>scope_stage</code>, <code>ScopeWithin</code> and <code>PlaceInScope</code>; changing 
+the global definition of &#8216;in scope&#8217; using <code>InScope</code>; 
+<code>scope_reason</code>; looping over and testing scope; making the rules 
+more sensitive to darkness; a long room divided by a glass 
+wall; the <code>add_to_scope</code> property for component parts of containers.</p>
+
+<p class="section_header"><a href="s33.html">&#167;33</a> &nbsp; Helping the parser out of trouble</p>
+<p class="section_detail">Parser error messages and <code>ParserError</code>; 
+ambiguity-resolution and influencing it with <code>ChooseObjects</code>; making 
+&#8220;eat&#8221; prefer <code>edible</code> objects; redefining &#8220;all&#8221;; 
+exactly how ambiguities are resolved.</p>
+
+<h3><a href="ch5.html">Chapter V</a>: Natural Language</h3>
+
+<p class="section_header"><a href="s34.html">&#167;34</a> &nbsp; Linguistics and the Inform parser</p>
+<p class="section_detail">&iexcl;Bienvenido a Aventura!; Informese; 
+commands, verb phrases, prepositions, noun phrases, gender-number-animation 
+(GNA), descriptors, nouns, pronouns; example of parsing; grammatical 
+features not present in Informese.</p>
+
+<p class="section_header"><a href="s35.html">&#167;35</a> &nbsp; Case and parsing noun phrases</p>
+<p class="section_detail">Flexion and cases; parsing inflected 
+noun phrases; for example, Old English dative word-endings.</p>
+
+<p class="section_header"><a href="s36.html">&#167;36</a> &nbsp; Parsing non-English languages</p>
+<p class="section_detail">Compromises; accented characters at the 
+keyboard?; dialects; language definition files; <code>Zcharacter</code> and 
+the customisation of ZSCII; specifying pronouns and descriptors; 
+translating natural languages to Informese.</p>
+
+<p class="section_header"><a href="s37.html">&#167;37</a> &nbsp; Names and messages in non-English languages</p>
+<p class="section_detail">Gender-number-animation of short names; 
+agreement with articles and cases; contraction forms and articles; 
+library messages of all kinds.</p>
+
+<h3><a href="ch6.html">Chapter VI</a>: &nbsp; Using the Compiler</h3>
+
+<p class="section_header"><a href="s38.html">&#167;38</a> &nbsp; Controlling compilation from within</p>
+<p class="section_detail"><code>Include</code>; conditional compilation: <code>If...</code>, 
+<code>Ifnot</code>, <code>Endif</code>; <code>Message</code>; linking in the library; writing new modules 
+to link in; serial and release numbers.</p>
+
+<p class="section_header"><a href="s39.html">&#167;39</a> &nbsp; Controlling compilation from without</p>
+<p class="section_detail">Switches; memory settings; pathname variables; 
+Inform Control Language (ICL).</p>
+
+<p class="section_header"><a href="s40.html">&#167;40</a> &nbsp; All the Inform error messages</p>
+<p class="section_detail">Fatal errors; errors, including linker and 
+assembler errors; warnings, including obsolete usage warnings.</p>
+
+<h3><a href="ch7.html">Chapter VII</a>: &nbsp; The Z-Machine</h3>
+
+<p class="section_header"><a href="s41.html">&#167;41</a> &nbsp; Architecture and assembly</p>
+<p class="section_detail">ZIL, Inform and the Z-machine; its Versions; 
+assembly language; store and branch opcodes, labels; memory map and 
+stack.</p>
+
+<p class="section_header"><a href="s42.html">&#167;42</a> &nbsp; Devices and opcodes</p>
+<p class="section_detail">The Standard for interpreters; input and 
+output streams; the Version 5 and Version 6 screen models; colours, 
+windows and status lines; interrupt countdowns; pictures; sounds; 
+keyboard reading with timed interrupts; terminating characters; the 
+mouse; menus; loading and saving auxiliary files; throwing and 
+catching stack frames.</p>
+
+<p class="section_header"><a href="s43.html">&#167;43</a> &nbsp; Pictures, sounds, blurbs and Blorb</p>
+<p class="section_detail">What a Blorb file is; the perlBlorb utility 
+program; blurb files; palette, resolution, scaling; specifying what 
+sounds and pictures belong to a story file.</p>
+
+<p class="section_header"><a href="s44.html">&#167;44</a> &nbsp; Case study: a library file for menus</p>
+<p class="section_detail">Invisiclues; basic design; the <code>Option</code> class; 
+the <code>Menu</code> class; the <code>SwitchOption</code> class.</p>
+
+<p class="section_header"><a href="s45.html">&#167;45</a> &nbsp; Limitations and getting around them</p>
+<p class="section_detail">Story file size; readable memory size; grammar; 
+vocabulary; dictionary resolution; objects, attributes, properties, names; 
+function and message arguments; recursion and stack usage; abbreviations 
+in text.</p>
+
+<h3><a href="ch8.html">Chapter VIII</a>: The Craft of Adventure</h3>
+
+<p class="section_header"><a href="s46.html">&#167;46</a> &nbsp;
+ A brief history of interactive fiction</p>
+<ul class="section_detail">
+<li><a href="s46.html#s46_1">&#167;46.1.</a> &nbsp;
+ Precursors and university games 1972&#8211;81</li>
+<li><a href="s46.html#s46_2">&#167;46.2.</a> &nbsp;
+ The commercial boom 1982&#8211;6</li>
+<li><a href="s46.html#s46_3">&#167;46.3.</a> &nbsp;
+ The growth of a community c. 1985&#8211;91</li>
+<li><a href="s46.html#s46_4">&#167;46.4.</a> &nbsp;
+ Newsgroups and revival 1992&#8211;</li>
+</ul>
+
+<p class="section_header"><a href="s47.html">&#167;47</a> &nbsp;
+ Realities and origins</p>
+<p class="section_detail">Fictional backgrounds; crimes against mimesis; 
+ historical research; book adaptations.</p>
+
+<p class="section_header"><a href="s48.html">&#167;48</a> &nbsp;
+ A triangle of identities</p>
+<p class="section_detail">Player, protagonist and narrator; participatory 
+ magic; the overture and other narrated text.</p>
+
+<p class="section_header"><a href="s49.html">&#167;49</a> &nbsp; 
+ Structure</p> 
+<p class="section_detail">Size and density; the prologue, middle game and end 
+ game; wide versus narrow; lattice diagrams, including one for 
+ &#8216;Ruins&#8217;.</p>
+
+<p class="section_header"><a href="s50.html">&#167;50</a> &nbsp;
+ The design of puzzles</p>
+<p class="section_detail">General remarks on good and bad puzzles; mazes, light 
+ sources, capacity and exhaustion, timed puzzles, utility objects, 
+ keys and doors, machinery and vehicles, fire, water, air, earth, 
+ plants, animals, monsters, people, ropes and chains, riddles, 
+ decipherment puzzles; clues, luck and accidental solutions;
+ optional and multiple solutions; rewards.</p>
+
+<p class="section_header"><a href="s51.html">&#167;51</a> &nbsp;
+ The room description</p>
+<p class="section_detail">Examples of good, mediocre and poor description; how 
+ much space is one location?; variable descriptions; outdoor games; 
+ differing perspectives.</p>
+
+<p class="section_header"><a href="s52.html">&#167;52</a> &nbsp;
+ Finishing</p>
+<p class="section_detail">Scoring systems; responding to wrong guesses; examples 
+ of typical bugs; play-testing and editing; concluding homily.</p>
+
+<p class="section_header">APPENDICES</p>
+<ul class="section_detail">
+<li><a href="sa1.html">&#167;A1</a> &nbsp; Library attributes</li>
+<li><a href="sa2.html">&#167;A2</a> &nbsp; Library properties</li>
+<li><a href="sa3.html">&#167;A3</a> &nbsp; Library routines</li>
+<li><a href="sa4.html">&#167;A4</a> &nbsp; Library message numbers</li>
+<li><a href="sa5.html">&#167;A5</a> &nbsp; Entry point routines</li>
+<li><a href="sa6.html">&#167;A6</a> &nbsp; Answers to all the exercises</li>
+</ul>
+
+<p class="section_header">TABLES</p>
+<ul class="section_detail">
+<li><a href="tables.html#tbl1a">Table 1</a> &nbsp; Operators</li>
+<li><a href="tables.html#tbl2a">Table 2</a> &nbsp; The ZSCII Character Set</li>
+<li><a href="tables.html#tbl3">Table 3</a> &nbsp; Command Line Switches</li>
+<li><a href="tables.html#tbl4">Table 4</a> &nbsp; Statements</li>
+<li><a href="tables.html#tbl5">Table 5</a> &nbsp; Directives</li>
+<li><a href="tables.html#tbl6a">Table 6</a> &nbsp; Library actions</li>
+</ul>
+
+<p class="section_header">INDEX</p>
+<ul class="section_detail">
+<li><a href="cited.html">Cited Works of Interactive Fiction</a></li>
+<li><a href="exdm4index.html">Index of Exercises</a></li>
+<li><a href="dm4index.html">General Index</a></li>
+</ul>
+
+<p class="section_header" style="margin-bottom:1em"><a href="colophon.html">Colophon</a><br>
+<a href="colophon.html#ld">Long Descriptions of Selected Images</a><br>
+<a href="backcover.html">Back Cover</a></p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ contents /
+ contents /
+ <a href="index.html">prev</a> /
+ <a href="intro.html" title="Introduction">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>

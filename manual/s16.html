@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;16: Reading matter and consultation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s15.html" title="&#167;15: Things to enter, travel in and push around">prev</a> /
+ <a href="s17.html" title="&#167;17: People and animals">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p141" name="p141"></a>
+<h2>&#167;16 &nbsp; Reading matter and consultation</h2>
+
+<blockquote>Making books is a skilled trade, like making clocks.<br>
+&#8212; Jean de la Bruy&egrave;re (1645&#8211;1696)</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-141_1.jpg" alt=""></span>
+&#8220;Look up figure 18 in the engineering textbook&#8221; is a 
+difficult line for Inform to understand, because almost anything could 
+appear in the first part: even its format depends on what the second 
+part is. This kind of request, and more generally</p>
+
+<p class="syntax">&gt;<tt>look up</tt> &#8249;<span class="token">any words here</span>&#8250; <tt>in</tt> &#8249;<span class="token">the object</span>&#8250;<br>
+&gt;<tt>read about</tt> &#8249;<span class="token">any words here</span>&#8250; <tt>in</tt> &#8249;<span class="token">the object</span>&#8250;<br>
+&gt;<tt>consult</tt> &#8249;<span class="token">the object</span>&#8250; <tt>about</tt> &#8249;<span class="token">any words here</span>&#8250;</p>
+
+<p class="normal">cause the <code>Consult</code> action. In such cases, 
+the <code>noun</code> is the book and there is no <code>second</code> 
+object. Instead, the object has to parse the &#8249;<span class="token">any words here</span>&#8250; part 
+itself. The following variables are set up to make this possible:</p>
+
+<p class="syntax"><code>consult_from</code> holds the number of 
+the first word in the &#8249;<span class="token">any&#8230</span>&#8250; clause;<br>
+<code>consult_words</code> holds the number of words in the 
+&#8249;<span class="token">any&#8230;</span>&#8250; clause.</p>
+
+<p class="normal">The &#8249;<span class="token">any words here</span>&#8250; 
+clause must contain at least one word. The words given can be parsed 
+using library routines like <code>NextWord()</code>, 
+<code>TryNumber(word-number)</code> and so on: see 
+<a href="s28.html">&#167;28</a> for full details. As usual, the 
+<code>before</code> routine should return <code>true</code> if it 
+has managed to deal with the action; returning <code>false</code>
+will make the library print &#8220;You discover nothing of interest 
+in&#8230;&#8221;.</p>
+
+<p class="indent">Little hints are placed here and there in the 
+&#8216;Ruins&#8217;, written in the glyphs of a not altogether 
+authentic dialect of Mayan. Our explorer has, naturally, come 
+equipped with the latest and finest scholarship on the subject:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object dictionary &quot;Waldeck's Mayan dictionary&quot;
+  with name 'dictionary' 'local' 'guide' 'book' 'mayan'
+            'waldeck' 'waldeck^s',
+       description &quot;Compiled from the unreliable lithographs of the
+           legendary raconteur and explorer ~Count~ Jean Frederic
+           Maximilien Waldeck (1766??-1875), this guide contains
+           what little is known of the glyphs used in the local
+           ancient dialect.&quot;,
+       correct false,
+       before [ w1 w2 glyph;
+         Consult:<a id="p142" name="p142"></a>
+             wn = consult_from;
+             w1 = NextWord(); ! First word of subject
+             w2 = NextWord(); ! Second word (if any) of subject
+             if (consult_words==1 &amp;&amp; w1~='glyph' or 'glyphs') glyph = w1;
+             else if (consult_words==2 &amp;&amp; w1=='glyph') glyph = w2;
+             else if (consult_words==2 &amp;&amp; w2=='glyph') glyph = w1;
+             else &quot;Try ~look up &lt;name of glyph&gt; in book~.&quot;;
+             switch (glyph) {
+                 'q1': &quot;(This is one glyph you have memorised!)^^
+                     Q1: ~sacred site~.&quot;;
+                 'crescent': &quot;Crescent: believed pronounced ~xibalba~,
+                     though its meaning is unknown.&quot;;
+                 'arrow': &quot;Arrow: ~journey; becoming~.&quot;;
+                 'skull': &quot;Skull: ~death, doom; fate (not nec. bad)~.&quot;;
+                 'circle': &quot;Circle: ~the Sun; also life, lifetime~.&quot;;
+                 'jaguar': &quot;Jaguar: ~lord~.&quot;;
+                 'monkey': &quot;Monkey: ~priest?~.&quot;;
+                 'bird': if (self.correct) &quot;Bird: ~dead as a stone~.&quot;;
+                     &quot;Bird: ~rich, affluent?~.&quot;;
+                 default: &quot;That glyph is so far unrecorded.&quot;;
+             }
+       ],
+  has  proper;
+</pre>
+
+<p class="normal">Note that this understands any of the forms &#8220;q1&#8221;, 
+&#8220;glyph q1&#8221; or &#8220;q1 glyph&#8221;. (These aren't genuine 
+Maya glyphs, but some of the real ones once had similar names, dating 
+from when their syllabic equivalents weren't known.)</p>
+
+<a id="ex25" name="ex25"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>&#9650;&#9650;
+<b><a href="sa6.html#ans25">EXERCISE 25</a></b></span><br>
+To mark the 505th anniversary of William Tyndale, the first English 
+translator of the New Testament (who was born some time around 
+1495 and burned as a heretic in Vilvorde, Denmark, in 1535), prepare 
+an Inform edition.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Ordinarily, a request by the player to &#8220;read&#8221; something 
+is translated into an <code>Examine</code> action. But the &#8220;read&#8221; 
+verb is defined independently of the &#8220;examine&#8221; verb
+in order to make it easy to separate the two requests. For instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Attribute legible;
+...
+Object textbook &quot;textbook&quot;
+  with name 'engineering' 'textbook' 'text' 'book',
+       description &quot;What beautiful covers and spine!&quot;,<a id="p143" name="p143"></a>
+       before [;
+           Consult, Read:
+               &quot;The pages are full of senseless equations.&quot;;
+       ],
+  has  legible;
+...
+[ ReadSub;
+  &lt;&lt;Examine noun&gt;&gt;; 
+];
+Extend 'read' first * legible -&gt; Read;
+</pre>
+
+<p class="aside">Note that &#8220;read&#8221; causes a <code>Read</code> 
+action only for <code>legible</code> objects, and otherwise causes
+<code>Examine</code> in the usual way. <code>ReadSub</code> is coded 
+as a translation to <code>Examine</code> as well, so that
+if a <code>legible</code> object doesn't provide a <code>Read</code> 
+rule then an <code>Examine</code> happens after all.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+Another possibility for parsing commands like &#8220;look up &#8249;<span class="token">something</span>&#8250; 
+in the catalogue&#8221;, where any object name might appear as the 
+&#8249;<span class="token">something</span>&#8250;, would be to extend the grammar 
+for &#8220;look&#8221;. See <a href="s30.html">&#167;30</a>.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s15.html" title="&#167;15: Things to enter, travel in and push around">prev</a> /
+ <a href="s17.html" title="&#167;17: People and animals">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;19: The light and the dark</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s18.html" title="&#167;18: Making conversation">prev</a> /
+ <a href="s20.html" title="&#167;20: Daemons and the passing of time">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p154" name="p154"></a>
+<h2>&#167;19 &nbsp; The light and the dark</h2>
+
+<blockquote>&gt;<tt>examine darkness</tt><br>
+You can't see the darkness without a light!<br>
+&gt;<tt>let there be light</tt><br>
+Okay, there is light.<br>
+&gt;<tt>examine the light</tt><br>
+It is good.<br>
+&gt;<tt>divide the light from the darkness</tt><br>
+It is so.<br>
+&gt;<tt>call the light &quot;day&quot; then call the darkness &quot;night&quot;</tt><br>
+Called.<br>
+Called.<br>
+&#8212; from a transcript of &#8216;The Creation&#8217;, a game never 
+written but proposed in some of Infocom's surviving documents.
+(&#8220;Estimated development time 8&#8211;10 months&#8230; 
+shalts and begats and haths.&#8221;)</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-154_1.jpg" alt=""></span>
+Sighted people observe whether it's light or dark so instantly that
+the matter seems self-evident. The Inform library has to use reason
+instead, and it rechecks this reasoning very frequently, because
+almost any change in the world model can affect the light:</p>
+
+<p class="output">a total eclipse of the sun;<br>
+fusing all the lights in the house;<br>
+your lamp going out;<br>
+a dwarf stealing it and running away;<br>
+dropping a lit match which you were seeing by;<br>
+putting your lamp into an opaque box and shutting the lid;<br>
+black smoke filling up the glass jar that the lamp is in;<br>
+the dwarf with your lamp running back into your now-dark room.</p>
+
+<p class="normal">The designer of an Inform game isn't allowed to tell the library &#8220;the player
+is now in darkness&#8221;, because this would soon lead to inconsistencies. (If you
+want it to be dark, ensure that there are no light sources nearby.) Because light
+is automatically calculated, you can write statements like the following, and
+leave the library to sort out the consequences:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+give lamp light;
+remove match;
+give glass_jar ~transparent;
+move dwarf to Dark_Room;
+</pre>
+
+<a id="p155" name="p155"></a>
+<p class="normal">The <code>light</code> attribute means that an object 
+is giving off light, or that a room is currently lit, for instance 
+because it is outdoors in day-time.</p>
+
+<a id="ex40" name="ex40"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans40">EXERCISE 40</a></b></span><br>
+Abolish darkness altogether, without having to give every location 
+<code>light</code>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">When the player is in darkness, the current <code>location</code> 
+becomes <code>thedark</code>, a special object which behaves like a 
+room and has the short name &#8220;Darkness&#8221;. Instead, the 
+variable <code>real_location</code> always contains the actual room 
+occupied, regardless of the light level.</p>
+
+<p class="indent">The designer can &#8220;customise&#8221; the darkness 
+in a game by altering its <code>initial</code>, <code>description</code> 
+or <code>short_name</code> properties. For example, the <code>Initialise</code>
+routine of the game might include:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">thedark.short_name = &quot;Creepy, nasty darkness&quot;;</pre>
+
+<p class="normal">See <a href="s20.html">&#167;20</a> for how
+&#8216;Ruins&#8217; makes darkness menacing.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Light is reconsidered at the start of the game, 
+after any movement of the player, after any change of player, and at 
+the end of each turn regardless. The presence or absence of light 
+affects the <code>Look</code>, <code>Search</code>, <code>LookUnder</code> 
+and <code>Examine</code> actions, and, since this is a common puzzle, 
+also the <code>Go</code> action: you can provide a routine called</p>
+
+<p class="lynxonly"></p>
+<pre class="code">DarkToDark()</pre>
+
+<p class="normal">and if you do then it will be called when the player 
+goes from one dark place to another. (It's called just before the 
+room description for the new dark room, normally &#8220;Darkness&#8221;, 
+is printed). You could then take the opportunity to kill the player 
+off or extract some other forfeit. If you provide no such routine,
+then the player can move about as freely in the darkness as in the light.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+<em>Darkness rules.</em> &nbsp;
+Here is the full definition of &#8220;when there is light&#8221;. Remember
+that the parent of the player object may not be a room: it may be, say, 
+a red car whose parent is a large closed cardboard box whose parent 
+is a room.</p>
+
+<a id="p156" name="p156"></a>
+<ul style="list-style-type:none">
+<li>(1) There is light exactly when the parent of the player 
+&#8216;offers light&#8217;.</li>
+<li>(2) An object is see-through if:
+ <ul style="list-style-type:none">
+ <li>(a) it is <code>transparent</code>, <i>or</i></li>
+ <li>(b) it is a <code>supporter</code>, <i>or</i></li>
+ <li>(c) it is a <code>container</code> which is <code>open</code>, <i>or</i></li>
+ <li>(d) it is <code>enterable</code> but not a <code>container</code>.</li>
+ </ul></li>
+<li>(3) An object offers light if:
+ <ul style="list-style-type:none">
+ <li>(a) it itself has the <code>light</code> attribute set, <i>or</i></li>
+ <li>(b) any of its immediate possessions have light, <i>or</i></li>
+ <li>(c) it is see-through and its parent offers light.</li></ul>
+<li>(4) An object has light if:
+ <ul style="list-style-type:none">
+ <li>(a) it itself has the <code>light</code> attribute set, <i>or</i></li>
+ <li>(b) it is see-through and any of its immediate possessions have 
+ light, <i>or</i></li>
+ <li>(c) any object it places in scope using the property 
+ <code>add_to_scope</code> has light.</li>
+ </ul></li>
+</ul>
+
+<p class="aside">It may help to note that to &#8220;offer light&#8221; 
+is to cast light inward, that is, down the object tree, whereas to 
+&#8220;have light&#8221; is to cast light outward, that is, up the 
+object tree. The library routines <code>IsSeeThrough(obj)</code>, 
+<code>OffersLight(obj)</code> and <code>HasLightSource(obj)</code>
+check conditions (2) to (4), returning <code>true</code> or 
+<code>false</code> as appropriate.</p>
+
+<a id="ex41" name="ex41"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b><a href="sa6.html#ans41">EXERCISE 41</a></b></span><br>
+How would you design a troll who is afraid of the dark, and needs to 
+be bribed with a light source&#8230; so that the troll will be as 
+happy with a goldfish bowl containing a fluorescent jellyfish as 
+he would be with a lamp?</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+For a <code>DarkToDark</code> routine which discourages wandering about 
+caves in the dark, see &#8216;Advent&#8217;. &nbsp;
+<span class="warning"><b>&#8226;</b></span>It is notoriously tricky to handle 
+the gradual falling of night or a gradual change of visibility. 
+See <a href="s51.html">&#167;51</a>.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch3.html" title="Chapter III: The Model World">chapter III</a> /
+ <a href="s18.html" title="&#167;18: Making conversation">prev</a> /
+ <a href="s20.html" title="&#167;20: Daemons and the passing of time">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

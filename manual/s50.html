@@ -1,0 +1,750 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;50: The design of puzzles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s49.html" title="&#167;49: Structure">prev</a> /
+ <a href="s51.html" title="&#167;51: The room description">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p392" name="p392"></a>
+<h2>&#167;50 &nbsp; The design of puzzles</h2>
+
+<blockquote>The odyssey of &#8216;Zork: Mimesis&#8217; begins in a 
+field behind a white house. You climb in through an open window, take 
+the water and sack lunch from the table, go in the living room and move 
+the rug aside to reveal &#8211; a blank floor! &#8230; Soon the owner 
+of the house &#8211; an underemployed, alcoholic bricklayer &#8211; 
+is covering you with a shotgun as his unfaithful, neurotic wife dials 
+911. The puzzle-free, super-literary action continues as you are funneled 
+through the criminal justice system&#8230;<br>
+&#8212; Roger Giner-Sorolla, conceding that mimesis is not everything</blockquote>
+
+<p class="normal"><span class="atleft"><img src="dm4-392_1.jpg" alt=""></span>
+Without puzzles, or problems, or mechanisms to allow the player to receive 
+the text a little at a time &#8211; whichever phrase you prefer &#8211;
+there is no interaction. Inevitably, puzzles are obstacles. Here, Arthur 
+Dent will not be able to meet aliens and have a generally wild time 
+until he has got hold of a babel fish:</p>
+
+<p class="output">&gt;<tt>examine machine</tt><br>
+The dispenser is tall, has a button at around eye-level, and says 
+&#8220;Babel Fish&#8221; in large letters. Anything dispensed would 
+probably come out the slot at around knee-level. It bears a small label 
+which reads &#8220;Another fine product of the Sirius Cybernetics 
+Corporation.&#8221;<br>
+&gt;<tt>press dispenser button</tt><br>
+A single babel fish shoots out of the slot. It sails across the room 
+and through a small hole in the wall, just under a metal hook.<br>
+&gt;<tt>remove dressing gown</tt><br>
+Okay, you're no longer wearing your gown.<br>
+&gt;<tt>hang gown on hook</tt><br>
+The gown is now hanging from the hook, covering a tiny hole.<br>
+&gt;<tt>push dispenser button</tt><br>
+A single babel fish shoots out of the slot. It sails across the room 
+and hits the dressing gown. The fish slides down the sleeve of the gown 
+and falls to the floor, vanishing through the grating of a hitherto 
+unnoticed drain.<br>
+&gt;<tt>put towel over drain</tt><br>
+The towel completely covers the drain.</p>
+
+<p class="normal">(For the final solution, still some way off, see 
+&#8216;The Hitchhiker's Guide To The Galaxy&#8217;.) A good game mixes 
+easy puzzles with hard, but no puzzle should be so simple that one obvious 
+command solves it. On the other hand nor should its solution, once 
+guessed, take ridiculously long to achieve, or require endless repetition: 
+such as to fetch something pointlessly distant, or to solve 
+<a id="p393" name="p393"></a>
+an eight-discs Tower of Hanoi, or to keep juggling objects so that only 
+three are carried at any one time. Here are two basic pitfalls:</p>
+
+<div class="clump"><p class="normal"><i>The &#8220;Get-X-Use-X&#8221; syndrome.</i> &nbsp;
+By convention, every word or phrase in a cryptic crossword clue is 
+used exactly once to account for some part of the answer. The equivalent 
+in adventure games is the equation &#8220;one object = one puzzle solved&#8221;, 
+where the player picks up a bicycle pump and looks for a bicycle, picks 
+up a pin and looks for a balloon, and so on. Once used, an object can 
+be dropped, for it surely will not be needed again. But this convention
+rapidly drains away realism, and most designers try to break the equation 
+in every way possible: with red herrings (one object = no solutions), 
+collection puzzles (many objects = one solution), multiple solutions 
+(any of several objects = one solution) and multiple usages (one object 
+= many solutions).</p></div>
+
+<div class="clump"><p class="normal"><i>The &#8220;What's-the-Verb&#8221; 
+syndrome.</i> &nbsp; In &#8216;Ballyhoo&#8217;, &#8220;whip lion&#8221; 
+and &#8220;hit lion with whip&#8221; are inequivalent and only one of 
+them does any taming. The following, from &#8216;Sorcerer&#8217;, can 
+only be called a bug:</p>
+
+<p class="output">&gt;<tt>unlock journal</tt><br>
+(with the small key)<br>
+No spell would help with that!<br>
+&gt;<tt>open journal</tt><br>
+(with the small key)<br>
+The journal springs open.</p>
+
+<p class="normal">(For a third example, the wording needed to use the 
+brick in &#8216;Zork II&#8217; is most unfair.) In many games the 
+&#8220;examine&#8221;, &#8220;search&#8221; and &#8220;look inside&#8221; 
+verbs all perform different actions, and it is easy to accidentally design 
+a hidden treasure in such a way that only one of these will find it. 
+(Though at the other extreme, excessive tolerance for verbs leads to 
+everything being &#8220;moved&#8221;, not &#8220;pushed&#8221;, 
+&#8220;pulled&#8221; or &#8220;rotated&#8221;.) Similarly, in the 
+&#8220;What's-the-Noun&#8221; syndrome, an object stubbornly fails to 
+respond to reasonable synonyms, such as &#8220;sword&#8221; for 
+&#8220;gladius&#8221; or &#8220;football&#8221; for a soccer ball. But 
+perhaps a remark on a sad subject might be intruded here. The Japanese 
+woman near the start of &#8216;Trinity&#8217; can be called &#8220;yellow&#8221; 
+and &#8220;Jap&#8221;, terms with a grisly resonance. The game shows 
+nothing but respect for her: should it allow the player to do otherwise?</p>
+
+<p class="indent">Variety is valuable, but logic 
+and fairness are paramount. &#8220;Is the writer pulling a rabbit out 
+of a hat or do you see the fuzzy ears first?&#8221; (Dave Lebling). 
+Gareth Rees suggests that one way to ensure that puzzles are consistent 
+with the game containing them is to write a sample transcript of play 
+first:</p>
+
+<a id="p394" name="p394"></a>
+<blockquote>It stops me coding anything until I have a puzzle fairly 
+well fleshed out in my mind. Too often it's tempting to start coding 
+something one way and then discover that later developments need a 
+different approach.<br>It makes me think like a player (I try to &#8230;
+include a selection of the silly things that I would be liable to type 
+if I were playing the game &#8230;). Often when coding it becomes habit 
+just to fail to deal with situations and responses that are tricky to 
+write. Having them appear on the script forces me to say to myself, 
+&#8216;It may be tough to code but it'll appear natural in the game 
+and that's worth it&#8217;. I also find it hard to get into the habit 
+of providing interesting responses to failed actions, and the script 
+helps with this.</blockquote>
+
+<p class="normal">Another approach is to chain backwards from a goal, 
+repeatedly asking &#8220;how can I obstruct this further?&#8221;, so 
+that the plot line becomes, like a computer drawing of a fractal curve, 
+more crinkly with each iteration. Peter Killworth, in his book <i>How 
+to Write Adventure Games for the BBC Microcomputer Model B and Acorn 
+Electron</i> (whose opening words are &#8220;Adventure games are like 
+avocado pears&#8221;) describes an entire game this way 
+(&#8216;Roman&#8217;, 1984). Thus you need to pay a debt to a Senator, 
+so you need to steal a bust from a temple, but that means impersonating 
+a priest, by sacrificing a chicken with a gladius, which means catching 
+a chicken (you scare it with a cat, but the cat must be attracted by 
+a mouse, which you need to catch with a mousetrap): and the gladius 
+isn't just lying around, either. You also need a torch, which</p>
+
+<blockquote>&#8230; needs soaking in oil first, just as candles need 
+wax to burn. So we'd better organise a pool of oil through which the 
+player can walk &#8230; When the player gets to a source of flame &#8211; 
+how about a brazier of coals, which will have to be untakeable? &#8211; 
+he can attempt to light his torch. It isn't oily, it burns to a stump 
+well-nigh instantly &#8230; If it is oily, it'll catch fire &#8230;
+No, that's too simple. If a player is soaked in oil too, he'll probably 
+catch fire too! &#8230; We'll create a damp, misty area, where the player 
+is assassinated by a runaway slave, unless he enters while on fire. 
+Then he will be safe, because the mist will condense on his body &#8230;
+So the poor player, staggering around and on fire, will try the mist, 
+but to his disappointment the torch will go out permanently too! The 
+solution is trivial &#8211; he must drop the torch before entering 
+the mist.</blockquote>
+
+<p class="normal">(Killworth's games are not known for their qualms and 
+the player, it will be noted, forfeits the game without any warning 
+by lighting the unoily torch or exploring the misty area.) This kind 
+of plotting, with puzzles strung together like beads onto a necklace, 
+offers the considerable advantage of lending coherency. But it is also 
+liable to make long, linear sequences of puzzles which must be completed 
+in an exact order. &#8220;I've found it incredibly hard to keep the 
+puzzles from leading the whole story&#8221; (David M. Baggett, 1994).</p></div>
+
+<p class="dotbreak">· · · · ·</p>
+
+<a id="p395" name="p395"></a>
+<div class="clump"><p class="normal"><i>Mazes.</i> &nbsp; In 
+the <i>Trait&eacute; des syst&egrave;mes</i> of 1749, Condillac wrote: &#8220;What could be
+more ridiculous than that men awakening from a profound sleep, and 
+finding themselves in the middle of a labyrinth, should lay down general 
+principles for discovering the way out?&#8221; Ridiculous, but very 
+human, because the dogged exploration of a maze is dull indeed, repetitious 
+and irritatingly drawn-out: far more enjoyment is to be found in the 
+working-out of its general principles.</p>
+
+<p class="indent">Be it clearly said: it is designers who like mazes 
+(&#8220;Concocting such mazes is one of my delights&#8221; &#8211; 
+Peter Killworth); players do not like mazes. In the original puzzle, 
+a tangled set of rooms have indistinguishable descriptions so that 
+mapping becomes impossible: the original solution is to make the rooms 
+distinguishable again by littering them with objects as markers. This
+solution is easily obstructed (the &#8216;Advent&#8217; pirate and 
+the &#8216;Zork I&#8217; thief wander around picking the objects up 
+again), but this only makes the experience more tiresome. When David 
+Baggett was asked &#8220;How do I make my maze so that it doesn't 
+have the standard solution?&#8221;, his entire reply was: &#8220;Omit 
+it.&#8221;</p>
+
+<p class="indent">Nevertheless, like the writing of locked-room mysteries, 
+the devising of new solutions for mazes &#8211; usually involving guides, 
+or hidden signs, or ways to see &#8211; is a modest art form in its 
+own right: novelty being the essential point, though it is equally 
+important to signal to the player that a novel solution exists. The 
+unique <i>The Adventure Gamer's Manual</i> (1992), by the Cornish vicar 
+and eccentric writer Bob Redrup, devotes all of Chapters 7 and 8 to
+solving maze variants: a faintly weary tone is maintained throughout. 
+Redrup was an aficionado of the Topologika, and thus of the formerly 
+Cambridge University games, which are simply riddled with mazes. Here, 
+in &#8216;Crobe&#8217; (1986) by the indefatigable maze-maker Jonathan 
+Partington, the player is evidently not expected to explore haphazardly:</p>
+
+<p class="output">You are in an underground marsh, a treacherous place 
+where everything looks alike and water and slime lap around your feet. 
+One false move would mean death, but you do at least have the choice 
+of 8 horizontal directions to wander in.</p>
+
+<p class="normal">Because lethal unless solved utterly, this is a 
+benign sort of maze. Likewise, in &#8216;Kingdom of Hamil&#8217; (1982):</p>
+
+<p class="output">You are in the Maze of Hamil. Light streams in through 
+many gaps in the rocks. There is the constant sound of rockfalls, distant 
+and not-so-distant.<br>There is a small nickel hexagon here, with 
+the inscription &#8220;1 PFENTIME&#8221;.</p>
+
+<p class="normal">Whatever is going on here, it doesn't look like a 
+simple matter of dropping marker-objects. Partington also has a (thoroughly 
+unfashionable) penchant for elements of randomness which a player can 
+overcome with great difficulty by careful planning. The caryatid maze 
+from &#8216;Fyleet&#8217; (1985) makes the novel twist of imposing random 
+obstacles on a determined layout, and in &#8216;The Quest 
+<a id="p396" name="p396"></a>
+for the Sangraal&#8217; (1987): &#8220;There are exits in various directions, 
+but, since the island is rotating, these directions change continually.&#8221; 
+Infocom's output has its share of mazes, too, one per game: those 
+in &#8216;Starcross&#8217; and the &#8216;Enchanter&#8217;, &#8216;Sorcerer&#8217;, 
+&#8216;Spellbreaker&#8217; trilogy are the most satisfying.</p></div>
+
+<div class="clump"><p class="normal"><i>Light source puzzles.</i> &nbsp;
+Almost as disliked, but offering a little more scope to the designer, 
+is the &#8220;bringing light to darkness&#8221; puzzle. The two standards
+reduce to refilling a lamp with limited oil and bringing light to a 
+dark room which can apparently only be reached by a player who hasn't 
+got a light source. (&#8216;Advent&#8217; includes both. The lake 
+and aqueduct areas of &#8216;Zork III&#8217; have an elegant light 
+puzzle, probably the best thing in an otherwise so-so game.) Darkness 
+need not be a problem to be solved, though: it might be a fact of 
+life. Though few games have tried this (but visit the secret passage 
+in &#8216;Christminster&#8217;), a large permanently dark area might 
+still be explored with the other senses.</p></div>
+
+<div class="clump"><p class="normal"><i>Capacity and exhaustion puzzles.</i> &nbsp;
+Again, unpopular because their solution is normally tiresomely repetitive, 
+forcing the player to keep putting things down and picking them up 
+again. It can seem ridiculous that the protagonist can carry hundreds 
+of bulky and fiddly things around all the time, so many designers impose 
+a limit for realism's sake, typically of seven objects. It is bad form 
+to set puzzles making life difficult because the limit is four and not 
+five (after all, in emergency anyone can always carry one more item). 
+In some games the limit is instead on total weight. Taking realism further, 
+some games measure a state of health or even numerical levels of 
+&#8220;strength&#8221; and &#8220;constitution&#8221; during play. 
+The protagonist grows hungry and needs food, tired and needs sleep 
+(in &#8216;Enchanter&#8217; he is positively narcoleptic), wounded
+and needs recuperation. &#8216;Planetfall&#8217; simulated a progressive 
+illness whose symptoms are increasing need for food and sleep, and 
+put many players off this kind of puzzle for life. Exhaustion rules 
+are difficult to make fair. A rule requiring a return to an orchard 
+for fruit should be watched carefully, as it will irritate a player 
+to have to do this for a second, a third or a tenth time.</p></div>
+
+<div class="clump"><p class="normal"><i>Timed puzzles.</i> &nbsp;
+Completing this round-up of unpopular but still sometimes justified 
+puzzles are those which involve timed events, running along a script
+which requires the player to do something specific at one particular 
+moment. In the prologue to &#8216;The Hitchhiker's Guide To The Galaxy&#8217;, 
+why would any player buy the cheese sandwich in the pub and then feed 
+it to the dog in the lane, on the one and only turn in which this is 
+possible? Admittedly, an alternative exists later on, but this is not 
+evident at the time. Mike Roberts (Usenet posting, 1999):</p>
+
+<a id="p397" name="p397"></a>
+<blockquote>Aside from the annoyance, the reason I try to avoid timed 
+puzzles is that they make you acutely aware that you're playing a 
+game. As soon as I get into a save-try-restore loop, any sense of 
+immersion is destroyed for me; I instead feel like I'm debugging a 
+program, since I'm running through a series of inputs to figure out 
+how the game responds.</blockquote>
+
+<a id="p397_2" name="p397_2"></a>
+<p class="normal">This &#8220;sense of immersion&#8221; can partly be 
+restored by keying events not to game turns but to the time of day, 
+provided this fits the scenario, and making each stage last for a 
+great many more turns than are strictly needed to solve the puzzles. 
+Events which come only to he who waits are also problematic. In the
+Land of Shadow of &#8216;Zork III&#8217;, only the player who decides 
+for some reason to wait on a fairly uninteresting Ledge will be 
+rewarded with a visitor. (This case is defensible on grounds of context, 
+but only just.)</p></div>
+
+<a id="p397_3" name="p397_3"></a>
+<div class="clump"><p class="normal"><i>Utility objects.</i> &nbsp;
+A designer who wants players to think of some items as useful needs 
+to provide many situations &#8211; more than one, anyway &#8211; in 
+which they can be used. A hallmark of better-designed games is that 
+the player accumulates a few useful tools during play and wants to keep 
+them to hand thereafter. (Cf. the crowbar and gloves in &#8216;The 
+Lurking Horror&#8217;.)</p></div>
+
+<a id="p397_4" name="p397_4"></a>
+<div class="clump"><p class="normal"><i>Keys and doors.</i> &nbsp;
+Almost all games close off segments of the map on a temporary basis 
+by putting them behind locked doors. Many variations on this theme 
+are extant in the literature: coded messages on the door, illusory
+defences, gate-keepers, the key being in the lock on the wrong side 
+and so on. More usually a locked door signals to the player that a 
+different puzzle (i.e., finding the key) has to be solved before this 
+one can be, so that a designer uses it to impose a chronology on events. 
+Questions to ask here include: if there are people just inside, do 
+they react when the protagonist knocks on the door, or tries to break 
+it down or ram it? Can the door be opened, closed, locked or unlocked 
+from both sides? Are there skeleton or master-keys capable of opening 
+many different doors? Are the keys which do open different doors
+sufficiently distinctive in appearance? Roger Giner-Sorolla commented 
+that keys are the most naked kind of Get-X-Use-X puzzle:</p>
+
+<a id="p397_5" name="p397_5"></a>
+<blockquote>One can only find so many keys inside fishes' bellies, 
+lost in the wainscotting, dropped at random in corridors, or hanging 
+around guard dogs' necks before the artifice of the puzzle structure 
+becomes painfully clear. By contrast, all six of the keys in 
+&#8216;Christminster&#8217; are hidden in places where one might actually
+keep a key, and all their locks are guarding places that one would 
+expect to be locked; moreover, we end the game with a pretty clear 
+idea of who normally uses each key and why.</blockquote></div>
+
+<a id="p397_6" name="p397_6"></a>
+<div class="clump"><p class="normal"><i>Machinery and vehicles.</i> &nbsp;
+Machines are among the easiest puzzles to design: they have levers or 
+ropes to pull, switches to press, cogs to turn. They need not 
+<a id="p398" name="p398"></a>
+make conversation or respond to anything beyond their function. They often require specialised 
+tools, which brings in objects. They can transform the game in a semi-magical 
+way; time travel or transforming coal to diamond being the clich&eacute;s. 
+They can also connect together different locations: chains, swinging
+arms and chutes may run across the map, and help to glue it together. 
+Writing in the TADS manual, Mike Roberts makes the useful point 
+that machines assist interactivity:</p>
+
+<blockquote>For example, you might design a machine, described as &#8220;a 
+small metal box with a button, a short plastic hose on one side, and 
+a large metal pipe on the other side.&#8221; When the button is pushed, 
+&#8220;a loud hissing comes from the plastic hose for a moment, then 
+a large drop of clear liquid drops out of the pipe, which hits the 
+floor and quickly evaporates into a white cloud of vapor.&#8221; If 
+the player puts the plastic hose in a glass of water and the button
+is pushed, &#8220;the water is sucked into the plastic tube, and few 
+moments later a block of ice is dropped out of the pipe.&#8221; 
+This allows the player to learn by experimentation what the machine 
+does, which is more fun for the player than if you had labelled the 
+machine &#8220;a freezer&#8221; or some such.</blockquote>
+
+<p class="normal">In machine puzzles, then, the player experiments with 
+the controls and forms a theory of what is happening. With larger machines 
+this involves visualising the physical construction of the components 
+and how they affect each other: &#8216;Hollywood Hijinx&#8217; is 
+a tour de force of such puzzles, with a see-saw and a suspended safe. 
+But the literature also includes highly complex self-contained 
+machines presenting something of a black box whose internals must be 
+deduced, such as a B-52 bomber and an Enigma cipher machine 
+(&#8216;Jigsaw&#8217;) and a computer which is programmable in the 
+language Scheme (&#8216;Lists and Lists&#8217;, Andrew Plotkin, 1996). 
+Vehicles in games to date have included cars, tractors, fork-lift trucks, 
+boats, hot-air balloons, log flumes, punts and elephant rides. Vehicles 
+increase the realism of a landscape, by making it more than a set of 
+rules about walking. They nevertheless need a little care to code: 
+for instance, to disallow driving up ladders or through a narrow crevice.</p></div>
+
+<div class="clump"><p class="normal"><i>Fire.</i> &nbsp; The elements 
+all tangle up code but add to the illusion. Fire has many useful properties 
+&#8211; it makes light, it destroys things, it can cause explosions and 
+chemical reactions, it cooks food, it softens materials, it can be passed
+from one object to another &#8211; but in the end it spreads, whereas 
+the game's understanding doesn't. If the player is allowed to carry 
+a naked flame, then the game is likely to need a rule to tell it whether 
+or not every other item is flammable, and so on.</p></div>
+
+<div class="clump"><p class="normal"><i>Water.</i> &nbsp; In any location 
+where water is available, players will try drinking, swimming, washing, 
+diving. They will try to walk away with, indeed on, 
+<a id="p399" name="p399"></a>
+the water. Liquids 
+make poor objects, because they need to be carried in some container 
+yet can be poured from one to another, and because they are endlessly 
+divisible. &#8220;Some water&#8221; can easily be made into &#8220;some 
+water&#8221; and &#8220;some water&#8221;. If there's more than one 
+liquid in the game, can they be mixed? Pouring liquid over something is 
+likely to make a mess of it: yet why should it be impossible? And so 
+on. The compromise solution is usually to have a bottle with a capacity 
+of, say, 5 units of water, which can be refilled in any room where 
+there is water and so that 1 unit is drunk at a time. The player who 
+tries to pour water over most things is simply admonished and told 
+not to. Implementing swimming, or being underwater, is a different order 
+of difficulty again, and many games agree with &#8216;Parc&#8217; (John 
+Rennie, 1983) that &#8220;since you cannot free yourself, and since 
+you are by nature an air-breathing mammal I'm afraid you drown!&#8221;. 
+(Level 9's game &#8216;Adventure Quest&#8217; is rare in containing
+a coherently worked out underwater section, though many games have the
+odd turn's-worth of diving. &#8216;Jinxter&#8217; (Georgina Sinclair 
+and Michael Bywater, 1987), also has an elaborate underwater section, 
+with a seldom-discovered shipwreck to boot.) What happens to objects 
+being held? Can the protagonist swim while wearing heavy clothes, or 
+carrying many things? Is it possible to dive?</p></div>
+
+<div class="clump"><p class="normal"><i>Air.</i> &nbsp; Smoke and 
+fog can obscure the scene, but puzzles involving air are mainly about 
+its absence. The lack of oxygen to breathe has featured in many games, 
+not always through being underwater: &#8216;Zork I&#8217; and 
+&#8216;Sorcerer&#8217; share a mine with poor air, &#8216;Starcross&#8217; 
+and &#8216;Trinity&#8217; include locations in the vacuum of space. A 
+scuba mask, space helmet or some other kind of breathing apparatus is 
+called for. (Other gases simulated include helium, explosive hydrogen 
+and laughing gas.) Can the protagonist speak, or eat, or listen, or 
+taste while wearing this apparatus?</p></div>
+
+<div class="clump"><p class="normal"><i>Earth.</i> &nbsp; Digging for 
+buried treasure&#8230; the shovel can be found in just about every 
+traditional-style game and a good many others which ought to know better 
+besides. The problem is that the player may want to dig anywhere and
+everywhere, which the game will probably not want to implement: to 
+dig may artificially create a new location, or a new map connection, 
+or a new container &#8211; the hole left in the ground, that is. (The 
+prologue to &#8216;Infidel&#8217;, though the least interesting part 
+of the game from the point of view of playing, has a good implementation 
+of digging through sand.)</p></div>
+
+<a id="p400" name="p400"></a>
+<div class="clump"><p class="normal"><i>Plants.</i> &nbsp; Vegetation 
+fits into almost any landscape, and on the grounds of interactivity 
+generally plays some part in the game, which is good for variety, because 
+people deal differently with plants from machines and people.
+Undergrowth can be pulled away from something obscured, or useful plants
+picked. Trees and creeping plants ought to be climbable: players nearly 
+always try.</p></div>
+
+<div class="clump"><p class="normal"><i>Animals.</i> &nbsp; In many ways 
+preferable to people, animals add a splash of colour, and what would 
+the Garden of Eden have been without elephants, rabbits, leopards and 
+guinea pigs? They move and behave in curious and obsessive ways, displaying 
+what human characteristics they like but not needing to react to conversation 
+or to show human curiosity or surprise at what happens. This makes 
+them much easier to design, but it doesn't exempt them from characterisation. 
+It's a little predictable to make the player feed an animal into obedience 
+and then get it do something. (The bird in &#8216;Advent&#8217; is nicely
+characterised, in that it is frightened by the rusty iron rod with a 
+star on one end. &#8216;Trinity&#8217; is positively overrun with animal 
+life, with some critics having called its roadrunner the most important 
+character.)</p></div>
+
+<div class="clump"><p class="normal"><i>Monsters.</i> &nbsp; Many of 
+the early adventure games included trolls, orcs and dragons, or else 
+Frankenstein's Monster, Dracula and vampire bats: some, like &#8216;Zork 
+I&#8217;, allow hack-and-slay combat in the style of a role-playing 
+game like <i>Dungeons and Dragons</i>. Others, like the heavily infested 
+and therefore somewhat repetitive &#8216;Murdac&#8217; (Jonathan Partington, 
+1982), base all their puzzles on getting past or getting rid of things. 
+&#8220;Getting past&#8221; occurs often because most monster puzzles are 
+no more than doors with the decoration of slavering fangs. Even when 
+monsters wander, they are generally dull because &#8211; being monsters 
+&#8211; they have no unpredictable behaviour. Whereas the capacious 
+underworld of the same author's &#8216;Kingdom of Hamil&#8217; houses 
+a baby hexapod (a what?) and a Conan Doyle-like Lost World of dinosaurs, 
+which is much more the thing.</p></div>
+
+<div class="clump"><p class="normal"><i>People.</i> &nbsp; So dawns 
+the sixth day of creation: we have the mountains, rivers, plants and 
+animals, but as yet no people. The nightmare of coding real characters 
+is illustrated well by one of Dave Lebling's example bugs from 
+&#8216;Suspect&#8217; (1984):</p>
+
+<p class="output">&gt;<tt>show corpse to michael</tt><br>
+Michael doesn't appear interested.</p>
+
+<p class="normal">The body is that of Veronica, Michael's wife. Objects 
+representing people often take extensive code, perhaps five times that 
+needed for even a complicated room, because they may need to react to 
+events, follow instructions (&#8220;robot, go 
+<a id="p401" name="p401"></a>
+south&#8221;), wander around the map and make conversation of sorts 
+(the woman selling bread-crumbs in &#8216;Trinity&#8217;, who plays only 
+a minor role, can say over 50 different things). Games with 
+strongly-defined protagonists tend to have a stronger supporting cast, too:</p>
+
+<blockquote>&#8216;Christminster&#8217; does an exceptionally good 
+job of outlining Christabel's role as a woman by limiting her actions 
+(she can't enter chapel bareheaded) and through &#8230; dialogue (the 
+villains and the Master are condescending, while young Edward sees 
+her as a confidante).</blockquote>
+
+<p class="normal">(Roger Giner-Sorolla.) What distinguishes a character 
+from, say, a spanner is that it has an attitude to the protagonist. One 
+model of this has the current attitude as a position in a &#8220;mood 
+maze&#8221;, with different moods being like locations and stimuli 
+applied by the protagonist being like directions:</p>
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree">
+<tr><td>Suspicious</td><td colspan="2" rowspan="2"></td></tr>
+<tr><td><small style="color:white"><i>reassure</i></small>&darr;<small><i>reassure</i></small></td></tr>
+<tr><td rowspan="2">Hungry</td>
+<td><small><i>feed</i></small></td>
+<td rowspan="2">Grateful</td></tr>
+<tr><td>&rarr;</td></table>
+
+<p class="normal">(Setting out in the &#8220;feed&#8221; direction from 
+Suspicious leads nowhere, as the food is not accepted.) Such a person 
+is no more than a plaything, entirely reactive and without memory, so 
+most designers would want to conceal this fact by adding spontaneous or 
+even random behaviour, startling the player from time to time. Or, 
+of course, by simulating some memory of events. Adam Cadre's &#8216;Varicella&#8217; 
+(1999) handles conversation using around 450 flag variables to remember 
+which questions have been asked and answered before. It also reformulates 
+conversation. Here, the protagonist Varicella &#8211; as bad as the 
+rest of them, Cadre having a rare gift for the amoral &#8211; encounters 
+Miss Sierra, the King's mistress:</p>
+
+<p class="output">&gt;<tt>ask sierra about king</tt><br>
+&#8220;What can you tell me about the King?&#8221; you ask. &#8221;You 
+seem to have known him better than anyone else&#8230;&#8221;<br>
+Miss Sierra scowls at you. &#8220;That had better not be an attempt at a 
+personal question,&#8221; she says. &#8220;If you're expecting a rhapsody 
+about how he won my girlish heart, think again.&#8230;&#8221;<br>
+&gt;<tt>ask sierra about king</tt><br>
+&#8220;Is there anything else you care to say about the King?&#8221; 
+you ask.</p>
+
+<p class="normal">Elsewhere, &#8220;ask guard about rico&#8221; can 
+come out as &#8220;Is Rico in?&#8221;, &#8220;ask queen about prince&#8221; 
+as &#8220;How is Prince Charles?&#8221; and so on according to what 
+would make sense in context. Such programming is exhausting but fruitful 
+in a game placing great reliance on conversation.</p></div>
+
+<a id="p402" name="p402"></a>
+<div class="clump"><p class="normal"><i>Ropes and chains.</i> &nbsp;
+Are notoriously troublesome to implement consistently:</p>
+
+<blockquote>[Someone will] say &#8220;Well, I've got this rope&#8230; 
+how do I do a rope? It can be in two rooms at once if you tie it to 
+something and take the end with you, and can you tie things up with 
+it and drag them around with you?&#8221;<br>
+Then we'll stop and think and say, &#8220;You don't want to have a 
+rope in your game,&#8221; and that makes it much easier for the new 
+writers, you see.<br>
+My new game [&#8216;The Lurking Horror&#8217;] has a chain in it, and 
+it's even worse than a rope in almost every respect you can imagine 
+and it's caused me no end of horror&#8230; the number of bugs that 
+have come in on this chain alone would stack from here to there and 
+back again.</blockquote>
+
+<p class="normal">(Dave Lebling again. But the chain puzzle in 
+&#8216;Lurking&#8217; is a masterstroke.) &#8216;The Meteor, The Stone 
+and a Long Glass of Sherbet&#8217; has a rope solving several puzzles 
+whose source code runs to 300 lines of Inform, which is more than
+the whole &#8220;lily pond&#8221; region took: put another way, 5% 
+of the entire code is occupied describing the rope. There is also a 
+long ladder which is nearly as bad, and which the player is not allowed 
+to tie the rope to.</p></div>
+
+<div class="clump"><p class="normal"><i>Riddles.</i> &nbsp; Numerous 
+games (&#8216;Beyond Zork&#8217;, &#8216;The Path to Fortune&#8217; (Jeff
+Cassidy and C. E. Forman, 1995)) include sphinxes or talking doors 
+which pose riddles to passing strangers, and the writing of good riddles 
+is an art form in itself. But who put these puzzle-obsessed doorkeepers 
+there, and why? The knock-knock joke door in Irene Callaci's &#8216;Mother 
+Loose&#8217; (1998) sits much more happily, as the game is a wry mingling 
+of nursery-rhyme stories for her six-year-old granddaughter (and indeed 
+for the rest of us).</p></div>
+
+<div class="clump"><p class="normal"><i>Decipherment.</i> &nbsp;
+Perhaps the most abstract and, if done well, the most satisfying of 
+puzzles are those which present a system of coded messages, clues to 
+the meaning of which are scattered across the game. &#8216;Infidel&#8217; 
+has hieroglyphics. &#8216;Edifice&#8217; (Lucian Smith, 1997) requires 
+the player to learn the language of Nalian, a puzzle which won considerable 
+plaudits from players. But there are non-linguistic decipherments, 
+too: in a sense the map of &#8216;Spellbreaker&#8217; is itself a 
+cipher. On a smaller scale, several Cambridge University games contain 
+tricky cipher puzzles not unrelated to recreational mathematics. 
+&#8216;Avon&#8217;, for instance, has a substitution code which is 
+insoluble, but which it is possible to make partial deductions about: 
+just enough to solve the problem at hand.</p></div>
+
+<p class="dotbreak">· · · · ·</p>
+
+<div class="clump"><p class="normal"><i>Clues.</i> &nbsp; At least in 
+one view of interactive fiction, clues are essential and the principle 
+should be that an ideally perceptive player could win on his or her 
+first attempt, without recourse to saved games: in particular, without 
+knowledge of past lives or of future events. (The exact opposite, in 
+fact, of what &#8216;Brand 
+<a id="p403" name="p403"></a>
+X&#8217; does. The player begins in a shop 
+containing an aqualung, a cushion, a bunch of keys, a piece of sausage, 
+a teabag and a sign declaring that &#8220;only two implements may 
+be removed from this shop under penalty of death, so choose carefully&#8221;.) 
+Here are three clues which did not carry:</p>
+
+<ol style="list-style-type:decimal">
+<li>In &#8216;Dungeon Adventure&#8217;, a pride of lions is carved 
+over a doorway. Any player walking through falls into a lethal pit. 
+Did you miss the clue?<a id="s50_fnref1" 
+name="s50_fnref1"></a><a href="#s50_fn1">&#8224;</a></li>
+<li>The diamond maze in &#8216;Zork II&#8217; is almost impossible to 
+fathom unless (or even if) you are familiar with a certain multiple-innings 
+team sport played only in America. In the words of even its designer: 
+&#8220;always annoyed me&#8230; pretty lame.&#8221;</li>
+<li>Almost every player of &#8216;Advent&#8217; has considered the 
+rock marked Y2 to be a decoy, emblematic of the mysterious cave. But 
+it was meant as a clue: on the cave maps used by Will Crowther's group, 
+&#8220;Y2&#8221; denoted a secondary cave entrance, which in a certain 
+sense is what this location is.<a id="s50_fnref2"
+name="s50_fnref2"></a><a href="#s50_fn2">&#8225;</a></li>
+</ol>
+
+<p class="normal">(1) is a bad pun, (2) an unconscious assumption and 
+(3) an in-joke. Games that are entirely in-jokes, like the subgenre 
+of college campus simulations (&#8216;The Lurking Horror&#8217; features 
+MIT, Infocom's alma mater) are at least deliberately so, but it is 
+all too easy for designers to include familiar objects from their own 
+lives into any game, and unconsciously assume that the player shares 
+this familiarity. When that familiarity is needed to solve a puzzle, 
+the game may become unplayable.</p></div>
+
+<div class="clump"><p class="normal"><i>Luck and accidental solutions.</i>
+&nbsp; Small chance variations add to the fun, but only small ones. 
+The thief in &#8216;Zork I&#8217; seems to me to be just about right 
+in this respect, and similarly the spinning room in &#8216;Zork II&#8217;, 
+but a ten-ton weight which falls down and kills the player at a certain 
+point in half of all games would simply irritate. A particular danger 
+occurs with low-probability events, one or a combination of which might 
+destroy the player's chances. For instance, in the earliest edition 
+of &#8216;Adventureland&#8217;, the bees have an 8% chance of suffocation
+each turn carried in the bottle: one needs to carry them for 10 or 11 
+turns, giving the bees only a 40% chance of surviving to their 
+destination.</p>
+
+<p class="indent">Even in a puzzle with no element of luck, many problems 
+are solved by accident or trial and error. (The notorious Bank of Zork 
+puzzle in &#8216;Zork II&#8217; has been understood by almost nobody 
+who solved it.) This is unsatisfying for 
+<a id="p404" name="p404"></a>
+both player and designer, and 
+some games take steps to try to avoid it. The gold-assaying puzzle 
+in &#8216;Spellbreaker&#8217; is such that a shrewd strategy will always
+succeed, but in principle even a random strategy <i>might</i> succeed. 
+The game rigs the odds to ensure that it never does.</p></div>
+
+<div class="clump"><p class="normal"><i>Optional, partial and multiple 
+solutions.</i> &nbsp; Most designers like to give two or more different 
+solutions to a few puzzles in a game: it seems more real, it means that 
+even a winning player hasn't found all of the game's secrets and it
+makes a difficult puzzle easier. (There are seven ways to open the 
+child-proof medicine bottle in &#8216;Curses&#8217;.) Multiple solutions 
+to the same puzzle need to be equally valid. The designer should not 
+think of one solution as the &#8220;real&#8221; one, or allow another 
+&#8220;short cut&#8221; one to skip critical plot events &#8211; this 
+would short-change the player. On the other hand the designer must 
+be relaxed about the inevitability that some part of his golden prose 
+will never be seen whichever path the player takes. Most additional 
+solutions are added in play-testing, but here is Brian Moriarty 
+on &#8216;Wishbringer&#8217; (1985):</p>
+
+<blockquote>Most of the problems in the story have two or more solutions. 
+The easy way out is to use Wishbringer. If a beginner gets frustrated, 
+he can whip out the magic stone, mumble a wish and keep on playing. 
+Experienced players can search for one of the logical solutions &#8211; 
+a bit harder, perhaps, but more satisfying. It's possible to complete 
+the story without using any of the stone's seven wishes. In fact, that's 
+the only way to earn the full 100 points.<br>The puzzles are highly 
+interconnected. Once you start wishing your problems away, it's 
+very hard to continue playing without relying more and more on the 
+magic stone. The impotence of idle wishing &#8211; that's the moral 
+of &#8216;Wishbringer&#8217;. All really good stories have a moral.</blockquote>
+
+<p class="normal">Analogous perhaps to the Wishbringer stone, &#8216;Enchanter&#8217; 
+has a one-use-only anti-magic spell. Although this solves one in particular 
+of the more difficult puzzles, to use it up so early forfeits the game, 
+since it is needed later. If you do fall into this trap, one of the ingenious 
+dream sequences offers an oblique warning:</p>
+
+<p class="output">You dream of climbing in an unfamiliar place. You 
+seem to climb forever, beyond reason. A fleeting hope arises in you, 
+and you search furiously in your spell book and possessions for something. 
+After a moment, you become frantic as you realize that you don't have 
+it! You bolt awake in a cold sweat.</p></div>
+
+<div class="clump"><p class="normal"><i>Rewards.</i> &nbsp; What reward 
+for solving a puzzle? One is obvious: the game state advances a little 
+towards its completion. But the player at the keyboard needs a reward 
+as well: that the game should offer something new to look at. The
+white cubes in &#8216;Spellbreaker&#8217;, with the power to teleport 
+the protagonist to new areas, are far more alluring than, say, the 
+&#8220;platinum pyramid&#8221; of &#8216;Advent&#8217;, which is only 
+a noun with a few points attached and opens up no further map.</p></div>
+
+<a id="p405" name="p405"></a>
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+&#8220;[A puzzle] should be logical, according to the logic of the 
+game's universe. In a fantasy game, a puzzle can rely on magic, but 
+the magic must be consistent throughout the game. A puzzle should be 
+original in some way, not just a rehash of an earlier puzzle with different 
+objects.&#8221; (Steve Meretzky). &#8220;My basic principle of designing 
+puzzles is that the player should always know what he's trying to accomplish. 
+Metaphorically, a player should always be able to find a locked door 
+before he finds the key&#8221; (Mike Roberts in the <i>TADS</i> manual). 
+&#8220;In all cases, after a particularly arduous puzzle, reward the 
+player with a few simpler ones&#8221; (C. E. Forman, <i>XYZZYnews</i> 
+1). &#8220;Err on the side of easy. (He said, waiting to be struck 
+dead for hypocrisy.)&#8221; (Andrew Plotkin). &#8220;There's definitely 
+a difference between &#8216;satisfying&#8217; and &#8216;pertinent&#8217;.&#8221; 
+(Lucian Smith. These last quotations from the round-table discussion 
+on puzzles in <i>XYZZYnews</i> 14.) &nbsp;
+<span class="warning"><b>&#8226;</b></span>For more on the invented language 
+in &#8216;Edifice&#8217;, see &#8216;Parlez-Vous Nalian&#8217; in
+<i>XYZZYnews</i> 16.</p>
+
+<hr class="footnotebar">
+<p class="aside" style="margin-top:0"><a id="s50_fn1"
+name="s50_fn1"></a><a href="#s50_fnref1">&#8224;</a>&nbsp; 
+Pride comes before a fall.</p>
+
+<p class="aside"><a id="s50_fn2"
+name="s50_fn2"></a><a href="#s50_fnref2">&#8225;</a>&nbsp;
+Several Cambridge University games, written 
+by mathematicians, refer to &#8220;J4&#8221;: &#8216;Acheton&#8217;, 
+for instance, has a &#8220;J4 room&#8221; rather like the &#8220;Y2 
+rock room&#8221;. The then-recent construction of the previously only 
+hypothetical group <i>J</i><sub>4</sub> had completed the classification 
+theorem for finite simple groups, and was a departmental triumph. 
+The sign &#8220;&#8707;<i>J</i><sub>4</sub>&#8221; remained above a doorframe 
+for some years.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch8.html" title="Chapter VIII: The Craft of Adventure">chapter VIII</a> /
+ <a href="s49.html" title="&#167;49: Structure">prev</a> /
+ <a href="s51.html" title="&#167;51: The room description">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

@@ -1,0 +1,1782 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>DM4 &#167;3: Objects and classes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="dm4.css">
+</head>
+<body>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch1.html" title="Chapter I: The Inform Language">chapter I</a> /
+ <a href="s2.html" title="&#167;2: The state of play">prev</a> /
+ <a href="ch2.html" title="Chapter II: Introduction to Designing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+<div class="page">
+<a id="p57" name="p57"></a>
+<h2>&#167;3 &nbsp; Objects and classes</h2>
+
+<blockquote>Objects make up the substance of the world.<br>
+&#8212;Ludwig Wittgenstein (1889&#8211;1951), <i>Tractatus</i></blockquote>
+
+<a id="s3_1" name="s3_1"></a>
+<h3>&#167;3.1 &nbsp; Objects, classes, metaclasses and <code>nothing</code></h3>
+
+<p class="normal"><span class="atleft"><img src="dm4-057_1.jpg" alt=""></span>
+In Inform, objects are little bundles of routines and variables tied
+up together. Dividing up the source code into objects is a good way
+to organise any large, complicated program, and makes particular
+sense for an adventure game, based as it usually is on simulated
+items and places. One item in the simulated world corresponds to one
+&#8220;object&#8221; in the source code. Each of these pieces of the story file 
+should take responsibility for its own behaviour, so for instance a 
+brass lamp in an adventure game might be coded with an Inform object 
+called <code>brass_lamp</code>, containing all of the game rules which 
+affect the lamp. Then again, objects <em>do</em> have to interact.</p>
+
+<p class="output"><em>In West Pit</em><br>
+You are at the bottom of the western pit in the twopit room. There 
+is a large hole in the wall about 25 feet above you.<br>
+There is a tiny little plant in the pit, murmuring &#8220;Water, 
+water,&#8230;&#8221;</p>
+
+<p class="normal">In this moment from &#8216;Advent&#8217;, the player 
+is more or less openly invited to water the plant. There might be many 
+ways to bring water to it, or indeed to bring liquids other than water, 
+and the rules for what happens will obviously affect the bottle carrying 
+the water, the water itself and the plant. Where should the rules appear 
+in the source code? Ideally, the <code>plant</code> object should
+know about growing and the <code>bottle</code> about being filled up 
+and emptied. Many people feel that the most elegant approach is for 
+the <code>bottle</code>, or any other flask, not to interfere with 
+the plant directly but instead to send a &#8220;message&#8221; to the
+<code>plant</code> to say &#8220;you have been watered&#8221;. It's then easy to add 
+other solutions to the same puzzle: a successful rain dance, for 
+instance, could also result in a &#8220;you have been watered&#8221; 
+message being sent to <code>plant</code>. The whole behaviour of the 
+<code>plant</code> could be altered without needing even to look at 
+the rain-dance 
+<a id="p58" name="p58"></a>
+or the bottle source code. Objects like this can frequently 
+be cut out of the source code for one game and placed into another, still 
+working.</p>
+
+<p class="indent">This traffic of messages between objects goes on 
+continuously in Inform-compiled adventure games. When the player tries 
+to pick up a wicker cage, the Inform library sends a message to the cage 
+object asking if it minds being picked up. When the player tries to go 
+north from the Hall of Mists, the library sends a message to an object 
+called <code>Hall_of_Mists</code> asking where that would lead, and 
+so on.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Typical large story files have so many objects 
+(&#8216;Curses&#8217;, for instance, has 550) that it is convenient to 
+group similar objects together into &#8220;classes&#8221;. For instance, 
+&#8216;Advent&#8217; began life as a simulation of part of the Mammoth 
+and Flint Ridge cave system of Kentucky, caves which contain many, many 
+dead ends. The Inform source code could become very repetitive without 
+a class like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class DeadEndRoom
+ with short_name &quot;Dead End&quot;,
+      description &quot;You have reached a dead end.&quot;,
+      cant_go &quot;You'll have to go back the way you came.&quot;;
+</pre>
+
+<p class="normal">Leaving the exact syntax for later, this code lays 
+out some common features of dead ends. All kinds of elegant things 
+can be done with classes if you like, or not if you don't.</p>
+
+<p class="indent">Objects can belong to several different classes 
+at once, and it is sometimes convenient to be able to check whether 
+or not a given object belongs to a given class. For instance, 
+in adventures compiled with the Inform library, a variable called 
+<code>location</code> always holds the player's current position, 
+so it might be useful to do this:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">if (location ofclass DeadEndRoom) &quot;Perhaps you should go back.&quot;;</pre>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Items and places in an Inform game always belong 
+to at least one class, whatever you define, because they always belong 
+to the &#8220;metaclass&#8221; <code>Object</code>. (&#8220;Meta&#8221; 
+from the Greek for &#8220;beyond&#8221;.) As we shall see, all of the 
+objects explicitly written out in Inform source code always belong 
+to <code>Object</code>. Though you seldom need to know this, there are 
+three other metaclasses. Classes turn out to be a kind of object in 
+themselves, and belong to <code>Class</code>. (So that <code>Class</code>
+belongs to itself. If you enjoy object-oriented programming, this 
+will give you 
+<a id="p59" name="p59"></a>
+a warm glow inside). And although you almost never need 
+to know or care, routines as in <a href="s1.html">&#167;1</a> 
+are internally considered as a kind of object, of class <code>Routine</code>;
+while strings in double-quotes are likewise of class <code>String</code>. 
+That's all, though. If in doubt, you can always find out what kind 
+of object <code>obj</code> is, using the built-in function 
+<code>metaclass(obj)</code>. Here are some example values:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+metaclass(&quot;Violin Concerto no. 1&quot;) == String
+metaclass(Main) == Routine
+metaclass(DeadEndRoom) == Class
+metaclass(silver_bars) == Object
+</pre>
+
+<p class="normal">Classes are useful and important, but for most game-designing 
+purposes it's now safe to forget all about metaclasses.</p>
+
+<p class="indent">It turns out to be useful to have a constant called 
+<code>nothing</code> and meaning &#8220;no object at all&#8221;. 
+It really does mean that: nothing <em>is not an object</em>. If you 
+try to treat it as one, many programming errors will be printed up 
+when the story file is played.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+If <code>X</code> is not an object at all, then <code>metaclass(X)</code> 
+is <code>nothing</code>, and in particular <code>metaclass(nothing)</code> 
+is <code>nothing</code>.</p>
+
+<a id="s3_2" name="s3_2"></a>
+<h3>&#167;3.2 &nbsp; The object tree</h3>
+
+<p class="normal">Objects declared in the source code are joined together 
+in an &#8220;object tree&#8221; which grows through every Inform story 
+file. Adventure games use this to represent which items are contained inside 
+which other items.</p>
+
+<p class="indent">It's conventional to think of this as a sort of 
+family tree without marriages. Each object has a parent, a child 
+and a sibling. Such a relation is always either another object in 
+the tree, or else <code>nothing</code>, so for instance the parent 
+of an orphan would be <code>nothing</code>. Here is a sample object 
+tree:</p>
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree"><tr>
+<td><code>Meadow</code></td>
+<td colspan="8"></td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="8"></td>
+</tr><tr>
+<td rowspan="2"><code>Mailbox</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Player</code></td>
+<td colspan="6" rowspan="2"></td>
+</tr><tr>
+<td>&rarr;</td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="6"></td>
+</tr><tr>
+<td rowspan="2"><code>Note</code></td>
+<td rowspan="2"></td>
+<td rowspan="2"><code>Sceptre</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Bottle</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Torch</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Stone</code></td>
+</tr><tr>
+<td>&rarr;</td><td>&rarr;</td><td>&rarr;</td>
+</tr><tr>
+<td colspan="6"></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="2"></td>
+</tr><tr>
+<td colspan="6"></td>
+<td><code>Battery</code></td>
+<td colspan="2"></td>
+</tr></table>
+
+<p class="normal">The <code>Mailbox</code> and <code>Player</code> 
+are both children of the <code>Meadow</code>, which is their parent, 
+but only the <code>Mailbox</code> is <em>the</em> child of the <code>Meadow</code>. 
+The <code>Stone</code> is the sibling of the <code>Torch</code>, which 
+is the sibling of the <code>Bottle</code>, and so on.</p>
+
+<a id="p60" name="p60"></a>
+<p class="indent">Inform provides special functions for reading off 
+positions in the tree: <code>parent</code>, <code>sibling</code> do 
+the obvious things, and <code>child</code> gives the first child:
+in addition there's a function called <code>children</code> which 
+counts up how many children an object has (note that grandchildren 
+don't count as children). Here are some sample values:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+parent ( Mailbox )  == Meadow
+children ( Player ) == 4
+child ( Player )    == Sceptre
+child ( Sceptre )   == nothing
+sibling ( Torch )   == Stone
+</pre>
+
+<p class="normal"><span class="warning"><b>&#8226;</b> <b>WARNING</b></span><br>
+It is incorrect to apply these functions to the value <code>nothing</code>, 
+since it is <em>not an object</em>. If you write a statement like <code>print 
+children(x);</code> when the value of <code>x</code> happens to be 
+<code>nothing</code>, the interpreter will print up the message:</p>
+
+<p class="output">[** Programming error: tried to find the &#8220;children&#8221; 
+of nothing **]</p>
+
+<p class="normal">You get a similar error message if you try to apply 
+these tree functions to a routine, string or class.</p>
+
+<a id="s3_3" name="s3_3"></a>
+<h3>&#167;3.3 &nbsp; Declaring objects 1: setting up the tree</h3>
+
+<p class="normal">Objects are made with the directive <code>Object</code>. 
+Here is a portion of source code, with the bulk of the definitions 
+abbreviated to &#8220;...&#8221;:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object Bucket ...
+Object -&gt; Starfish ...
+Object -&gt; Oyster ...
+Object -&gt; -&gt; Pearl ...
+Object -&gt; Sand ...
+</pre>
+
+<p class="normal">The resulting tree looks a little like the source 
+code turned on its side:
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree"><tr>
+<td><code>Bucket</code></td>
+<td colspan="4" rowspan="2"></td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+</tr><tr>
+<td rowspan="2"><code>Starfish</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Oyster</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Sand</code></td>
+</tr><tr>
+<td>&rarr;</td><td>&rarr;</td>
+</tr><tr>
+<td colspan="2" rowspan="2"></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="2" rowspan="2"></td>
+</tr><tr>
+<td><code>Pearl</code></td>
+</tr></table>
+
+<a id="p61" name="p61"></a>
+<p class="normal">The idea is that if no arrows <code>-&gt;</code> are given 
+in the <code>Object</code> definition, then the object has no parent. 
+If one <code>-&gt;</code> is given, then the object is made a child 
+of the last object defined with no arrows; if two are given, it's made 
+a child of the last object defined with only one arrow; and so on.</p>
+
+<p class="indent">An object definition consists of a &#8220;head&#8221; 
+followed by a &#8220;body&#8221;, itself divided into &#8220;segments&#8221;, 
+though there the similarity with caterpillars ends. The head takes 
+the form:</p>
+
+<p class="syntax"><code>Object</code> &#8249;<span class="token">arrows</span>&#8250;
+&#8249;<span class="token">identifier</span>&#8250; <code>&quot;textual name&quot;</code> &#8249;<span class="token">parent</span>&#8250;</p>
+
+<ol>
+<li>The &#8249;<span class="token">arrows</span>&#8250; are as described above. Note that if one or 
+more arrows are given, that automatically specifies what object 
+this is the child of, so a &#8249;<span class="token">parent</span>&#8250; cannot be given as well.</li>
+<li>The &#8249;<span class="token">identifier</span>&#8250; is what the object can be called inside 
+the program, in the same way that a variable or a routine has a name.</li>
+<li>The <code>&quot;textual name&quot;</code> can be given if the object's 
+name ever needs to be printed by the program when it is running.</li>
+<li>The &#8249;<span class="token">parent</span>&#8250; is an object which this new object is to be 
+a child of. This is an alternative to supplying arrows.</li>
+</ol>
+
+<p class="normal">All four parts are optional, so that even this 
+bare directive is legal:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Object;</pre>
+
+<p class="normal">though it makes a nameless and featureless object 
+which is unlikely to be useful.</p>
+
+<a id="s3_4" name="s3_4"></a>
+<h3>&#167;3.4 &nbsp; Tree statements: <code>move</code>, <code>remove</code>, 
+<code>objectloop</code></h3>
+
+<p class="normal">The positions of objects in the tree are by no means 
+fixed: objects are created in a particular formation but then shuffled 
+around extensively during the story file's execution. (In an adventure 
+game, where the objects represent items and rooms, objects are moved 
+across the tree whenever the player picks something up or moves around.) 
+The statement</p>
+
+<p class="syntax"><code>move</code> &#8249;<span class="token">object</span>&#8250; 
+<code>to</code> &#8249;<span class="token">object</span>&#8250;</p>
+
+<p class="normal">moves the first-named object to become a child of 
+the second-named one. All of the first object's own children &#8220;move 
+along with it&#8221;, i.e., remain its own children.</p>
+
+<a id="p62" name="p62"></a>
+<p class="indent">For instance, starting from the tree as shown in 
+the diagram of <a href="#s3_2">&#167;3.2</a> above,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">move Bottle to Mailbox;</pre>
+
+<p class="normal">results in the tree</p>
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree"><tr>
+<td><code>Meadow</code></td>
+<td colspan="8"></td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="8"></td>
+</tr><tr>
+<td rowspan="2"><code>Mailbox</code></td>
+<td rowspan="2"></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"></td>
+<td rowspan="2"><code>Player</code></td>
+<td rowspan="2" colspan="4"></td>
+</tr><tr>
+<td>&rarr;</td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="3"></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="4"></td>
+</tr><tr>
+<td rowspan="2"><code>Bottle</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Note</code></td>
+<td rowspan="2">&nbsp; &nbsp; &nbsp;</td>
+<td rowspan="2"><code>Sceptre</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Torch</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Stone</code></td>
+</tr><tr>
+<td>&rarr;</td><td>&rarr;</td><td>&rarr;</td>
+</tr><tr>
+<td colspan="6"></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="2"></td>
+</tr><tr>
+<td colspan="6"></td>
+<td><code>Battery</code></td>
+<td colspan="2"></td>
+</tr></table>
+
+<p class="normal">When an object becomes the child of another in this 
+way, it always becomes the &#8220;eldest&#8221; child: that is, it 
+is the new <code>child()</code> of its parent, pushing the previous 
+children over into being its siblings. In the tree above, <code>Bottle</code> 
+has displaced <code>Note</code> just so.</p>
+
+<p class="indent">You can only move one object in the tree to another: 
+you can't</p>
+
+<p class="lynxonly"></p>
+<pre class="code">move Torch to nothing;</pre>
+
+<p class="normal">because <code>nothing</code> <em>is not an object</em>. 
+Instead, you can detach the <code>Torch</code> branch from the tree 
+with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">remove Torch;</pre>
+
+<p class="normal">and this would result in:</p>
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree"><tr>
+<td><code>Meadow</code></td>
+<td colspan="6"></td>
+<td><code>Torch</code></td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="6"></td>
+<td>&darr;<small><i>child</i></small></td>
+</tr><tr>
+<td rowspan="2"><code>Mailbox</code></td>
+<td rowspan="2"></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"></td>
+<td rowspan="2"><code>Player</code></td>
+<td rowspan="2" colspan="2"></td>
+<td><code>Battery</code></td>
+</tr><tr>
+<td>&rarr;</td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="3"></td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="3"></td>
+</tr><tr>
+<td rowspan="2"><code>Bottle</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Note</code></td>
+<td rowspan="2">&nbsp; &nbsp; &nbsp;</td>
+<td rowspan="2"><code>Sceptre</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>Stone</code></td>
+<td rowspan="2" colspan="2"></td>
+</tr><tr>
+<td>&rarr;</td><td>&rarr;</td>
+</tr></table>
+
+<p class="normal">The &#8220;object tree&#8221; is often fragmented like 
+this into many little trees, and is not so much a tree as a forest.</p>
+
+<p class="normal" style="margin-top:1em"><span class="warning"><b>&#8226;</b> <b>WARNING</b></span><br>
+It would make no sense to have a circle of objects each containing 
+the next, so if you try to move <code>Meadow</code> to <code>Note</code>; 
+then you'll only move the interpreter to print up:</p>
+
+<p class="output">[** Programming error: tried to move the Meadow 
+to the note, which would make a loop: Meadow in note in mailbox 
+in Meadow **]</p>
+
+<a id="p63" name="p63"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">Since objects move around a good deal, it's useful 
+to be able to test where an object currently is, and the condition 
+<code>in</code> is provided for this. For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Bottle in Mailbox</pre>
+
+<p class="normal">is true if and only if the <code>Bottle</code> 
+is one of the <em>direct</em> children of the <code>Mailbox</code>.
+(<code>Bottle in Mailbox</code> is true, but 
+<code>Bottle in Meadow</code> is false.) Note that</p>
+
+<p class="lynxonly"></p>
+<pre class="code">X in Y</pre>
+
+<p class="normal">is only an abbreviation for <code>parent(X)==Y</code> 
+but it occurs so often that it's worth having. Similarly, <code>X 
+notin Y</code> means <code>parent(X)~=Y</code>. <code>X</code> has 
+to be a bona-fide member of the object tree, but <code>Y</code> is 
+allowed to be <code>nothing</code>, and testing <code>X in
+nothing</code> reveals whether or not <code>X</code> has been 
+removed from the rest of the tree.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The remaining loop statement left over from 
+<a href="s1.html">&#167;1</a> is <code>objectloop</code>.</p>
+
+<p class="syntax"><code>objectloop(</code>&#8249;<span class="token">variable-name</span>&#8250;<code>)</code> 
+&#8249;<span class="token">statement</span>&#8250;</p>
+
+<p class="normal">runs through the &#8249;<span class="token">statement</span>&#8250; once for each object in 
+the game, putting each object in turn into the variable. For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop(x) print (name) x, &quot;^&quot;;</pre>
+
+<p class="normal">prints out a list of the textual names of every object 
+in the game. More powerfully, any condition can be written in the 
+brackets, as long as it begins with a variable name.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop (x in Mailbox) print (name) x, &quot;^&quot;;</pre>
+
+<p class="normal">prints the names only of those objects which are 
+direct children of the <code>Mailbox</code> object.</p>
+
+<p class="indent">The simple case where the condition reads &#8220;&#8249;<span class="token">variable</span>&#8250; 
+<code>in</code> &#8249;<span class="token">object</span>&#8250;&#8221; is handled in a faster and more 
+predictable way than other kinds of <code>objectloop</code>: the loop 
+variable is guaranteed to run through the children of the object 
+in sibling order, eldest down to youngest. (This is faster because 
+it doesn't waste time considering every object in the game, only the 
+children.) If the condition is not in this form then no guarantee 
+is made as to the order in which the objects are considered.</p>
+
+<a id="p64" name="p64"></a>
+<p class="normal" style="margin-top:1em"><span class="warning"><b>&#8226;</b>
+<b>WARNING</b></span><br>
+When looping over objects with <code>in</code>, it's not safe to 
+move these same objects around: this is like trying to cut a branch 
+off an elm tree while sitting on it. Code like this:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop(x in Meadow) move x to Sandy_Beach;</pre>
+
+<p class="normal">looks plausible but is not a safe way to move everything 
+in the <code>Meadow</code>, and will instead cause the interpreter to 
+print up</p>
+
+<p class="output">[** Programming error: objectloop broken because 
+the object mailbox was moved while the loop passed through it **]</p>
+
+<p class="normal">Here is a safer way to move the meadow's contents 
+to the beach:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">while (child(Meadow)) move child(Meadow) to Sandy_Beach;</pre>
+
+<p class="normal">This works because when the <code>Meadow</code> has 
+no more children, its child is then <code>nothing</code>, which is 
+the same as <code>false</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+But it moves the eldest child first, with the possibly undesirable 
+result that the children arrive in reverse order (<code>Mailbox</code> 
+and then <code>Player</code>, say, become <code>Player</code> and then
+<code>Mailbox</code>). Here is an alternative, moving the youngest 
+instead of the eldest child each time, which keeps them in the same 
+order:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+while (child(Meadow)) {
+    x = child(Meadow); while (sibling(x)) x = sibling(x);
+    move x to Sandy_Beach;
+}
+</pre>
+
+<p class="aside">Keeping children in order can be worth some thought 
+when game designing. For instance, suppose a tractor is to be moved 
+to a farmyard in which there is already a barn. The experienced game 
+designer might do this like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+move tractor to Farmyard;
+move barn to Farmyard;
+</pre>
+
+<p class="aside">Although the barn was in the farmyard already, the 
+second statement wasn't redundant: because a moved object becomes the 
+eldest child, the statement does this:</p>
+
+<p class="lynxonly"></p>
+<table align="center" class="objtree"><tr>
+<td><code>Farmyard</code></td>
+<td colspan="3"></td>
+<td><code>Farmyard</code></td>
+<td colspan="2"></td>
+</tr><tr>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="2"></td>
+<td>&nbsp; =&gt; &nbsp;</td>
+<td>&darr;<small><i>child</i></small></td>
+<td colspan="2"></td>
+</tr><tr>
+<td rowspan="2"><code>tractor</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>barn</code></td>
+<td rowspan="2"></td>
+<td rowspan="2"><code>barn</code></td>
+<td><small><i>sibling</i></small></td>
+<td rowspan="2"><code>tractor</code></td>
+</tr><tr>
+<td>&rarr;</td><td>&rarr;</td>
+</tr></table>
+
+<p class="aside">And this is desirable because the ordering of paragraphs 
+in room descriptions tends to follow the ordering of items in the 
+object tree, and the designer wants the barn mentioned before the 
+tractor.</p>
+
+<a id="p65" name="p65"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+An <code>objectloop</code> range can be any condition 
+so long as a named local or global variable appears immediately 
+after the open bracket. This means that</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop (child(x) == nothing) ...</pre>
+
+<p class="aside">isn't allowed, because the first thing after the 
+bracket is <code>child</code>, but a dodge to get around this is:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop (x &amp;&amp; child(x) == nothing) ...</pre>
+
+<p class="aside">The loop variable of an <code>objectloop</code> can 
+never equal <code>false</code>, because that's the same as
+<code>nothing</code>, which isn't an object.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+The <code>objectloop</code> statement runs through all objects of 
+metaclass <code>Object</code> or <code>Class</code>, but skips any 
+<code>Routine</code> or <code>String</code>.</p>
+
+<a id="s3_5" name="s3_5"></a>
+<h3>&#167;3.5 &nbsp; Declaring objects 2: <code>with</code> and <code>provides</code></h3>
+
+<p class="normal">So far <code>Objects</code> are just tokens with 
+names attached which can be shuffled around in a tree. They become interesting 
+when data and routines are attached to them, and this is what the body 
+of an object definition is for. The body contains four different kinds 
+of segments, introduced by the keywords:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">with    has    class    private</pre>
+
+<p class="normal">These are all optional and can be given in any order.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+They can even be given more than once: that is, there can be two or 
+more of a given kind, which Inform will combine together as if they 
+had been defined in one go. (This is only likely to be useful for automated 
+Inform-writing programs.)</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The most important segment is <code>with</code>, which 
+specifies variables and, as we shall see, routines and even arrays, 
+to be attached to the object. For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object magpie &quot;black-striped bird&quot;
+  with wingspan, worms_eaten;
+</pre>
+
+<p class="normal">attaches two variables to the bird, one called 
+<code>wingspan</code>, the other called <code>worms_eaten</code>. 
+Commas are used to separate them and the object definition 
+<a id="p66" name="p66"></a>
+as a whole 
+ends with a semicolon, as always. Variables of this kind are called
+properties, and are referred to in the source code thus:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+magpie.wingspan
+magpie.worms_eaten
+</pre>
+
+<p class="normal">Properties are just like global variables: any value 
+you can store in a variable can be stored in a property. But note that</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+crested_grebe.wingspan
+magpie.wingspan
+</pre>
+
+<p class="normal">are different and may well have different values, 
+which is why the object whose wingspan it is (the magpie or the 
+grebe) has to be named.</p>
+
+<p class="indent">The property <code>wingspan</code> is said to be 
+provided by both the <code>magpie</code> and <code>crested_grebe</code> 
+objects, whereas an object whose <code>with</code> segment didn't name
+<code>wingspan</code> would not provide it. The dot <code>.</code> 
+operator can only be used to set the value of a property which is 
+provided by the object on the left of the dot: if not a programming 
+error will be printed up when the story file is played.</p>
+
+<p class="indent">The presence of a property can be tested using 
+the <code>provides</code> condition. For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">objectloop (x provides wingspan) ...</pre>
+
+<p class="normal">executes the code <code>...</code> for each 
+object <code>x</code> in the program which is defined with a
+<code>wingspan</code> property.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Although the provision of a property can be tested, it can't be changed 
+while the program is running. The <em>value</em> of <code>magpie.wingspan</code> 
+may change, but not the <em>fact</em> that the magpie provides a 
+<code>wingspan</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Some special properties, known as &#8220;common properties&#8221;, 
+can have their values <em>read</em> (but not changed) even for an 
+object which doesn't provide them. All of the properties built into 
+the Inform library are common properties. See <a href="#s3_14">&#167;3.14</a>.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">When the magpie is created as above, the initial 
+values of</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+magpie.wingspan
+magpie.worms_eaten
+</pre>
+
+<p class="normal">are both 0. To create the magpie with a given wingspan, 
+we have to specify an initial value, which we do by giving it after 
+the name, e.g.:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object magpie &quot;black-striped bird&quot;
+  with wingspan 5, worms_eaten;
+</pre>
+
+<p class="normal">The story file now begins with <code>magpie.wingspan</code> 
+equal to 5, though <code>magpie.worms_eaten</code> still equal to 0.</p>
+
+<a id="p67" name="p67"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">A property can contain a routine instead of a value. 
+In the definition</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object magpie &quot;black-striped bird&quot;
+  with name 'magpie' 'bird' 'black-striped' 'black' 'striped',
+       wingspan 5,
+       flying_strength [;
+           return magpie.wingspan + magpie.worms_eaten;
+       ],
+       worms_eaten;
+</pre>
+
+<p class="normal">The value of <code>magpie.flying_strength</code> 
+is given as a routine, in square brackets as usual. Note that the 
+<code>Object</code> continues where it left off after the routine-end 
+marker, <code>]</code>. Routines which are written in as property 
+values are called &#8220;embedded&#8221; and are the way objects 
+receive messages, as we shall see.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+If, during play, you want to change the way a magpie's flying strength 
+is calculated, you can simply change the value of its property:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">magpie.flying_strength = ExhaustedBirdFS;</pre>
+
+<p class="aside">where <code>ExhaustedBirdFS</code> is the name 
+of a routine to perform the new calculation.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Embedded routines are just like ordinary ones, with two exceptions:</p>
+
+<ol>
+<li>An embedded routine has no name of its own, since it is referred 
+to as a property such as <code>magpie.flying_strength</code> instead.</li>
+<li>If execution reaches the <code>]</code> end-marker of an embedded 
+routine, then it returns <code>false</code>, not <code>true</code> (as 
+a non-embedded routine would).</li>
+</ol>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Properties can be arrays instead of variables. If two or more 
+consecutive values are given for the same property, it becomes an 
+array. Thus,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object magpie &quot;black-striped bird&quot;
+  with name 'magpie' 'bird' 'black-striped' 'black' 'striped',
+       wingspan 5, worms_eaten;
+</pre>
+
+<p class="aside">You can't write <code>magpie.name</code> because 
+there is no single value: rather, there is an <code>--&gt;</code>
+array (see <a href="s2.html#s2_4">&#167;2.4</a>). This array must be accessed 
+using two special operators, <code>.&amp;</code> and <code>.#</code>,
+for the array and its length, as follows.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">magpie.&amp;name</pre>
+
+<p class="aside">means &#8220;the array held in magpie's name property&#8221;, 
+so that the actual name values are in the entries</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+magpie.&amp;name--&gt;0, magpie.&amp;name--&gt;1, ..., magpie.&amp;name--&gt;4
+</pre>
+
+<a id="p68" name="p68"></a>
+<p class="aside">The size of this array can be discovered with</p>
+
+<p class="lynxonly"></p>
+<pre class="code">magpie.#name</pre>
+
+<p class="aside">which evaluates to the twice the number of entries, 
+in this case, to 10. Twice the number of entries because that is 
+the number of bytes in the array: people fairly often use property 
+arrays as byte arrays to save on memory.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+<code>name</code> is a special property created by Inform, intended 
+to hold dictionary words which can refer to an object.</p>
+
+<a id="s3_6" name="s3_6"></a>
+<h3>&#167;3.6 &nbsp; Declaring objects 3: <code>private</code> properties</h3>
+
+<p class="aside"><span class="warning">&#9650;</span>
+A system is provided for &#8220;encapsulating&#8221; certain properties 
+so that only the object itself has access to them. These are defined 
+by giving them in a segment of the object declaration called 
+<code>private</code>. For instance,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object sentry &quot;sentry&quot;
+  private pass_number 16339,
+  with challenge [ attempt;
+           if (attempt == sentry.pass_number)
+               &quot;Approach, friend!&quot;;
+           &quot;Stand off, stranger.&quot;;
+  ];
+</pre>
+
+<p class="aside">provides for two properties: <code>challenge</code>, 
+which is public, and <code>pass_number</code>, which can be used 
+only by the sentry's own embedded routines.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+This makes the <code>provides</code> condition slightly more interesting 
+than it appeared in the previous section. The answer to the question 
+of whether or not</p>
+
+<p class="lynxonly"></p>
+<pre class="code">sentry provides pass_number</pre>
+
+<p class="aside">depends on who's asking: this condition is true 
+if it is tested in one of the sentry's own routines, and elsewhere 
+false. A <code>private</code> property is so well hidden that nobody 
+else can even know whether or not it exists.</p>
+
+<a id="s3_7" name="s3_7"></a>
+<h3>&#167;3.7 &nbsp; Declaring objects 4: <code>has</code> and <code>give</code></h3>
+
+<p class="normal">In addition to properties, objects have flags attached, 
+called &#8220;attributes&#8221;. Recall that flags are a limited form 
+of variable which can only have two values, 
+<a id="p69" name="p69"></a>
+sometimes called set and 
+clear.) Unlike property names, attribute names have to be declared 
+before use with a directive like:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Attribute hungry;</pre>
+
+<p class="normal">Once this declaration is made, every object in the 
+tree has a <code>hungry</code> flag attached, which is either <code>true</code> 
+or <code>false</code> at any given time. The state can be tested with 
+the <code>has</code> condition:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">magpie has hungry</pre>
+
+<p class="normal">is true if and only if the magpie's <code>hungry</code> flag 
+is currently set. You can also test if <code>magpie hasnt hungry</code>. 
+There's no apostrophe in <code>hasnt</code>.</p>
+
+<p class="indent">The magpie can now be born <code>hungry</code>, using 
+the <code>has</code> segment in its declaration:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object magpie &quot;black-striped bird&quot;
+  with wingspan, worms_eaten
+  has  hungry;
+</pre>
+
+<p class="normal">The <code>has</code> segment contains a list (without 
+commas in between) of the attributes which are initially set: for 
+instance, the steel grate in the Inform example game &#8216;Advent&#8217; 
+includes the line</p>
+
+<p class="lynxonly"></p>
+<pre class="code">has  static door openable lockable locked;</pre>
+
+<p class="indent">The state of an attribute can be changed during 
+play using the <code>give</code> statement:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give magpie hungry;</pre>
+
+<p class="normal">sets the magpie's <code>hungry</code> attribute, and</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give magpie ~hungry;</pre>
+
+<p class="normal">clears it again. The <code>give</code> statement 
+can take more than one attribute at a time, too:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">give double_doors_of_the_horizon ~locked openable open;</pre>
+
+<p class="normal">means &#8220;clear <code>locked</code> and set 
+<code>openable</code> and <code>open</code>&#8221;.&#8224;</p>
+
+<hr class="footnotebar">
+<p class="aside" style="margin-top:0">&#8224;
+The refrain from the prelude to Act I of Philip Glass's opera
+<i>Akhnaten</i> is &#8220;Open are the double doors of the horizon/ 
+Unlocked are its bolts&#8221;.</p>
+
+<a id="p70" name="p70"></a>
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+An attribute can also have a tilde <code>~</code> placed in front 
+in the <code>has</code> part of an object declaration, indicating 
+&#8220;this is definitely not held&#8221;. This is usually what 
+would have happened anyway, except that class inheritance (see 
+below) might have passed on an attribute: if so, this is how to get 
+rid of it again. Suppose there is a whole class of steel grates like 
+the one in &#8216;Advent&#8217; mentioned above, providing for a 
+dozen grates scattered through a game, but you also want a loose grate 
+<code>L</code> whose lock has been smashed. If <code>L</code> belongs 
+to the class, it will start the game with attributes making it locked 
+like the others, because the class sets these automatically: but if 
+you include <code>has ~lockable ~locked;</code> in its declaration, 
+these two attributes go away again.</p>
+
+<a id="s3_8" name="s3_8"></a>
+<h3>&#167;3.8 &nbsp; Declaring objects 5: <code>class</code> inheritance</h3>
+
+<p class="normal">A class is a prototype design from which other objects 
+are manufactured. These resulting objects are sometimes called instances 
+or members of the class, and are said to inherit from it.</p>
+
+<p class="indent">Classes are useful when a group of objects are to 
+have common features. In the definition of the <code>magpie</code> above, 
+a zoologically doubtful formula was laid out for flying strength:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+flying_strength [;
+    return magpie.wingspan + magpie.worms_eaten;
+],
+</pre>
+
+<p class="normal">This formula ought to apply to birds in general, not 
+just to magpies, and in the following definition it does:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Attribute flightless;
+Class Bird
+  with wingspan 7,
+       flying_strength [;
+           if (self has flightless) return 0;
+           return self.wingspan + self.worms_eaten;
+       ],
+       worms_eaten;
+Bird &quot;ostrich&quot; with wingspan 3, has flightless;
+Bird &quot;magpie&quot; with wingspan 5;
+Bird &quot;crested grebe&quot;;
+Bird &quot;Great Auk&quot; with wingspan 15;
+Bird &quot;early bird&quot; with worms_eaten 1;
+</pre>
+
+<p class="normal">Facts about birds in general are now located in a 
+class called <code>Bird</code>. Every example of a <code>Bird</code> 
+automatically provides <code>wingspan</code>, a <code>flying_strength</code>
+<a id="p71" name="p71"></a>
+routine and a count of <code>worms_eaten</code>. Notice that the Great 
+Auk is not content with the average avian wingspan of 7, and insists 
+on measuring 15 across. This is an example of inheritance from a class 
+being over-ridden by a definition inside the object. The actual values 
+set up are as follows:</p>
+
+<p class="lynxonly"></p>
+<table align="center" border="1"
+ style="text-align:center;margin-top:1em;margin-bottom:1em">
+<tr><td><code>B</code></td><td><code>B.wingspan</code></td>
+<td><code>B.worms_eaten</code></td></tr>
+<tr><td>ostrich</td><td>3</td><td>0</td></tr>
+<tr><td>magpie</td><td>5</td><td>0</td></tr>
+<tr><td>crested grebe</td><td>7</td><td>0</td></tr>
+<tr><td>Great Auk</td><td>15</td><td>0</td></tr>
+<tr><td>early bird</td><td>7</td><td>1</td></tr>
+</table>
+
+<p class="normal">Note also the use of the special value <code>self</code> 
+in the definition of <code>Bird</code>. It means &#8220;whatever bird 
+I am&#8221;: if the <code>flying_strength</code> routine is being 
+run for the ostrich, then <code>self</code> means the ostrich, and 
+so on.</p>
+
+<p class="indent">The example also demonstrates a general rule: to 
+create something, begin its declaration with the name of the class you 
+want it to belong to: a plain <code>Object</code>, a <code>Class</code> 
+or now a <code>Bird</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+Sometimes you need to specify that an object belongs to many classes, 
+not just one. You can do this with the <code>class</code> segment of 
+the definition, like so:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object &quot;goose that lays the golden eggs&quot;
+  class Bird Treasure;
+</pre>
+
+<p class="aside">This goose belongs to three classes: <code>Object</code> 
+of course, as all declared objects do, but also <code>Bird</code> and 
+<code>Treasure</code>. (It inherits from <code>Object</code> first and 
+then <code>Bird</code> and then <code>Treasure</code>, attribute 
+settings and property values from later-mentioned classes overriding 
+earlier ones, so if these classes should give contradictory instructions 
+then <code>Treasure</code> gets the last word.) You can also make 
+class definitions have classes, or rather, pass on membership of other 
+classes:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class BirdOfPrey
+class Bird
+ with wingspan 15,
+      people_eaten;
+BirdOfPrey kestrel;
+</pre>
+
+<p class="aside">makes <code>kestrel</code> a member of both <code>BirdOfPrey</code> 
+and of <code>Bird</code>. Dutiful apostles of object-oriented programming 
+may want to call <code>BirdOfPrey</code> a &#8220;subclass&#8221; of 
+<code>Bird</code>. Indeed, they may want to call Inform a &#8220;weakly-typed 
+language with multiple-inheritance&#8221;, or more probably a &#8220;shambles&#8221;.</p>
+
+<a id="p72" name="p72"></a>
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+For certain &#8220;additive&#8221; common properties, clashes between 
+what classes say and what an instance says are resolved differently: 
+see <a href="s5.html">&#167;5</a>. Inform's built-in property <code>name</code> 
+is one of these.</p>
+
+<a id="s3_9" name="s3_9"></a>
+<h3>&#167;3.9 &nbsp; Messages</h3>
+
+<p class="normal">Objects communicate with each other by means of messages. 
+A message has a sender, a receiver and some parameter values attached, 
+and it always produces a reply, which is just a single value. For instance,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">x = plant.pour_over(cold_spring_water);</pre>
+
+<p class="normal">sends the message <code>pour_over</code> with a 
+single parameter, <code>cold_spring_water</code>, to the object 
+<code>plant</code>, and puts the reply value into <code>x</code>.</p>
+
+<p class="indent">In order to receive this message, <code>plant</code> 
+has to provide a <code>pour_over</code> property. If it doesn't, then 
+the interpreter will print something like</p>
+
+<p class="output">[** Programming error: the plant (object number 
+21) has no property pour over to send message **]</p>
+
+<p class="normal">when the story file is played. The <code>pour_over</code>
+property will normally be a routine, perhaps this one:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+pour_over [ liquid;
+    remove liquid;
+    switch(liquid) {
+        oil: &quot;The plant indignantly shakes the oil off its
+              leaves and asks, ~Water?~&quot;;
+        ...
+    }
+];
+</pre>
+
+<p class="normal">Inside such a routine, <code>self</code> means the object 
+receiving the message and <code>sender</code> means the object which sent 
+it. In a typical Inform game situation, <code>sender</code> will often 
+be the object <code>InformLibrary</code>, which organises play and
+sends out many messages to items and places in the game, consulting 
+them about what should happen next. Much of any Inform game designer's 
+time is spent writing properties which receive messages from 
+<code>InformLibrary</code>: <code>before</code>, <code>after</code>, 
+<code>each_turn</code> and <code>n_to</code> among many others.</p>
+
+<p class="indent">You can see all the messages being sent in a game 
+as it runs using the debugging verb &#8220;messages&#8221;: 
+see <a href="s7.html">&#167;7</a> for details. This is the Inform 
+version of listening in on police-radio traffic.</p>
+
+<a id="p73" name="p73"></a>
+<p class="aside"><span class="warning">&#9650;</span>
+It was assumed above that the receiving property value would be a 
+routine. But this needn't always be true. It can instead be: <code>nothing</code>, 
+in which case the reply value is also <code>nothing</code> (which is 
+the same as zero and the same as <code>false</code>). Or it can be 
+an <code>Object</code> or a <code>Class</code>, in which case nothing 
+happens and the object or class is sent back as the reply value. Or 
+it can be a string in double-quotes, in which case the string is
+printed out, then a new-line is printed, and the reply value is <code>true</code>.</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+This can be useful. Here is approximately what happens when the Inform 
+library tries to move the player northeast from the current room 
+(the <code>location</code>) in an adventure game (leaving out some 
+complications to do with doors):</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+if (location provides ne_to) {
+    x = location.ne_to();
+    if (x == nothing) &quot;You can't go that way.&quot;;
+    if (x ofclass Object) move player to x;
+} else &quot;You can't go that way.&quot;;
+</pre>
+
+<p class="aside">This neatly deals with all of the following cases:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Object Octagonal_Room &quot;Octagonal Room&quot;
+  with ...
+       ne_to &quot;The way north-east is barred by an invisible wall!&quot;,
+       w_to Courtyard,
+       e_to [;
+           if (Amulet has worn) {
+               print &quot;A section of the eastern wall suddenly parts
+                      before you, allowing you into...^&quot;;
+               return HiddenShrine;
+           }
+       ],
+       s_to [;
+           if (random(5) ~= 1) return Gateway;
+           print &quot;The floor unexpectedly gives way, dropping you
+                  through an open hole in the plaster...^&quot;;
+           return random(Maze1, Maze2, Maze3, Maze4);
+       ];
+</pre>
+
+<p class="aside">Noteworthy here is that the <code>e_to</code> routine, 
+being an embedded routine, returns <code>false</code> which is the 
+same as <code>nothing</code> if the <code>]</code> end-marker is 
+reached, so if the Amulet isn't being worn then there is no map 
+connection east.</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+The receiving property can even hold an array of values, in which case 
+the message is sent to each entry in the array in turn. The process stops 
+as soon as one of these entries replies with a value other than <code>nothing</code> 
+or <code>false</code>. If every entry is tried and they all replied <code>nothing</code>, 
+then the reply value sent back is <code>nothing</code>. (This is useful 
+to the Inform library because it allows <code>before</code> rules to 
+be accumulated from the different classes an object belongs to.)</p>
+
+<a id="p74" name="p74"></a>
+<a id="s3_10" name="s3_10"></a>
+<h3>&#167;3.10 &nbsp; Passing messages up to the superclass</h3>
+
+<p class="aside"><span class="warning">&#9650;</span>
+It fairly often happens that an instance of a class needs to behave 
+almost, but not quite, as the class would suggest. For instance, suppose 
+the following <code>Treasure</code> class:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Treasure
+  with deposit [;
+      if (self provides deposit_points)
+          score = score + self.deposit_points;
+      else score = score + 5;
+      move self to trophy_case;
+      &quot;You feel a sense of increased esteem and worth.&quot;;
+  ];
+</pre>
+
+<p class="aside">and we want to create an instance called <code>Bat_Idol</code> 
+which flutters away, resisting deposition, but only if the room is 
+dark:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Treasure Bat_Idol &quot;jewelled bat idol&quot;
+  with deposit [;
+           if (location == thedark) {
+               remove self;
+               &quot;There is a clinking, fluttering sound!&quot;;
+           }
+           ...
+       ];
+</pre>
+
+<p class="aside">In place of <code>...</code>, what we want is all 
+of the previous source code about depositing treasures. We could 
+just copy it out again, but a much neater trick is to write:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">self.Treasure::deposit();</pre>
+
+<p class="aside">Instead of sending the message <code>deposit</code>, 
+we send the message <code>Treasure::deposit</code>, which means 
+&#8220;what <code>deposit</code> would do if it used the value defined 
+by <code>Treasure</code>&#8221;. The double-colon <code>::</code> is 
+called the &#8220;superclass operator&#8221;. (The word &#8220;superclass&#8221;, 
+in this context, is borrowed from the Smalltalk-80 language.)</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+<code>object.class::property</code> is the value of <code>property</code> 
+which the given object would normally inherit from the given <code>class</code>. 
+(Or it gives an error if the class doesn't provide that property 
+or if the object isn't a member of that class).</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+It's perfectly legal to write something like <code>x = Treasure::deposit;</code> 
+and then to send <code>Bat_Idol.x();</code>.</p>
+
+<a id="p75" name="p75"></a>
+<a id="s3_11" name="s3_11"></a>
+<h3>&#167;3.11 &nbsp; Creating and deleting objects during play</h3>
+
+<p class="normal">In an adventure-game setting, object creation is 
+useful for something like a beach full of stones: if the player wants 
+to pick up more and more stones, the game needs to create a new 
+object for each stone brought into play.</p>
+
+<p class="indent">Besides that, it is often elegant to grow structures 
+organically. A maze of caves being generated during play, for example, 
+should have new caves gradually added onto the map as and when needed.</p>
+
+<p class="indent">The trouble with this is that since resources cannot 
+be infinite, the cave-objects have to come from somewhere, and at last 
+they come no more. The program must be able to cope with this, and 
+it can present the programmer with real difficulties, especially if 
+the conditions that will prevail when the supply runs out are hard to 
+predict.</p>
+
+<p class="indent">Inform does allow object creation during play, but 
+it insists that the programmer must specify in advance the maximum 
+resources which will ever be needed. (For example, the maximum number 
+of beach stones which can ever be in play.) This is a nuisance, but 
+means that the resulting story file will always work, or always fail, 
+identically on every machine running it. It won't do one thing on 
+the designer's 256-megabyte Sun workstation in Venice and then quite 
+another on a player's personal organiser in a commuter train in New
+Jersey.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">If you want to create objects, you need to define 
+a class for them and to specify <i>N</i>, the maximum number ever 
+needed at once. Objects can be deleted once created, so if all
+<i>N</i> are in play then deleting one will allow another to be created.</p>
+
+<p class="indent">Suppose the beach is to contain up to fifty 
+pebbles. Then:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Pebble(50)
+ with name 'smooth' 'pebble',
+      short_name &quot;smooth pebble from the beach&quot;;
+</pre>
+
+<p class="normal"><code>Pebble</code> is an ordinary class in every respect, except 
+that it has the ability to create up to <i>N</i> = 50 instances of 
+itself.</p>
+
+<p class="indent">Creating and destroying objects is done by sending 
+messages to the class <code>Pebble</code> itself, so for instance sending 
+the message <code>Pebble.create()</code> will bring another pebble 
+into existence. Classes can receive five different messages, as follows:</p>
+
+<a id="p76" name="p76"></a>
+<p class="normal" style="margin-top:1em;margin-bottom:1em"><code>remaining()</code><br>
+How many more instances of this class can be created?</p>
+
+<p class="normal" style="margin-top:1em;margin-bottom:1em"><code>create(</code>&#8249;<span class="token">parameters</span>&#8250;<code>)</code><br>
+Replies with a newly created object of this class, or else with 
+<code>nothing</code> if no more can be created. If given, the parameters 
+are passed on to the object so that it can use them to configure itself 
+(see below).</p>
+
+<p class="normal" style="margin-top:1em;margin-bottom:1em"><code>destroy(I)</code><br>
+Destroys the instance <code>I</code>, which must previously have been created. 
+You can't destroy an object which you defined by hand in the source 
+code. (This is quite unlike <code>remove</code>, which only takes 
+an object out of the tree for a while but keeps it in existence, 
+ready to be moved back again later.)</p>
+
+<p class="normal" style="margin-top:1em;margin-bottom:1em"><code>recreate(I</code>, 
+&#8249;<span class="token">parameters</span>&#8250;<code>)</code><br>
+Re-initialises the instance <code>I</code>, as if it had been destroyed 
+and then created again.</p>
+
+<p class="normal" style="margin-top:1em;margin-bottom:1em"><code>copy(I, J)</code><br>
+Copies the property and attribute values from <code>I</code> to be 
+equal to those of <code>J</code>, where both have to be instances of 
+the class. (If a property holds an array, this is copied over as well.)</p>
+
+<p class="aside"><span class="warning">&#9650;</span>
+It's rather useful that <code>recreate</code> and <code>copy</code> can 
+be sent for any instances, not just instances which have previously 
+been created. For example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Plant.copy(Gilded_Branch, Poison_Ivy)</pre>
+
+<p class="aside">copies over all the features of a <code>Plant</code> from 
+<code>Poison_Ivy</code> to <code>Gilded_Branch</code>, but leaves
+any other properties and attributes of the gilded branch alone. Likewise,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Treasure.recreate(Gilded_Branch)</pre>
+
+<p class="aside">only resets the properties to do with <code>Treasure</code>, 
+leaving the <code>Plant</code> properties alone.
+
+<p class="aside"><span class="warning">&#9650;</span>
+If you didn't give a number like <code>(50)</code> in the class definition, 
+then you'll find that <i>N</i> is zero. <code>copy</code> will work as 
+normal, but <code>remaining</code> will return zero and <code>create</code> 
+will always return <code>nothing</code>. There is nothing to <code>destroy</code> 
+and since this isn't a class which can create objects, <code>recreate</code> 
+will not work either. (Oh, and don't try to send these messages to 
+the class <code>Class</code>: creating and destroying classes is 
+called &#8220;programming&#8221;, and it's far too late when the game 
+is already being played.)</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+You can even give the number as <code>(0)</code>. You might do this 
+either so that <code>Class Gadget(MAX_GADGETS)</code> in some library 
+file will work even if the constant <code>MAX_GADGETS</code> happens 
+to be zero. Or so that you can at least <code>recreate</code> existing 
+members of the class even if you cannot create new ones.</p>
+
+<a id="p77" name="p77"></a>
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">The following example shows object creation used 
+in a tiny game, dramatising a remark attributed to Isaac Newton (though 
+it appears only in Brewster's <i>Memoirs of Newton</i>).</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Constant Story &quot;ISAAC NEWTON'S BEACH&quot;;
+Constant Headline &quot;^An Interactive Metaphor^&quot;;
+Include &quot;Parser&quot;;
+Include &quot;VerbLib&quot;;
+Class Pebble(50)
+ with name 'smooth' 'pebble' 'stone' 'pebbles//p' 'stones//p',
+      short_name &quot;smooth pebble from the beach&quot;,
+      plural &quot;smooth pebbles from the beach&quot;;
+Object Shingle &quot;Shingle&quot;
+ with description
+         &quot;You seem to be only a boy playing on a sea-shore, and
+          diverting yourself in finding a smoother pebble or a
+          prettier shell than ordinary, whilst the great ocean of
+          truth lies all undiscovered before you.&quot;,
+ has  light;
+Object -&gt; &quot;pebble&quot;
+  with name 'smoother' 'pebble' 'stone' 'stones' 'shingle',
+       initial &quot;The breakers drain ceaselessly through the shingle,
+               spilling momentary rock-pools.&quot;,
+       before [ new_stone;
+           Take:
+               new_stone = Pebble.create();
+               if (new_stone == nothing)
+                  &quot;You look in vain for a stone smoother than
+                   the fifty ever-smoother stones you have
+                   gathered so far.&quot;;
+               move new_stone to Shingle;
+               &lt;&lt;Take new_stone&gt;&gt;;
+       ],
+  has  static;
+[ Initialise;
+  location = Shingle; 
+  &quot;^^^^^Welcome to...^&quot;;
+];
+Include &quot;Grammar&quot;;
+</pre>
+
+<p class="normal">In this very small adventure game, if the player types 
+&#8220;take a pebble&#8221;, he will get one: more surprisingly, if 
+he types &#8220;take a smoother pebble&#8221; he will get another 
+one, and so on until his inventory listing reads &#8220;fifty 
+smooth pebbles 
+<a id="p78" name="p78"></a>
+from the beach&#8221;. (See <a href="s29.html">&#167;29</a> 
+for how to make sure identical objects are described well in Inform 
+adventure games.) Notice that a newly-created object is in <code>nothing</code>, 
+that is, is outside the object tree, so it must be moved to <code>Shingle</code> 
+in order to come to the player's hand.</p>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="normal">However smooth, one pebble is much like another. More 
+complicated objects sometimes need some setting-up when they are created, 
+and of course in good object-oriented style they ought to do this 
+setting-up for themselves. Here is a class which does:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Ghost(7)
+ with haunting,
+      create [;
+          self.haunting = random(Library, Ballroom, Summer_House);
+          move self to self.haunting;
+          if (self in location)
+              &quot;^The air ripples as if parted like curtains.&quot;;
+      ];
+</pre>
+
+<p class="normal">What happens is that when the program sends the 
+message</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Ghost.create();</pre>
+
+<p class="normal">the class <code>Ghost</code> creates a new ghost 
+<code>G</code>, if there aren't already seven, and then sends a 
+further message</p>
+
+<p class="lynxonly"></p>
+<pre class="code">G.create();</pre>
+
+<p class="normal">This new object <code>G</code> chooses its own 
+place to haunt and moves itself into place. Only then does the class 
+<code>Ghost</code> reply to the outside program. A class can also
+give a <code>destroy</code> routine to take care of the consequences 
+of destruction, as in the following example:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Axe(30);
+Class Dwarf(7)
+ with create [ x;
+          x = Axe.create(); if (x ~= nothing) move x to self;
+      ],
+      destroy [ x;
+          objectloop (x in self &amp;&amp; x ofclass Axe) Axe.destroy(x);
+      ];
+</pre>
+
+<a id="p79" name="p79"></a>
+<p class="normal">A new axe is created whenever a new dwarf is created, 
+while stocks last, and when a dwarf is destroyed, any axes it carries 
+are also destroyed.</p>
+
+<p class="indent">Finally, you can supply <code>create</code> with 
+up to 3 parameters. Here is a case with only one:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class GoldIngot(10)
+ with weight, value,
+      create [ carats;
+          self.value = 10*carats;
+          self.weight = 20 + carats;
+      ];
+</pre>
+
+<p class="normal">and now <code>GoldIngot.create(24)</code> 
+will create a 24-carat gold ingot.</p>
+
+<a id="s3_12" name="s3_12"></a>
+<h3>&#167;3.12 &nbsp; Sending messages to routines and strings</h3>
+
+<p class="aside"><span class="warning">&#9650;</span>
+<a href="#s3_9">&#167;3.9</a> was about sending messages to 
+<code>Object</code>s, and then in <a href="#s3_11">&#167;3.11</a> it 
+turned out that there are five messages which can be sent to a 
+<code>Class</code>. That's two of the four metaclasses, and it 
+turns out that you can send messages to a <code>Routine</code> 
+and a <code>String</code> too.</p>
+
+<p class="aside">The only message you can send to a <code>Routine</code> 
+is <code>call</code>, and all this does is to call it. So if 
+<code>Explore</code> is the name of a routine,</p>
+
+<p class="syntax"><code>Explore.call(2, 4);</code> &nbsp;
+and &nbsp; <code>Explore(2, 4);</code></p>
+
+<p class="aside">do exactly the same as each other. This looks 
+redundant, except that it allows a little more flexibility: 
+for instance</p>
+
+<p class="lynxonly"></p>
+<pre class="code">(random(Hello, Goodbye)).call(7);</pre>
+
+<p class="aside">has a 50% chance of calling <code>Hello(7)</code> 
+and a 50% chance of calling <code>Goodbye(7)</code>. As you might 
+expect, the <code>call</code> message replies with whatever value 
+was returned by the routine.</p>
+
+<p class="aside">Two different messages can be sent to a <code>String</code>. 
+The first is <code>print</code>, which is provided because it logically 
+ought to be, rather than because it's useful. So, for example,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">(&quot;You can see an advancing tide of bison!&quot;).print();</pre>
+
+<p class="aside">prints out the string, followed by a new-line, and 
+evaluates as <code>true</code>.
+
+<p class="aside">The second is <code>print_to_array</code>. This 
+copies out the text of the string into entries 2, 3, 4,&#8230; of 
+the supplied byte array, and writes the number of characters as a word 
+<a id="p80" name="p80"></a>
+into entries 0 and 1. (Make sure that the byte array is large enough 
+to hold the text of the string.) For instance:</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Array Petals-&gt;30;
+...
+    (&quot;A rose is a rose is a rose&quot;).print_to_array(Petals);
+</pre>
+
+<p class="aside">will leave <code>Petals--&gt;0</code> set to 26 
+and place the letters <code>'A'</code>, <code>'&nbsp;'</code>,
+<code>'r'</code>, <code>'o'</code>, &#8230;, <code>'e'</code> into
+the entries <code>Petals-&gt;2</code>, <code>Petals-&gt;3</code>,
+&#8230;, <code>Petals-&gt;27</code>. For convenience, the reply 
+value of the message <code>print_to_array</code> is also 26. You 
+can use this message to find the length of a string, copying the 
+text into some temporary array and only making use of this return 
+value.</p>
+
+<a id="s3_13" name="s3_13"></a>
+<h3>&#167;3.13 &nbsp; Common properties and <code>Property</code></h3>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Many classes, the <code>Bird</code> class for example, pass on 
+properties to their members. Properties coming from the class 
+<code>Object</code> are called &#8220;common properties&#8221;. 
+Every item and place in an adventure game belongs to class 
+<code>Object</code>, so a property inherited from <code>Object</code> 
+will be not just common but well-nigh universal. Properties which 
+aren't common are sometimes called &#8220;individual&#8221;.
+
+<p class="aside">The Inform library sets up the class <code>Object</code> 
+with about fifty common properties. Story files would be huge if 
+all of the objects in a game actually used all of these common properties, 
+so a special rule applies: <em>you can read a common property for 
+any</em> <code>Object</code>, <em>but you can only write to it if you've 
+written it into the object's declaration yourself.</em></p>
+
+<p class="aside">For instance, the library contains the directive</p>
+
+<p class="lynxonly"></p>
+<pre class="code">Property cant_go &quot;You can't go that way.&quot;;</pre>
+
+<p class="aside">This tells Inform to add <code>cant_go</code> to the 
+class definition for <code>Object</code>. The practical upshot 
+is that you can perform</p>
+
+<p class="lynxonly"></p>
+<pre class="code">print_ret (string) location.cant_go;</pre>
+
+<p class="aside">whatever the location is, and the resulting text 
+will be &#8220;You can't go that way.&#8221; if the <code>location</code> 
+doesn't define a <code>cant_go</code> value of its own. On the other 
+hand</p>
+
+<p class="lynxonly"></p>
+<pre class="code">location.cant_go = &quot;Please stop trying these blank walls.&quot;;</pre>
+
+<p class="aside">will only work if <code>location</code> actually provides 
+a <code>cant_go</code> value of its own, which you can test with the 
+condition <code>location provides cant_go</code>.</p>
+
+<a id="p81" name="p81"></a>
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+Using the superclass operator you can read and even alter the default 
+values of common properties at run-time: for instance,</p>
+
+<p class="lynxonly"></p>
+<pre class="code">location.Object::cant_go = &quot;Another blank wall. Tsk!&quot;;</pre>
+
+<p class="aside">will substitute for &#8220;You can't go that way.&#8221;</p>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+The Inform library uses common properties because they're marginally 
+faster to access and marginally cheaper on memory. Only 62 are available, 
+of which the compiler uses 3 and the library a further 47. On the 
+other hand, you can have up to 16,320 individual properties, which 
+in practical terms is as good as saying they are unlimited.</p>
+
+<a id="s3_14" name="s3_14"></a>
+<h3>&#167;3.14 &nbsp; Philosophy</h3>
+
+<p class="aside"><span class="warning">&#9650;&#9650;</span>
+&#8220;Socialism is all very well in practice, but does it work in 
+theory?&#8221; (Stephen Fry). While the chapter is drizzling out into 
+small type, this last section is aimed at those readers who might 
+feel happier with Inform's ideas about classes and objects if only there 
+were some logic to it all. Other readers may feel that it's about as 
+relevant to actual Inform programming as socialist dialectic is to 
+shopping for groceries. Here are the rules anyway:</p>
+
+<ol>
+<li>Story files are made up of objects, which may have variables attached 
+of various different kinds, which we shall here call &#8220;properties&#8221;.</li>
+<li>Source code contains definitions of both objects and classes. 
+Classes are abstract descriptions of common features which might be 
+held by groups of objects.</li>
+<li>Any given object in the program either is, or is not, a member of 
+any given class.</li>
+<li>For every object definition in the source code, an object is made 
+in the story file. The definition specifies which classes this object 
+is a member of.</li>
+<li>If an object <code>X</code> is declared as a member of class 
+<code>C</code>, then <code>X</code> &#8220;inherits&#8221; property 
+values as given in the class definition of <code>C</code>.</li>
+</ol>
+
+<p class="aside">Exact rules of inheritance aren't relevant here, 
+except perhaps to note that one of the things inherited from class 
+<code>C</code> might be the membership of some other class, <code>D</code>.</p>
+
+<ol start="6">
+<li>For every class definition, an object is made in the story file 
+to represent it, called its &#8220;class-object&#8221;. For example, 
+suppose we have a class definition like:</li>
+</ol>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Class Shrub
+ with species;
+</pre>
+
+<p class="aside">The class <code>Shrub</code> will generate a class-object 
+in the final program, also called <code>Shrub</code>. This class-object 
+exists to receive messages like <code>create</code> and <code>destroy</code> 
+and, more 
+<a id="p82" name="p82"></a>
+philosophically, to represent the concept of &#8220;being 
+a shrub&#8221; within the simulated world.</p>
+
+<p class="aside">The class-object of a class is not normally a member 
+of that class. The concept of being a shrub is not itself a shrub, 
+and the condition <code>Shrub ofclass Shrub</code> is <code>false</code>.
+Individual shrubs provide a property called <code>species</code>, but 
+the class-object of <code>Shrub</code> does not: the concept of 
+being a shrub has no single species.</p>
+
+<ol start="7">
+<li>Classes which are automatically defined by Inform are called 
+&#8220;metaclasses&#8221;. There are four of these: <code>Class</code>, 
+<code>Object</code>, <code>Routine</code> and <code>String</code>.</li>
+</ol>
+
+<p class="aside">It follows by rule (6) that every Inform program contains 
+the class-objects of these four, also called <code>Class</code>, 
+<code>Object</code>, <code>Routine</code> and <code>String</code>.</p>
+
+<ol start="8">
+<li>Every object is a member of one, and only one, metaclass:
+<ol>
+<li>The class-objects are members of <code>Class</code>, and no 
+other class.</li>
+<li>Routines in the program, including those given as property values, 
+are members of <code>Routine</code> and no other class.</li>
+<li>Constant strings in the program, including those given as property 
+values, are members of <code>String</code>, and of no other class.</li>
+<li>The objects defined in the source code are members of <code>Object</code>, 
+and possibly also of other classes defined in the source code.</li>
+</ol>
+</ol>
+
+<p class="aside">It follows from (8.1) that <code>Class</code> is the 
+unique class whose class-object is one of its own members: so 
+<code>Class ofclass Class</code> is <code>true</code>.</p>
+
+<ol start="9">
+<li>Contrary to rules (5) and (8.1), the class-objects of the four 
+metaclasses do not inherit from <code>Class</code>.</li>
+<li>Properties inherited from the class-object of the metaclass 
+<code>Object</code> are read-only and cannot be set.</li>
+</ol>
+
+<p class="dotbreak">· · · · ·</p>
+
+<p class="aside">To see what the rules entail means knowing the definitions 
+of the four metaclasses. These definitions are never written out in 
+any textual form inside Inform, as it happens, but this is what they 
+would look like if they were. (<code>Metaclass</code> is an imaginary 
+directive, as the programmer isn't allowed to create new metaclasses.)</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Metaclass Object
+ with name,
+      ...;
+</pre>
+
+<p class="aside">A class from which the common properties defined 
+by <code>Property</code> are inherited, albeit (by rule (10), an 
+economy measure) in read-only form.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Metaclass Class
+with create    [ ...; ... ],
+     recreate  [ instance ...; ... ],
+     destroy   [ instance; ... ],
+     copy      [ instance1 instance2; ... ],
+     remaining [; ... ];
+</pre>
+
+<a id="p83" name="p83"></a>
+<p class="aside">So class-objects respond only to these five messages 
+and provide no other properties: except that by rule (9), the class-objects 
+<code>Class</code>, <code>Object</code>, <code>Routine</code> and 
+<code>String</code> provide no properties at all. The point is that 
+these five messages are concerned with object creation and deletion 
+at run time. But Inform is a compiler and not, like Smalltalk-80 or
+other highly object-oriented languages, an interpreter. Rule (9) expresses 
+our inability to create the program while it is actually running.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Metaclass Routine
+with call [ parameters...; ... ];
+</pre>
+
+<p class="aside">Routines therefore provide only call.</p>
+
+<p class="lynxonly"></p>
+<pre class="code">
+Metaclass String
+with print          [; print_ret (string) self; ],
+     print_to_array [ array; ... ];
+</pre>
+
+<p class="aside">Strings therefore provide only <code>print</code> 
+and <code>print_to_array</code>.</p>
+
+<p class="aside"><span class="warning"><b>&#8226;</b>
+<b>REFERENCES</b></span><br>
+L. Ross Raszewski's library extension <tt>&quot;imem.h&quot;</tt> 
+manages genuinely dynamic memory allocation for objects, and is 
+most often used when memory is running terribly short.</p>
+
+</div>
+<p class="navbar">
+ <a href="index.html">home</a> /
+ <a href="contents.html">contents</a> /
+ <a href="ch1.html" title="Chapter I: The Inform Language">chapter I</a> /
+ <a href="s2.html" title="&#167;2: The state of play">prev</a> /
+ <a href="ch2.html" title="Chapter II: Introduction to Designing">next</a> /
+ <a href="dm4index.html">index</a>
+</p>
+</body>
+</html>
+

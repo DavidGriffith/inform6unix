@@ -1,0 +1,44 @@
+dnl Master configuration file for Inform, in -*- m4 -*- mode.
+
+dnl Process this file with autoconf to produce a configure script.
+
+dnl Check for a file to make sure it's the source directory.
+AC_INIT(src/inform.c)
+
+dnl Extra config files go in this directory.
+AC_CONFIG_AUX_DIR(config)
+
+dnl Set package info.
+INFORM_VERSION=6.15
+AC_SUBST(INFORM_VERSION)
+
+PACKAGE_VERSION=1
+AC_SUBST(PACKAGE_VERSION)
+
+AM_INIT_AUTOMAKE(inform, ${INFORM_VERSION}.${PACKAGE_VERSION})
+
+dnl Check host system.
+AC_CANONICAL_HOST
+
+case $host in
+*linux*)	HOST=LINUX;;
+*)		HOST=UNIX;;
+esac
+
+AC_SUBST(HOST)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_LN_S
+AC_PROG_INSTALL
+
+dnl Include common makefile stuff.
+AC_SUBST_FILE(make_include)
+make_include=$srcdir/config/makefile.add
+
+AC_OUTPUT(
+Makefile
+src/Makefile
+lib/Makefile
+doc/Makefile
+)

@@ -8,6 +8,8 @@
 
 #include "header.h"
 
+/* ###- This is now a global variable in expressc.c.
+
 static assembly_operand zero_operand;
 
 static void make_operands(void)
@@ -15,6 +17,8 @@ static void make_operands(void)
     zero_operand.value = 0;
     zero_operand.marker = 0;
 }
+
+*/
 
 /* --- Interface to lexer -------------------------------------------------- */
 
@@ -62,7 +66,7 @@ static int comma_allowed, arrow_allowed, superclass_allowed,
 
            etoken_count, inserting_token, bracket_level;
 
-extern int variable_usage[];
+extern int *variable_usage;
 
 int system_function_usage[32];
 
@@ -103,9 +107,17 @@ static int get_next_etoken(void)
 but not used as a value:", unicode);
                         current_token.value = '?';
                     }
-                    if (current_token.value >= 0x100)
-                        current_token.type = LARGE_NUMBER_TT;
-                    else current_token.type = SMALL_NUMBER_TT;
+		    if (!glulx_mode) {
+		        if (current_token.value >= 0x100)
+			    current_token.type = LARGE_NUMBER_TT;
+			else current_token.type = SMALL_NUMBER_TT;
+		    }
+		    else {
+		        if (current_token.value >= 0x8000
+			  || current_token.value < -0x8000) 
+			    current_token.type = LARGE_NUMBER_TT;
+			else current_token.type = SMALL_NUMBER_TT;
+		    }
                 }
                 else
                 {   current_token.type = DICTWORD_TT;
@@ -131,7 +143,8 @@ but not used as a value:", unicode);
                     break;
                 case OBJECT_T:
                 case CLASS_T:
-                    if (module_switch)
+		    /* All objects must be backpatched in Glulx. */
+                    if (module_switch || glulx_mode)
                         current_token.marker = OBJECT_MV;
                     break;
                 case ARRAY_T:
@@ -160,11 +173,20 @@ but not used as a value:", unicode);
 
             current_token.value = v;
 
-            if (((current_token.marker != 0)
-                && (current_token.marker != VARIABLE_MV))
-                || (v < 0) || (v > 255))
-                current_token.type = LARGE_NUMBER_TT;
-            else current_token.type = SMALL_NUMBER_TT;
+	    if (!glulx_mode) {
+	        if (((current_token.marker != 0)
+		  && (current_token.marker != VARIABLE_MV))
+		  || (v < 0) || (v > 255))
+		    current_token.type = LARGE_NUMBER_TT;
+		else current_token.type = SMALL_NUMBER_TT;
+	    }
+	    else {
+	        if (((current_token.marker != 0)
+		  && (current_token.marker != VARIABLE_MV))
+		  || (v < -0x8000) || (v >= 0x8000)) 
+		    current_token.type = LARGE_NUMBER_TT;
+		else current_token.type = SMALL_NUMBER_TT;
+	    }
 
             if (stypes[symbol] == GLOBAL_VARIABLE_T)
             {   current_token.type = VARIABLE_TT;
@@ -173,10 +195,19 @@ but not used as a value:", unicode);
             break;
 
         case NUMBER_TT:
-            if (current_token.value >= 256)
-                current_token.type = LARGE_NUMBER_TT;
-            else
-                current_token.type = SMALL_NUMBER_TT;
+	    if (!glulx_mode) {
+	        if (current_token.value >= 256)
+		    current_token.type = LARGE_NUMBER_TT;
+		else
+		    current_token.type = SMALL_NUMBER_TT;
+	    }
+	    else {
+	        if (current_token.value < -0x8000 
+		  || current_token.value >= 0x8000)
+		    current_token.type = LARGE_NUMBER_TT;
+		else
+		    current_token.type = SMALL_NUMBER_TT;
+	    }
             break;
 
         case SEP_TT:
@@ -480,7 +511,7 @@ static int find_prec(token_data a, token_data b)
 
 /* --- Converting token to operand ----------------------------------------- */
 
-extern int32 value_of_system_constant(int t)
+static int32 value_of_system_constant_z(int t)
 {   switch(t)
     {   case adjectives_table_SC:
             return adjectives_offset;
@@ -515,7 +546,7 @@ extern int32 value_of_system_constant(int t)
         case ipv__end_SC:
             return variables_offset;
         case array__start_SC:
-            return variables_offset + 480;
+            return variables_offset + (MAX_GLOBAL_VARIABLES*WORDSIZE);
         case array__end_SC:
             return static_memory_offset;
 
@@ -572,7 +603,48 @@ extern int32 value_of_system_constant(int t)
         case highest_object_number_SC:
             return no_objects-1;
     }
+
+    error_named("System constant not implemented in Z-code",
+        system_constants.keywords[t]);
+
     return(0);
+}
+
+static int32 value_of_system_constant_g(int t)
+{ 
+  switch (t) {
+  case classes_table_SC:
+    return Write_RAM_At + class_numbers_offset;
+  case identifiers_table_SC:
+    return Write_RAM_At + identifier_names_offset;
+  case array_names_offset_SC:
+    return Write_RAM_At + array_names_offset;
+  case cpv__start_SC:
+    return prop_defaults_offset;
+  case cpv__end_SC:
+    return Write_RAM_At + class_numbers_offset;
+  case dictionary_table_SC:
+    return dictionary_offset;
+  case dynam_string_table_SC:
+    return abbreviations_offset;
+  case grammar_table_SC:
+    return grammar_table_offset;
+  case actions_table_SC:
+    return actions_offset;
+  }
+
+  error_named("System constant not implemented in Glulx",
+    system_constants.keywords[t]);
+
+  return 0;
+}
+
+extern int32 value_of_system_constant(int t)
+{
+  if (!glulx_mode)
+    return value_of_system_constant_z(t);
+  else
+    return value_of_system_constant_g(t);    
 }
 
 static int evaluate_term(token_data t, assembly_operand *o)
@@ -589,46 +661,83 @@ static int evaluate_term(token_data t, assembly_operand *o)
     switch(t.type)
     {   case LARGE_NUMBER_TT:
              v = t.value;
-             if (v < 0) v = v + 0x10000;
-             o->type = LONG_CONSTANT_OT;
-             o->value = v;
+             if (!glulx_mode) {
+	         if (v < 0) v = v + 0x10000;
+		 o->type = LONG_CONSTANT_OT;
+		 o->value = v;
+	     }
+	     else {
+	         o->value = v;
+		 o->type = CONSTANT_OT;
+	     }
              return(TRUE);
         case SMALL_NUMBER_TT:
              v = t.value;
-             if (v < 0) v = v + 0x10000;
-             o->type = SHORT_CONSTANT_OT;
-             o->value = v;
+             if (!glulx_mode) {
+	         if (v < 0) v = v + 0x10000;
+		 o->type = SHORT_CONSTANT_OT;
+		 o->value = v;
+	     }
+	     else {
+	         o->value = v;
+		 set_constant_ot(o);
+	     }
              return(TRUE);
         case DICTWORD_TT:
-             /*  Find the dictionary address, adding to dictionary if absent  */
-             o->type = LONG_CONSTANT_OT;
+             /*  Find the dictionary address, adding to dictionary if absent */
+	     if (!glulx_mode) 
+	         o->type = LONG_CONSTANT_OT;
+	     else
+	         o->type = CONSTANT_OT;
              o->value = dictionary_add(t.text, 0x80, 0, 0);
              return(TRUE);
         case DQ_TT:
              /*  Create as a static string  */
-             o->type = LONG_CONSTANT_OT;
+	     if (!glulx_mode) 
+	         o->type = LONG_CONSTANT_OT;
+	     else
+	         o->type = CONSTANT_OT;
              o->value = compile_string(t.text, FALSE, FALSE);
              return(TRUE);
         case VARIABLE_TT:
-             o->type = VARIABLE_OT;
+	     if (!glulx_mode) {
+	         o->type = VARIABLE_OT;
+	     }
+	     else {
+	         if (t.value >= MAX_LOCAL_VARIABLES) {
+		     o->type = GLOBALVAR_OT;
+		 }
+		 else {
+		     /* This includes "local variable zero", which is really
+			the stack-pointer magic variable. */
+		     o->type = LOCALVAR_OT;
+		 }
+	     }
              o->value = t.value;
              return(TRUE);
         case SYSFUN_TT:
-             o->type = VARIABLE_OT;
-             o->value = t.value + 256;
+	     if (!glulx_mode) {
+	         o->type = VARIABLE_OT;
+		 o->value = t.value + 256;
+	     }
+	     else {
+	         o->type = SYSFUN_OT;
+		 o->value = t.value;
+	     }
              system_function_usage[t.value] = 1;
              return(TRUE);
         case ACTION_TT:
              *o = action_of_name(t.text);
              return(TRUE);
         case SYSTEM_CONSTANT_TT:
-             o->type = LONG_CONSTANT_OT;
-             switch(t.value)
-             {   /*  Certain system constants depend only on the
-                     version number and need no backpatching, as they
-                     are known in advance.  We can therefore evaluate
-                     them immediately.  */
-
+	     /*  Certain system constants depend only on the
+		 version number and need no backpatching, as they
+		 are known in advance.  We can therefore evaluate
+		 them immediately.  */
+	     if (!glulx_mode) {
+	         o->type = LONG_CONSTANT_OT;
+		 switch(t.value)
+		 {   
                  case version_number_SC:
                      o->type = SHORT_CONSTANT_OT;
                      o->marker = 0;
@@ -664,9 +773,39 @@ static int evaluate_term(token_data t, assembly_operand *o)
                      v = t.value;
                      o->marker = INCON_MV;
                      break;
-             }
-             o->value = v;
-             return(TRUE);
+		 }
+		 o->value = v;
+	     }
+	     else {
+	         o->type = CONSTANT_OT;
+		 switch(t.value)
+		 {
+                 case dict_par1_SC:
+                     o->type = BYTECONSTANT_OT;
+                     o->marker = 0;
+                     v = DICT_WORD_SIZE+2;
+		     break;
+                 case dict_par2_SC:
+                     o->type = BYTECONSTANT_OT;
+                     o->marker = 0;
+                     v = DICT_WORD_SIZE+4;
+		     break;
+                 case dict_par3_SC:
+                     o->type = BYTECONSTANT_OT;
+                     o->marker = 0;
+                     v = DICT_WORD_SIZE+6;
+		     break;
+
+		 /* ###fix: need to fill more of these in! */
+
+                 default:
+                     v = t.value;
+                     o->marker = INCON_MV;
+                     break;
+		 }
+		 o->value = v;
+	     }
+	     return(TRUE);
         default:
              return(FALSE);
     }
@@ -715,9 +854,7 @@ static void emit_token(token_data t)
     {   if (emitter_sp == 0)
         {   error("No expression between brackets '(' and ')'");
             emitter_markers[0] = 0;
-            emitter_stack[0].type = SHORT_CONSTANT_OT;
-            emitter_stack[0].value = 0;
-            emitter_stack[0].marker = 0;
+	    emitter_stack[0] = zero_operand;
             emitter_sp = 1;
         }
         if (next_marker == FVALUE_MARKER)
@@ -790,9 +927,8 @@ static void emit_token(token_data t)
             {   if (emitter_sp == MAX_EXPRESSION_NODES)
                     memoryerror("MAX_EXPRESSION_NODES2", MAX_EXPRESSION_NODES);
                 emitter_markers[emitter_sp] = 0;
-                emitter_stack[emitter_sp].type = SHORT_CONSTANT_OT;
-                emitter_stack[emitter_sp].value = 0;
-                emitter_stack[emitter_sp++].marker = 0;
+		emitter_stack[emitter_sp] = zero_operand;
+                emitter_sp++;
                 stack_size++;
             }
         }
@@ -801,11 +937,14 @@ static void emit_token(token_data t)
     switch(arity)
     {   case 1:
             o1 = emitter_stack[emitter_sp - 1];
-            if ((o1.marker == 0) &&
-                ((o1.type == SHORT_CONSTANT_OT)||(o1.type == LONG_CONSTANT_OT)))
+            if ((o1.marker == 0) && is_constant_ot(o1.type))
             {   switch(t.value)
                 {   case UNARY_MINUS_OP: x = -o1.value; goto FoldConstant;
-                    case ARTNOT_OP: x = (0xffffff - o1.value) & 0xffff;
+                    case ARTNOT_OP: 
+		         if (!glulx_mode)
+			     x = (0xffffff - o1.value) & 0xffff;
+			 else
+			     x = (~o1.value) & 0xffffffff;
                          goto FoldConstant;
                     case LOGNOT_OP:
                         if (o1.value != 0) x=0; else x=1;
@@ -819,20 +958,57 @@ static void emit_token(token_data t)
             o2 = emitter_stack[emitter_sp - 1];
 
             if ((o1.marker == 0) && (o2.marker == 0)
-            && ((o1.type == SHORT_CONSTANT_OT)||(o1.type == LONG_CONSTANT_OT))
-            && ((o2.type == SHORT_CONSTANT_OT)||(o2.type == LONG_CONSTANT_OT)))
+  	        && is_constant_ot(o1.type) && is_constant_ot(o2.type))
             {
                 switch(t.value)
                 {
                     case PLUS_OP: x = o1.value + o2.value; goto FoldConstantC;
                     case MINUS_OP: x = o1.value - o2.value; goto FoldConstantC;
-                    case TIMES_OP: x = o1.value * o2.value; goto FoldConstantC;
-                    case DIVIDE_OP: if (o2.value==0)
-                                  error("Division of constant by zero");
-                             else x = o1.value / o2.value; goto FoldConstant;
-                    case REMAINDER_OP: if (o2.value==0)
-                                  error("Division of constant by zero");
-                             else x = o1.value % o2.value; goto FoldConstant;
+
+  		    case TIMES_OP:
+  		    case DIVIDE_OP:
+  		    case REMAINDER_OP:
+		      {
+			int32 ov1, ov2;
+			if (!glulx_mode) {
+			  ov1 = o1.value & 0xFFFF;
+			  ov2 = o2.value & 0xFFFF;
+			  if (ov1 & 0x8000)
+			    ov1 -= (int32)0x10000;
+			  if (ov2 & 0x8000)
+			    ov2 -= (int32)0x10000;
+			}
+			else {
+			  ov1 = o1.value;
+			  ov2 = o2.value;
+			}
+			if (t.value == TIMES_OP) {
+			  x = ov1 * ov2;
+			  goto FoldConstantC;
+			}
+			if (o2.value == 0)
+			  error("Division of constant by zero");
+			if (t.value == DIVIDE_OP) {
+			  if (ov2 < 0) {
+			    ov1 = -ov1;
+			    ov2 = -ov2;
+			  }
+			  if (ov1 >= 0) 
+			    x = ov1 / ov2;
+			  else
+			    x = -((-ov1) / ov2);
+			}
+			else {
+			  if (ov2 < 0) {
+			    ov2 = -ov2;
+			  }
+			  if (ov1 >= 0) 
+			    x = ov1 % ov2;
+			  else
+			    x = -((-ov1) % ov2);
+			}
+			goto FoldConstant;
+		      }
                     case ARTAND_OP: x = o1.value & o2.value; goto FoldConstant;
                     case ARTOR_OP: x = o1.value | o2.value; goto FoldConstant;
                     case CONDEQUALS_OP:
@@ -913,7 +1089,10 @@ static void emit_token(token_data t)
 
     FoldConstantC:
 
-    if ((x<-32768) || (x > 32767))
+    /* In Glulx, skip this test; we can't check out-of-range errors 
+       for 32-bit arithmetic. */
+
+    if (!glulx_mode && ((x<-32768) || (x > 32767)))
     {   char folding_error[40];
         switch(t.value)
         {
@@ -933,14 +1112,31 @@ the range -32768 to +32767:", folding_error);
 
     FoldConstant:
 
-    while (x < 0) x = x + 0x10000;
-    x = x & 0xffff;
+    if (!glulx_mode) {
+        while (x < 0) x = x + 0x10000;
+	x = x & 0xffff;
+    }
+    else {
+        x = x & 0xffffffff;
+    }
 
     emitter_sp = emitter_sp - arity + 1;
 
-    if (x<256)
-        emitter_stack[emitter_sp - 1].type = SHORT_CONSTANT_OT;
-    else emitter_stack[emitter_sp - 1].type = LONG_CONSTANT_OT;
+    if (!glulx_mode) {
+        if (x<256)
+	    emitter_stack[emitter_sp - 1].type = SHORT_CONSTANT_OT;
+	else emitter_stack[emitter_sp - 1].type = LONG_CONSTANT_OT;
+    }
+    else {
+        if (x == 0)
+	    emitter_stack[emitter_sp - 1].type = ZEROCONSTANT_OT;
+	else if (x >= -128 && x <= 127) 
+	    emitter_stack[emitter_sp - 1].type = BYTECONSTANT_OT;
+	else if (x >= -32768 && x <= 32767) 
+	    emitter_stack[emitter_sp - 1].type = HALFCONSTANT_OT;
+	else
+	    emitter_stack[emitter_sp - 1].type = CONSTANT_OT;
+    }
 
     emitter_stack[emitter_sp - 1].value = x;
     emitter_stack[emitter_sp - 1].marker = 0;
@@ -994,9 +1190,13 @@ extern void show_tree(assembly_operand AO, int annotate)
 
 /* --- Lvalue transformations ---------------------------------------------- */
 
+/* This only gets called in Z-code, since Glulx doesn't distinguish
+   individual property operators from general ones. */
 static void check_property_operator(int from_node)
 {   int below = ET[from_node].down;
     int opnum = ET[from_node].operator_number;
+
+    ASSERT_ZCODE();
 
     if (veneer_mode) return;
 
@@ -1051,7 +1251,7 @@ static void check_lvalues(int from_node)
         {   opnum_below = ET[below].operator_number;
 
             if (ET[below].down == -1)
-            {   if (ET[below].value.type != VARIABLE_OT)
+	    {   if (!is_variable_ot(ET[below].value.type))
                 {   error("'=' applied to undeclared variable");
                     goto LvalueError;
                 }
@@ -1226,6 +1426,53 @@ static void insert_exp_to_cond(int n, int context)
     insert_exp_to_cond(ET[n].down, context);
 }
 
+static void func_args_on_stack(int n, int context)
+{
+  /* Make sure that the arguments of every function-call expression
+     are stored to the stack. If any aren't (ie, if any arguments are
+     constants or variables), cover them with push operators. 
+     (The very first argument does not need to be so treated, because
+     it's the function address, not a function argument. We also
+     skip the treatment for most system functions.) */
+
+  int new, i, pn, fnaddr, opnum;
+
+  ASSERT_GLULX();
+
+  if (ET[n].right != -1) 
+    func_args_on_stack(ET[n].right, context);
+  if (ET[n].down == -1) {
+    pn = ET[n].up;
+    if (pn != -1) {
+      opnum = ET[pn].operator_number;
+      if (opnum == FCALL_OP
+	|| opnum == MESSAGE_CALL_OP
+	|| opnum == PROP_CALL_OP) {
+	/* If it's an FCALL, get the operand which contains the function 
+	   address (or system-function number) */
+	if (opnum == MESSAGE_CALL_OP 
+	  || opnum == PROP_CALL_OP
+	  || ((fnaddr=ET[pn].down) != n
+	    && (ET[fnaddr].value.type != SYSFUN_OT
+	      || ET[fnaddr].value.value == INDIRECT_SYSF
+	      || ET[fnaddr].value.value == GLK_SYSF))) {
+	  new = ET_used++;
+	  if (new == MAX_EXPRESSION_NODES)
+	    memoryerror("MAX_EXPRESSION_NODES9", MAX_EXPRESSION_NODES);
+	  ET[new] = ET[n];
+	  ET[n].down = new; 
+	  ET[n].operator_number = PUSH_OP;
+	  ET[new].up = n; 
+	  ET[new].right = -1;
+	}
+      }
+    }
+    return;
+  }
+
+  func_args_on_stack(ET[n].down, context);
+}
+
 static assembly_operand check_conditions(assembly_operand AO, int context)
 {   int n;
 
@@ -1245,6 +1492,9 @@ static assembly_operand check_conditions(assembly_operand AO, int context)
 
     insert_exp_to_cond(AO.value, context);
     delete_negations(AO.value, context);
+
+    if (glulx_mode)
+        func_args_on_stack(AO.value, context);
 
     return AO;
 }
@@ -1373,7 +1623,8 @@ extern assembly_operand parse_expression(int context)
                 {   printf("Tree before lvalue checking:\n");
                     show_tree(AO, FALSE);
                 }
-                check_property_operator(AO.value);
+	        if (!glulx_mode)
+		    check_property_operator(AO.value);
                 check_lvalues(AO.value);
                 ET[AO.value].up = -1;
             }
@@ -1381,8 +1632,7 @@ extern assembly_operand parse_expression(int context)
             check_conditions(AO, context);
 
             if (context == CONSTANT_CONTEXT)
-                if ((AO.type != LONG_CONSTANT_OT)
-                    && (AO.type != SHORT_CONSTANT_OT))
+                if (!is_constant_ot(AO.type))
                 {   AO = zero_operand;
                     ebf_error("constant", "<expression>");
                 }
@@ -1472,7 +1722,7 @@ extern int test_for_incdec(assembly_operand AO)
     }
     if (s==0) return 0;
     if (ET[ET[AO.value].down].down != -1) return 0;
-    if (ET[ET[AO.value].down].value.type != VARIABLE_OT) return 0;
+    if (!is_variable_ot(ET[ET[AO.value].down].value.type)) return 0;
     return s*(ET[ET[AO.value].down].value.value);
 }
 
@@ -1482,7 +1732,7 @@ extern int test_for_incdec(assembly_operand AO)
 
 extern void init_expressp_vars(void)
 {   int i;
-    make_operands();
+    /* make_operands(); */
     make_lexical_interface_tables();
     for (i=0;i<32;i++) system_function_usage[i] = 0;
 }

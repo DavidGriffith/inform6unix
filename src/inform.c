@@ -10,8 +10,6 @@
 #define MAIN_INFORM_FILE
 #include "header.h"
 
-#define PATHLEN 512
-
 /* ------------------------------------------------------------------------- */
 /*   Compiler progress                                                       */
 /* ------------------------------------------------------------------------- */
@@ -25,6 +23,9 @@ int endofpass_flag;      /* set to TRUE when an "end" directive is reached
 /* ------------------------------------------------------------------------- */
 /*   Version control                                                         */
 /* ------------------------------------------------------------------------- */
+
+/* This stuff is Z-code only, for now. It might handle multiple Glulx
+   versions someday, if needed. */
 
 int version_number,      /* 3 to 8                                           */
     instruction_set_number,
@@ -48,6 +49,88 @@ extern void select_version(int vn)
 
     instruction_set_number = version_number;
     if ((version_number==7)||(version_number==8)) instruction_set_number = 5;
+}
+
+/* ------------------------------------------------------------------------- */
+/*   Target: variables which vary between the Z-machine and Glulx            */
+/* ------------------------------------------------------------------------- */
+
+int   WORDSIZE;            /* Size of a machine word: 2 or 4 */
+int32 MAXINTWORD;          /* 0x7FFF or 0x7FFFFFFF */
+
+/* The first property number which is an individual property. The
+   eight class-system i-props (create, recreate, ... print_to_array)
+   are numbered from INDIV_PROP_START to INDIV_PROP_START+7.
+*/
+int INDIV_PROP_START;
+
+/* The length of an object, as written in tables.c. It's easier to define
+   it here than to repeat the same expression all over the source code.
+   Not used in Z-code. 
+*/
+int OBJECT_BYTE_LENGTH;
+
+static void select_target(int targ)
+{
+  if (!targ) {
+    /* Z-machine */
+    WORDSIZE = 2;
+    MAXINTWORD = 0x7FFF;
+    INDIV_PROP_START = 64;
+    OBJECT_BYTE_LENGTH = 0; /* not used */
+
+    if (DICT_WORD_SIZE != 6) {
+      DICT_WORD_SIZE = 6;
+      warning("You cannot change DICT_WORD_SIZE in Z-code; resetting to 6");
+    }
+    if (NUM_ATTR_BYTES != 6) {
+      NUM_ATTR_BYTES = 6;
+      warning("You cannot change NUM_ATTR_BYTES in Z-code; resetting to 6");
+    }
+    if (MAX_LOCAL_VARIABLES != 16) {
+      MAX_LOCAL_VARIABLES = 16;
+      warning("You cannot change MAX_LOCAL_VARIABLES in Z-code; resetting to 16");
+    }
+    if (MAX_GLOBAL_VARIABLES != 240) {
+      MAX_GLOBAL_VARIABLES = 240;
+      warning("You cannot change MAX_GLOBAL_VARIABLES in Z-code; resetting to 240");
+    }
+  }
+  else {
+    /* Glulx */
+    WORDSIZE = 4;
+    MAXINTWORD = 0x7FFFFFFF;
+    INDIV_PROP_START = 256; /* This could be a memory setting */
+    scale_factor = 0; /* It should never even get used in Glulx */
+
+    if (NUM_ATTR_BYTES % 4 != 3) {
+      NUM_ATTR_BYTES += (3 - (NUM_ATTR_BYTES % 4)); 
+      warning_numbered("NUM_ATTR_BYTES must be a multiple of four, plus three. Increasing to", NUM_ATTR_BYTES);
+    }
+
+    OBJECT_BYTE_LENGTH = (1 + (NUM_ATTR_BYTES) + 6*4);
+  }
+
+  if (MAX_LOCAL_VARIABLES >= 120) {
+    MAX_LOCAL_VARIABLES = 119;
+    warning("MAX_LOCAL_VARIABLES cannot exceed 119; resetting to 119");
+    /* This is because the keyword table in the lexer only has 120
+       entries. */
+  }
+  if (DICT_WORD_SIZE > MAX_DICT_WORD_SIZE) {
+    DICT_WORD_SIZE = MAX_DICT_WORD_SIZE;
+    warning_numbered(
+      "DICT_WORD_SIZE cannot exceed MAX_DICT_WORD_SIZE; resetting", 
+      MAX_DICT_WORD_SIZE);
+    /* MAX_DICT_WORD_SIZE can be increased in header.h without fear. */
+  }
+  if (NUM_ATTR_BYTES > MAX_NUM_ATTR_BYTES) {
+    NUM_ATTR_BYTES = MAX_NUM_ATTR_BYTES;
+    warning_numbered(
+      "NUM_ATTR_BYTES cannot exceed MAX_NUM_ATTR_BYTES; resetting",
+      MAX_NUM_ATTR_BYTES);
+    /* MAX_NUM_ATTR_BYTES can be increased in header.h without fear. */
+  }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -97,6 +180,7 @@ int throwback_switch;               /* -T */
 #ifdef ARCHIMEDES
 int riscos_file_type_format;        /* set by -R */
 #endif
+int compression_switch;             /* set by -H */
 int character_set_setting,          /* set by -C */
     error_format,                   /* set by -E */
     asm_trace_setting,              /* set by -a and -t: value of
@@ -107,6 +191,8 @@ int character_set_setting,          /* set by -C */
     store_the_text;                 /* when set, record game text to a chunk
                                        of memory (used by both -r & -k) */
 static int r_e_c_s_set;             /* has -S been explicitly set? */
+
+int glulx_mode;                     /* -G */
 
 static void reset_switch_settings(void)
 {   asm_trace_setting=0;
@@ -157,6 +243,9 @@ static void reset_switch_settings(void)
     error_format=DEFAULT_ERROR_FORMAT;
 
     character_set_setting = 1;                     /* Default is ISO Latin-1 */
+
+    compression_switch = TRUE;
+    glulx_mode = FALSE;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -307,16 +396,16 @@ extern void free_arrays(void)
 /*    Name translation code for filenames                                    */
 /* ------------------------------------------------------------------------- */
 
-static char Source_Path[PATHLEN];
-static char Include_Path[PATHLEN];
-static char Code_Path[PATHLEN];
-static char Module_Path[PATHLEN];
-static char Temporary_Path[PATHLEN];
-static char current_source_path[PATHLEN];
-       char Debugging_Name[PATHLEN];
-       char Transcript_Name[PATHLEN];
-       char Language_Name[PATHLEN];
-static char ICL_Path[PATHLEN];
+static char Source_Path[128];
+static char Include_Path[128];
+static char Code_Path[128];
+static char Module_Path[128];
+static char Temporary_Path[128];
+static char current_source_path[128];
+       char Debugging_Name[128];
+       char Transcript_Name[128];
+       char Language_Name[128];
+static char ICL_Path[128];
 
 static void set_path_value(char *path, char *value)
 {   int i, j;
@@ -360,8 +449,8 @@ static void set_path_command(char *command)
 
     if (command[i]==0) { new_value=command; path_to_set=Include_Path; }
     else
-    {   char pathname[PATHLEN];
-        if (i>=PATHLEN) i=PATHLEN-1;
+    {   char pathname[128];
+        if (i>=128) i=127;
         new_value = command+i+1;
         for (j=0;j<i;j++)
             if (isupper(command[j])) pathname[j]=tolower(command[j]);
@@ -563,14 +652,20 @@ extern void translate_out_filename(char *new_name, char *old_name)
         if (Module_Path[0]!=0) prefix_path = Module_Path;
     }
     else
-    {   switch(version_number)
-        {   case 3: extension = Code_Extension;   break;
-            case 4: extension = V4Code_Extension; break;
-            case 5: extension = V5Code_Extension; break;
-            case 6: extension = V6Code_Extension; break;
-            case 7: extension = V7Code_Extension; break;
-            case 8: extension = V8Code_Extension; break;
-        }
+    {
+        if (!glulx_mode) {
+	    switch(version_number)
+	    {   case 3: extension = Code_Extension;   break;
+	        case 4: extension = V4Code_Extension; break;
+	        case 5: extension = V5Code_Extension; break;
+		case 6: extension = V6Code_Extension; break;
+		case 7: extension = V7Code_Extension; break;
+		case 8: extension = V8Code_Extension; break;
+	    }
+	}
+	else {
+	    extension = GlulxCode_Extension;
+	}
         if (Code_Path[0]!=0) prefix_path = Code_Path;
     }
 
@@ -587,8 +682,8 @@ static char *name_or_unset(char *p)
 }
 
 static void help_on_filenames(void)
-{   char old_name[PATHLEN];
-    char new_name[PATHLEN];
+{   char old_name[128];
+    char new_name[128];
     int save_mm = module_switch, x;
 
     module_switch = FALSE;
@@ -671,12 +766,13 @@ Inform translates plain filenames (such as \"xyzzy\") into full pathnames\n\
       Source code:     %s\n\
       Include files:   %s\n\
       Story files:     %s (Version 3), %s (v4), %s (v5, the default),\n\
-                       %s (v6), %s (v7), %s (v8)\n\
+                       %s (v6), %s (v7), %s (v8), %s (Glulx)\n\
       Temporary files: .tmp\n\
       Modules:         %s\n\n",
       Source_Extension, Include_Extension,
       Code_Extension, V4Code_Extension, V5Code_Extension, V6Code_Extension,
-      V7Code_Extension, V8Code_Extension, Module_Extension);
+      V7Code_Extension, V8Code_Extension, GlulxCode_Extension, 
+      Module_Extension);
     printf("\
    except that any extension you give (on the command line or in a filename\n\
    used in a program) will override these.  If you give the null extension\n\
@@ -857,6 +953,20 @@ static void rennab(int32 time_taken)
 static int compile(int number_of_files_specified, char *file1, char *file2)
 {   int32 time_start;
 
+    select_target(glulx_mode);
+
+    if (define_INFIX_switch && glulx_mode) {
+        printf("Infix (-X) facilities are not available in Glulx: \
+disabling -X switch\n");
+	define_INFIX_switch = FALSE;
+    }
+
+    if (module_switch && glulx_mode) {
+        printf("Modules are not available in Glulx: \
+disabling -M switch\n");
+	module_switch = FALSE;
+    }
+
     if (define_INFIX_switch && module_switch)
     {   printf("Infix (-X) facilities are not available when compiling \
 modules: disabling -X switch\n");
@@ -1029,6 +1139,8 @@ printf("  F0  use extra memory rather than temporary files\n");
 #else
 printf("  F1  use temporary files to reduce memory consumption\n");
 #endif
+printf("  G   compile a Glulx game file\n");
+printf("  H   use Huffman encoding to compress Glulx strings\n");
 printf("  M   compile as a Module for future linking\n");
 
 #ifdef ARCHIMEDES
@@ -1169,6 +1281,8 @@ extern void switches(char *p, int cmode)
 #endif
         case 'S': runtime_error_checking_switch = state;
                   r_e_c_s_set = TRUE; break;
+        case 'G': glulx_mode = state; adjust_memory_sizes(); break; /* ###- */
+        case 'H': compression_switch = state; break;
         case 'U': define_USE_MODULES_switch = state; break;
         case 'X': define_INFIX_switch = state; break;
         default:
@@ -1252,7 +1366,7 @@ static void run_icl_file(char *filename, FILE *command_file)
         }
         else
         {   if (strcmp(fw, "compile")==0)
-            {   char story_name[PATHLEN], code_name[PATHLEN];
+            {   char story_name[128], code_name[128];
                 i += copy_icl_word(cli_buff + i, story_name);
                 i += copy_icl_word(cli_buff + i, code_name);
 
@@ -1289,7 +1403,7 @@ static void run_icl_file(char *filename, FILE *command_file)
 }
 
 static void execute_icl_command(char *p)
-{   char filename[PATHLEN], cli_buff[256];
+{   char filename[128], cli_buff[256];
     FILE *command_file;
 
     switch(p[0])
@@ -1323,8 +1437,14 @@ char banner_line[80];
 static void banner(void)
 {
     sprintf(banner_line, MACHINE_STRING);
-    sprintf(banner_line+strlen(banner_line), " Inform %d.%d%d (%s)",
-        (VNUMBER/100)%10, (VNUMBER/10)%10, VNUMBER%10,
+    sprintf(banner_line+strlen(banner_line), " Inform %d.%d%d",
+        (VNUMBER/100)%10, (VNUMBER/10)%10, VNUMBER%10);
+    if (1) {
+        sprintf(banner_line+strlen(banner_line), " (biplatform, G%d.%d%d)",
+	    (GLULX_RELEASE_NUMBER/100)%10, (GLULX_RELEASE_NUMBER/10)%10, 
+	    GLULX_RELEASE_NUMBER%10);
+    }
+    sprintf(banner_line+strlen(banner_line), " (%s)",
         RELEASE_DATE);
     printf("%s\n", banner_line);
 }

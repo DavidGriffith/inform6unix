@@ -32,6 +32,8 @@ static void print_preamble(void)
     if (j <= 0) p = ErrorReport.source;
     else p = InputFiles[j-1].filename;
 
+    if (!p) p = ""; /* ###-call me paranoid */
+    
     switch(error_format)
     {
         case 0:  /* RISC OS error message format */
@@ -193,6 +195,12 @@ extern void error_named(char *s1, char *s2)
     error(error_message_buff);
 }
 
+extern void error_numbered(char *s1, int val)
+{
+    sprintf(error_message_buff,"%s %d.",s1,val);
+    error(error_message_buff);
+}
+
 extern void error_named_at(char *s1, char *s2, int32 report_line)
 {   int i;
 
@@ -264,6 +272,12 @@ extern void unicode_char_error(char *s, int32 uni)
 extern void warning(char *s1)
 {   if (nowarnings_switch) { no_suppressed_warnings++; return; }
     message(2,s1);
+}
+
+extern void warning_numbered(char *s1, int val)
+{   if (nowarnings_switch) { no_suppressed_warnings++; return; }
+    sprintf(error_message_buff,"%s %d.", s1, val);
+    message(2,error_message_buff);
 }
 
 extern void warning_named(char *s1, char *s2)

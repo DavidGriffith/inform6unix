@@ -153,29 +153,54 @@ static int switch_sign(void)
 static assembly_operand spec_stack[32];
 static int spec_type[32];
 
-static void compile_alternatives(assembly_operand switch_value, int n,
+static void compile_alternatives_z(assembly_operand switch_value, int n,
     int stack_level, int label, int flag)
 {   switch(n)
     {   case 1:
-            assemble_2_branch(je_zc, switch_value,
+            assemblez_2_branch(je_zc, switch_value,
                 spec_stack[stack_level],
                 label, flag); return;
         case 2:
-            assemble_3_branch(je_zc, switch_value,
+            assemblez_3_branch(je_zc, switch_value,
                 spec_stack[stack_level], spec_stack[stack_level+1],
                 label, flag); return;
         case 3:
-            assemble_4_branch(je_zc, switch_value,
+            assemblez_4_branch(je_zc, switch_value,
                 spec_stack[stack_level], spec_stack[stack_level+1],
                 spec_stack[stack_level+2],
                 label, flag); return;
     }
 }
 
+static void compile_alternatives_g(assembly_operand switch_value, int n,
+    int stack_level, int label, int flag)
+{   
+    int the_zc = (flag) ? jeq_gc : jne_gc;
+
+    if (n == 1) {
+      assembleg_2_branch(the_zc, switch_value,
+	spec_stack[stack_level],
+	label); 
+    }
+    else {
+      error("*** Cannot generate multi-equality tests in Glulx ***");
+    }
+}
+
+static void compile_alternatives(assembly_operand switch_value, int n,
+    int stack_level, int label, int flag)
+{
+  if (!glulx_mode)
+    compile_alternatives_z(switch_value, n, stack_level, label, flag);
+  else
+    compile_alternatives_g(switch_value, n, stack_level, label, flag);
+}
+
 static void parse_switch_spec(assembly_operand switch_value, int label,
     int action_switch)
 {
     int i, j, label_after = -1, spec_sp = 0;
+    int max_equality_args = ((!glulx_mode) ? 3 : 1);
 
     sequence_point_follows = FALSE;
 
@@ -188,7 +213,8 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
 
         if (action_switch)
         {   get_next_token();
-            spec_stack[spec_sp].type = LONG_CONSTANT_OT;
+	    spec_stack[spec_sp].type = 
+	        ((!glulx_mode) ? LONG_CONSTANT_OT : CONSTANT_OT);
             spec_stack[spec_sp].value = 0;
             spec_stack[spec_sp].marker = 0;
             spec_stack[spec_sp] = action_of_name(token_text);
@@ -221,7 +247,8 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
 
      GenSpecCode:
 
-     if ((spec_sp > 3) && (label_after == -1)) label_after = next_label++;
+     if ((spec_sp > max_equality_args) && (label_after == -1))
+         label_after = next_label++;
 
      if (label_after == -1)
      {   compile_alternatives(switch_value, spec_sp, 0, label, FALSE); return;
@@ -232,7 +259,7 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
          j=i; while ((j<spec_sp) && (spec_type[j] != 3)) j++;
 
          if (j > i)
-         {   if (j-i > 3) j=i+3;
+         {   if (j-i > max_equality_args) j=i+max_equality_args;
 
              if (j == spec_sp)
                  compile_alternatives(switch_value, j-i, i, label, FALSE);
@@ -242,20 +269,38 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
              i=j;
          }
          else
-         {   if (i == spec_sp - 2)
-             {   assemble_2_branch(jl_zc, switch_value, spec_stack[i],
+         {   
+	   if (!glulx_mode) {
+	     if (i == spec_sp - 2)
+             {   assemblez_2_branch(jl_zc, switch_value, spec_stack[i],
                      label, TRUE);
-                 assemble_2_branch(jg_zc, switch_value, spec_stack[i+1],
+                 assemblez_2_branch(jg_zc, switch_value, spec_stack[i+1],
                      label, TRUE);
              }
              else
-             {   assemble_2_branch(jl_zc, switch_value, spec_stack[i],
+             {   assemblez_2_branch(jl_zc, switch_value, spec_stack[i],
                      next_label, TRUE);
-                 assemble_2_branch(jg_zc, switch_value, spec_stack[i+1],
+                 assemblez_2_branch(jg_zc, switch_value, spec_stack[i+1],
                      label_after, FALSE);
                  assemble_label_no(next_label++);
              }
-             i = i+2;
+	   }
+	   else {
+	     if (i == spec_sp - 2)
+             {   assembleg_2_branch(jlt_gc, switch_value, spec_stack[i],
+                     label);
+                 assembleg_2_branch(jgt_gc, switch_value, spec_stack[i+1],
+                     label);
+             }
+             else
+             {   assembleg_2_branch(jlt_gc, switch_value, spec_stack[i],
+                     next_label);
+                 assembleg_2_branch(jle_gc, switch_value, spec_stack[i+1],
+                     label_after);
+                 assemble_label_no(next_label++);
+             }
+	   }
+	   i = i+2;
          }
      }
 
@@ -279,7 +324,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
 
     no_locals = 0;
 
-    for (i=0;i<15;i++) local_variables.keywords[i] = "";
+    for (i=0;i<MAX_LOCAL_VARIABLES-1;i++) local_variables.keywords[i] = "";
 
     do
     {   statements.enabled = TRUE;
@@ -299,8 +344,9 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
             break;
         }
 
-        if (no_locals == 15)
-        {   error("A routine can have at most 15 local variables");
+        if (no_locals == MAX_LOCAL_VARIABLES-1)
+        {   error_numbered("Too many local variables for a routine; max is",
+	        MAX_LOCAL_VARIABLES-1);
             panic_mode_error_recovery();
             break;
         }
@@ -353,7 +399,11 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
             if (switch_clause_made)
             {   if (!execution_never_reaches_here)
                 {   sequence_point_follows = FALSE;
-                    assemble_0((embedded_flag)?rfalse_zc:rtrue_zc);
+		    if (!glulx_mode)
+                        assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
+		    else
+		        assembleg_1(return_gc, 
+			    ((embedded_flag)?zero_operand:one_operand));
                 }
                 assemble_label_no(switch_label);
             }
@@ -381,7 +431,11 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                 if (switch_clause_made)
                 {   if (!execution_never_reaches_here)
                     {   sequence_point_follows = FALSE;
-                        assemble_0((embedded_flag)?rfalse_zc:rtrue_zc);
+		        if (!glulx_mode)
+			    assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
+			else
+			    assembleg_1(return_gc, 
+			        ((embedded_flag)?zero_operand:one_operand));
                     }
                     assemble_label_no(switch_label);
                 }
@@ -390,7 +444,14 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                 switch_clause_made = TRUE;
                 put_token_back(); put_token_back();
 
-                AO.type = VARIABLE_OT; AO.value = 249; AO.marker = 0;
+		if (!glulx_mode) {
+		    AO.type = VARIABLE_OT; AO.value = 249; AO.marker = 0;
+		}
+		else {
+		    AO.type = GLOBALVAR_OT;
+		    AO.value = MAX_LOCAL_VARIABLES+6; /* sw__var */
+		    AO.marker = 0;
+		}
                 parse_switch_spec(AO, switch_label, TRUE);
 
                 continue;
@@ -489,7 +550,7 @@ extern void parse_code_block(int break_label, int continue_label,
                     put_token_back(); put_token_back();
                     if (unary_minus_flag) put_token_back();
 
-                    AO.type = VARIABLE_OT; AO.value = 255; AO.marker = 0;
+		    AO = temp_var1;
                     parse_switch_spec(AO, switch_label, FALSE);
                     continue;
                 }

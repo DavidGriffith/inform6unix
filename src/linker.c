@@ -269,7 +269,7 @@ static void accept_export(void)
                 IE.symbol_value += no_objects;
                 break;
             case ARRAY_T:
-                IE.symbol_value += dynamic_array_area_size - 0x1e0;
+                IE.symbol_value += dynamic_array_area_size - (MAX_GLOBAL_VARIABLES*2);
                 break;
             case GLOBAL_VARIABLE_T:
                 if (no_globals==233)
@@ -440,11 +440,11 @@ static int32 backpatch_backpatch(int32 v)
             break;
 
         case ARRAY_MV:
-            if (v < 0x1e0)
+            if (v < (MAX_GLOBAL_VARIABLES*2))
             {   v = 2*(variables_map[v/2 + 16] - 16);
             }
             else
-            {   v += dynamic_array_area_size - 0x1e0;
+            {   v += dynamic_array_area_size - (MAX_GLOBAL_VARIABLES*2);
             }
             break;
 
@@ -763,11 +763,11 @@ of the Inform 6 compiler knows about: it may not link in correctly", filename);
                     case INDIVIDUAL_PROP_ZA:
                         offset += individuals_length; break;
                     case DYNAMIC_ARRAY_ZA:
-                        if (offset < 0x1e0)
+                        if (offset < (MAX_GLOBAL_VARIABLES*2))
                         {   offset = 2*(variables_map[offset/2 + 16] - 16);
                         }
                         else
-                        {   offset += dynamic_array_area_size - 0x1e0;
+                        {   offset += dynamic_array_area_size - (MAX_GLOBAL_VARIABLES*2);
                         }
                         break;
                 }
@@ -798,17 +798,17 @@ of the Inform 6 compiler knows about: it may not link in correctly", filename);
 
     /* (10) Glue in the dynamic array data */
 
-    i = m_static_offset - m_vars_offset - 240*2;
+    i = m_static_offset - m_vars_offset - MAX_GLOBAL_VARIABLES*2;
     if (dynamic_array_area_size + i >= MAX_STATIC_DATA)
         memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
 
     if (linker_trace_level >= 2)
         printf("Inserting dynamic array area, %04x to %04x, at %04x\n",
-            m_vars_offset + 240*2, m_static_offset,
+            m_vars_offset + MAX_GLOBAL_VARIABLES*2, m_static_offset,
             variables_offset + dynamic_array_area_size);
     for (k=0;k<i;k++)
     {   dynamic_array_area[dynamic_array_area_size+k]
-            = p[m_vars_offset+240*2+k];
+            = p[m_vars_offset+MAX_GLOBAL_VARIABLES*2+k];
     }
     dynamic_array_area_size+=i;
 
@@ -864,55 +864,55 @@ at strings offset %04x (+%04x)\n",
         printf("Joining on object tree of size %d\n", m_no_objects);
 
     for (i=0, k=no_objects, last=m_props_offset;i<m_no_objects;i++)
-    {   objects[no_objects].atts[0]=p[m_objs_offset+14*i];
-        objects[no_objects].atts[1]=p[m_objs_offset+14*i+1];
-        objects[no_objects].atts[2]=p[m_objs_offset+14*i+2];
-        objects[no_objects].atts[3]=p[m_objs_offset+14*i+3];
-        objects[no_objects].atts[4]=p[m_objs_offset+14*i+4];
-        objects[no_objects].atts[5]=p[m_objs_offset+14*i+5];
-        objects[no_objects].parent =
+    {   objectsz[no_objects].atts[0]=p[m_objs_offset+14*i];
+        objectsz[no_objects].atts[1]=p[m_objs_offset+14*i+1];
+        objectsz[no_objects].atts[2]=p[m_objs_offset+14*i+2];
+        objectsz[no_objects].atts[3]=p[m_objs_offset+14*i+3];
+        objectsz[no_objects].atts[4]=p[m_objs_offset+14*i+4];
+        objectsz[no_objects].atts[5]=p[m_objs_offset+14*i+5];
+        objectsz[no_objects].parent =
             (p[m_objs_offset+14*i+6])*256+p[m_objs_offset+14*i+7];
-        objects[no_objects].next =
+        objectsz[no_objects].next =
             (p[m_objs_offset+14*i+8])*256+p[m_objs_offset+14*i+9];
-        objects[no_objects].child =
+        objectsz[no_objects].child =
             (p[m_objs_offset+14*i+10])*256+p[m_objs_offset+14*i+11];
         if (linker_trace_level>=4)
             printf("Module objects[%d] has %d,%d,%d\n",
-                i,objects[no_objects].parent,
-                objects[no_objects].next,objects[no_objects].child);
-        if (objects[no_objects].parent == 0x7fff)
-        {   objects[no_objects].parent = 1;
-            if (objects[1].child == 0)
-            {   objects[1].child = no_objects+1;
+                i,objectsz[no_objects].parent,
+                objectsz[no_objects].next,objectsz[no_objects].child);
+        if (objectsz[no_objects].parent == 0x7fff)
+        {   objectsz[no_objects].parent = 1;
+            if (objectsz[1].child == 0)
+            {   objectsz[1].child = no_objects+1;
             }
             else
-            {   int j1, j2 = objects[1].child;
+            {   int j1, j2 = objectsz[1].child;
                 while (j2 != 0)
                 {   j1 = j2;
-                    j2 = objects[j2].next;
+                    j2 = objectsz[j2].next;
                 }
-                objects[j1].next = no_objects+1;
+                objectsz[j1].next = no_objects+1;
             }
-            objects[no_objects].next = 0;
+            objectsz[no_objects].next = 0;
         }
         else
-        if (objects[no_objects].parent>0) objects[no_objects].parent += k;
-        if (objects[no_objects].next>0)   objects[no_objects].next   += k;
-        if (objects[no_objects].child>0)  objects[no_objects].child  += k;
-        objects[no_objects].propsize =
+        if (objectsz[no_objects].parent>0) objectsz[no_objects].parent += k;
+        if (objectsz[no_objects].next>0)   objectsz[no_objects].next   += k;
+        if (objectsz[no_objects].child>0)  objectsz[no_objects].child  += k;
+        objectsz[no_objects].propsize =
             (p[m_objs_offset+14*i+12])*256+p[m_objs_offset+14*i+13];
-        last += objects[no_objects].propsize;
+        last += objectsz[no_objects].propsize;
         if (linker_trace_level>=4)
             printf("Objects[%d] has %d,%d,%d\n",
-                no_objects,objects[no_objects].parent,
-                objects[no_objects].next,objects[no_objects].child);
+                no_objects,objectsz[no_objects].parent,
+                objectsz[no_objects].next,objectsz[no_objects].child);
         no_objects++;
     }
 
     /* (15) Glue on the properties */
 
     if (last>m_props_offset)
-    {   i = m_static_offset - m_vars_offset - 240*2;
+    {   i = m_static_offset - m_vars_offset - MAX_GLOBAL_VARIABLES*2;
         if (dynamic_array_area_size + i >= MAX_STATIC_DATA)
             memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
 

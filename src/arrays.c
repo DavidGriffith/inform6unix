@@ -23,15 +23,22 @@
 /*   (dynamic) arrays which may be defined.  Owing to a poor choice of name  */
 /*   some years ago, this is also called the "static data area", which is    */
 /*   why the memory setting for its maximum extent is "MAX_STATIC_DATA".     */
+/*                                                                           */
+/*   In Glulx, that 240 is changed to MAX_GLOBAL_VAR_NUMBER, and we take     */
+/*   correspondingly more space for the globals. This *really* ought to be   */
+/*   split into two segments.                                                */
 /* ------------------------------------------------------------------------- */
 int     *dynamic_array_area;           /* See above                          */
 int32   *global_initial_value;
 
-int no_globals,                        /* Number of global variables used
+int no_globals;                        /* Number of global variables used
                                           by the programmer (Inform itself
                                           uses the top seven -- but these do
                                           not count)                         */
-    dynamic_array_area_size;           /* Size in bytes                      */
+                                       /* In Glulx, Inform uses the bottom 
+					  ten.                               */
+
+int dynamic_array_area_size;           /* Size in bytes                      */
 
 int no_arrays;
 int32   *array_symbols;
@@ -46,10 +53,14 @@ static int array_entry_size,           /* 1 for byte array, 2 for word array */
                                           "string" arrays, these numbers are
                                           different (by 2 and 1 bytes resp)  */
 
+                                       /* In Glulx, of course, that will be
+					  4 instead of 2.                    */
+
 extern void finish_array(int32 i)
 {
     /*  Write the array size into the 0th byte/word of the array, if it's
         a "table" or "string" array                                          */
+  if (!glulx_mode) {
 
     if (array_base!=dynamic_array_area_size)
     {   if (array_entry_size==2)
@@ -63,14 +74,35 @@ extern void finish_array(int32 i)
         }
     }
 
-    /*  Move on the dynamic array size so that it now points to the next
-        available free space                                                 */
+  }
+  else {
+    if (array_base!=dynamic_array_area_size)
+    {   if (array_entry_size==4)
+        {   
+	    dynamic_array_area[array_base]   = (i >> 24) & 0xFF;
+	    dynamic_array_area[array_base+1] = (i >> 16) & 0xFF;
+	    dynamic_array_area[array_base+2] = (i >> 8) & 0xFF;
+	    dynamic_array_area[array_base+3] = (i) & 0xFF;
+        }
+        else
+        {   if (i>=256)
+                error("A 'string' array can have at most 256 entries");
+            dynamic_array_area[array_base] = i;
+        }
+    }
+    
+  }
 
-    dynamic_array_area_size += i*array_entry_size;
+  /*  Move on the dynamic array size so that it now points to the next
+      available free space                                                   */
+
+  dynamic_array_area_size += i*array_entry_size;
+
 }
 
 extern void array_entry(int32 i, assembly_operand VAL)
 {
+  if (!glulx_mode) {
     /*  Array entry i (initial entry has i=0) is set to Z-machine value j    */
 
     if (dynamic_array_area_size+i*array_entry_size >= MAX_STATIC_DATA)
@@ -95,6 +127,39 @@ extern void array_entry(int32 i, assembly_operand VAL)
             backpatch_zmachine(VAL.marker, DYNAMIC_ARRAY_ZA,
                 dynamic_array_area_size + 2*i);
     }
+  }
+  else {
+    /*  Array entry i (initial entry has i=0) is set to value j              */
+
+    if (dynamic_array_area_size+i*array_entry_size >= MAX_STATIC_DATA)
+        memoryerror("MAX_STATIC_DATA", MAX_STATIC_DATA);
+
+    if (array_entry_size==1)
+    {   dynamic_array_area[dynamic_array_area_size+i] = (VAL.value) & 0xFF;
+
+        if (VAL.marker != 0)
+           error("Entries in byte arrays and strings must be known constants");
+
+        /*  If the entry is too large for a byte array, issue a warning
+            and truncate the value                                           */
+        else
+        if (VAL.value >= 256)
+            warning("Entry in '->' or 'string' array not in range 0 to 255");
+    }
+    else if (array_entry_size==4)
+    {   dynamic_array_area[dynamic_array_area_size + 4*i]   = (VAL.value >> 24) & 0xFF;
+        dynamic_array_area[dynamic_array_area_size + 4*i+1] = (VAL.value >> 16) & 0xFF;
+        dynamic_array_area[dynamic_array_area_size + 4*i+2] = (VAL.value >> 8) & 0xFF;
+        dynamic_array_area[dynamic_array_area_size + 4*i+3] = (VAL.value) & 0xFF;
+        if (VAL.marker != 0)
+            backpatch_zmachine(VAL.marker, ARRAY_ZA,
+                dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES + 4*i);
+    }
+    else
+    {
+        error("Somehow created an array of shorts");
+    }
+  }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -143,9 +208,15 @@ extern void make_global(int array_flag, int name_only)
     i = token_value;
     /*  varname = token_text;  */
 
-    if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T)
-        && (svals[i] >= LOWEST_SYSTEM_VAR_NUMBER))
-        goto RedefinitionOfSystemVar;
+    if (!glulx_mode) {
+        if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T)
+	    && (svals[i] >= LOWEST_SYSTEM_VAR_NUMBER))
+	    goto RedefinitionOfSystemVar;
+    }
+    else {
+        if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T))
+	    goto RedefinitionOfSystemVar;
+    }
 
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
     {   if (array_flag)
@@ -158,20 +229,31 @@ extern void make_global(int array_flag, int name_only)
         error_named("Variable must be defined before use:", token_text);
 
     if (array_flag)
-    {   assign_symbol(i, dynamic_array_area_size, ARRAY_T);
+    {   
+        if (!glulx_mode)
+	    assign_symbol(i, dynamic_array_area_size, ARRAY_T);
+	else
+	    assign_symbol(i, 
+	        dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES, ARRAY_T);
         if (no_arrays == MAX_ARRAYS)
             memoryerror("MAX_ARRAYS", MAX_ARRAYS);
         array_symbols[no_arrays] = i;
     }
     else
-    {   if (no_globals==233)
+    {   if (!glulx_mode && no_globals==233)
         {   error("All 233 global variables already declared");
             panic_mode_error_recovery();
             return;
         }
+        if (glulx_mode && no_globals==MAX_GLOBAL_VARIABLES)
+        {   error_numbered("All global variables already declared; max is",
+	        MAX_GLOBAL_VARIABLES);
+            panic_mode_error_recovery();
+            return;
+        }
 
-        variable_tokens[16+no_globals] = i;
-        assign_symbol(i, 16+no_globals, GLOBAL_VARIABLE_T);
+        variable_tokens[MAX_LOCAL_VARIABLES+no_globals] = i;
+        assign_symbol(i, MAX_LOCAL_VARIABLES+no_globals, GLOBAL_VARIABLE_T);
         variable_tokens[svals[i]] = i;
 
         if (debugfile_switch)
@@ -200,18 +282,32 @@ extern void make_global(int array_flag, int name_only)
     {
         if ((token_type == SEP_TT) && (token_value == SETEQUALS_SEP))
         {   AO = parse_expression(CONSTANT_CONTEXT);
-            if (AO.marker != 0)
+	    if (!glulx_mode) {
+	      if (AO.marker != 0)
                 backpatch_zmachine(AO.marker, DYNAMIC_ARRAY_ZA,
-                    2*(no_globals-1));
+		  2*(no_globals-1));
+	    }
+	    else {
+	      if (AO.marker != 0)
+                backpatch_zmachine(AO.marker, GLOBALVAR_ZA,
+		  4*(no_globals-1));
+	    }
             global_initial_value[no_globals-1] = AO.value;
             return;
         }
 
         obsolete_warning("more modern to use 'Array', not 'Global'");
 
-        backpatch_zmachine(ARRAY_MV, DYNAMIC_ARRAY_ZA, 2*(no_globals-1));
-        global_initial_value[no_globals-1]
+	if (!glulx_mode) {
+	  backpatch_zmachine(ARRAY_MV, DYNAMIC_ARRAY_ZA, 2*(no_globals-1));
+	  global_initial_value[no_globals-1]
             = dynamic_array_area_size+variables_offset;
+	}
+	else {
+	  backpatch_zmachine(ARRAY_MV, GLOBALVAR_ZA, 4*(no_globals-1));
+	  global_initial_value[no_globals-1]
+            = dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES;
+	}
     }
 
     array_type = BYTE_ARRAY; data_type = UNSPECIFIED_AI;
@@ -244,7 +340,7 @@ extern void make_global(int array_flag, int name_only)
 
     array_entry_size=1;
     if ((array_type==WORD_ARRAY) || (array_type==TABLE_ARRAY))
-        array_entry_size=2;
+        array_entry_size=WORDSIZE;
 
     get_next_token();
     if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
@@ -293,16 +389,20 @@ extern void make_global(int array_flag, int name_only)
                 break;
             }
 
-            if ((AO.value <= 0) || (AO.value >= 32768))
-            {   error("An array must have between 1 and 32767 entries");
-                AO.value = 1;
-            }
+	    if (!glulx_mode) {
+	        if ((AO.value <= 0) || (AO.value >= 32768))
+		{   error("An array must have between 1 and 32767 entries");
+                    AO.value = 1;
+		}
+	    }
+	    else {
+	        if (AO.value <= 0 || (AO.value & 0x80000000))
+                {   error("An array may not have 0 or fewer entries");
+                    AO.value = 1;
+		}
+	    }
 
-            {   assembly_operand zero;
-                zero.value = 0; zero.type = SHORT_CONSTANT_OT;
-                zero.marker = 0;
-
-                for (i=0; i<AO.value; i++) array_entry(i, zero);
+            {   for (i=0; i<AO.value; i++) array_entry(i, zero_operand);
             }
             break;
 
@@ -356,9 +456,10 @@ extern void make_global(int array_flag, int name_only)
             }
 
             {   assembly_operand chars;
-                chars.type = SHORT_CONSTANT_OT; chars.marker = 0;
+		chars.marker = 0;
                 for (i=0; token_text[i]!=0; i++)
                 {   chars.value = token_text[i];
+		    set_constant_ot(&chars);
                     array_entry(i, chars);
                 }
             }
@@ -403,13 +504,16 @@ extern int32 begin_table_array(void)
         arrays of strings like this                                          */
 
     array_base = dynamic_array_area_size;
-    array_entry_size = 2;
+    array_entry_size = WORDSIZE;
 
     /*  Leave room to write the array size in later                          */
 
     dynamic_array_area_size += array_entry_size;
 
-    return array_base;
+    if (!glulx_mode)
+        return array_base;
+    else
+        return array_base - WORDSIZE * MAX_GLOBAL_VARIABLES;
 }
 
 extern int32 begin_word_array(void)
@@ -418,9 +522,12 @@ extern int32 begin_word_array(void)
         (static) word arrays like this                                       */
 
     array_base = dynamic_array_area_size;
-    array_entry_size = 2;
+    array_entry_size = WORDSIZE;
 
-    return array_base;
+    if (!glulx_mode)
+        return array_base;
+    else
+        return array_base - WORDSIZE * MAX_GLOBAL_VARIABLES;
 }
 
 /* ========================================================================= */
@@ -434,15 +541,22 @@ extern void init_arrays_vars(void)
 }
 
 extern void arrays_begin_pass(void)
-{   no_globals=0; no_arrays = 0; dynamic_array_area_size=0x1e0;
+{   no_arrays = 0; 
+    if (!glulx_mode)
+        no_globals=0; 
+    else
+        no_globals=10;
+    dynamic_array_area_size = WORDSIZE * MAX_GLOBAL_VARIABLES;
 }
 
 extern void arrays_allocate_arrays(void)
-{   dynamic_array_area = my_calloc(sizeof(int), MAX_STATIC_DATA, "static data");
+{   dynamic_array_area = my_calloc(sizeof(int), MAX_STATIC_DATA, 
+        "static data");
     array_sizes = my_calloc(sizeof(int), MAX_ARRAYS, "array sizes");
     array_types = my_calloc(sizeof(int), MAX_ARRAYS, "array types");
     array_symbols = my_calloc(sizeof(int32), MAX_ARRAYS, "array symbols");
-    global_initial_value = my_calloc(sizeof(int32), 240, "global values");
+    global_initial_value = my_calloc(sizeof(int32), MAX_GLOBAL_VARIABLES, 
+        "global values");
 }
 
 extern void arrays_free_arrays(void)

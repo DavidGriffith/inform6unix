@@ -42,7 +42,8 @@ extern int parse_given_directive(void)
            if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                return FALSE;
 
-           if (MAX_ABBREVS==64)
+	   /* Glulx doesn't have a 64-abbrev limit */
+           if (!glulx_mode && MAX_ABBREVS==64)
            {   if (no_abbreviations==64)
                    error("All 64 abbreviations already declared");
            }
@@ -115,7 +116,7 @@ extern int parse_given_directive(void)
 
         {   assembly_operand AO = parse_expression(CONSTANT_CONTEXT);
             if (AO.marker != 0)
-            {   assign_symbol(i, AO.marker*0x10000 + (AO.value % 0x10000),
+            {   assign_marked_symbol(i, AO.marker, AO.value,
                     CONSTANT_T);
                 sflags[i] |= CHANGE_SFLAG;
                 if (i == grammar_version_symbol)
@@ -171,7 +172,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
             AO = parse_expression(CONSTANT_CONTEXT);
             if (i != -1)
             {   if (AO.marker != 0)
-                {   assign_symbol(i, AO.marker*0x10000 + (AO.value % 0x10000),
+                {   assign_marked_symbol(i, AO.marker, AO.value,
                         CONSTANT_T);
                     sflags[i] |= CHANGE_SFLAG;
                 }
@@ -294,6 +295,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                     }
                 }
             } while (n > 0);
+	    ifdef_sp--; /* ###-bugfix */
             dont_enter_into_symbol_table = FALSE;
             directives.enabled = FALSE;
         }
@@ -639,8 +641,8 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
         {   ebf_error("number of local variables", token_text);
             k = 0;
         }
-        if ((k>3) || (k<0))
-        {   error("Must specify 0 to 3 local variables for 'Stub' routine");
+        if ((k>4) || (k<0))
+        {   error("Must specify 0 to 4 local variables for 'Stub' routine");
             k = 0;
         }
 
@@ -653,6 +655,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
             local_variable_texts[0] = "dummy1";
             local_variable_texts[1] = "dummy2";
             local_variable_texts[2] = "dummy3";
+            local_variable_texts[3] = "dummy4";
 
             assign_symbol(i,
                 assemble_routine_header(k, FALSE, (char *) symbs[i],
@@ -662,7 +665,10 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
             /*  Ensure the return value of a stubbed routine is false,
                 since this is necessary to make the library work properly    */
 
-            assemble_0(rfalse_zc);
+	    if (!glulx_mode)
+  	        assemblez_0(rfalse_zc);
+	    else
+	        assembleg_1(return_gc, zero_operand);
 
             /*  Inhibit "local variable unused" warnings  */
 
@@ -819,6 +825,11 @@ the first constant definition");
     /* --------------------------------------------------------------------- */
 
     case ZCHARACTER_CODE:
+
+        if (glulx_mode) {
+	    error("Glulx Inform does not handle Unicode yet.");
+	    break;
+	}
 
         directive_keywords.enabled = TRUE;
         get_next_token();

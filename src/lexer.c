@@ -215,8 +215,15 @@ extern void describe_token(token_data t)
 
 #define MAX_KEYWORDS 350
 
+/* The values will be filled in at compile time, when we know
+   which opcode set to use. */
 keyword_group opcode_names =
-{ { "je", "jl", "jg", "dec_chk", "inc_chk", "jin", "test", "or", "and",
+{ { "" },
+    OPCODE_NAME_TT, FALSE, TRUE
+};
+
+static char *opcode_list_z[] = {
+    "je", "jl", "jg", "dec_chk", "inc_chk", "jin", "test", "or", "and",
     "test_attr", "set_attr", "clear_attr", "store", "insert_obj", "loadw",
     "loadb", "get_prop", "get_prop_addr", "get_next_prop", "add", "sub",
     "mul", "div", "mod", "call", "storew", "storeb", "put_prop", "sread",
@@ -236,8 +243,27 @@ keyword_group opcode_names =
     "set_margins", "move_window", "window_size", "window_style",
     "get_wind_prop", "scroll_window", "pop_stack", "read_mouse",
     "mouse_window", "push_stack", "put_wind_prop", "print_form",
-    "make_menu", "picture_table", "" },
-    OPCODE_NAME_TT, FALSE, TRUE
+    "make_menu", "picture_table", ""
+};
+
+static char *opcode_list_g[] = {
+    "nop", "add", "sub", "mul", "div", "mod", "neg", "bitand", "bitor",
+    "bitxor", "bitnot", "shiftl", "sshiftr", "ushiftr", "jump", "jz",
+    "jnz", "jeq", "jne", "jlt", "jge", "jgt", "jle", 
+    "jltu", "jgeu", "jgtu", "jleu", 
+    "call", "return",
+    "catch", "throw", "tailcall", 
+    "copy", "copys", "copyb", "sexs", "sexb", "aload",
+    "aloads", "aloadb", "aloadbit", "astore", "astores", "astoreb",
+    "astorebit", "stkcount", "stkpeek", "stkswap", "stkroll", "stkcopy",
+    "streamchar", "streamnum", "streamstr", 
+    "gestalt", "debugtrap", "getmemsize", "setmemsize", "jumpabs",
+    "random", "setrandom", "quit", "verify",
+    "restart", "save", "restore", "saveundo", "restoreundo", "protect",
+    "glk", "getstringtbl", "setstringtbl", "getiosys", "setiosys",
+    "linearsearch", "binarysearch", "linkedsearch",
+    "callf", "callfi", "callfii", "callfiii", 
+    ""
 };
 
 keyword_group directives =
@@ -301,7 +327,7 @@ keyword_group conditions =
 
 keyword_group system_functions =
 { { "child", "children", "elder", "eldest", "indirect", "parent", "random",
-    "sibling", "younger", "youngest", "metaclass", "" },
+    "sibling", "younger", "youngest", "metaclass", "glk", "" },
     SYSFUN_TT, FALSE, TRUE
 };
 
@@ -331,6 +357,7 @@ keyword_group system_constants =
     "constant_names_array",
     "lowest_class_number", "highest_class_number", "class_objects_array",
     "lowest_object_number", "highest_object_number",
+    "grammar_table", "dictionary_table", "dynam_string_table",
     "" },
     SYSTEM_CONSTANT_TT, FALSE, TRUE
 };
@@ -396,14 +423,26 @@ static int *keywords_hash_ends_table;
 static int *keywords_data_table;
 
 static int *local_variable_hash_table;
-static int local_variable_hash_codes[15];
-char *local_variable_texts[15];
+static int *local_variable_hash_codes;
+char **local_variable_texts;
 static char *local_variable_text_table;
 
 static char one_letter_locals[128];
 
 static void make_keywords_tables(void)
 {   int i, j, h, tp=0;
+    char **oplist;
+
+    if (!glulx_mode)
+        oplist = opcode_list_z;
+    else
+        oplist = opcode_list_g;
+
+    for (j=0; *(oplist[j]); j++) {
+        opcode_names.keywords[j] = oplist[j];
+    }
+    opcode_names.keywords[j] = "";
+
     for (i=0; i<HASH_TAB_SIZE; i++)
     {   keywords_hash_table[i] = -1;
         keywords_hash_ends_table[i] = -1;
@@ -429,7 +468,7 @@ static void make_keywords_tables(void)
 extern void construct_local_variable_tables(void)
 {   int i, h; char *p = local_variable_text_table;
     for (i=0; i<HASH_TAB_SIZE; i++) local_variable_hash_table[i] = -1;
-    for (i=0; i<128; i++) one_letter_locals[i] = 16;
+    for (i=0; i<128; i++) one_letter_locals[i] = MAX_LOCAL_VARIABLES;
 
     for (i=0; i<no_locals; i++)
     {   char *q = local_variables.keywords[i];
@@ -446,7 +485,8 @@ extern void construct_local_variable_tables(void)
         strcpy(p, q);
         p += strlen(p)+1;
     }
-    for (;i<15;i++) local_variable_texts[i] = "<no such local variable>";
+    for (;i<MAX_LOCAL_VARIABLES-1;i++) 
+      local_variable_texts[i] = "<no such local variable>";
 }
 
 static void interpret_identifier(int pos, int dirs_only_flag)
@@ -471,7 +511,7 @@ static void interpret_identifier(int pos, int dirs_only_flag)
     if (local_variables.enabled)
     {   if (p[1]==0)
         {   index = one_letter_locals[p[0]];
-            if (index<16)
+            if (index<MAX_LOCAL_VARIABLES)
             {   circle[pos].type = LOCAL_VARIABLE_TT;
                 circle[pos].value = index+1;
                 return;
@@ -844,7 +884,14 @@ static Sourcefile *CF;                           /*  Top entry on stack      */
 static int last_no_files;
 
 static void begin_buffering_file(int i, int file_no)
-{   uchar *p = (uchar *) FileStack[i].buffer;
+{   uchar *p;
+
+    if (i >= MAX_INCLUSION_DEPTH) 
+    {  fatalerror("Too many nested Includes");
+       /* ###-bugfix */
+    }
+
+    p = (uchar *) FileStack[i].buffer;
 
     if (i>0)
     {   FileStack[i-1].la  = lookahead;
@@ -1346,8 +1393,14 @@ extern void lexer_allocate_arrays(void)
         "keyword hashing linked list");
     local_variable_hash_table = my_calloc(sizeof(int), HASH_TAB_SIZE,
         "local variable hash table");
-    local_variable_text_table = my_malloc(15*(MAX_IDENTIFIER_LENGTH+1),
+    local_variable_text_table = my_malloc(
+        (MAX_LOCAL_VARIABLES-1)*(MAX_IDENTIFIER_LENGTH+1),
         "text of local variable names");
+
+    local_variable_hash_codes = my_calloc(sizeof(int), MAX_LOCAL_VARIABLES,
+        "local variable hash codes");
+    local_variable_texts = my_calloc(sizeof(char *), MAX_LOCAL_VARIABLES,
+        "local variable text pointers");
 
     make_tokeniser_grid();
     make_keywords_tables();
@@ -1367,6 +1420,9 @@ extern void lexer_free_arrays(void)
     my_free(&keywords_data_table, "keyword hashing linked list");
     my_free(&local_variable_hash_table, "local variable hash table");
     my_free(&local_variable_text_table, "text of local variable names");
+
+    my_free(&local_variable_hash_codes, "local variable hash codes");
+    my_free(&local_variable_texts, "local variable text pointers");
 }
 
 /* ========================================================================= */

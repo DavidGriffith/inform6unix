@@ -91,7 +91,7 @@ static int English_verb_list_size;     /* Size of the list in bytes
           *action_symbol,
           *grammar_token_routine,
           *adjectives;
-  static dict_word *adjective_sort_code;
+  static uchar *adjective_sort_code;
 
 /* ------------------------------------------------------------------------- */
 /*   Tracing for compiler maintenance                                        */
@@ -166,7 +166,10 @@ extern assembly_operand action_of_name(char *name)
     if (stypes[j] == FAKE_ACTION_T)
     {   AO.value = svals[j];
         AO.marker = 0;
-        AO.type = LONG_CONSTANT_OT;
+	if (!glulx_mode)
+	  AO.type = LONG_CONSTANT_OT;
+	else
+	  set_constant_ot(&AO);
         sflags[j] |= USED_SFLAG;
         return AO;
     }
@@ -183,8 +186,13 @@ extern assembly_operand action_of_name(char *name)
 
     AO.value = svals[j];
     AO.marker = ACTION_MV;
-    AO.type = (module_switch)?LONG_CONSTANT_OT:SHORT_CONSTANT_OT;
-    if (svals[j] >= 256) AO.type = LONG_CONSTANT_OT;
+    if (!glulx_mode) {
+      AO.type = (module_switch)?LONG_CONSTANT_OT:SHORT_CONSTANT_OT;
+      if (svals[j] >= 256) AO.type = LONG_CONSTANT_OT;
+    }
+    else {
+      AO.type = CONSTANT_OT;
+    }
     return AO;
 }
 
@@ -226,18 +234,21 @@ static int make_adjective(char *English_word)
         This routine is used only in grammar version 1: the corresponding
         table is left empty in GV2.                                          */
 
-    int i; dict_word new_sort_code;
+    int i; 
+    uchar new_sort_code[MAX_DICT_WORD_SIZE];
 
     if (no_adjectives >= MAX_ADJECTIVES)
         memoryerror("MAX_ADJECTIVES", MAX_ADJECTIVES);
 
-    new_sort_code = dictionary_prepare(English_word);
+    dictionary_prepare(English_word, new_sort_code);
     for (i=0; i<no_adjectives; i++)
-        if (compare_sorts(new_sort_code,adjective_sort_code[i]) == 0)
+        if (compare_sorts(new_sort_code,
+	  adjective_sort_code+i*DICT_WORD_SIZE) == 0)
             return(0xff-i);
     adjectives[no_adjectives]
         = dictionary_add(English_word,8,0,0xff-no_adjectives);
-    adjective_sort_code[no_adjectives] = new_sort_code;
+    copy_sorts(adjective_sort_code+no_adjectives*DICT_WORD_SIZE,
+        new_sort_code);
     return(0xff-no_adjectives++);
 }
 
@@ -346,6 +357,7 @@ static int grammar_line(int verbnum, int line)
 
     int j, bytecode, mark; int32 wordcode;
     int grammar_token, slash_mode, last_was_slash;
+    int reverse_action, TOKEN_SIZE;
 
     get_next_token();
     if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) return FALSE;
@@ -364,14 +376,29 @@ into Inform, so suggest rewriting grammar using general parsing routines");
     }
 
     /*  Internally, a line can be up to 3*32 + 1 + 2 = 99 bytes long  */
+    /*  In Glulx, that's 5*32 + 4 = 164 bytes */
 
     mark = grammar_lines_top;
-    if (mark + 100 >= MAX_LINESPACE)
-        memoryerror("MAX_LINESPACE", MAX_LINESPACE);
+    if (!glulx_mode) {
+        if (mark + 100 >= MAX_LINESPACE)
+	    memoryerror("MAX_LINESPACE", MAX_LINESPACE);
+    }
+    else {
+        if (mark + 165 >= MAX_LINESPACE)
+	    memoryerror("MAX_LINESPACE", MAX_LINESPACE);
+    }
 
     Inform_verbs[verbnum].l[line] = mark;
 
-    mark = mark + 2;
+    if (!glulx_mode) {
+        mark = mark + 2;
+	TOKEN_SIZE = 3;
+    }
+    else {
+        mark = mark + 3;
+	TOKEN_SIZE = 5;
+    }
+
     grammar_token = 0; last_was_slash = TRUE; slash_mode = FALSE;
     no_grammar_lines++;
 
@@ -397,9 +424,9 @@ into Inform, so suggest rewriting grammar using general parsing routines");
             else
             {   last_was_slash = TRUE;
                 slash_mode = TRUE;
-                if (((grammar_lines[mark-3]) & 0x0f) != 2)
+                if (((grammar_lines[mark-TOKEN_SIZE]) & 0x0f) != 2)
                     error("'/' can only be applied to prepositions");
-                grammar_lines[mark-3] |= 0x20;
+                grammar_lines[mark-TOKEN_SIZE] |= 0x20;
                 continue;
             }
         }
@@ -535,8 +562,16 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
                 bytecode |= 0x10;
             }
             grammar_lines[mark++] = bytecode;
-            grammar_lines[mark++] = wordcode/256;
-            grammar_lines[mark++] = wordcode%256;
+	    if (!glulx_mode) {
+	        grammar_lines[mark++] = wordcode/256;
+		grammar_lines[mark++] = wordcode%256;
+	    }
+	    else {
+	        grammar_lines[mark++] = ((wordcode >> 24) & 0xFF);
+		grammar_lines[mark++] = ((wordcode >> 16) & 0xFF);
+		grammar_lines[mark++] = ((wordcode >> 8) & 0xFF);
+		grammar_lines[mark++] = ((wordcode) & 0xFF);
+	    }
         }
 
     } while (TRUE);
@@ -560,18 +595,29 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
             error_named("This is a fake action, not a real one:", token_text);
     }
 
+    reverse_action = FALSE;
     get_next_token();
     if ((token_type == DIR_KEYWORD_TT) && (token_value == REVERSE_DK))
     {   if (grammar_version_number == 1)
             error("'reverse' actions can only be used with \
 Library 6/3 or later");
-        j = j + 0x400;
+        reverse_action = TRUE;
     }
     else put_token_back();
 
     mark = Inform_verbs[verbnum].l[line];
-    grammar_lines[mark++] = j/256;
-    grammar_lines[mark++] = j%256;
+
+    if (!glulx_mode) {
+        if (reverse_action)
+	    j = j + 0x400;
+	grammar_lines[mark++] = j/256;
+	grammar_lines[mark++] = j%256;
+    }
+    else {
+        grammar_lines[mark++] = ((j >> 8) & 0xFF);
+	grammar_lines[mark++] = ((j) & 0xFF);
+	grammar_lines[mark++] = (reverse_action ? 1 : 0);
+    }
 
     return TRUE;
 }
@@ -755,7 +801,10 @@ extern void init_verbs_vars(void)
     adjective_sort_code = NULL;
     English_verb_list = NULL;
 
-    grammar_version_number = 1;
+    if (!glulx_mode)
+        grammar_version_number = 1;
+    else
+        grammar_version_number = 2;
 }
 
 extern void verbs_begin_pass(void)
@@ -779,7 +828,7 @@ extern void verbs_allocate_arrays(void)
                                 "grammar token routines");
     adjectives            = my_calloc(sizeof(int32),   MAX_ADJECTIVES,
                                 "adjectives");
-    adjective_sort_code   = my_calloc(sizeof(dict_word), MAX_ADJECTIVES,
+    adjective_sort_code   = my_calloc(DICT_WORD_SIZE,  MAX_ADJECTIVES,
                                 "adjective sort codes");
 
     English_verb_list     = my_malloc(MAX_VERBSPACE, "register of verbs");

@@ -14,8 +14,6 @@
 
 #include "header.h"
 
-#define PATHLEN 512
-
 int input_file;                         /* Number of source files so far     */
 
 int32 total_chars_read;                 /* Characters read in (from all
@@ -23,6 +21,9 @@ int32 total_chars_read;                 /* Characters read in (from all
 
 static int checksum_low_byte,           /* For calculating the Z-machine's   */
            checksum_high_byte;          /* "verify" checksum                 */
+
+static int32 checksum_long;             /* For the Glulx checksum,           */
+static int checksum_count;              /* similarly                         */
 
 /* ------------------------------------------------------------------------- */
 /*   Most of the information about source files is kept by "lexer.c"; this   */
@@ -39,7 +40,7 @@ static int filename_storage_left;
 /* ------------------------------------------------------------------------- */
 
 FILE *Temp1_fp=NULL, *Temp2_fp=NULL,  *Temp3_fp=NULL;
-char Temp1_Name[PATHLEN], Temp2_Name[PATHLEN], Temp3_Name[PATHLEN];
+char Temp1_Name[128], Temp2_Name[128], Temp3_Name[128];
 
 /* ------------------------------------------------------------------------- */
 /*   Opening and closing source code files                                   */
@@ -50,7 +51,7 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
     /*  Meaning: open a new file of Inform source.  (The lexer picks up on
         this by noticing that input_file has increased.)                     */
 
-    char name[PATHLEN]; int x = 0; FILE *handle;
+    char name[128]; int x = 0; FILE *handle;
 
     if (input_file == MAX_SOURCE_FILES)
         fatalerror("Program contains too many source files: \
@@ -156,23 +157,111 @@ FILE *sf_handle;
 
 static void sf_put(int c)
 {
-    /*  The checksum is the unsigned sum mod 65536 of the bytes in the
-        story file from 0x0040 (first byte after header) to the end.
+    if (!glulx_mode) {
 
-        The link data does not contribute to the checksum of a module.       */
+      /*  The checksum is the unsigned sum mod 65536 of the bytes in the
+	  story file from 0x0040 (first byte after header) to the end.
 
-    checksum_low_byte += c;
-    if (checksum_low_byte>=256)
-    {   checksum_low_byte-=256;
-        if (++checksum_high_byte==256) checksum_high_byte=0;
+	  The link data does not contribute to the checksum of a module.     */
+
+      checksum_low_byte += c;
+      if (checksum_low_byte>=256)
+      {   checksum_low_byte-=256;
+          if (++checksum_high_byte==256) checksum_high_byte=0;
+      }
+
+    }
+    else {
+
+      /*  The checksum is the unsigned 32-bit sum of the entire story file,
+	  considered as a list of 32-bit words, with the checksum field
+	  being zero. */
+
+      switch (checksum_count) {
+      case 0:
+	checksum_long += (((int32)(c & 0xFF)) << 24);
+	break;
+      case 1:
+	checksum_long += (((int32)(c & 0xFF)) << 16);
+	break;
+      case 2:
+	checksum_long += (((int32)(c & 0xFF)) << 8);
+	break;
+      case 3:
+	checksum_long += ((int32)(c & 0xFF));
+	break;
+      }
+      
+      checksum_count = (checksum_count+1) & 3;
+      
     }
 
     fputc(c, sf_handle);
 }
 
-extern void output_file(void)
-{   FILE *fin; char new_name[PATHLEN];
+/* Recursive procedure to generate the Glulx compression table. */
+
+static void output_compression(int entnum, int32 *size)
+{
+  huffentity_t *ent = &(huff_entities[entnum]);
+  int32 val;
+  char *cx;
+
+  sf_put(ent->type);
+  (*size)++;
+
+  switch (ent->type) {
+  case 0:
+    val = Write_Strings_At + huff_entities[ent->u.branch[0]].addr;
+    sf_put((val >> 24) & 0xFF);
+    sf_put((val >> 16) & 0xFF);
+    sf_put((val >> 8) & 0xFF);
+    sf_put((val) & 0xFF);
+    (*size) += 4;
+    val = Write_Strings_At + huff_entities[ent->u.branch[1]].addr;
+    sf_put((val >> 24) & 0xFF);
+    sf_put((val >> 16) & 0xFF);
+    sf_put((val >> 8) & 0xFF);
+    sf_put((val) & 0xFF);
+    (*size) += 4;
+    output_compression(ent->u.branch[0], size);
+    output_compression(ent->u.branch[1], size);
+    break;
+  case 1:
+    /* no data */
+    break;
+  case 2:
+    sf_put(ent->u.ch);
+    (*size) += 1;
+    break;
+  case 3:
+    cx = (char *)abbreviations_at + ent->u.val*MAX_ABBREV_LENGTH;
+    while (*cx) {
+      sf_put(*cx);
+      cx++;
+      (*size) += 1;  
+    }
+    sf_put('\0');
+    (*size) += 1;  
+    break;
+  case 9:
+    val = abbreviations_offset + 4 + ent->u.val*4;
+    sf_put((val >> 24) & 0xFF);
+    sf_put((val >> 16) & 0xFF);
+    sf_put((val >> 8) & 0xFF);
+    sf_put((val) & 0xFF);
+    (*size) += 4;
+    break;
+  }
+}
+
+static void output_file_z(void)
+{   FILE *fin; char new_name[128];
     int32 length, blanks=0, size, i, j;
+
+    ASSERT_ZCODE();
+
+    /* At this point, construct_storyfile() has just been called. */
 
     /*  Enter the length information into the header.                        */
 
@@ -303,8 +392,10 @@ extern void output_file(void)
         remove(Temp1_Name); remove(Temp2_Name);
     }
     else
-        for (i=0; i<static_strings_extent; i++)
-            sf_put(read_byte_from_memory_block(&static_strings_area,i));
+      for (i=0; i<static_strings_extent; i++) {
+	sf_put(read_byte_from_memory_block(&static_strings_area,i));
+	size++;
+      }
 
     /*  (5)  Output the linking data table (in the case of a module).        */
 
@@ -363,7 +454,7 @@ extern void output_file(void)
     }
 
 #ifdef ARCHIMEDES
-    {   char settype_command[PATHLEN];
+    {   char settype_command[128];
         sprintf(settype_command, "settype %s %s",
             new_name, riscos_file_type());
         system(settype_command);
@@ -375,6 +466,417 @@ extern void output_file(void)
      else
          InformFiletypes (new_name, INF_ZCODE_TYPE);
 #endif
+}
+
+static void output_file_g(void)
+{   FILE *fin; char new_name[128];
+    int32 length, blanks=0, size, i, j;
+
+    ASSERT_GLULX();
+
+    /* At this point, construct_storyfile() has just been called. */
+
+    translate_out_filename(new_name, Code_Name);
+
+    sf_handle = fopen(new_name,"wb");
+    if (sf_handle == NULL)
+        fatalerror_named("Couldn't open output file", new_name);
+
+#ifdef MAC_MPW
+    /*  Set the type and creator to Andrew Plotkin's MaxZip, a popular
+        Z-code interpreter on the Macintosh  */
+
+    if (!module_switch) fsetfileinfo(new_name, 'mxZR', 'ZCOD');
+#endif
+
+    checksum_long = 0;
+    checksum_count = 0;
+
+    /*  (1)  Output the header. We use sf_put here, instead of fputc,
+	because the header is included in the checksum. */
+
+    /* Magic number */
+    sf_put('G');
+    sf_put('l');
+    sf_put('u');
+    sf_put('l');
+    /* Version number -- 0x00020000 for now. */
+    sf_put(0x00);
+    sf_put(0x02);
+    sf_put(0x00);
+    sf_put(0x00);
+    /* RAMSTART */
+    sf_put((Write_RAM_At >> 24));
+    sf_put((Write_RAM_At >> 16));
+    sf_put((Write_RAM_At >> 8));
+    sf_put((Write_RAM_At));
+    /* EXTSTART, or game file size */
+    sf_put((Out_Size >> 24));
+    sf_put((Out_Size >> 16));
+    sf_put((Out_Size >> 8));
+    sf_put((Out_Size));
+    /* ENDMEM, which is also game file size */
+    sf_put((Out_Size >> 24));
+    sf_put((Out_Size >> 16));
+    sf_put((Out_Size >> 8));
+    sf_put((Out_Size));
+    /* STACKSIZE, which we guess at 4096. That's about enough for 90
+       nested function calls with 8 locals each -- the same capacity
+       as the Z-Spec's suggestion for Z-machine stack size. */
+    sf_put(0x00);
+    sf_put(0x00);
+    sf_put(0x10);
+    sf_put(0x00);
+    /* Initial function to call. Inform sets things up so that this
+       is the start of the executable-code area. */
+    sf_put((Write_Code_At >> 24));
+    sf_put((Write_Code_At >> 16));
+    sf_put((Write_Code_At >> 8));
+    sf_put((Write_Code_At));
+    /* String-encoding table. */
+    sf_put((Write_Strings_At >> 24));
+    sf_put((Write_Strings_At >> 16));
+    sf_put((Write_Strings_At >> 8));
+    sf_put((Write_Strings_At));
+    /* Checksum -- zero for the moment. */
+    sf_put(0x00);
+    sf_put(0x00);
+    sf_put(0x00);
+    sf_put(0x00);
+    
+    size = GLULX_HEADER_SIZE;
+
+    /*  (1a) Output the eight-byte memory layout identifier. */
+
+    sf_put('I'); sf_put('n'); sf_put('f'); sf_put('o');
+    sf_put(0); sf_put(1); sf_put(0); sf_put(0);
+
+    /*  (1b) Output the rest of the Inform-specific data. */
+
+    /* Inform version number */
+    sf_put('0' + ((RELEASE_NUMBER/100)%10));
+    sf_put('.');
+    sf_put('0' + ((RELEASE_NUMBER/10)%10));
+    sf_put('0' + RELEASE_NUMBER%10);
+    /* Glulx back-end version number */
+    sf_put('0' + ((GLULX_RELEASE_NUMBER/100)%10));
+    sf_put('.');
+    sf_put('0' + ((GLULX_RELEASE_NUMBER/10)%10));
+    sf_put('0' + GLULX_RELEASE_NUMBER%10);
+    /* Game release number */
+    sf_put((release_number>>8) & 0xFF);
+    sf_put(release_number & 0xFF);
+    /* Game serial number */
+    {
+      char serialnum[8];
+      write_serial_number(serialnum);
+      for (i=0; i<6; i++)
+	sf_put(serialnum[i]);
+    }
+    size += GLULX_STATIC_ROM_SIZE;
+
+    /*  (2)  Output the compiled code area. */
+
+    if (temporary_files_switch)
+    {   fclose(Temp2_fp);
+        fin=fopen(Temp2_Name,"rb");
+        if (fin==NULL)
+            fatalerror("I/O failure: couldn't reopen temporary file 2");
+    }
+
+    j=0;
+    if (!module_switch)
+      for (i=0; i<zcode_backpatch_size; i=i+6) {
+	int data_len;
+        int32 offset, v;
+	offset = 
+	  (read_byte_from_memory_block(&zcode_backpatch_table, i+2) << 24)
+	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+3) << 16)
+	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+4) << 8)
+	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+5));
+        backpatch_error_flag = FALSE;
+        backpatch_marker =
+	  read_byte_from_memory_block(&zcode_backpatch_table, i);
+	data_len =
+	  read_byte_from_memory_block(&zcode_backpatch_table, i+1);
+
+        while (j<offset) {
+	  size++;
+	  sf_put((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j));
+	  j++;
+        }
+
+	switch (data_len) {
+
+	case 4:
+	  v = ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j));
+	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j+1));
+	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j+2));
+	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j+3));
+	  v = backpatch_value(v);
+	  sf_put((v >> 24) & 0xFF);
+	  sf_put((v >> 16) & 0xFF);
+	  sf_put((v >> 8) & 0xFF);
+	  sf_put((v) & 0xFF);
+	  size += 4;
+	  j += 4;
+	  break;
+
+	case 2:
+	  v = ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j));
+	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j+1));
+	  v = backpatch_value(v);
+	  if (v >= 0x10000) {
+	    printf("*** backpatch value does not fit ***\n");
+	    backpatch_error_flag = TRUE;
+	  }
+	  sf_put((v >> 8) & 0xFF);
+	  sf_put((v) & 0xFF);
+	  size += 2;
+	  j += 2;
+	  break;
+
+	case 1:
+	  v = ((temporary_files_switch)?fgetc(fin):
+	    read_byte_from_memory_block(&zcode_area, j));
+	  v = backpatch_value(v);
+	  if (v >= 0x100) {
+	    printf("*** backpatch value does not fit ***\n");
+	    backpatch_error_flag = TRUE;
+	  }
+	  sf_put((v) & 0xFF);
+	  size += 1;
+	  j += 1;
+	  break;
+
+	default:
+	  printf("*** unknown backpatch data len = %d ***\n",
+	    data_len);
+	  backpatch_error_flag = TRUE;
+	}
+
+        if (backpatch_error_flag) {
+	  printf("*** %d bytes  zcode offset=%08lx  backpatch offset=%08lx ***\n",
+	    data_len, (long int) j, (long int) i);
+        }
+    }
+
+    while (j<zmachine_pc)
+    {   size++;
+        sf_put((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j));
+        j++;
+    }
+
+    if (temporary_files_switch)
+    {   if (ferror(fin))
+            fatalerror("I/O failure: couldn't read from temporary file 2");
+        fclose(fin);
+    }
+
+    /*  (4)  Output the static strings area.                                 */
+
+    if (temporary_files_switch) {
+      fseek(Temp1_fp, 0, SEEK_SET);
+    }
+    {
+      int32 ix, lx;
+      int ch, jx, curbyte, bx;
+      int depth;
+      huffbitlist_t *bits;
+      int32 origsize;
+
+      origsize = size;
+
+      if (compression_switch) {
+
+	/* The 12-byte table header. */
+	lx = compression_table_size;
+	sf_put((lx >> 24) & 0xFF);
+	sf_put((lx >> 16) & 0xFF);
+	sf_put((lx >> 8) & 0xFF);
+	sf_put((lx) & 0xFF);
+	size += 4;
+	sf_put((no_huff_entities >> 24) & 0xFF);
+	sf_put((no_huff_entities >> 16) & 0xFF);
+	sf_put((no_huff_entities >> 8) & 0xFF);
+	sf_put((no_huff_entities) & 0xFF);
+	size += 4;
+	lx = Write_Strings_At + 12;
+	sf_put((lx >> 24) & 0xFF);
+	sf_put((lx >> 16) & 0xFF);
+	sf_put((lx >> 8) & 0xFF);
+	sf_put((lx) & 0xFF);
+	size += 4;
+
+	output_compression(huff_entity_root, &size);
+      }
+
+      if (size - origsize != compression_table_size)
+	compiler_error("Compression table size mismatch.");
+
+      origsize = size;
+
+      for (lx=0, ix=0; lx<no_strings; lx++) {
+	int escapelen=0, escapetype=0;
+	int done=FALSE;
+	int32 escapeval;
+	if (compression_switch)
+	  sf_put(0xE1); /* type byte -- compressed string */
+	else
+	  sf_put(0xE0); /* type byte -- non-compressed string */
+	size++;
+	jx = 0; 
+	curbyte = 0;
+	while (!done) {
+	  if (temporary_files_switch)
+	    ch = fgetc(Temp1_fp);
+	  else
+	    ch = read_byte_from_memory_block(&static_strings_area, ix);
+	  ix++;
+	  if (ix > static_strings_extent || ch < 0)
+	    compiler_error("Read too much not-yet-compressed text.");
+
+	  if (escapelen == -1) {
+	    escapelen = 0;
+	    if (ch == '@') {
+	      ch = '@';
+	    }
+	    else if (ch == '0') {
+	      ch = '\0';
+	    }
+	    else if (ch == 'A' || ch == 'D') {
+	      escapelen = 4;
+	      escapetype = ch;
+	      escapeval = 0;
+	      continue;
+	    }
+	    else {
+	      compiler_error("Strange @ escape in processed text.");
+	    }
+	  }
+	  else if (escapelen) {
+	    escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
+	    escapelen--;
+	    if (escapelen == 0) {
+	      if (escapetype == 'A') {
+		ch = huff_abbrev_start+escapeval;
+	      }
+	      else if (escapetype == 'D') {
+		ch = huff_dynam_start+escapeval;
+	      }
+	      else {
+		compiler_error("Strange @ escape in processed text.");
+	      }
+	    }
+	    else 
+	      continue;
+	  }
+	  else {
+	    if (ch == '@') {
+	      escapelen = -1;
+	      continue;
+	    }
+	    if (ch == 0) {
+	      ch = 256;
+	      done = TRUE;
+	    }
+	  }
+
+	  if (compression_switch) {
+	    bits = &(huff_entities[ch].bits);
+	    depth = huff_entities[ch].depth;
+	    for (bx=0; bx<depth; bx++) {
+	      if (bits->b[bx / 8] & (1 << (bx % 8)))
+		curbyte |= (1 << jx);
+	      jx++;
+	      if (jx == 8) {
+		sf_put(curbyte);
+		size++;
+		curbyte = 0;
+		jx = 0;
+	      }
+	    }
+	  }
+	  else {
+	    if (ch >= huff_dynam_start) {
+	      sf_put(' '); sf_put(' '); sf_put(' ');
+	      size += 3;
+	    }
+	    else if (ch >= huff_abbrev_start) {
+	      /* nothing */
+	    }
+	    else {
+	      /* 256, the string terminator, comes out as zero */
+	      sf_put(ch & 0xFF);
+	      size++;
+	    }
+	  }
+	}
+	if (compression_switch && jx) {
+	  sf_put(curbyte);
+	  size++;
+	}
+      }
+      
+      if (size - origsize != compression_string_size)
+	compiler_error("Compression string size mismatch.");
+
+    }
+    
+    /*  (4.5)  Output any null bytes (required to reach a GPAGESIZE address)
+             before RAMSTART. */
+
+    while (size % GPAGESIZE) { sf_put(0); size++; }
+
+    /*  (5)  Output RAM. */
+
+    for (i=0; i<RAM_Size; i++)
+    {   sf_put(zmachine_paged_memory[i]); size++;
+    }
+
+    if (ferror(sf_handle))
+        fatalerror("I/O failure: couldn't write to story file");
+
+    fseek(sf_handle, 32, SEEK_SET);
+    fputc((checksum_long >> 24) & 0xFF, sf_handle);
+    fputc((checksum_long >> 16) & 0xFF, sf_handle);
+    fputc((checksum_long >> 8) & 0xFF, sf_handle);
+    fputc((checksum_long) & 0xFF, sf_handle);
+
+    if (ferror(sf_handle))
+      fatalerror("I/O failure: couldn't backtrack on story file for checksum");
+
+    fclose(sf_handle);
+
+#ifdef ARCHIMEDES
+    {   char settype_command[128];
+        sprintf(settype_command, "settype %s %s",
+            new_name, riscos_file_type());
+        system(settype_command);
+    }
+#endif
+#ifdef MAC_FACE
+     if (module_switch)
+         InformFiletypes (new_name, INF_MODULE_TYPE);
+     else
+         InformFiletypes (new_name, INF_ZCODE_TYPE);
+#endif
+}
+
+extern void output_file(void)
+{
+  if (!glulx_mode)
+    output_file_z();
+  else
+    output_file_g();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -424,7 +926,7 @@ extern void close_transcript_file(void)
     transcript_open = FALSE;
 
 #ifdef ARCHIMEDES
-    {   char settype_command[PATHLEN];
+    {   char settype_command[128];
         sprintf(settype_command, "settype %s text",
             Transcript_Name);
         system(settype_command);
@@ -572,8 +1074,10 @@ extern void remove_temp_files(void)
 
 extern void init_files_vars(void)
 {   malloced_bytes = 0;
-    checksum_low_byte = 0;
+    checksum_low_byte = 0; /* Z-code */
     checksum_high_byte = 0;
+    checksum_long = 0; /* Glulx */
+    checksum_count = 0;
     transcript_open = FALSE;
 }
 

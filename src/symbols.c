@@ -41,6 +41,7 @@ int no_named_constants;                         /* Copied into story file    */
 
   int32  **symbs;
   int32  *svals;
+  int    *smarks;            /* Glulx-only */
   int32  *slines;
   int    *sflags;
 #ifdef VAX
@@ -192,7 +193,8 @@ extern int symbol_index(char *p, int hashcode)
     symbs[no_symbols] = (int32 *) symbols_free_space;
     symbols_free_space += strlen((char *)symbols_free_space) + 1;
 
-    svals[no_symbols]   =  0x100;
+    svals[no_symbols]   =  0x100; /* ###-wrong? Would this fix the
+				     unbound-symbol-causes-asm-error? */
     sflags[no_symbols]  =  UNKNOWN_SFLAG;
     stypes[no_symbols]  =  CONSTANT_T;
     slines[no_symbols]  =  ErrorReport.line_number
@@ -303,7 +305,7 @@ extern void write_the_identifier_names(void)
     veneer_mode = TRUE;
 
     null_value = compile_string("<unknown attribute>", FALSE, FALSE);
-    for (i=0; i<48; i++) attribute_name_strings[i] = null_value;
+    for (i=0; i<NUM_ATTR_BYTES*8; i++) attribute_name_strings[i] = null_value;
 
     for (i=0; i<no_symbols; i++)
     {   t=stypes[i];
@@ -466,9 +468,12 @@ extern void write_the_identifier_names(void)
 /*   Creating symbols                                                        */
 /* ------------------------------------------------------------------------- */
 
+#if 0 /* ###-unused? This doesn't seem to be necessary, and it's declared
+	 in header.h anyhow. */
 extern int32 variable_tokens[256];
+#endif /* ###-unused */
 
-extern void assign_symbol(int index, int32 value, int type)
+static void assign_symbol_base(int index, int32 value, int type)
 {   svals[index]  = value;
     stypes[index] = type;
     if (sflags[index] & UNKNOWN_SFLAG)
@@ -478,6 +483,30 @@ extern void assign_symbol(int index, int32 value, int type)
                         + 0x10000*ErrorReport.file_number;
     }
 }
+
+extern void assign_symbol(int index, int32 value, int type)
+{
+    if (!glulx_mode) {
+        assign_symbol_base(index, value, type);
+    }
+    else {
+        smarks[index] = 0;
+	assign_symbol_base(index, value, type);
+    }
+}
+
+extern void assign_marked_symbol(int index, int marker, int32 value, int type)
+{
+    if (!glulx_mode) {
+        assign_symbol_base(index, (int32)marker*0x10000 + (value % 0x10000),
+	    type);
+    }
+    else {
+        smarks[index] = marker;
+	assign_symbol_base(index, value, type);
+    }
+}
+
 
 static void create_symbol(char *p, int value, int type)
 {   int i = symbol_index(p, -1);
@@ -493,13 +522,22 @@ static void create_rsymbol(char *p, int value, int type)
 
 static void stockup_symbols(void)
 {
+    if (!glulx_mode)
+        create_symbol("TARGET_ZCODE", 0, CONSTANT_T);
+    else 
+        create_symbol("TARGET_GLULX", 0, CONSTANT_T);
+
     create_symbol("nothing",        0, OBJECT_T);
     create_symbol("name",           1, PROPERTY_T);
 
     create_symbol("true",           1, CONSTANT_T);
     create_symbol("false",          0, CONSTANT_T);
 
-    create_rsymbol("Grammar__Version", 1, CONSTANT_T);
+    /* Glulx defaults to GV2; Z-code to GV1 */
+    if (!glulx_mode)
+        create_rsymbol("Grammar__Version", 1, CONSTANT_T);
+    else
+        create_rsymbol("Grammar__Version", 2, CONSTANT_T);
     grammar_version_symbol = symbol_index("Grammar__Version", -1);
 
     if (module_switch)
@@ -519,26 +557,84 @@ static void stockup_symbols(void)
         create_symbol("infix__watching", 0, ATTRIBUTE_T);
     }
 
-    create_symbol("temp_global",  255, GLOBAL_VARIABLE_T);
-    create_symbol("temp__global2", 254, GLOBAL_VARIABLE_T);
-    create_symbol("temp__global3", 253, GLOBAL_VARIABLE_T);
-    create_symbol("temp__global4", 252, GLOBAL_VARIABLE_T);
-    create_symbol("self",         251, GLOBAL_VARIABLE_T);
-    create_symbol("sender",       250, GLOBAL_VARIABLE_T);
-    create_symbol("sw__var",      249, GLOBAL_VARIABLE_T);
+    create_symbol("WORDSIZE",        WORDSIZE, CONSTANT_T);
+    if (!glulx_mode) {
+        create_symbol("DICT_WORD_SIZE", ((version_number==3)?4:6), CONSTANT_T);
+	create_symbol("NUM_ATTR_BYTES", ((version_number==3)?4:6), CONSTANT_T);
+    }
+    else {
+        create_symbol("DICT_WORD_SIZE",     DICT_WORD_SIZE, CONSTANT_T);
+	create_symbol("NUM_ATTR_BYTES",     NUM_ATTR_BYTES, CONSTANT_T);
+        create_symbol("INDIV_PROP_START",   INDIV_PROP_START, CONSTANT_T);
+    }    
 
-    create_symbol("sys__glob0",     16, GLOBAL_VARIABLE_T);
-    create_symbol("sys__glob1",     17, GLOBAL_VARIABLE_T);
-    create_symbol("sys__glob2",     18, GLOBAL_VARIABLE_T);
+    if (!glulx_mode) {
+        create_symbol("temp_global",  255, GLOBAL_VARIABLE_T);
+	create_symbol("temp__global2", 254, GLOBAL_VARIABLE_T);
+	create_symbol("temp__global3", 253, GLOBAL_VARIABLE_T);
+	create_symbol("temp__global4", 252, GLOBAL_VARIABLE_T);
+	create_symbol("self",         251, GLOBAL_VARIABLE_T);
+	create_symbol("sender",       250, GLOBAL_VARIABLE_T);
+	create_symbol("sw__var",      249, GLOBAL_VARIABLE_T);
+	
+	create_symbol("sys__glob0",     16, GLOBAL_VARIABLE_T);
+	create_symbol("sys__glob1",     17, GLOBAL_VARIABLE_T);
+	create_symbol("sys__glob2",     18, GLOBAL_VARIABLE_T);
+	
+	create_symbol("create",        64, INDIVIDUAL_PROPERTY_T);
+	create_symbol("recreate",      65, INDIVIDUAL_PROPERTY_T);
+	create_symbol("destroy",       66, INDIVIDUAL_PROPERTY_T);
+	create_symbol("remaining",     67, INDIVIDUAL_PROPERTY_T);
+	create_symbol("copy",          68, INDIVIDUAL_PROPERTY_T);
+	create_symbol("call",          69, INDIVIDUAL_PROPERTY_T);
+	create_symbol("print",         70, INDIVIDUAL_PROPERTY_T);
+	create_symbol("print_to_array",71, INDIVIDUAL_PROPERTY_T);
+    }
+    else {
+        /* In Glulx, these system globals are entered in order, not down 
+	   from 255. */
+        create_symbol("temp_global",  MAX_LOCAL_VARIABLES+0, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("temp__global2", MAX_LOCAL_VARIABLES+1, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("temp__global3", MAX_LOCAL_VARIABLES+2, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("temp__global4", MAX_LOCAL_VARIABLES+3, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("self",         MAX_LOCAL_VARIABLES+4, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("sender",       MAX_LOCAL_VARIABLES+5, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("sw__var",      MAX_LOCAL_VARIABLES+6, 
+	  GLOBAL_VARIABLE_T);
 
-    create_symbol("create",        64, INDIVIDUAL_PROPERTY_T);
-    create_symbol("recreate",      65, INDIVIDUAL_PROPERTY_T);
-    create_symbol("destroy",       66, INDIVIDUAL_PROPERTY_T);
-    create_symbol("remaining",     67, INDIVIDUAL_PROPERTY_T);
-    create_symbol("copy",          68, INDIVIDUAL_PROPERTY_T);
-    create_symbol("call",          69, INDIVIDUAL_PROPERTY_T);
-    create_symbol("print",         70, INDIVIDUAL_PROPERTY_T);
-    create_symbol("print_to_array",71, INDIVIDUAL_PROPERTY_T);
+	/* These are almost certainly meaningless, and can be removed. */
+	create_symbol("sys__glob0",     MAX_LOCAL_VARIABLES+7, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("sys__glob1",     MAX_LOCAL_VARIABLES+8, 
+	  GLOBAL_VARIABLE_T);
+	create_symbol("sys__glob2",     MAX_LOCAL_VARIABLES+9, 
+	  GLOBAL_VARIABLE_T);
+
+	/* These are created in order, but not necessarily at a fixed
+	   value. */
+	create_symbol("create",        INDIV_PROP_START+0, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("recreate",      INDIV_PROP_START+1, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("destroy",       INDIV_PROP_START+2, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("remaining",     INDIV_PROP_START+3, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("copy",          INDIV_PROP_START+4, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("call",          INDIV_PROP_START+5, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("print",         INDIV_PROP_START+6, 
+	  INDIVIDUAL_PROPERTY_T);
+	create_symbol("print_to_array",INDIV_PROP_START+7, 
+	  INDIVIDUAL_PROPERTY_T);
+    }
 }
 
 /* ========================================================================= */
@@ -549,6 +645,7 @@ extern void init_symbols_vars(void)
 {
     symbs = NULL;
     svals = NULL;
+    smarks = NULL;
     stypes = NULL;
     sflags = NULL;
     next_entry = NULL;
@@ -570,6 +667,8 @@ extern void symbols_allocate_arrays(void)
 {
     symbs      = my_calloc(sizeof(char *),  MAX_SYMBOLS, "symbols");
     svals      = my_calloc(sizeof(int32),   MAX_SYMBOLS, "symbol values");
+    if (glulx_mode)
+        smarks = my_calloc(sizeof(int),     MAX_SYMBOLS, "symbol markers");
     slines     = my_calloc(sizeof(int32),   MAX_SYMBOLS, "symbol lines");
     stypes     = my_calloc(sizeof(char),    MAX_SYMBOLS, "symbol types");
     sflags     = my_calloc(sizeof(int),     MAX_SYMBOLS, "symbol flags");
@@ -602,6 +701,7 @@ extern void symbols_free_arrays(void)
 
     my_free(&symbs, "symbols");
     my_free(&svals, "symbol values");
+    my_free(&smarks, "symbol markers");
     my_free(&slines, "symbol lines");
     my_free(&stypes, "symbol types");
     my_free(&sflags, "symbol flags");

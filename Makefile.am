@@ -6,7 +6,7 @@ SUBDIRS = src lib include doc demos
 
 EXTRA_DIST = AUTHORS VERSION BUGS
 
-EXTRA_DIRS = config tutor
+EXTRA_DIRS = config contrib tutor
 
 dist-hook:
 	cd tutor; $(MAKE) clean

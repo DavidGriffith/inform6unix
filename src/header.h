@@ -1376,7 +1376,7 @@ typedef struct operator_s
 
 /*  Index numbers into the keyword group "system_constants" (see "lexer.c")  */
 
-#define NO_SYSTEM_CONSTANTS   61
+#define NO_SYSTEM_CONSTANTS   62
 
 #define adjectives_table_SC   0
 #define actions_table_SC      1
@@ -1447,9 +1447,12 @@ typedef struct operator_s
 #define lowest_object_number_SC       56
 #define highest_object_number_SC      57
 
-#define grammar_table_SC              58     /* Glulx-only */
-#define dictionary_table_SC           59     /* Glulx-only */
-#define dynam_string_table_SC         60     /* Glulx-only */
+#define oddeven_packing_SC            58
+
+#define grammar_table_SC              59     /* Glulx-only */
+#define dictionary_table_SC           60     /* Glulx-only */
+#define dynam_string_table_SC         61     /* Glulx-only */
+
 
 /*  Index numbers into the keyword group "system_functions" (see "lexer.c")  */
 
@@ -2091,7 +2094,7 @@ extern void  backpatch_zmachine(int mv, int zmachine_area, int32 offset);
 
 extern uchar source_to_iso_grid[];
 extern int   character_digit_value[];
-extern char  alphabet[3][27];
+extern uchar alphabet[3][27];
 extern int   alphabet_modified;
 extern int   zscii_defn_modified;
 extern int   zscii_high_water_mark;
@@ -2257,6 +2260,8 @@ extern int
     memory_map_switch,      module_switch,        temporary_files_switch,
     define_DEBUG_switch,    define_USE_MODULES_switch, define_INFIX_switch,
     runtime_error_checking_switch;
+
+extern int oddeven_packing_switch;
 
 extern int glulx_mode, compression_switch;
 

@@ -357,6 +357,7 @@ keyword_group system_constants =
     "constant_names_array",
     "lowest_class_number", "highest_class_number", "class_objects_array",
     "lowest_object_number", "highest_object_number",
+    "oddeven_packing",
     "grammar_table", "dictionary_table", "dynam_string_table",
     "" },
     SYSTEM_CONSTANT_TT, FALSE, TRUE

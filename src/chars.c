@@ -85,7 +85,7 @@ static char *accents =                 /* Standard 0.2 stock of accented...  */
 
 /* ------------------------------------------------------------------------- */
 
-char alphabet[3][27];                  /* The alphabet table.                */
+uchar alphabet[3][27];                  /* The alphabet table. */
 
 int alphabet_modified;                 /* Has the default been changed?      */
 
@@ -173,7 +173,7 @@ static void make_iso_to_alphabet_grid(void)
         }
     }
     for (j=0; j<3; j++)
-        for (k=0; k<26; k++)
+	for (k=(j<2?0:1); k<26; k++)
         {   i=(int) ((alphabet[j])[k]);
             zscii_to_alphabet_grid[i] = k + j*26;
             iso_to_alphabet_grid[zscii_to_iso_grid[i]] = k + j*26;
@@ -1170,9 +1170,9 @@ extern void init_chars_vars(void)
     character_digit_value['E'] = 14;
     character_digit_value['F'] = 15;
 
-    strcpy(alphabet[0], "abcdefghijklmnopqrstuvwxyz");
-    strcpy(alphabet[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    strcpy(alphabet[2], " ^0123456789.,!?_#'~/\\-:()");
+    strcpy((char *) alphabet[0], "abcdefghijklmnopqrstuvwxyz");
+    strcpy((char *) alphabet[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    strcpy((char *) alphabet[2], " ^0123456789.,!?_#'~/\\-:()");
 
     alphabet_modified = FALSE;
 

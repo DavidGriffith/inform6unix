@@ -174,7 +174,7 @@ static int32 rough_size_of_paged_memory_z(void)
               + 2*no_grammar_token_routines;     /* general parsing routines */
 
     total += (subtract_pointers(dictionary_top, dictionary))  /* dictionary */
-             + ((module_switch)?18:0);                        /* module map */
+             + ((module_switch)?30:0);                        /* module map */
 
     total += scale_factor*0x100            /* maximum null bytes before code */
             + 1000;             /* fudge factor (in case the above is wrong) */
@@ -579,6 +579,8 @@ table format requested (producing number 2 format instead)");
 
     while ((mark%length_scale_factor) != 0) p[mark++]=0;
     while (mark < (scale_factor*0x100)) p[mark++]=0;
+    if (oddeven_packing_switch)
+        while ((mark%(scale_factor*2)) != 0) p[mark++]=0;
 
     if (mark > 0x10000)
     {   error("This program has overflowed the maximum readable-memory \
@@ -597,7 +599,14 @@ or less.");
 
     /*  ------------------ Another synchronising gap ----------------------- */
 
-    while ((mark%scale_factor) != 0) mark++;
+    if (oddeven_packing_switch)
+    {   if (module_switch)
+             while ((mark%(scale_factor*2)) != 0) mark++;
+        else
+             while ((mark%(scale_factor*2)) != scale_factor) mark++;
+    }
+    else
+        while ((mark%scale_factor) != 0) mark++;
 
     /*  ------------------------- Strings Area ----------------------------- */
 
@@ -622,8 +631,8 @@ or less.");
         case 4:
         case 5: excess = Out_Size-((int32) 0x40000L); limit = 256; break;
         case 6:
+        case 7:
         case 8: excess = Out_Size-((int32) 0x80000L); limit = 512; break;
-        case 7: excess = 0;                           limit = 320; break;
     }
 
     if (module_switch)
@@ -652,8 +661,42 @@ or less.");
     {   extend_offset=256;
         if (no_objects+9 > extend_offset) extend_offset=no_objects+9;
         while ((extend_offset%length_scale_factor) != 0) extend_offset++;
+        /* Not sure why above line is necessary, but oddeven_packing
+         * will need extend_offset to be even */
         code_offset = extend_offset*scale_factor;
-        strings_offset = code_offset + (Write_Strings_At-Write_Code_At);
+        if (oddeven_packing_switch)
+            strings_offset = code_offset + scale_factor;
+        else
+            strings_offset = code_offset + (Write_Strings_At-Write_Code_At);
+
+        /* With the extended memory model, need to specifically check that we
+         * haven't overflowed the packed address range for routines or strings.
+         * With the standard memory model, we only need the earlier total size
+         * check.
+         */
+        excess = zmachine_pc + code_offset - (scale_factor*((int32) 0x10000L));
+        if (excess > 0)
+        {   char code_full_error[80];
+            sprintf(code_full_error,
+                "The code area limit has been exceeded by %d bytes",
+                 excess);
+            fatalerror(code_full_error);
+        }
+
+        excess = strings_length + strings_offset - (scale_factor*((int32) 0x10000L));
+        if (excess > 0)
+        {   char strings_full_error[140];
+            if (oddeven_packing_switch)
+                sprintf(strings_full_error,
+                    "The strings area limit has been exceeded by %d bytes",
+                     excess);
+            else
+                sprintf(strings_full_error,
+                    "The code+strings area limit has been exceeded by %d bytes. \
+ Try running Inform again with -B on the command line.",
+                     excess);
+            fatalerror(strings_full_error);
+        }
     }
     else
     {   code_offset = Write_Code_At;
@@ -695,6 +738,8 @@ or less.");
     if (extend_memory_map)
     {   j=(Write_Code_At - extend_offset*scale_factor)/length_scale_factor;
         p[40]=j/256; p[41]=j%256;                         /* Routines offset */
+        if (oddeven_packing_switch)
+            j=(Write_Strings_At - extend_offset*scale_factor)/length_scale_factor;
         p[42]=j/256; p[43]=j%256;                        /* = Strings offset */
     }
 

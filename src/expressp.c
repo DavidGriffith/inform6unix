@@ -769,6 +769,9 @@ static int evaluate_term(token_data t, assembly_operand *o)
                  case lowest_fake_action_number_SC:
                      o->type = LONG_CONSTANT_OT; o->marker = 0;
                      v = ((grammar_version_number==1)?256:4096); break;
+                 case oddeven_packing_SC:
+                     o->type = SHORT_CONSTANT_OT; o->marker = 0;
+                     v = oddeven_packing_switch; break;
                  default:
                      v = t.value;
                      o->marker = INCON_MV;
@@ -1562,7 +1565,9 @@ extern assembly_operand parse_expression(int context)
 
     comma_allowed = (context == VOID_CONTEXT);
     arrow_allowed = (context != ASSEMBLY_CONTEXT);
-    array_init_ambiguity = (context == ARRAY_CONTEXT);
+    array_init_ambiguity = ((context == ARRAY_CONTEXT) ||
+        (context == ASSEMBLY_CONTEXT));
+
     action_ambiguity = (context == ACTION_Q_CONTEXT);
 
     if (context == ASSEMBLY_CONTEXT) context = QUANTITY_CONTEXT;

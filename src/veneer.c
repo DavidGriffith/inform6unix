@@ -482,19 +482,21 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
              if (Z__Region(obj) == cla-1) rtrue;\
              rfalse;\
          }\
-         switch(cla)\
-         {   1: if (obj<=4) rtrue;\
-                if (obj in 1) rtrue;\
-                rfalse;\
-             2: if (obj<=4) rfalse;\
-                if (obj in 1) rfalse;\
-                rtrue;\
-             3, 4: rfalse;\
+         if (cla == 1) {\
+             if (obj<=4) rtrue;\
+             if (obj in 1) rtrue;\
+             rfalse;\
+         } else if (cla == 2) {\
+             if (obj<=4) rfalse;\
+             if (obj in 1) rfalse;\
+             rtrue;\
+         } else if (cla == 3 or 4) {\
+             rfalse;\
          }",
         "if (cla notin 1) { RT__Err(\"apply 'ofclass' for\", cla, -1);rfalse;}\
-         a = obj.&2;\
+         @get_prop_addr obj 2 -> a;\
          if (a==0) rfalse;\
-         n = obj.#2;\
+         @get_prop_len a -> n;\
          for (j=0: j<n/2: j++)\
          {   if (a-->j == cla) rtrue;\
          }\
@@ -534,7 +536,7 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          print \"^[** Programming error: \";\
          if (crime<0) jump RErr;\
          if (crime==1) { print \"class \"; @print_obj obj;\
-         \": 'create' can have 0 to 3 parameters only **]\";}\
+         \": 'create' can have 0 to 5 parameters only **]\";}\
          if (crime == 32) \"objectloop broken because the object \",\
          (name) obj, \" was moved while the loop passed through it **]\";\
          if (crime == 33) \"tried to print (char) \", obj,\
@@ -602,11 +604,20 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
 
         "Z__Region",
         "addr;\
-         if (addr==0) rfalse;\
+         if (addr==0 || Unsigned__Compare(addr, $001A-->0) >= 0) rfalse;\
          if (addr>=1 && addr<=(#largest_object-255)) rtrue;\
+         #iftrue #oddeven_packing;\
+         @test addr 1 ?~NotString;\
+         if (Unsigned__Compare(addr, #strings_offset)<0) rfalse;\
+         return 3;\
+         .NotString;\
+         if (Unsigned__Compare(addr, #code_offset)<0) rfalse;\
+         return 2;\
+         #ifnot;\
          if (Unsigned__Compare(addr, #strings_offset)>=0) return 3;\
          if (Unsigned__Compare(addr, #code_offset)>=0) return 2;\
          rfalse;\
+         #endif;\
          ]", "", "", "", "", ""
     },
     {   /*  Unsigned__Compare:  returns 1 if x>y, 0 if x=y, -1 if x<y        */
@@ -654,13 +665,15 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
     {   /*  Cl__Ms:   the five message-receiving properties of Classes       */
 
         "Cl__Ms",
-        "obj id y a b c d x;\
+        "obj id y a b c d e f x;\
          switch(id)\
          {   create:\
                  if (children(obj)<=1) rfalse; x=child(obj);\
                  remove x; if (x provides create) { if (y==0) x..create();\
                  if (y==1) x..create(a); if (y==2) x..create(a,b);\
-                 if (y>3) RT__Err(1,obj); if (y>=3) x..create(a,b,c);}\
+                 if (y==3) x..create(a,b,c); if (y==4) x..create(a,b,c,d);\
+                 if (y>5) RT__Err(1,obj);\
+                 if (y>=5) x..create(a,b,c,d,e);}\
                  return x;\
              recreate:\
                  if (~~(a ofclass obj))\
@@ -668,7 +681,9 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
                  Copy__Primitive(a, child(obj));\
                  if (a provides create) { if (y==1) a..create();\
                  if (y==2) a..create(b); if (y==3) a..create(b,c);\
-                 if (y>4) RT__Err(1,obj); if (y>=4) a..create(b,c,d);\
+                 if (y==4) a..create(b,c,d); if (y==5) a..create(b,c,d,e);\
+                 if (y>6) RT__Err(1,obj);\
+                 if (y>=6) a..create(b,c,d,e,f);\
                  } rfalse;",
             "destroy:\
                  if (~~(a ofclass obj))\

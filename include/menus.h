@@ -1,6 +1,7 @@
 ! -------------------------------------------------------------------------
 !   Menus.h           A library extension providing easier and better menus
 !                                                      Graham Nelson 961113
+!                                                       Kevin Bracey 011128
 !
 !   A menu is a tree of objects of class Option.  A Menu is an Option which
 !   launches a fresh menu when chosen.  To choose option O, send the
@@ -80,8 +81,20 @@ Endif;
 
 Global screen_width;
 Global screen_height;
+Global char_width;
+Global char_height;
 
-Array ForUseByOptions string 128;
+Array ForUseByOptions -> 129;
+
+#Iftrue #version_number==6;
+[ Menus_Measure s;
+    @output_stream 3 ForUseByOptions;
+    print (string) s;
+    @output_stream -3;
+    return 0-->24;
+];
+#Endif;
+
 Class Option
  with emblazon
       [ bar_height page pages temp;
@@ -90,15 +103,28 @@ Class Option
 
           !   Clear screen:
 
-          @erase_window $ffff;
+          @erase_window -1;
+          #Iftrue #version_number==6;
+          @set_cursor -1;
+          @mouse_window -1;
+          temp = bar_height * char_height;
+          @split_window temp;
+          #Ifnot;
           @split_window bar_height;
+          #Endif;
 
           !   Black out top line in reverse video:
           @set_window 1;
           @set_cursor 1 1;
+          #Iftrue #version_number==6;
+          @set_font 4 -> temp;
+          #Endif;
           style reverse; spaces(screen_width);
+          #Iftrue #version_number==6;
+          @set_font 1 -> temp;
+          #Endif;
 
-          if (standard_interpreter == 0)
+          if (#version_number ~= 6 && standard_interpreter == 0)
               @set_cursor 1 1;
           else
           {   ForUseByOptions-->0 = 128;
@@ -106,7 +132,11 @@ Class Option
               print (name) self;
               if (pages ~= 1) print " [", page, "/", pages, "]";
               @output_stream -3;
+              #Iftrue #version_number==6;
+              temp = 1 + (screen_width*char_width - 0-->24)/2;
+              #Ifnot;
               temp = (screen_width - ForUseByOptions-->0)/2;
+              #Endif;
               @set_cursor 1 temp;
           }
 
@@ -118,7 +148,7 @@ Class Option
       select
       [;  self.emblazon(1, 1, 1);
 
-          @set_window 0; font on; style roman; new_line; new_line;
+          style roman; @set_window 0; font on; new_line; new_line;
 
           if (self provides description)
               return self.description();
@@ -129,10 +159,19 @@ Class Option
 Class Menu class Option
  with select
       [ count j obj pkey  line oldline top_line bottom_line
-                            page pages options top_option;
+                            page pages options top_option y x;
 
           screen_width = 0->33;
           screen_height = 0->32;
+          #Iftrue #version_number==6;
+          @set_font 4 -> x;
+          char_width = 0->39;
+          char_height = 0->38;
+          @set_font x -> x;
+          #Ifnot;
+          char_width = 0->38;
+          char_height = 0->39;
+          #Endif;
           if (screen_height == 0 or 255) screen_height = 18;
           screen_height = screen_height - 7;
 
@@ -140,7 +179,8 @@ Class Menu class Option
           objectloop (obj in self && obj ofclass Option) options++;
           if (options == 0) return 2;
 
-          pages = 1 + options/screen_height;
+          pages = options/screen_height;
+          if (options%screen_height ~= 0) pages++;
 
           top_line = 6;
 
@@ -152,8 +192,22 @@ Class Menu class Option
 
           top_option = (page - 1) * screen_height;
 
-          self.emblazon(7 + count, page, pages);
-
+          self.emblazon(5 + options, page, pages);
+          
+          #Iftrue #version_number==6;
+          x = 1 + char_width; y = 1 + char_height; @set_cursor y 1;
+          @set_font 4->j; spaces(screen_width); @set_font 1->j;
+          @set_cursor y x; print (string) NKEY__TX;
+          j = 1+screen_width*char_width - Menus_Measure(PKEY__TX) - char_width;
+          @set_cursor y j; print (string) PKEY__TX;
+          
+          y = y + char_height; @set_cursor y 1;
+          @set_font 4->j; spaces(screen_width); @set_font 1->j;
+          @set_cursor y x; print (string) RKEY__TX;
+          if (sender ofclass Option) j = QKEY2__TX; else j = QKEY1__TX;
+          j = 1+screen_width*char_width - Menus_Measure(j) - char_width;
+          @set_cursor y j;
+          #Ifnot;
           @set_cursor 2 1; spaces(screen_width);
           @set_cursor 2 2; print (string) NKEY__TX;
           j = screen_width-12; @set_cursor 2 j; print (string) PKEY__TX;
@@ -161,6 +215,7 @@ Class Menu class Option
           @set_cursor 3 1; spaces(screen_width);
           @set_cursor 3 2; print (string) RKEY__TX;
           j = screen_width-17; @set_cursor 3 j;
+          #Endif;
 
           if (sender ofclass Option)
               print (string) QKEY2__TX;
@@ -171,7 +226,15 @@ Class Menu class Option
           count = top_line; j = 0;
           objectloop (obj in self && obj ofclass Option)
           {   if (j >= top_option && j < (top_option + screen_height))
-              {   @set_cursor count 6;
+              {   
+                  #Iftrue #version_number==6;
+                  y = 1 + (count-1)*char_height;
+                  x = 1 + 4*char_width;
+                  @set_cursor y x;
+                  print (char) ' ';
+                  #Ifnot;
+                  @set_cursor count 6;
+                  #Endif;
                   print (name) obj;
                   count++;
               }
@@ -184,12 +247,57 @@ Class Menu class Option
           {   !   Move or create the > cursor:
 
               if (line~=oldline)
-              {   if (oldline~=0) { @set_cursor oldline 4; print " "; }
+              {   #Iftrue #version_number == 6;
+                  x = 1 + 4*char_width;
+                  count = top_line; j = 0;
+                  objectloop (obj in self && obj ofclass Option)
+                  {   if (j >= top_option && j < (top_option + screen_height))
+                      {   if (j - top_option + top_line == oldline or line)
+                          {   if (j - top_option + top_line == line)
+                                  style reverse;
+                              y = 1 + (count-1)*char_height;
+                              @set_cursor y x;
+                              print (char) ' ', (name) obj, (char) ' ';
+                              style roman;
+                          }
+                          count++;
+                      }
+                      j++;
+                  }
+                  #Ifnot;
+                  if (oldline~=0) { @set_cursor oldline 4; print " "; }
                   @set_cursor line 4; print ">";
+                  #Endif;
               }
               oldline = line;
 
               @read_char 1 -> pkey;
+              
+              if (pkey == 253 or 254)
+              {   !   Mouse click:
+                  x = (0-->27-->1 - 1) / char_width + 1;
+                  y = (0-->27-->2 - 1) / char_height + 1;
+                  if (y >= top_line && y <= bottom_line)
+                  {   line = y;
+                      if (pkey == 253)
+                         pkey = 13;
+                      
+                  }
+                  else if (y == 2)
+                  {   if (x <= screen_width / 2)
+                          pkey = 130;
+                      else
+                          pkey = 129;
+                  }
+                  else if (y == 3)
+                  {   if (x <= screen_width / 2)
+                          pkey = 13;
+                      else
+                          pkey = 27;
+                  }
+                  else
+                      @sound_effect 1;
+              }
 
               if (pkey == NKEY1__KY or NKEY2__KY or 130)
               {   !   Cursor down:
@@ -252,8 +360,16 @@ Class Menu class Option
 
           if (sender ofclass Option) return 2;
 
-          font on; @set_cursor 1 1;
-          @erase_window $ffff; @set_window 0;
+          #Iftrue #version_number==6;
+          @set_font 1 -> x;
+          #Ifnot;
+          font on;
+          #Endif;
+          @set_cursor 1 1;
+          @erase_window -1; @set_window 0;
+          #Iftrue #version_number==6;
+          @set_cursor -2;
+          #Endif;
           new_line; new_line; new_line;
           if (deadflag==0) <<Look>>;
           return 2;

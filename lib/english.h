@@ -275,7 +275,7 @@ Constant QKEY2__KY    = 'q';
 Constant SCORE__TX    = "Score: ";
 Constant MOVES__TX    = "Moves: ";
 Constant TIME__TX     = "Time: ";
-Constant CANTGO__TX   = "You can't go that way.";
+Constant CANTGO__TX   = 0;
 Constant FORMER__TX   = "your former self";
 Constant YOURSELF__TX = "yourself";
 Constant DARKNESS__TX = "Darkness";
@@ -636,6 +636,9 @@ Constant WHICH__TX    = "which ";
                2: "You can't get out of the closed ", (name) x1, ".";
                3: print "You get ";
                   if (x1 has supporter) print "off "; else print "out of ";
+                  print_ret (the) x1, ".";
+               4: print "But you aren't ";
+                  if (x1 has supporter) print "on "; else print "in ";
                   print_ret (the) x1, ".";
            }
   VagueGo:       "You'll have to say which compass direction to go in.";

@@ -77,7 +77,7 @@ ENDIF;
 !   Time and score
 ! (for linkage reasons, the task_* arrays are created not here but in verblib.h)
 ! ------------------------------------------------------------------------------
-Global turns = 1;                    ! Number of turns of play so far
+Global turns = 0;                    ! Number of turns of play so far
 Global the_time = NULL;              ! Current time (in minutes since midnight)
 Global time_rate = 1;                ! How often time is updated
 Global time_step;                    ! By how much
@@ -342,11 +342,11 @@ Global bestguess_score;              ! What did the best-guess object score?
 ! ------------------------------------------------------------------------------
 !   Low level textual manipulation
 ! ------------------------------------------------------------------------------
-Array  buffer    -> 121;             ! Buffer for parsing main line of input
+Array  buffer    -> 123;             ! Buffer for parsing main line of input
 Array  parse     -> 65;              ! Parse table mirroring it
-Array  buffer2   -> 121;             ! Buffers for supplementary questions
+Array  buffer2   -> 123;             ! Buffers for supplementary questions
 Array  parse2    -> 65;              !
-Array  buffer3   -> 121;             ! Buffer retaining input for "again"
+Array  buffer3   -> 123;             ! Buffer retaining input for "again"
 
 Constant comma_word = 'comma,';      ! An "untypeable word" used to substitute
                                      ! for commas in parse buffers
@@ -605,6 +605,14 @@ Object InformParser "(Inform Parser)"
 
 [ KeyboardPrimitive  a_buffer a_table;
   read a_buffer a_table;
+#iftrue #version_number == 6;
+  @output_stream -1;
+  @loadb a_buffer 1 -> sp;
+  @add a_buffer 2 -> sp;
+  @print_table sp sp;
+  new_line;
+  @output_stream 1;
+#endif;
 ];
 [ Keyboard  a_buffer a_table  nw i w w2 x1 x2;
 
@@ -642,8 +650,8 @@ Object InformParser "(Inform Parser)"
 #IFV5;
 !  Undo handling
 
-    if ((w == UNDO1__WD or UNDO2__WD or UNDO3__WD) && (parse->1==1))
-    {   if (turns==1)
+    if ((w == UNDO1__WD or UNDO2__WD or UNDO3__WD) && (nw==1))
+    {   if (turns==0)
         {   L__M(##Miscellany,11); jump FreshInput;
         }
         if (undo_flag==0)
@@ -1118,9 +1126,13 @@ Object InformParser "(Inform Parser)"
                             !  Advance past the last preposition
 
                             while (wn <= num_words)
-                            {   if (NextWord() == line_tdata-->(pcount-1))
-                                {   l = NounDomain(actors_location, actor,
-                                            NOUN_TOKEN);
+                                {   if ( (NextWord()->#dict_par1) &8 ) ! --if IS a preposition
+                                    {
+                                        l = Descriptors(false);  ! skip past THE etc
+                                        if (l~=0) etype=l;  ! don't allow multiple objects
+
+                                        l = NounDomain(actors_location, actor,
+                                                NOUN_TOKEN);
                                     #ifdef DEBUG;
                                     if (parser_trace>=2)
                                     {   print " [Advanced to ~noun~ token: ";
@@ -1656,6 +1668,8 @@ Constant UNLIT_BIT  =  32;
                        #ENDIF;
                        wn=o; return 1;
                    }
+                   if (o==-1 && (line_ttype-->(token_n+1) == PREPOSITION_TT))
+                     return GPR_FAIL;    ! don't infer if required preposition is absent
                    return GPR_PREPOSITION;
            }
 
@@ -2617,6 +2631,7 @@ Constant SCORE__DIVISOR = 20;
 
   for (i=0: i<number_matched: i++) {
       obj = match_list-->i; its_owner = parent(obj); its_score=0;
+      met = 0;
 
 !      if (indef_type & OTHER_BIT ~=0
 !          &&  obj~=itobj or himobj or herobj) met++;
@@ -2820,6 +2835,7 @@ Constant SCORE__DIVISOR = 20;
       if (i==0) { print (string) THOSET__TX; jump TokenPrinted; }
       if (i==1) { print (string) THAT__TX; jump TokenPrinted; }
       if (i>=REPARSE_CODE) print (address) No__Dword(i-REPARSE_CODE);
+      else if (i in compass) print (address) (i.&1-->1); ! the direction name
       else print (the) i;
       .TokenPrinted;
       spacing_flag = true;
@@ -4004,13 +4020,15 @@ Object InformLibrary "(Inform Library)"
   parser_one=x; scope_reason=y; actor=a; actors_location=al;
 ];
 
+! rewritten to fix Issue L61027
 [ BeforeRoutines;
   if (GamePreRoutine()~=0) rtrue;
   if (RunRoutines(player,orders)~=0) rtrue;
-  if (location~=0 && RunRoutines(location,before)~=0) rtrue;
   scope_reason=REACT_BEFORE_REASON; parser_one=0;
-  SearchScope(ScopeCeiling(player),player,0); scope_reason=PARSING_REASON;
+  SearchScope(ScopeCeiling(player),player,0);
+  scope_reason=PARSING_REASON;
   if (parser_one~=0) rtrue;
+  if (location~=0 && RunRoutines(location,before)~=0) rtrue;
   if (inp1>1 && RunRoutines(inp1,before)~=0) rtrue;
   rfalse;
 ];
@@ -4115,7 +4133,8 @@ Object InformLibrary "(Inform Library)"
 ! ----------------------------------------------------------------------------
 
 [ DisplayStatus;
-   if (the_time==NULL)
+!   if (the_time==NULL)
+   if ((0->1)&2 == 0)	! Fixes Issue L60709
    {   sline1=score; sline2=turns; }
    else
    {   sline1=the_time/60; sline2=the_time%60; }
@@ -4380,6 +4399,75 @@ Object InformLibrary "(Inform Library)"
 ! ----------------------------------------------------------------------------
 
 #IFV5;
+#Iftrue #version_number == 6;
+[ DrawStatusLine width charw height wx wy x y scw mvw;
+   ! Split the window. Standard 1.0 interpreters should keep the window 0
+   ! cursor in the same absolute position, but older interpreters,
+   ! including Infocom's don't - they keep the window 0 cursor in the
+   ! same position relative to its origin. We therefore compensate
+   ! manually.
+   @get_wind_prop 0 0 -> wy; @get_wind_prop 0 1 -> wx;
+   @get_wind_prop 0 13 -> height; @log_shift height $FFF8 -> height;
+   @get_wind_prop 0 4 -> y; @get_wind_prop 0 5 -> x;
+   @split_window height;
+   y = y - height + wy - 1;
+   if (y < 1) y = 1;
+   x = x + wx - 1;
+   @set_cursor y x 0;
+   ! Now clear it. This isn't totally trivial. Our approach is to select the
+   ! fixed space font, measure its width, and print an appropriate
+   ! number of spaces. We round up if the screen isn't a whole number
+   ! of characters wide, and rely on window 1 being set to clip by default.
+   @set_window 1;
+   @set_cursor 1 1;
+   @set_font 4 -> x;
+   style reverse;
+   @get_wind_prop 1 3 -> width;
+   @get_wind_prop 1 13 -> charw;
+   charw = charw & $FF;
+   spaces (width+charw-1) / charw;
+   ! Back to standard font for the display. We use output_stream 3 to
+   ! measure the space required, the aim being to get 50 characters
+   ! worth of space for the location name.
+   x = 1+charw;
+   @set_cursor 1 x;
+   @set_font 1 -> x;
+   @get_wind_prop 1 13 -> charw;
+   charw = charw & $FF;
+   if (location == thedark) print (name) location;
+   else
+   {   FindVisibilityLevels();
+       if (visibility_ceiling == location)
+           print (name) location;
+       else print (The) visibility_ceiling;
+   }
+   @output_stream 3 StorageForShortName;
+   print (string) SCORE__TX, "00000";
+   @output_stream -3; scw = 0-->24 + charw;
+   @output_stream 3 StorageForShortName;
+   print (string) MOVES__TX, "00000";
+   @output_stream -3; mvw = 0-->24 + charw;
+   if (width - scw - mvw >= 50*charw)
+   {   x = 1+width-scw-mvw;
+       @set_cursor 1 x; print (string) SCORE__TX, sline1;
+       x = x+scw;
+       @set_cursor 1 x; print (string) MOVES__TX, sline2;
+   }
+   else
+   {   @output_stream 3 StorageForShortName;
+       print "00000/00000";
+       @output_stream -3; scw = 0-->24 + charw;
+       if (width - scw >= 50*charw)
+       {   x = 1+width-scw;
+           @set_cursor 1 x; print sline1, "/", sline2;
+       }
+   }
+   ! Reselect roman, as Infocom's interpreters interpreters go funny
+   ! if reverse is selected twice.
+   style roman;
+   @set_window 0;
+];
+#Ifnot;
 [ DrawStatusLine width posa posb;
    @split_window 1; @set_window 1; @set_cursor 1 1; style reverse;
    width = 0->33; posa = width-26; posb = width-13;
@@ -4408,11 +4496,92 @@ Object InformLibrary "(Inform Library)"
    }
    @set_cursor 1 1; style roman; @set_window 0;
 ];
+#Endif;
 #ENDIF;
 
 #ifv5;
 Array StorageForShortName --> 161;
 #endif;
+
+#Iftrue #version_number==6;
+
+! ----------------------------------------------------------------------------
+! Replace the compiler's built-in box handling code, which only works with
+! the V4/V5 screen model.
+! ----------------------------------------------------------------------------
+
+[ Box__Routine maxw table n w w2 lc t y x of cw ch s;
+    n = table --> 0;
+    @set_font 4 -> of;
+    @get_wind_prop 0 0 -> y;
+    @get_wind_prop 0 1 -> x;
+    @get_wind_prop 0 3 -> w;
+    @get_wind_prop 0 13 -> ch;
+    cw = ch & $ff;
+    @log_shift ch $fff8 -> ch;
+    @set_font of -> temp_global;
+    if (maxw < 160)
+    {   maxw = 0; lc = 1;
+        do
+        {   t = table --> lc;
+            if (t~=0)
+            {   @output_stream 3 StorageForShortName;
+                print (string) t;
+                @output_stream -3;
+                t = 0-->24;
+                if (t > maxw) maxw = t;
+            }
+            lc++;
+        } until (lc > n);
+    }
+    else maxw = maxw*cw;
+    s = (maxw + cw - 1) / cw + 4;
+    w2 = s * cw;
+    x = x+(w-w2)/2;
+    y = y+ch*2;
+    @move_window 1 y x;
+    y = (n+2)*ch;
+    @window_size 1 y w2;
+    x = (w2-maxw)/2;
+    @set_window 1;
+    @set_font 4 -> temp_global;
+    style reverse;
+    y = 1+ch;
+    lc = 1;
+    @set_cursor 1 1;
+    spaces s;
+    do
+    {   @set_cursor y 1;
+        spaces s;
+        t = table --> lc;
+        if (t~=0)
+        {  @set_cursor y x;
+           @set_font 1 -> sp;
+           print (string) t;
+           @set_font sp -> temp_global;
+        }
+        y=y+ch; lc++;
+    } until (lc > n);
+    @set_cursor y 1;
+    spaces s;
+    style roman;
+    @set_window 0;
+    @output_stream -1;
+    print "[ ";
+    lc = 1;
+    do
+    {   w = table --> lc;
+        if (w ~= 0) print (string) w;
+        lc++;
+        if (lc > n)
+        {   print "]^^";
+            break;
+        }
+        print "^  ";
+    } until (false);
+    @output_stream 1;
+];
+#Endif;
 
 [ PrefaceByArticle o acode pluralise  i artform findout;
 

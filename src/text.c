@@ -231,9 +231,14 @@ extern int32 compile_string(char *b, int in_low_memory, int is_abbrev)
     /* also occurs at an address expressible as a packed address         */
 
     if (!glulx_mode) {
-        while ((i%scale_factor)!=0)
-	{   i+=2; *c++ = 0; *c++ = 0;
-	}
+        if (oddeven_packing_switch)
+            while ((i%(scale_factor*2))!=0)
+            {   i+=2; *c++ = 0; *c++ = 0;
+            }
+        else
+            while ((i%scale_factor)!=0)
+            {   i+=2; *c++ = 0; *c++ = 0;
+            }
     }
 
     j = static_strings_extent;
@@ -281,7 +286,13 @@ static void write_zscii(int zsc)
 {
     int lookup_value, in_alphabet;
 
-    if (zsc < 0x100) lookup_value = iso_to_alphabet_grid[zsc];
+    if (zsc==' ')
+    {   write_z_char_z(0);
+        return;
+    }
+
+    if (zsc < 0x100) lookup_value = zscii_to_alphabet_grid[zsc];
+
     else lookup_value = -1;
 
     if (lookup_value >= 0)
@@ -1415,9 +1426,9 @@ apostrophe in", dword);
                    "Character can be printed but not input:", unicode);
                 k = '?';
             }
-            k2 = zscii_to_alphabet_grid[k];
+            k2 = zscii_to_alphabet_grid[(uchar) k];
         }
-        else k2 = iso_to_alphabet_grid[k];
+        else k2 = iso_to_alphabet_grid[(uchar) k];
 
         if (k2 < 0)
         {   if ((k2 == -5) || (k2 <= -0x100))

@@ -170,6 +170,7 @@ int bothpasses_switch,              /* -b */
     nowarnings_switch,              /* -w */
     hash_switch,                    /* -x */
     memory_map_switch,              /* -z */
+    oddeven_packing_switch,         /* -B */
     define_DEBUG_switch,            /* -D */
     temporary_files_switch,         /* -F */
     module_switch,                  /* -M */
@@ -225,6 +226,7 @@ static void reset_switch_settings(void)
     nowarnings_switch = FALSE;
     hash_switch = FALSE;
     memory_map_switch = FALSE;
+    oddeven_packing_switch = FALSE;
     define_DEBUG_switch = FALSE;
 #ifdef USE_TEMPORARY_FILES
     temporary_files_switch = TRUE;
@@ -1125,6 +1127,7 @@ One or more words can be supplied as \"commands\". These may be:\n\n\
   z   print memory map of the Z-machine\n\n");
 
 printf("\
+  B   use big memory model (for large V6/V7 files)\n\
   C0  text character set is plain ASCII only\n\
   Cn  text character set is ISO 8859-n (n = 1 to 9)\n\
       (1 to 4, Latin1 to Latin4; 5, Cyrillic; 6, Arabic;\n\
@@ -1243,7 +1246,7 @@ extern void switches(char *p, int cmode)
         case 'x': hash_switch = state; break;
         case 'y': s=2; linker_trace_setting=p[i+1]-'0'; break;
         case 'z': memory_map_switch = state; break;
-
+        case 'B': oddeven_packing_switch = state; break;
         case 'C': s=2; character_set_setting=p[i+1]-'0';
                   if ((character_set_setting < 0)
                       || (character_set_setting > 9))

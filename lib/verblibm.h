@@ -47,10 +47,27 @@ System_file;
 [ VersionSub;
   Banner();
   if (standard_interpreter > 0)
-      print "Standard interpreter ",
+  {   print "Standard interpreter ",
           standard_interpreter/256, ".", standard_interpreter%256,
-          " (", 0->$1e, (char) 0->$1f, ") / ";
-  else print "Interpreter ", 0->$1e, " Version ", (char) 0->$1f, " / ";
+          " (", 0->$1e;
+#iftrue #version_number == 6;
+      print (char) '.', 0->$1f;
+#ifnot;
+      print (char) 0->$1f;
+#endif;
+      print ") / ";
+  }
+  else
+  {   print "Interpreter ", 0->$1e, " Version ";
+#iftrue #version_number == 6;
+      print 0->$1f;
+#ifnot;
+      print (char)0->$1f;
+#endif;
+      print " / ";
+  }
+
+
   print "Library serial number ", (string) LibSerial, "^";
 #IFDEF LanguageVersion;
   print (string) LanguageVersion, "^";
@@ -145,6 +162,13 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
           || (o2 hasnt worn && o1 has worn)) rfalse;
       if ((o1 hasnt light && o2 has light)
           || (o2 hasnt light && o1 has light)) rfalse;
+      if (o1 has container)
+      {    if (o2 hasnt container) rfalse;
+           if ((o1 has open && o2 hasnt open)
+                || (o2 has open && o1 hasnt open))
+                    rfalse;
+      }
+      else if (o2 has container) rfalse;
   }
 
   return Identical(o1,o2);
@@ -196,12 +220,13 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 [ Print__Spaces n;         ! To avoid a bug occurring in Inform 6.01 to 6.10
   if (n==0) return; spaces n; ];
 
+! To allow opening "apparently" empty containers
 [ WriteListFrom o style depth;
   if (o==child(parent(o)))
   {   SortOutList(o); o=child(parent(o)); }
   c_style=style;
-  wlf_indent=0; WriteListR(o,depth);
-  rtrue;
+  wlf_indent=0;
+  return WriteListR(o,depth);
 ];
 
 [ WriteListR o depth stack_pointer  classes_p sizes_p i j k k2 l m n q senc mr;
@@ -337,7 +362,13 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
           print (number) sizes_p->i, " ";
           PrintOrRun(j,plural,1);
       }
-      WriteAfterEntry(j,depth,stack_pointer);
+
+      if (sizes_p->i > 1 && j hasnt pluralname)
+      {   give j pluralname;
+          WriteAfterEntry(j, depth, stack_pointer);
+          give j ~pluralname;
+      }
+      else WriteAfterEntry(j,depth,stack_pointer);
 
      .Omit_EL2;
       if (c_style & ENGLISH_BIT ~= 0)
@@ -601,7 +632,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 
 #IFV5;
 [ DoMenu menu_choices EntryR ChoiceR
-         lines main_title main_wid cl i j oldcl pkey;
+         lines main_title main_wid cl i j oldcl pkey ch cw y x;
 
   if (pretty_flag==0)
       return LowKey_Menu(menu_choices,EntryR,ChoiceR);
@@ -615,34 +646,49 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
   .ReDisplay;
       oldcl=0;
       @erase_window $ffff;
-      i=lines+7;
+      #Iftrue #version_number==6;
+      @set_cursor -1;
+      ch=0->38;
+      #Ifnot;
+      ch=1;
+      #Endif;
+      i=ch*(lines+7);
       @split_window i;
-      i = 0->33;
+      i=0->33;
       if (i==0) i=80;
       @set_window 1;
       @set_cursor 1 1;
+      #Iftrue #version_number==6;
+      @set_font 4 -> cw;
+      cw=0->39;
+      #Ifnot;
+      cw=1;
+      #Endif; 
       style reverse;
-      spaces(i); j=i/2-main_wid;
+      spaces(i); j=1+(i/2-main_wid)*cw;
       @set_cursor 1 j;
       print (string) main_title;
-      @set_cursor 2 1; spaces(i);
-      @set_cursor 2 2; print (string) NKEY__TX;
-      j=i-12; @set_cursor 2 j; print (string) PKEY__TX;
-      @set_cursor 3 1; spaces(i);
-      @set_cursor 3 2; print (string) RKEY__TX;
-      j=i-17; @set_cursor 3 j;
+      y=1+ch; @set_cursor y 1; spaces(i);
+      x=1+cw; @set_cursor y x; print (string) NKEY__TX;
+      j=1+(i-13)*cw; @set_cursor y j; print (string) PKEY__TX;
+      y=y+ch; @set_cursor y 1; spaces(i);
+      @set_cursor y x; print (string) RKEY__TX;
+      j=1+(i-18)*cw; @set_cursor y j;
       if (menu_nesting==1) print (string) QKEY1__TX;
                       else print (string) QKEY2__TX;
       style roman;
-      @set_cursor 5 2; font off;
+      y=y+2*ch;
+      @set_cursor y x; font off;
 
       if (menu_choices ofclass String) print (string) menu_choices;
       else menu_choices.call();
 
+      x = 1+3*cw;
       for (::)
       {   if (cl ~= oldcl)
-          {   if (oldcl>0) { @set_cursor oldcl 4; print " "; }
-              @set_cursor cl 4; print ">";
+          {   if (oldcl>0)
+              { y=1+(oldcl-1)*ch; @set_cursor y x; print " "; }
+              y=1+(cl-1)*ch; @set_cursor y x; print ">";
           }
           oldcl=cl;
           @read_char 1 -> pkey;
@@ -661,10 +707,10 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
               EntryR.call();
     
               @erase_window $ffff;
-              @split_window 1;
+              @split_window ch;
               i = 0->33; if (i==0) { i=80; }
               @set_window 1; @set_cursor 1 1; style reverse; spaces(i);
-              j=i/2-item_width;
+              j=1+(i/2-item_width)*cw;
               @set_cursor 1 j;
               print (string) item_name;
               style roman; @set_window 0; new_line;
@@ -681,6 +727,9 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
       menu_nesting--; if (menu_nesting>0) rfalse;
       font on; @set_cursor 1 1;
       @erase_window $ffff; @set_window 0;
+      #Iftrue #version_number==6;
+      @set_cursor -2;
+      #Endif;
       new_line; new_line; new_line;
       if (deadflag==0) <<Look>>;
 ];  
@@ -695,7 +744,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 [ MoveFloatingObjects i k l m address flag;
   objectloop (i)
   {   address=i.&found_in;
-      if (address~=0 && i hasnt absent)
+      if (address~=0 && i hasnt absent && ~~IndirectlyContains(player, i))
       {   if (ZRegion(address-->0)==2)
           {   if (i.found_in() ~= 0) move i to location; else remove i;
           }
@@ -739,9 +788,11 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
   for (::)
   {   if (location == nothing || parent(player) == nothing) read buffer parse;
       else read buffer parse DrawStatusLine;
-      i=parse-->1;
-      if (i==YES1__WD or YES2__WD or YES3__WD) rtrue;
-      if (i==NO1__WD or NO2__WD or NO3__WD) rfalse;
+      if (parse->1) {  ! condition added  (fixes Issue L61029)
+          i=parse-->1;
+          if (i==YES1__WD or YES2__WD or YES3__WD) rtrue;
+          if (i==NO1__WD or NO2__WD or NO3__WD) rfalse;
+      }   ! end of condition
       L__M(##Quit,1); print "> ";
   }
 ];
@@ -1188,6 +1239,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 [ InsertSub ancestor;
   receive_action = ##Insert;
   if (second==d_obj || player in second) <<Drop noun>>;
+  if (parent(noun) == second) return L__M(##Drop,1,noun);
   if (parent(noun)~=player) return L__M(##Insert,1,noun);
 
   ancestor = CommonAncestor(noun, second);
@@ -1346,6 +1398,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 
 [ ExitSub p;
   p=parent(player);
+  if (noun ~= nothing && noun ~= p) return L__M(##Exit,4,noun);
   if (p==location || (location==thedark && p==real_location))
   {   if ((location.out_to~=0)
           || (location==thedark && real_location.out_to~=0)) <<Go out_obj>>;
@@ -1400,6 +1453,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 
   if (k==0 || j==0)
   {   if (i.cant_go ~= 0) PrintOrRun(i, cant_go);
+    else L__M(##Go,2);
       rfalse;
   }
 
@@ -1487,8 +1541,8 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 
              .Prop_Chosen;
 
-             if (o hasnt moved || o.describe~=NULL || f2==1)
-             {   if (o.describe~=NULL && RunRoutines(o,describe)~=0)
+             if (o hasnt moved || o.&describe~=0 || f2==1)
+             {   if (o.&describe~=0 && RunRoutines(o,describe)~=0)
                  {   flag=1;
                      give o ~workflag; k--;
                  }    
@@ -1568,7 +1622,7 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
   return visibility_levels;
 ];
 
-[ LookSub allow_abbrev  visibility_levels i j k;
+[ LookSub allow_abbrev  visibility_levels i j k nl_flag;
   if (parent(player)==0) return RunTimeError(10);
 
   .MovedByInitial;
@@ -1604,13 +1658,15 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 
   if (lookmode<3 && visibility_ceiling==location)
   {   if ((allow_abbrev~=1) || (lookmode==2) || (location hasnt visited))
-      {   if (location.describe~=NULL) RunRoutines(location,describe);
+      {   if (location.&describe~=0) RunRoutines(location,describe);
           else
           {   if (location.description==0) RunTimeError(11,location);
               else PrintOrRun(location,description);
           }
       }
   }
+
+  if (visibility_ceiling==location) nl_flag = 1;
 
   if (visibility_levels == 0) Locale(thedark);
   else
@@ -1620,8 +1676,9 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
       for (j=visibility_levels: j>0: j--)
       {   for (i=player, k=0: k<j: k++) i=parent(i);
           if (i.inside_description~=0)
-          {   new_line; PrintOrRun(i,inside_description); }
-          Locale(i);
+          {   if (nl_flag) new_line; else nl_flag = 1;
+              PrintOrRun(i,inside_description); }
+          if (Locale(i)~=0) nl_flag=1;
       }
   }
 
@@ -1648,6 +1705,11 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
 [ LookUnderSub;
   if (location==thedark) return L__M(##LookUnder,1);
   L__M(##LookUnder,2);
+];
+
+[ VisibleContents o  i f;
+  objectloop (i in o) if (i hasnt concealed && i hasnt scenery) f++;
+  return f;
 ];
 
 [ SearchSub i f;
@@ -1723,7 +1785,8 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
   give noun open;
   if (AfterRoutines()==1) rtrue;
   if (keep_silent==1) rtrue;
-  if (noun has container && noun hasnt transparent && child(noun)~=0
+  if (noun has container && noun hasnt transparent && VisibleContents(noun) ~= 0
+      && location ~= thedark
       && IndirectlyContains(noun,player)==0)
       return L__M(##Open,4,noun);
   L__M(##Open,5,noun);
@@ -1833,14 +1896,14 @@ Constant NOARTICLE_BIT 4096;  !  Print no articles, definite or not
   if (ObjectIsUntouchable(noun)) return;
   if (noun has static)   return L__M(##Push,1,noun);
   if (noun has scenery)  return L__M(##Push,2,noun);
-  if (noun has animate)  return L__M(##Pull,4,noun);
+  if (noun has animate)  return L__M(##Push,4,noun);
   L__M(##Push,3,noun);
 ];
 [ TurnSub;
   if (ObjectIsUntouchable(noun)) return;
   if (noun has static)   return L__M(##Turn,1,noun);
   if (noun has scenery)  return L__M(##Turn,2,noun);
-  if (noun has animate)  return L__M(##Pull,4,noun);
+  if (noun has animate)  return L__M(##Turn,4,noun);
   L__M(##Turn,3,noun);
 ];
 

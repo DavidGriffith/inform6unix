@@ -104,6 +104,7 @@ Verb meta 'showverb'
                 * special                        -> Showverb;
 Verb meta 'showobj'
                 *                                -> Showobj
+		* number                         -> ShowObj    ! (L61030)
                 * multi                          -> Showobj;
 #endif;
 
@@ -210,7 +211,8 @@ Verb 'sit' 'lie'
 Verb 'in' 'inside'
                 *                                -> GoIn;
 Verb 'exit' 'out' 'outside'
-                *                                -> Exit;
+                *                                -> Exit
+                * noun                           -> Exit;
 Verb 'examine' 'x//' 'watch' 'describe' 'check'
                 * noun                           -> Examine;
 Verb 'read'

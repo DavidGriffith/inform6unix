@@ -296,6 +296,7 @@ extern void issue_unused_warnings(void)
 
 extern void write_the_identifier_names(void)
 {   int i, j, k, t, null_value; char idname_string[256];
+    static char unknown_attribute[20] = "<unknown attribute>";
 
     for (i=0; i<no_individual_properties; i++)
         individual_name_strings[i] = 0;
@@ -304,7 +305,7 @@ extern void write_the_identifier_names(void)
 
     veneer_mode = TRUE;
 
-    null_value = compile_string("<unknown attribute>", FALSE, FALSE);
+    null_value = compile_string(unknown_attribute, FALSE, FALSE);
     for (i=0; i<NUM_ATTR_BYTES*8; i++) attribute_name_strings[i] = null_value;
 
     for (i=0; i<no_symbols; i++)

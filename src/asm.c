@@ -443,7 +443,7 @@ static opcodez extension_table_z[] =
 /* 0 */ { (uchar *) "not",             4, 4,  3, 0x0F,     St,      0, 0, ONE },
 /* 1 */ { (uchar *) "save",            4, 4,  4, 0x05,     St,      0, 0,ZERO },
 /* 2 */ { (uchar *) "restore",         4, 4,  5, 0x06,     St,      0, 0,ZERO },
-/* 3 */ { (uchar *) "not",             5, 0, -1, 0x38,      0,      0, 0, VAR },
+/* 3 */ { (uchar *) "not",             5, 0, -1, 0x38,     St,      0, 0, VAR },
 /* 4 */ { (uchar *) "save",            5, 0, -1, 0x00,     St,      0, 0, EXT },
 /* 5 */ { (uchar *) "restore",         5, 0, -1, 0x01,     St,      0, 0, EXT },
 /* 6 */ { (uchar *) "pull",            6, 6, -1, 0x29,     St,      0, 0, VAR }
@@ -1533,7 +1533,7 @@ static void transfer_routine_z(void)
             if (asm_trace_level >= 4)
                 printf("To label %d, which is %d from here\n",
                     j, label_offsets[j]-pc);
-            if ((label_offsets[j] >= pc+2) && (label_offsets[j] < pc+32))
+            if ((label_offsets[j] >= pc+2) && (label_offsets[j] < pc+64))
             {   if (asm_trace_level >= 4) printf("Short form\n");
                 zcode_markers[i+1] = DELETED_MV;
             }
@@ -1591,7 +1591,7 @@ static void transfer_routine_z(void)
                 zcode_holding_area[i+1] = addr%256;
             }
             else
-            {   if (addr >= 32)
+            {   if (addr >= 64)
                 {   compiler_error("Label out of range for branch");
                     printf("Addr is %04x\n", addr);
                 }
@@ -1653,6 +1653,10 @@ static void transfer_routine_z(void)
     {   uchar zero[1];
         zero[0] = 0;
         while ((adjusted_pc%scale_factor)!=0) transfer_byte(zero);
+        if (oddeven_packing_switch)
+            while ((adjusted_pc%(scale_factor*2))!=0) transfer_byte(zero);
+        else
+            while ((adjusted_pc%scale_factor)!=0) transfer_byte(zero);
     }
 
     zmachine_pc = adjusted_pc;
@@ -2600,7 +2604,7 @@ T (text), I (indirect addressing), F** (set this Flags 2 bit)");
         else
         {   put_token_back();
             AI.operand[AI.operand_count++] = parse_operand_z();
-            if ((indirect_addressed)
+            if ((indirect_addressed) && (AI.operand_count == 1)
                 && (AI.operand[AI.operand_count-1].type == VARIABLE_OT))
             {   AI.operand[AI.operand_count-1].type = SHORT_CONSTANT_OT;
                 AI.operand[AI.operand_count-1].marker = VARIABLE_MV;
@@ -2656,6 +2660,9 @@ T (text), I (indirect addressing), F** (set this Flags 2 bit)");
                        /* Exception for the V6 set_colour, which can take
                           a third argument, thus forcing it into VAR form: */
                        if ((version_number == 6) && (O.code == 0x1b)) max = 3;
+                       /* Also an exception for je, which can take from 1
+                          argument (useless) to 4 arguments */
+                       if (O.code == 0x01) { min = 1; max = 4; }
                        break;
         case VAR:      min = 0; max = 4; break;
         case VAR_LONG: min = 0; max = 8; break;

@@ -1,6 +1,8 @@
 ## Automake template for Inform libraries.
 
-pkgdata_DATA = $(MODULES) $(INCLUDES)
+include $(top_srcdir)/config/commondefs
+
+module_DATA = $(MODULES) $(INCLUDES)
 
 MODULES = parserm.m5 verblibm.m5
 
@@ -17,8 +19,7 @@ SUFFIXES = .h .m5
 
 INFORM = $(top_builddir)/src/inform
 
-INFFLAGS = +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
-+language_name=english
+INFFLAGS = -x +module_path=$(srcdir) +language_name=english
 
 .h.m5:;	$(INFORM) $(INFFLAGS) -M $<
 
@@ -37,7 +38,7 @@ install-data-local:
 	@ for file in $(EXTRA_NAMES); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
 		echo Linking $$file to $$realfile;			\
-		cd $(pkgdatadir);					\
+		cd $(moduledir);					\
 		rm -f $$file;						\
 		$(LN_S) $$realfile $$file;				\
 	done
@@ -45,12 +46,10 @@ install-data-local:
 uninstall-local:
 	@ for file in $(EXTRA_NAMES); do				\
 		echo Unlinking $$file;					\
-		rm -f $(pkgdatadir)/$$file;				\
+		rm -f $(moduledir)/$$file;				\
 	done
 endif
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 
 $(MODULES): $(INFORM)
-
-@make_include@

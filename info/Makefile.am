@@ -1,6 +1,6 @@
 ## Automake template for Inform documentation.
 
-infodir = $(prefix)/info
+include $(top_srcdir)/config/commondefs
 
 info_DATA = $(INFORM)
 

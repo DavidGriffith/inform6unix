@@ -1,5 +1,7 @@
 ## Automake template for Inform program.
 
+include $(top_srcdir)/config/commondefs
+
 bin_PROGRAMS = inform
 
 SRCS = arrays.c asm.c bpatch.c chars.c directs.c errors.c expressc.c	 \
@@ -8,10 +10,20 @@ symbols.c syntax.c tables.c text.c veneer.c verbs.c
 
 HDRS = header.h
 
-INCLUDE_DIR = -DInclude_Directory=\"$(pkgdatadir)\"
-MODULE_DIR = -DModule_Directory=\"$(pkgdatadir)\"
+# Default path separator (:)
+PATH_SEP = 072
 
-DEFS = -D$(HOST) $(INCLUDE_DIR) $(MODULE_DIR)
+# Default error format
+ERROR_FMT = 1
+
+HOST_DEF = -D$(HOST)
+SEPARATOR = -DFN_ALT=$(PATH_SEP)
+ERROR_FORMAT = -DDEFAULT_ERROR_FORMAT=$(ERROR_FMT)
+INCLUDE_DIR = -DInclude_Directory=\"$(localdir):$(includedir):$(moduledir)\"
+MODULE_DIR = -DModule_Directory=\"$(moduledir)\"
+
+INCLUDES = $(HOST_DEF) $(SEPARATOR) $(ERROR_FORMAT) $(INCLUDE_DIR)	\
+$(MODULE_DIR)
 
 inform_SOURCES = $(SRCS) $(HDRS)
 
@@ -22,5 +34,4 @@ else
 	mv $(bindir)/inform $(bindir)/inform-$(INFORM_VERSION)
 	$(LN_S) $(bindir)/inform-$(INFORM_VERSION) $(bindir)/inform
 endif
-
-@make_include@
+	$(top_srcdir)/config/mkinstalldirs $(localdir)

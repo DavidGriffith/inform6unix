@@ -15,4 +15,8 @@ DEFS = -D$(HOST) $(INCLUDE_DIR) $(MODULE_DIR)
 
 inform_SOURCES = $(SRCS) $(HDRS)
 
+install-exec-hook:
+	mv $(bindir)/inform $(bindir)/inform-$(INFORM_VERSION)
+	$(LN_S) $(bindir)/inform-$(INFORM_VERSION) $(bindir)/inform
+
 @make_include@

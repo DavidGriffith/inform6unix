@@ -1,5 +1,5 @@
 Bi-Platform Inform compiler
-Inform version 6.21(G0.37)
+Inform version 6.30 (Glulx version 0.38)
 Tentatively supported by Andrew Plotkin <erkyrath@eblong.com>
 
 This is the merged Inform compiler. It compiles Inform games to either

@@ -1,0 +1,15 @@
+The Inform library in ../lib is version 6/11
+Copyright Graham Nelson 1993-2004
+
+Full release notes and instructions are available at
+
+   http://www.inform-fiction.org
+
+and
+
+   http://www.ifarchive.org/indexes/if-archiveXinfocomXcompilersXinform6.html
+
+The standard header files are stored in lower-case here.  Symbolic links to
+other semi-standard names get created upon installation (e.g. verblib.h
+gets symlinked to Verblib.h and VerbLib.h).  Except on Cygwin, where case
+doesn't seem to matter.

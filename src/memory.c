@@ -2,8 +2,8 @@
 /*   "memory" : Memory management and ICL memory setting commands            */
 /*              (For "memoryerror", see "errors.c")                          */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -164,6 +164,8 @@ int32 MAX_TRANSCRIPT_SIZE;
 int MAX_CLASSES;
 int MAX_CLASS_TABLE_SIZE;
 int32 MAX_LINK_DATA_SIZE;
+int MAX_INCLUSION_DEPTH;
+int MAX_SOURCE_FILES;
 int32 MAX_INDIV_PROP_TABLE_SIZE;
 int32 MAX_OBJ_PROP_TABLE_SIZE;
 int MAX_OBJ_PROP_COUNT;
@@ -171,7 +173,7 @@ int MAX_LOCAL_VARIABLES;
 int MAX_GLOBAL_VARIABLES;
 int DICT_WORD_SIZE;
 int NUM_ATTR_BYTES;
-
+int32 MAX_NUM_STATIC_STRINGS;
 
 /* The way memory sizes are set causes great nuisance for those parameters
    which have different defaults under Z-code and Glulx. We have to get
@@ -203,6 +205,7 @@ static void list_memory_sizes(void)
     printf("|  %25s = %-7d |\n","MAX_EXPRESSION_NODES",MAX_EXPRESSION_NODES);
     printf("|  %25s = %-7d |\n","MAX_GLOBAL_VARIABLES",MAX_GLOBAL_VARIABLES);
     printf("|  %25s = %-7d |\n","HASH_TAB_SIZE",HASH_TAB_SIZE);
+    printf("|  %25s = %-7d |\n","MAX_INCLUSION_DEPTH",MAX_INCLUSION_DEPTH);
     printf("|  %25s = %-7d |\n","MAX_INDIV_PROP_TABLE_SIZE",
         MAX_INDIV_PROP_TABLE_SIZE);
     printf("|  %25s = %-7d |\n","MAX_LABELS",MAX_LABELS);
@@ -210,6 +213,7 @@ static void list_memory_sizes(void)
     printf("|  %25s = %-7d |\n","MAX_LINK_DATA_SIZE",MAX_LINK_DATA_SIZE);
     printf("|  %25s = %-7d |\n","MAX_LOCAL_VARIABLES",MAX_LOCAL_VARIABLES);
     printf("|  %25s = %-7d |\n","MAX_LOW_STRINGS",MAX_LOW_STRINGS);
+    printf("|  %25s = %-7d |\n","MAX_NUM_STATIC_STRINGS",MAX_NUM_STATIC_STRINGS);
     printf("|  %25s = %-7d |\n","MAX_OBJECTS",MAX_OBJECTS);
     printf("|  %25s = %-7d |\n","MAX_OBJ_PROP_COUNT",
         MAX_OBJ_PROP_COUNT);
@@ -217,6 +221,7 @@ static void list_memory_sizes(void)
         MAX_OBJ_PROP_TABLE_SIZE);
     printf("|  %25s = %-7d |\n","MAX_PROP_TABLE_SIZE",MAX_PROP_TABLE_SIZE);
     printf("|  %25s = %-7d |\n","MAX_QTEXT_SIZE",MAX_QTEXT_SIZE);
+    printf("|  %25s = %-7d |\n","MAX_SOURCE_FILES",MAX_SOURCE_FILES);
     printf("|  %25s = %-7d |\n","MAX_SYMBOLS",MAX_SYMBOLS);
     printf("|  %25s = %-7d |\n","MAX_STATIC_DATA",MAX_STATIC_DATA);
     printf("|  %25s = %-7ld |\n","MAX_STATIC_STRINGS",
@@ -267,6 +272,7 @@ extern void set_memory_sizes(int size_flag)
         MAX_LOW_STRINGS = 2048;
 
         MAX_TRANSCRIPT_SIZE = 200000;
+        MAX_NUM_STATIC_STRINGS = 20000;
 
         MAX_CLASSES = 64;
         MAX_CLASS_TABLE_SIZE = 1000;
@@ -277,8 +283,8 @@ extern void set_memory_sizes(int size_flag)
         MAX_INDIV_PROP_TABLE_SIZE = 15000;
         MAX_ARRAYS = 128;
 
-	MAX_GLOBAL_VARIABLES_z = 240;
-	MAX_GLOBAL_VARIABLES_g = 512;
+        MAX_GLOBAL_VARIABLES_z = 240;
+        MAX_GLOBAL_VARIABLES_g = 512;
     }
     if (size_flag == LARGE_SIZE)
     {
@@ -314,6 +320,7 @@ extern void set_memory_sizes(int size_flag)
         MAX_LOW_STRINGS = 2048;
 
         MAX_TRANSCRIPT_SIZE = 200000;
+        MAX_NUM_STATIC_STRINGS = 20000;
 
         MAX_CLASSES = 64;
         MAX_CLASS_TABLE_SIZE = 1000;
@@ -324,8 +331,8 @@ extern void set_memory_sizes(int size_flag)
         MAX_INDIV_PROP_TABLE_SIZE = 10000;
         MAX_ARRAYS = 128;
 
-	MAX_GLOBAL_VARIABLES_z = 240;
-	MAX_GLOBAL_VARIABLES_g = 512;
+        MAX_GLOBAL_VARIABLES_z = 240;
+        MAX_GLOBAL_VARIABLES_g = 512;
     }
     if (size_flag == SMALL_SIZE)
     {
@@ -361,6 +368,7 @@ extern void set_memory_sizes(int size_flag)
         MAX_LOW_STRINGS = 1024;
 
         MAX_TRANSCRIPT_SIZE = 100000;
+        MAX_NUM_STATIC_STRINGS = 10000;
 
         MAX_CLASSES = 32;
         MAX_CLASS_TABLE_SIZE = 800;
@@ -371,11 +379,13 @@ extern void set_memory_sizes(int size_flag)
         MAX_INDIV_PROP_TABLE_SIZE = 5000;
         MAX_ARRAYS = 64;
 
-	MAX_GLOBAL_VARIABLES_z = 240;
-	MAX_GLOBAL_VARIABLES_g = 256;
+        MAX_GLOBAL_VARIABLES_z = 240;
+        MAX_GLOBAL_VARIABLES_g = 256;
     }
 
     /* Regardless of size_flag... */
+    MAX_SOURCE_FILES = 256;
+    MAX_INCLUSION_DEPTH = 5;
     MAX_LOCAL_VARIABLES_z = 16;
     MAX_LOCAL_VARIABLES_g = 32;
     DICT_WORD_SIZE_z = 6;
@@ -587,6 +597,17 @@ static void explain_parameter(char *command)
   of properties to inherit from each class.\n");
         return;
     }
+    if (strcmp(command,"MAX_INCLUSION_DEPTH")==0)
+    {   printf(
+"  MAX_INCLUSION_DEPTH is the number of nested includes permitted.\n");
+        return;
+    }
+    if (strcmp(command,"MAX_SOURCE_FILES")==0)
+    {   printf(
+"  MAX_SOURCE_FILES is the number of source files that can be read in the \n\
+  compilation.\n");
+        return;
+    }
     if (strcmp(command,"MAX_INDIV_PROP_TABLE_SIZE")==0)
     {   printf(
 "  MAX_INDIV_PROP_TABLE_SIZE is the number of bytes allocated to hold the \n\
@@ -616,6 +637,14 @@ static void explain_parameter(char *command)
 "  MAX_GLOBAL_VARIABLES is the number of global variables allowed in the \n\
   program. (Glulx only)\n");
         return;
+    }
+    if (strcmp(command,"MAX_NUM_STATIC_STRINGS")==0)
+    {
+        printf(
+"  MAX_NUM_STATIC_STRINGS is the maximum number of compiled strings \n\
+  allowed in the program. (Glulx only)\n");
+        return;
+
     }
 
     printf("No such memory setting as \"%s\"\n",command);
@@ -671,12 +700,12 @@ extern void memory_command(char *command)
                 MAX_DICT_ENTRIES=j, flag=1;
             if (strcmp(command,"DICT_WORD_SIZE")==0) 
             {   DICT_WORD_SIZE=j, flag=1;
-	        DICT_WORD_SIZE_g=DICT_WORD_SIZE_z=j;
-	    }
+                DICT_WORD_SIZE_g=DICT_WORD_SIZE_z=j;
+            }
             if (strcmp(command,"NUM_ATTR_BYTES")==0) 
             {   NUM_ATTR_BYTES=j, flag=1;
-	        NUM_ATTR_BYTES_g=NUM_ATTR_BYTES_z=j;
-	    }
+                NUM_ATTR_BYTES_g=NUM_ATTR_BYTES_z=j;
+            }
             if (strcmp(command,"MAX_STATIC_DATA")==0)
                 MAX_STATIC_DATA=j, flag=1;
             if (strcmp(command,"MAX_OLDEPTH")==0)
@@ -687,8 +716,8 @@ extern void memory_command(char *command)
                 flag=2;
             if (strcmp(command,"MAX_PROP_TABLE_SIZE")==0)
             {   MAX_PROP_TABLE_SIZE=j, flag=1;
-	        MAX_PROP_TABLE_SIZE_g=MAX_PROP_TABLE_SIZE_z=j;
-	    }
+                MAX_PROP_TABLE_SIZE_g=MAX_PROP_TABLE_SIZE_z=j;
+            }
             if (strcmp(command,"MAX_FORWARD_REFS")==0)
                 flag=2;
             if (strcmp(command,"STACK_SIZE")==0)
@@ -711,6 +740,8 @@ extern void memory_command(char *command)
                 MAX_LABELS=j, flag=1;
             if (strcmp(command,"MAX_LINESPACE")==0)
                 MAX_LINESPACE=j, flag=1;
+            if (strcmp(command,"MAX_NUM_STATIC_STRINGS")==0)
+                MAX_NUM_STATIC_STRINGS=j, flag=1;
             if (strcmp(command,"MAX_STATIC_STRINGS")==0)
             {   MAX_STATIC_STRINGS=j, flag=1;
                 if (2*MAX_QTEXT_SIZE > MAX_STATIC_STRINGS)
@@ -718,8 +749,8 @@ extern void memory_command(char *command)
             }
             if (strcmp(command,"MAX_ZCODE_SIZE")==0)
             {   MAX_ZCODE_SIZE=j, flag=1;
-	        MAX_ZCODE_SIZE_g=MAX_ZCODE_SIZE_z=j;
-	    }
+                MAX_ZCODE_SIZE_g=MAX_ZCODE_SIZE_z=j;
+            }
             if (strcmp(command,"MAX_LINK_DATA_SIZE")==0)
                 MAX_LINK_DATA_SIZE=j, flag=1;
             if (strcmp(command,"MAX_LOW_STRINGS")==0)
@@ -730,6 +761,10 @@ extern void memory_command(char *command)
                 MAX_CLASSES=j, flag=1;
             if (strcmp(command,"MAX_CLASS_TABLE_SIZE")==0)
                 MAX_CLASS_TABLE_SIZE=j, flag=1;
+            if (strcmp(command,"MAX_INCLUSION_DEPTH")==0)
+                MAX_INCLUSION_DEPTH=j, flag=1;
+            if (strcmp(command,"MAX_SOURCE_FILES")==0)
+                MAX_SOURCE_FILES=j, flag=1;
             if (strcmp(command,"MAX_INDIV_PROP_TABLE_SIZE")==0)
                 MAX_INDIV_PROP_TABLE_SIZE=j, flag=1;
             if (strcmp(command,"MAX_OBJ_PROP_TABLE_SIZE")==0)
@@ -738,12 +773,12 @@ extern void memory_command(char *command)
                 MAX_OBJ_PROP_COUNT=j, flag=1;
             if (strcmp(command,"MAX_LOCAL_VARIABLES")==0)
             {   MAX_LOCAL_VARIABLES=j, flag=1;
-	        MAX_LOCAL_VARIABLES_g=MAX_LOCAL_VARIABLES_z=j;
-	    }
+                MAX_LOCAL_VARIABLES_g=MAX_LOCAL_VARIABLES_z=j;
+            }
             if (strcmp(command,"MAX_GLOBAL_VARIABLES")==0)
             {   MAX_GLOBAL_VARIABLES=j, flag=1;
-	        MAX_GLOBAL_VARIABLES_g=MAX_GLOBAL_VARIABLES_z=j;
-	    }
+                MAX_GLOBAL_VARIABLES_g=MAX_GLOBAL_VARIABLES_z=j;
+            }
 
             if (flag==0)
                 printf("No such memory setting as \"%s\"\n", command);

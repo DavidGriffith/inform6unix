@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "asm" : The Inform assembler                                            */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -43,11 +43,11 @@ dbgl debug_line_ref;               /* Source code ref of current statement   */
 
 
 int32 *variable_tokens;            /* The allocated size is 
-				      (MAX_LOCAL_VARIABLES +
-				       MAX_GLOBAL_VARIABLES). The entries 
-				      MAX_LOCAL_VARIABLES and up give the 
-				      symbol table index for the names of 
-				      the global variables                   */
+                                      (MAX_LOCAL_VARIABLES +
+                                      MAX_GLOBAL_VARIABLES). The entries 
+                                      MAX_LOCAL_VARIABLES and up give the 
+                                      symbol table index for the names of 
+                                      the global variables                   */
 int *variable_usage;               /* TRUE if referred to, FALSE otherwise   */
 
 assembly_instruction AI;           /* A structure used to hold the full
@@ -61,7 +61,7 @@ static char opcode_syntax_string[128];  /*  Text buffer holding the correct
                                       helpful assembler error messages       */
 
 static int routine_locals;         /* The number of local variables used by
-			   	      the routine currently being compiled   */
+                                      the routine currently being compiled   */
 
 static int32 routine_start_pc;
 
@@ -181,6 +181,7 @@ extern char *variable_name(int32 i)
       case 7: return "sys__glob0";
       case 8: return "sys__glob1";
       case 9: return "sys__glob2";
+      case 10: return "sys_statusline_flag";
       }
     }
 
@@ -279,7 +280,7 @@ typedef struct opcodeg
 #define Br      2     /* Branch */
 #define Rf      4     /* "Return flag": execution never continues after this
                          opcode (e.g., is a return or unconditional jump) */
-#define St2	8     /* Store2 (second-to-last operand is store (Glulx)) */
+#define St2 8     /* Store2 (second-to-last operand is store (Glulx)) */
 
     /* Codes for any unusual operand assembly rules */
 
@@ -369,7 +370,7 @@ static opcodez opcodes_table_z[] =
 /* 60 */ {(uchar *) "restore",         3, 3,  2, 0x06,     Br,      0, 0,ZERO },
 /* 61 */ {(uchar *) "restart",         3, 0, -1, 0x07,      0,      0, 0,ZERO },
 /* 62 */ {(uchar *) "ret_popped",      3, 0, -1, 0x08,     Rf,      0, 0,ZERO },
-/* 63 */ {(uchar *) "pop",             3, 0, -1, 0x09,      0,      0, 0,ZERO },
+/* 63 */ {(uchar *) "pop",             3, 4, -1, 0x09,      0,      0, 0,ZERO },
 /* 64 */ {(uchar *) "quit",            3, 0, -1, 0x0A,     Rf,      0, 0,ZERO },
 /* 65 */ {(uchar *) "new_line",        3, 0, -1, 0x0B,      0,      0, 0,ZERO },
 /* 66 */ {(uchar *) "show_status",     3, 3, -1, 0x0C,      0,      0, 0,ZERO },
@@ -433,7 +434,12 @@ static opcodez opcodes_table_z[] =
 /* 112 */ { (uchar *) "put_wind_prop", 6, 6, -1, 0x19,      0,      0, 0, EXT },
 /* 113 */ { (uchar *) "print_form",    6, 6, -1, 0x1a,      0,      0, 0, EXT },
 /* 114 */ { (uchar *) "make_menu",     6, 6, -1, 0x1b,     Br,      0, 8, EXT },
-/* 115 */ { (uchar *) "picture_table", 6, 6, -1, 0x1c,      0,      0, 3, EXT }
+/* 115 */ { (uchar *) "picture_table", 6, 6, -1, 0x1c,      0,      0, 3, EXT },
+
+    /* Opcodes introduced in Z-Machine Specification Standard 1.0 */
+
+/* 116 */ { (uchar *) "print_unicode", 5, 0, -1, 0x0b,      0,      0, 0, EXT },
+/* 117 */ { (uchar *) "check_unicode", 5, 0, -1, 0x0c,     St,      0, 0, EXT }
 };
 
     /* Subsequent forms for opcodes whose meaning changes with version */
@@ -466,86 +472,86 @@ static opcodez custom_opcode_z;
 */
 
 static opcodeg opcodes_table_g[] = {
-  { (uchar *) "nop",		0x00,  0, 0, 0 },
-  { (uchar *) "add",		0x10, St, 0, 3 },
-  { (uchar *) "sub",		0x11, St, 0, 3 },
-  { (uchar *) "mul",		0x12, St, 0, 3 },
-  { (uchar *) "div",		0x13, St, 0, 3 },
-  { (uchar *) "mod",		0x14, St, 0, 3 },
-  { (uchar *) "neg",		0x15, St, 0, 2 },
-  { (uchar *) "bitand",		0x18, St, 0, 3 },
-  { (uchar *) "bitor",		0x19, St, 0, 3 },
-  { (uchar *) "bitxor",		0x1A, St, 0, 3 },
-  { (uchar *) "bitnot",		0x1B, St, 0, 2 },
-  { (uchar *) "shiftl", 	0x1C, St, 0, 3 },
-  { (uchar *) "sshiftr", 	0x1D, St, 0, 3 },
-  { (uchar *) "ushiftr", 	0x1E, St, 0, 3 },
-  { (uchar *) "jump",		0x20, Br|Rf, 0, 1 },
-  { (uchar *) "jz",		0x22, Br, 0, 2 },
-  { (uchar *) "jnz",		0x23, Br, 0, 2 },
-  { (uchar *) "jeq",		0x24, Br, 0, 3 },
-  { (uchar *) "jne",		0x25, Br, 0, 3 },
-  { (uchar *) "jlt",		0x26, Br, 0, 3 },
-  { (uchar *) "jge",		0x27, Br, 0, 3 },
-  { (uchar *) "jgt",		0x28, Br, 0, 3 },
-  { (uchar *) "jle",		0x29, Br, 0, 3 },
-  { (uchar *) "jltu",		0x2A, Br, 0, 3 },
-  { (uchar *) "jgeu",		0x2B, Br, 0, 3 },
-  { (uchar *) "jgtu",		0x2C, Br, 0, 3 },
-  { (uchar *) "jleu",		0x2D, Br, 0, 3 },
-  { (uchar *) "call",		0x30, St, 0, 3 },
-  { (uchar *) "return",		0x31, Rf, 0, 1 },
-  { (uchar *) "catch", 		0x32, Br|St, 0, 2 },
-  { (uchar *) "throw", 		0x33, Rf, 0, 2 },
-  { (uchar *) "tailcall",	0x34, Rf, 0, 2 },
-  { (uchar *) "copy",		0x40, St, 0, 2 },
-  { (uchar *) "copys",		0x41, St, 0, 2 },
-  { (uchar *) "copyb",		0x42, St, 0, 2 },
-  { (uchar *) "sexs",		0x44, St, 0, 2 },
-  { (uchar *) "sexb",		0x45, St, 0, 2 },
-  { (uchar *) "aload",		0x48, St, 0, 3 },
-  { (uchar *) "aloads",		0x49, St, 0, 3 },
-  { (uchar *) "aloadb",		0x4A, St, 0, 3 },
-  { (uchar *) "aloadbit",	0x4B, St, 0, 3 },
-  { (uchar *) "astore",		0x4C,  0, 0, 3 },
-  { (uchar *) "astores",	0x4D,  0, 0, 3 },
-  { (uchar *) "astoreb",	0x4E,  0, 0, 3 },
-  { (uchar *) "astorebit",	0x4F,  0, 0, 3 },
-  { (uchar *) "stkcount", 	0x50, St, 0, 1 },
-  { (uchar *) "stkpeek", 	0x51, St, 0, 2 },
-  { (uchar *) "stkswap", 	0x52,  0, 0, 0 },
-  { (uchar *) "stkroll", 	0x53,  0, 0, 2 },
-  { (uchar *) "stkcopy", 	0x54,  0, 0, 1 },
-  { (uchar *) "streamchar",	0x70,  0, 0, 1 },
-  { (uchar *) "streamnum",	0x71,  0, 0, 1 },
-  { (uchar *) "streamstr",	0x72,  0, 0, 1 },
-  { (uchar *) "gestalt", 	0x0100, St, 0, 3 },
-  { (uchar *) "debugtrap", 	0x0101, 0, 0, 1 },
-  { (uchar *) "getmemsize", 	0x0102, St, 0, 1 },
-  { (uchar *) "setmemsize", 	0x0103, St, 0, 2 },
-  { (uchar *) "jumpabs",	0x0104, Rf, 0, 1 },
-  { (uchar *) "random",		0x0110, St, 0, 2 },
-  { (uchar *) "setrandom",	0x0111,  0, 0, 1 },
-  { (uchar *) "quit", 		0x0120, Rf, 0, 0 },
-  { (uchar *) "verify", 	0x0121, St, 0, 1 },
-  { (uchar *) "restart", 	0x0122,  0, 0, 0 },
-  { (uchar *) "save", 		0x0123, St, 0, 2 },
-  { (uchar *) "restore", 	0x0124, St, 0, 2 },
-  { (uchar *) "saveundo", 	0x0125, St, 0, 1 },
-  { (uchar *) "restoreundo", 	0x0126, St, 0, 1 },
-  { (uchar *) "protect", 	0x0127,  0, 0, 2 },
-  { (uchar *) "glk", 		0x0130, St, 0, 3 },
-  { (uchar *) "getstringtbl",	0x0140, St, 0, 1 },
-  { (uchar *) "setstringtbl",	0x0141, 0, 0, 1 },
-  { (uchar *) "getiosys",	0x0148, St|St2, 0, 2 },
-  { (uchar *) "setiosys",	0x0149, 0, 0, 2 },
-  { (uchar *) "linearsearch", 	0x0150, St, 0, 8 },
-  { (uchar *) "binarysearch", 	0x0151, St, 0, 8 },
-  { (uchar *) "linkedsearch", 	0x0152, St, 0, 7 },
-  { (uchar *) "callf",		0x0160, St, 0, 2 },
-  { (uchar *) "callfi",		0x0161, St, 0, 3 },
-  { (uchar *) "callfii",	0x0162, St, 0, 4 },
-  { (uchar *) "callfiii",	0x0163, St, 0, 5 },
+  { (uchar *) "nop",        0x00,  0, 0, 0 },
+  { (uchar *) "add",        0x10, St, 0, 3 },
+  { (uchar *) "sub",        0x11, St, 0, 3 },
+  { (uchar *) "mul",        0x12, St, 0, 3 },
+  { (uchar *) "div",        0x13, St, 0, 3 },
+  { (uchar *) "mod",        0x14, St, 0, 3 },
+  { (uchar *) "neg",        0x15, St, 0, 2 },
+  { (uchar *) "bitand",     0x18, St, 0, 3 },
+  { (uchar *) "bitor",      0x19, St, 0, 3 },
+  { (uchar *) "bitxor",     0x1A, St, 0, 3 },
+  { (uchar *) "bitnot",     0x1B, St, 0, 2 },
+  { (uchar *) "shiftl",     0x1C, St, 0, 3 },
+  { (uchar *) "sshiftr",    0x1D, St, 0, 3 },
+  { (uchar *) "ushiftr",    0x1E, St, 0, 3 },
+  { (uchar *) "jump",       0x20, Br|Rf, 0, 1 },
+  { (uchar *) "jz",     0x22, Br, 0, 2 },
+  { (uchar *) "jnz",        0x23, Br, 0, 2 },
+  { (uchar *) "jeq",        0x24, Br, 0, 3 },
+  { (uchar *) "jne",        0x25, Br, 0, 3 },
+  { (uchar *) "jlt",        0x26, Br, 0, 3 },
+  { (uchar *) "jge",        0x27, Br, 0, 3 },
+  { (uchar *) "jgt",        0x28, Br, 0, 3 },
+  { (uchar *) "jle",        0x29, Br, 0, 3 },
+  { (uchar *) "jltu",       0x2A, Br, 0, 3 },
+  { (uchar *) "jgeu",       0x2B, Br, 0, 3 },
+  { (uchar *) "jgtu",       0x2C, Br, 0, 3 },
+  { (uchar *) "jleu",       0x2D, Br, 0, 3 },
+  { (uchar *) "call",       0x30, St, 0, 3 },
+  { (uchar *) "return",     0x31, Rf, 0, 1 },
+  { (uchar *) "catch",      0x32, Br|St, 0, 2 },
+  { (uchar *) "throw",      0x33, Rf, 0, 2 },
+  { (uchar *) "tailcall",   0x34, Rf, 0, 2 },
+  { (uchar *) "copy",       0x40, St, 0, 2 },
+  { (uchar *) "copys",      0x41, St, 0, 2 },
+  { (uchar *) "copyb",      0x42, St, 0, 2 },
+  { (uchar *) "sexs",       0x44, St, 0, 2 },
+  { (uchar *) "sexb",       0x45, St, 0, 2 },
+  { (uchar *) "aload",      0x48, St, 0, 3 },
+  { (uchar *) "aloads",     0x49, St, 0, 3 },
+  { (uchar *) "aloadb",     0x4A, St, 0, 3 },
+  { (uchar *) "aloadbit",   0x4B, St, 0, 3 },
+  { (uchar *) "astore",     0x4C,  0, 0, 3 },
+  { (uchar *) "astores",    0x4D,  0, 0, 3 },
+  { (uchar *) "astoreb",    0x4E,  0, 0, 3 },
+  { (uchar *) "astorebit",  0x4F,  0, 0, 3 },
+  { (uchar *) "stkcount",   0x50, St, 0, 1 },
+  { (uchar *) "stkpeek",    0x51, St, 0, 2 },
+  { (uchar *) "stkswap",    0x52,  0, 0, 0 },
+  { (uchar *) "stkroll",    0x53,  0, 0, 2 },
+  { (uchar *) "stkcopy",    0x54,  0, 0, 1 },
+  { (uchar *) "streamchar", 0x70,  0, 0, 1 },
+  { (uchar *) "streamnum",  0x71,  0, 0, 1 },
+  { (uchar *) "streamstr",  0x72,  0, 0, 1 },
+  { (uchar *) "gestalt",    0x0100, St, 0, 3 },
+  { (uchar *) "debugtrap",  0x0101, 0, 0, 1 },
+  { (uchar *) "getmemsize",     0x0102, St, 0, 1 },
+  { (uchar *) "setmemsize",     0x0103, St, 0, 2 },
+  { (uchar *) "jumpabs",    0x0104, Rf, 0, 1 },
+  { (uchar *) "random",     0x0110, St, 0, 2 },
+  { (uchar *) "setrandom",  0x0111,  0, 0, 1 },
+  { (uchar *) "quit",       0x0120, Rf, 0, 0 },
+  { (uchar *) "verify",     0x0121, St, 0, 1 },
+  { (uchar *) "restart",    0x0122,  0, 0, 0 },
+  { (uchar *) "save",       0x0123, St, 0, 2 },
+  { (uchar *) "restore",    0x0124, St, 0, 2 },
+  { (uchar *) "saveundo",   0x0125, St, 0, 1 },
+  { (uchar *) "restoreundo",    0x0126, St, 0, 1 },
+  { (uchar *) "protect",    0x0127,  0, 0, 2 },
+  { (uchar *) "glk",        0x0130, St, 0, 3 },
+  { (uchar *) "getstringtbl",   0x0140, St, 0, 1 },
+  { (uchar *) "setstringtbl",   0x0141, 0, 0, 1 },
+  { (uchar *) "getiosys",   0x0148, St|St2, 0, 2 },
+  { (uchar *) "setiosys",   0x0149, 0, 0, 2 },
+  { (uchar *) "linearsearch",   0x0150, St, 0, 8 },
+  { (uchar *) "binarysearch",   0x0151, St, 0, 8 },
+  { (uchar *) "linkedsearch",   0x0152, St, 0, 7 },
+  { (uchar *) "callf",      0x0160, St, 0, 2 },
+  { (uchar *) "callfi",     0x0161, St, 0, 3 },
+  { (uchar *) "callfii",    0x0162, St, 0, 4 },
+  { (uchar *) "callfiii",   0x0163, St, 0, 5 },
 };
 
 static opcodeg custom_opcode_g;
@@ -599,56 +605,56 @@ static void make_opcode_syntax_z(opcodez opco)
 
 static opcodeg internal_number_to_opcode_g(int32 i)
 {   
-  opcodeg x;
-  if (i == -1) return custom_opcode_g;
-  x = opcodes_table_g[i];
-  return x;
+    opcodeg x;
+    if (i == -1) return custom_opcode_g;
+    x = opcodes_table_g[i];
+    return x;
 }
 
 static void make_opcode_syntax_g(opcodeg opco)
 {
-   int ix;
-   char *cx;
-   char *q = opcode_syntax_string;
+    int ix;
+    char *cx;
+    char *q = opcode_syntax_string;
 
-   sprintf(q, "%s", opco.name);
-   sprintf(q+strlen(q), " <%d operand%s", opco.no,
-     ((opco.no==1) ? "" : "s"));
-   if (opco.no) {
-     cx = q+strlen(q);
-     strcpy(cx, ": ");
-     cx += strlen(cx);
-     for (ix=0; ix<opco.no; ix++) {
-       if (ix) {
-	 *cx = ' ';
-	 cx++;
-       }
-       if (ix == opco.no-1) {
-	 if (opco.flags & Br) {
-	   strcpy(cx, "Lb");
-	 }
-	 else if (opco.flags & St) {
-	   strcpy(cx, "S");
-	 }
-	 else {
-	   strcpy(cx, "L");
-	 }
-       }
-       else if (ix == opco.no-2 && (opco.flags & Br) && (opco.flags & St)) {
-	 strcpy(cx, "S");
-       }
-       else if (ix == opco.no-2 && (opco.flags & St2)) {
-	 strcpy(cx, "S");
-       }
-       else {
-	 strcpy(cx, "L");
-       }
-       cx += strlen(cx);
-       sprintf(cx, "%d", ix+1);
-       cx += strlen(cx);
-     }
-   }
-   sprintf(q+strlen(q), ">");
+    sprintf(q, "%s", opco.name);
+    sprintf(q+strlen(q), " <%d operand%s", opco.no,
+        ((opco.no==1) ? "" : "s"));
+    if (opco.no) {
+        cx = q+strlen(q);
+        strcpy(cx, ": ");
+        cx += strlen(cx);
+        for (ix=0; ix<opco.no; ix++) {
+            if (ix) {
+                *cx = ' ';
+                cx++;
+            }
+            if (ix == opco.no-1) {
+                if (opco.flags & Br) {
+                    strcpy(cx, "Lb");
+                }
+                else if (opco.flags & St) {
+                    strcpy(cx, "S");
+                }
+                else {
+                    strcpy(cx, "L");
+                }
+            }
+            else if (ix == opco.no-2 && (opco.flags & Br) && (opco.flags & St)) {
+                strcpy(cx, "S");
+            }
+            else if (ix == opco.no-2 && (opco.flags & St2)) {
+                strcpy(cx, "S");
+            }
+            else {
+                strcpy(cx, "L");
+            }
+            cx += strlen(cx);
+            sprintf(cx, "%d", ix+1);
+            cx += strlen(cx);
+        }
+    }
+    sprintf(q+strlen(q), ">");
 }
 
 
@@ -686,8 +692,8 @@ static void write_operand(assembly_operand op)
         case DEREFERENCE_OT:
         case LOCALVAR_OT:
         case GLOBALVAR_OT:
-	    compiler_error("Glulx OT in Z-code assembly operand.");
-	    return;
+            compiler_error("Glulx OT in Z-code assembly operand.");
+            return;
     }
 }
 
@@ -841,7 +847,7 @@ extern void assemblez_instruction(assembly_instruction *AI)
             modules and story files: nor do local variables 0 to 15  */
 
         if ((o1.value >= MAX_LOCAL_VARIABLES) && (o1.value < 249))
-	    o1.marker = VARIABLE_MV;
+            o1.marker = VARIABLE_MV;
         write_operand(o1);
     }
 
@@ -860,6 +866,7 @@ extern void assemblez_instruction(assembly_instruction *AI)
                 long_form = 1; addr = AI->branch_label_number;
                 break;
         }
+        if (addr > 0x7fff) fatalerror("Too many branch points in routine.");
         if (long_form==1)
         {   byteout(branch_on_true*0x80 + addr/256, BRANCH_MV);
             byteout(addr%256, 0);
@@ -939,11 +946,10 @@ extern void assemblez_instruction(assembly_instruction *AI)
 
 extern void assembleg_instruction(assembly_instruction *AI)
 {
-    uchar *start_pc, *opmodes_pc, *operands_pc;
-    int32 offset, j, topbits, types_byte1, types_byte2;
-    int operand_rules, min, max, no_operands_given, at_seq_point = FALSE;
+    uchar *start_pc, *opmodes_pc;
+    int32 offset, j;
+    int no_operands_given, at_seq_point = FALSE;
     int ix, k;
-    assembly_operand o1, o2;
     opcodeg opco;
 
     ASSERT_GLULX();
@@ -968,7 +974,6 @@ extern void assembleg_instruction(assembly_instruction *AI)
     if (execution_never_reaches_here)
         warning("This statement can never be reached");
 
-    operand_rules = opco.op_rules;
     execution_never_reaches_here = ((opco.flags & Rf) != 0);
 
     no_operands_given = AI->operand_count;
@@ -1001,8 +1006,6 @@ extern void assembleg_instruction(assembly_instruction *AI)
       byteout(0, 0);
     }
 
-    operands_pc = zcode_holding_area + zcode_ha_size;
-
     /* 2. Dispose of the special rules */
     /* There aren't any in Glulx. */
 
@@ -1013,203 +1016,201 @@ extern void assembleg_instruction(assembly_instruction *AI)
     }
 
     for (ix=0; ix<no_operands_given; ix++) {
-      int marker = AI->operand[ix].marker;
-      int type = AI->operand[ix].type;
-      k = AI->operand[ix].value;
+        int marker = AI->operand[ix].marker;
+        int type = AI->operand[ix].type;
+        k = AI->operand[ix].value;
 
-      if ((opco.flags & Br) && (ix == no_operands_given-1)) {
-	if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
-	  compiler_error("Assembling branch without BRANCH_MV marker");
-	  goto OpcodeSyntaxError; 
-	}
-	if (k == -2) {
-	  k = 2; /* branch no-op */
-	  type = BYTECONSTANT_OT;
-	  marker = 0;
-	}
-	else if (k == -3) {
-	  k = 0; /* branch return 0 */
-	  type = ZEROCONSTANT_OT;
-	  marker = 0;
-	}
-	else if (k == -4) {
-	  k = 1; /* branch return 1 */
-	  type = BYTECONSTANT_OT;
-	  marker = 0;
-	}
-	else {
-	  /* branch to label k */
-	  j = subtract_pointers((zcode_holding_area + zcode_ha_size), 
-	    opmodes_pc);
-	  j = 2*j - ix;
-	  marker = BRANCH_MV + j;
-	  if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
-	    error("*** branch marker too far from opmode byte ***");
-	    goto OpcodeSyntaxError; 
-	  }
-	}
-      }
-      if ((opco.flags & St) 
-	&& ((!(opco.flags & Br) && (ix == no_operands_given-1))
-	  || ((opco.flags & Br) && (ix == no_operands_given-2)))) {
-	if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
-	  || type == CONSTANT_OT) {
-	  error("*** instruction tried to store to a constant ***");
-	  goto OpcodeSyntaxError; 
-	}
-      }
-      if ((opco.flags & St2) 
-	&& (ix == no_operands_given-2)) {
-	if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
-	  || type == CONSTANT_OT) {
-	  error("*** instruction tried to store to a constant ***");
-	  goto OpcodeSyntaxError; 
-	}
-      }
+        if ((opco.flags & Br) && (ix == no_operands_given-1)) {
+            if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
+                compiler_error("Assembling branch without BRANCH_MV marker");
+                goto OpcodeSyntaxError; 
+            }
+            if (k == -2) {
+                k = 2; /* branch no-op */
+                type = BYTECONSTANT_OT;
+                marker = 0;
+            }
+            else if (k == -3) {
+                k = 0; /* branch return 0 */
+                type = ZEROCONSTANT_OT;
+                marker = 0;
+            }
+            else if (k == -4) {
+                k = 1; /* branch return 1 */
+                type = BYTECONSTANT_OT;
+                marker = 0;
+            }
+            else {
+                /* branch to label k */
+                j = subtract_pointers((zcode_holding_area + zcode_ha_size), 
+                    opmodes_pc);
+                j = 2*j - ix;
+                marker = BRANCH_MV + j;
+                if (!(marker >= BRANCH_MV && marker < BRANCHMAX_MV)) {
+                    error("*** branch marker too far from opmode byte ***");
+                    goto OpcodeSyntaxError; 
+                }
+            }
+        }
+    if ((opco.flags & St) 
+      && ((!(opco.flags & Br) && (ix == no_operands_given-1))
+      || ((opco.flags & Br) && (ix == no_operands_given-2)))) {
+        if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
+            || type == CONSTANT_OT) {
+            error("*** instruction tried to store to a constant ***");
+            goto OpcodeSyntaxError; 
+        }
+    }
+    if ((opco.flags & St2) 
+        && (ix == no_operands_given-2)) {
+        if (type == BYTECONSTANT_OT || type == HALFCONSTANT_OT
+          || type == CONSTANT_OT) {
+          error("*** instruction tried to store to a constant ***");
+          goto OpcodeSyntaxError; 
+        }
+    }
 
       if (marker && (type == HALFCONSTANT_OT 
-	|| type == BYTECONSTANT_OT
-	|| type == ZEROCONSTANT_OT)) {
-	compiler_error("Assembling marker in less than 32-bit constant.");
-	/* Actually we should store marker|0x80 for a byte constant,
-	   but let's hold off on that. */
-      }
+        || type == BYTECONSTANT_OT
+        || type == ZEROCONSTANT_OT)) {
+        compiler_error("Assembling marker in less than 32-bit constant.");
+        /* Actually we should store marker|0x80 for a byte constant,
+           but let's hold off on that. */
+        }
 
       switch (type) {
       case LONG_CONSTANT_OT:
       case SHORT_CONSTANT_OT:
       case VARIABLE_OT:
-	j = 0;
-	compiler_error("Z-code OT in Glulx assembly operand.");
-	break;
+        j = 0;
+        compiler_error("Z-code OT in Glulx assembly operand.");
+        break;
       case CONSTANT_OT:
-	j = 3;
-	byteout((k >> 24) & 0xFF, marker);
-	byteout((k >> 16) & 0xFF, 0);
-	byteout((k >> 8) & 0xFF, 0);
-	byteout((k & 0xFF), 0);
-	break;
+        j = 3;
+        byteout((k >> 24) & 0xFF, marker);
+        byteout((k >> 16) & 0xFF, 0);
+        byteout((k >> 8) & 0xFF, 0);
+        byteout((k & 0xFF), 0);
+        break;
       case HALFCONSTANT_OT:
-	j = 2;
-	byteout((k >> 8) & 0xFF, marker);
-	byteout((k & 0xFF), 0);
-	break;
+        j = 2;
+        byteout((k >> 8) & 0xFF, marker);
+        byteout((k & 0xFF), 0);
+        break;
       case BYTECONSTANT_OT:
-	j = 1;
-	byteout((k & 0xFF), marker);
-	break;
+        j = 1;
+        byteout((k & 0xFF), marker);
+        break;
       case ZEROCONSTANT_OT:
-	j = 0;
-	break;
+        j = 0;
+        break;
       case DEREFERENCE_OT:
-	j = 7;
-	byteout((k >> 24) & 0xFF, marker);
-	byteout((k >> 16) & 0xFF, 0);
-	byteout((k >> 8) & 0xFF, 0);
-	byteout((k & 0xFF), 0);
-	break;
+        j = 7;
+        byteout((k >> 24) & 0xFF, marker);
+        byteout((k >> 16) & 0xFF, 0);
+        byteout((k >> 8) & 0xFF, 0);
+        byteout((k & 0xFF), 0);
+        break;
       case GLOBALVAR_OT:
-	/* Global variable -- a constant address. */
-	k -= MAX_LOCAL_VARIABLES;
-	if (0) {
-	  /* We could write the value as a marker and patch it later... */
-	  j = 7;
-	  byteout(((k) >> 24) & 0xFF, VARIABLE_MV);
-	  byteout(((k) >> 16) & 0xFF, 0);
-	  byteout(((k) >> 8) & 0xFF, 0);
-	  byteout(((k) & 0xFF), 0);
-	}
-	else {
-	  /* ...but it's more efficient to write it as a RAM operand,
-	     which can be 1, 2, or 4 bytes. Remember that global variables
-	     are the very first thing in RAM. */
-	  k = k * 4; /* each variable is four bytes */
-	  if (k <= 255) {
-	    j = 13;
-	    byteout(((k) & 0xFF), 0);
-	  }
-	  else if (k <= 65535) {
-	    j = 14;
-	    byteout(((k) >> 8) & 0xFF, 0);
-	    byteout(((k) & 0xFF), 0);
-	  }
-	  else {
-	    j = 15;
-	    byteout(((k) >> 24) & 0xFF, 0);
-	    byteout(((k) >> 16) & 0xFF, 0);
-	    byteout(((k) >> 8) & 0xFF, 0);
-	    byteout(((k) & 0xFF), 0);	    
-	  }
-	}
-	break;
+        /* Global variable -- a constant address. */
+        k -= MAX_LOCAL_VARIABLES;
+        if (0) {
+            /* We could write the value as a marker and patch it later... */
+            j = 7;
+            byteout(((k) >> 24) & 0xFF, VARIABLE_MV);
+            byteout(((k) >> 16) & 0xFF, 0);
+            byteout(((k) >> 8) & 0xFF, 0);
+            byteout(((k) & 0xFF), 0);
+        }
+        else {
+            /* ...but it's more efficient to write it as a RAM operand,
+                  which can be 1, 2, or 4 bytes. Remember that global variables
+                  are the very first thing in RAM. */
+            k = k * 4; /* each variable is four bytes */
+            if (k <= 255) {
+                j = 13;
+                byteout(((k) & 0xFF), 0);
+            }
+            else if (k <= 65535) {
+                j = 14;
+                byteout(((k) >> 8) & 0xFF, 0);
+                byteout(((k) & 0xFF), 0);
+            }
+            else {
+                j = 15;
+                byteout(((k) >> 24) & 0xFF, 0);
+                byteout(((k) >> 16) & 0xFF, 0);
+                byteout(((k) >> 8) & 0xFF, 0);
+                byteout(((k) & 0xFF), 0);       
+            }
+        }
+        break;
       case LOCALVAR_OT:
-	if (k == 0) {
-	  /* Stack-pointer magic variable */
-	  j = 8; 
-	}
-	else {
-	  /* Local variable -- a byte or short offset from the
-	     frame pointer. It's an unsigned offset, so we can
-	     fit up to long 63 (offset 4*63) in a byte. */
-	  if ((k-1) < 64) {
-	    j = 9;
-	    byteout((k-1)*4, 0);
-	  }
-	  else {
-	    j = 10;
-	    byteout((((k-1)*4) >> 8) & 0xFF, 0);
-	    byteout(((k-1)*4) & 0xFF, 0);
-	  }
-	}
-	break;
+        if (k == 0) {
+            /* Stack-pointer magic variable */
+            j = 8; 
+        }
+        else {
+            /* Local variable -- a byte or short offset from the
+               frame pointer. It's an unsigned offset, so we can
+               fit up to long 63 (offset 4*63) in a byte. */
+            if ((k-1) < 64) {
+                j = 9;
+                byteout((k-1)*4, 0);
+            }
+            else {
+                j = 10;
+                byteout((((k-1)*4) >> 8) & 0xFF, 0);
+                byteout(((k-1)*4) & 0xFF, 0);
+            }
+        }
+        break;
       default:
-	j = 0;
-	break;
+        j = 0;
+        break;
       }
 
       if (ix & 1)
-	j = (j << 4);
+          j = (j << 4);
       opmodes_pc[ix/2] |= j;
     }
-
-    Instruction_Done:
 
     /* Print assembly trace. */
     if ((asm_trace_level > 0) && (veneer_mode == FALSE)) {
       int i;
       printf("%5d  +%05lx %3s %-12s ", ErrorReport.line_number,
-	((long int) offset),
-	(at_seq_point)?"<*>":"   ", opco.name);
+        ((long int) offset),
+        (at_seq_point)?"<*>":"   ", opco.name);
       for (i=0; i<AI->operand_count; i++) {
-	if ((opco.flags & Br) && (i == opco.no-1)) {
-	  if (AI->operand[i].value == -4)
-	    printf("to rtrue");
-	  else if (AI->operand[i].value == -3)
-	    printf("to rfalse");
-	  else
-	    printf("to L%d", AI->operand[i].value);
-	}
-	else {
-	  print_operand_g(AI->operand[i]);
-	}
-	printf(" ");
+          if ((opco.flags & Br) && (i == opco.no-1)) {
+            if (AI->operand[i].value == -4)
+                printf("to rtrue");
+            else if (AI->operand[i].value == -3)
+                printf("to rfalse");
+            else
+                printf("to L%d", AI->operand[i].value);
+            }
+          else {
+            print_operand_g(AI->operand[i]);
+          }
+          printf(" ");
       }
 
       if (asm_trace_level>=2) {
-	for (j=0;
-	     start_pc<zcode_holding_area + zcode_ha_size;
-	     j++, start_pc++) {
-	  if (j%16==0) printf("\n                               ");
-	  if (0) {
-	    printf("%02x ", *start_pc);
-	  }
-	  else {
-	    printf("%02x", *start_pc);
-	    if (zcode_markers[start_pc-zcode_holding_area])
-	      printf("{%02x}", zcode_markers[start_pc-zcode_holding_area]);
-	    printf(" ");
-	  }
-	}
+        for (j=0;
+            start_pc<zcode_holding_area + zcode_ha_size;
+            j++, start_pc++) {
+            if (j%16==0) printf("\n                               ");
+            if (0) {
+                printf("%02x ", *start_pc);
+            }
+            else {
+                printf("%02x", *start_pc);
+                if (zcode_markers[start_pc-zcode_holding_area])
+                    printf("{%02x}", zcode_markers[start_pc-zcode_holding_area]);
+                printf(" ");
+            }
+        }
       }
       printf("\n");
     }
@@ -1291,7 +1292,7 @@ extern int32 assemble_routine_header(int no_locals,
     if (!glulx_mode) {
 
       if (stackargs) 
-	warning("Z-code does not support stack-argument function definitions.");
+        warning("Z-code does not support stack-argument function definitions.");
 
       byteout(no_locals, 0);
 
@@ -1311,45 +1312,45 @@ extern int32 assemble_routine_header(int no_locals,
       {   char fnt[80]; assembly_operand PV, RFA, CON, STP, SLF; int ln, ln2;
 
           ln = next_label++;
-	  ln2 = next_label++;
+          ln2 = next_label++;
 
-	  if (define_INFIX_switch)
-	  {
-              if (embedded_flag)
-	      {   SLF.value = 251; SLF.type = VARIABLE_OT; SLF.marker = 0;
-	          CON.value = 0; CON.type = SHORT_CONSTANT_OT; CON.marker = 0;
-		  assemblez_2_branch(test_attr_zc, SLF, CON, ln2, FALSE);
-	      }
-	      else
-	      {   i = no_named_routines++;
-	          named_routine_symbols[i] = the_symbol;
-		  CON.value = i/8; CON.type = LONG_CONSTANT_OT; CON.marker = 0;
-		  RFA.value = routine_flags_array_SC;
-		  RFA.type = LONG_CONSTANT_OT; RFA.marker = INCON_MV;
-		  STP.value = 0; STP.type = VARIABLE_OT; STP.marker = 0;
-		  assemblez_2_to(loadb_zc, RFA, CON, STP);
-		  CON.value = (1 << (i%8)); CON.type = SHORT_CONSTANT_OT;
-		  assemblez_2_to(and_zc, STP, CON, STP);
-		  assemblez_1_branch(jz_zc, STP, ln2, TRUE);
-	      }
-	  }
-	  sprintf(fnt, "[ %s(", name);
-	  AI.text = fnt; assemblez_0(print_zc);
-	  for (i=1; (i<=7)&&(i<=no_locals); i++)
-	  {   if (version_number >= 5)
-              {   PV.type = SHORT_CONSTANT_OT;
-	          PV.value = i; PV.marker = 0;
-		  assemblez_1_branch(check_arg_count_zc, PV, ln, FALSE);
-	      }
-	      sprintf(fnt, "%s%s = ", (i==1)?"":", ", variable_name(i));
-	      AI.text = fnt; assemblez_0(print_zc);
-	      PV.type = VARIABLE_OT; PV.value = i; PV.marker = 0;
-	      assemblez_1(print_num_zc, PV);
-	  }
-	  assemble_label_no(ln);
-	  sprintf(fnt, ") ]^"); AI.text = fnt;
-	  assemblez_0(print_zc);
-	  assemble_label_no(ln2);
+          if (define_INFIX_switch)
+          {
+                if (embedded_flag)
+            {   SLF.value = 251; SLF.type = VARIABLE_OT; SLF.marker = 0;
+                  CON.value = 0; CON.type = SHORT_CONSTANT_OT; CON.marker = 0;
+                assemblez_2_branch(test_attr_zc, SLF, CON, ln2, FALSE);
+            }
+            else
+            {   i = no_named_routines++;
+                  named_routine_symbols[i] = the_symbol;
+                CON.value = i/8; CON.type = LONG_CONSTANT_OT; CON.marker = 0;
+                RFA.value = routine_flags_array_SC;
+                RFA.type = LONG_CONSTANT_OT; RFA.marker = INCON_MV;
+                STP.value = 0; STP.type = VARIABLE_OT; STP.marker = 0;
+                assemblez_2_to(loadb_zc, RFA, CON, STP);
+                CON.value = (1 << (i%8)); CON.type = SHORT_CONSTANT_OT;
+                assemblez_2_to(and_zc, STP, CON, STP);
+                assemblez_1_branch(jz_zc, STP, ln2, TRUE);
+            }
+        }
+        sprintf(fnt, "[ %s(", name);
+        AI.text = fnt; assemblez_0(print_zc);
+        for (i=1; (i<=7)&&(i<=no_locals); i++)
+        {   if (version_number >= 5)
+            {   PV.type = SHORT_CONSTANT_OT;
+                PV.value = i; PV.marker = 0;
+                assemblez_1_branch(check_arg_count_zc, PV, ln, FALSE);
+            }
+            sprintf(fnt, "%s%s = ", (i==1)?"":", ", variable_name(i));
+            AI.text = fnt; assemblez_0(print_zc);
+            PV.type = VARIABLE_OT; PV.value = i; PV.marker = 0;
+            assemblez_1(print_num_zc, PV);
+        }
+        assemble_label_no(ln);
+        sprintf(fnt, ") ]^"); AI.text = fnt;
+        assemblez_0(print_zc);
+        assemble_label_no(ln2);
       }
 
     }
@@ -1357,42 +1358,42 @@ extern int32 assemble_routine_header(int no_locals,
       rv = zmachine_pc;
 
       if (stackargs)
-	byteout(0xC0, 0); /* Glulx type byte for function */
+        byteout(0xC0, 0); /* Glulx type byte for function */
       else
-	byteout(0xC1, 0); /* Glulx type byte for function */
+        byteout(0xC1, 0); /* Glulx type byte for function */
 
       /* Now the locals format list. This is simple; we only use
-	 four-byte locals. That's a single pair, unless we have more
-	 than 255 locals, or none at all. */
+        four-byte locals. That's a single pair, unless we have more
+        than 255 locals, or none at all. */
       i = no_locals;
       while (i) {
-	int j = i;
-	if (j > 255)
-	  j = 255;
-	byteout(4, 0); 
-	byteout(j, 0);
-	i -= j;
+        int j = i;
+        if (j > 255)
+          j = 255;
+        byteout(4, 0); 
+        byteout(j, 0);
+        i -= j;
       }
       /* Terminate the list with a (0, 0) pair. */
       byteout(0, 0);
       byteout(0, 0);
 
       if (stackargs) {
-	/* The top stack value is the number of function arguments. Let's
-	   move that into the first local, which is _vararg_count. */
-	/* @copy sp _vararg_count; */
-	byteout(0x40, 0); byteout(0x98, 0); byteout(0x00, 0);
+        /* The top stack value is the number of function arguments. Let's
+           move that into the first local, which is _vararg_count. */
+        /* @copy sp _vararg_count; */
+        byteout(0x40, 0); byteout(0x98, 0); byteout(0x00, 0);
       }
 
       next_label = 0; next_sequence_point = 0; last_label = -1; 
 
       if (define_INFIX_switch) {
-	if (embedded_flag) {
-	}
-	else {
-	  i = no_named_routines++;
-	  named_routine_symbols[i] = the_symbol;
-	}
+        if (embedded_flag) {
+        }
+        else {
+            i = no_named_routines++;
+            named_routine_symbols[i] = the_symbol;
+        }
       }
     }
 
@@ -1416,12 +1417,12 @@ void assemble_routine_end(int embedded_flag, dbgl *line_ref)
                       else assemblez_0(rtrue_zc);
       }
       else {
-	assembly_operand AO;
-	if (embedded_flag) 
-	  AO = zero_operand;
-	else 
-	  AO = one_operand;
-	assembleg_1(return_gc, AO);
+        assembly_operand AO;
+        if (embedded_flag) 
+            AO = zero_operand;
+        else 
+            AO = one_operand;
+        assembleg_1(return_gc, AO);
       }
     }
 
@@ -1529,7 +1530,7 @@ static void transfer_routine_z(void)
     {   if (zcode_markers[i] == BRANCH_MV)
         {   if (asm_trace_level >= 4)
                 printf("Branch detected at offset %04x\n", pc);
-            j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x3ff;
+            j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x7fff;
             if (asm_trace_level >= 4)
                 printf("To label %d, which is %d from here\n",
                     j, label_offsets[j]-pc);
@@ -1578,11 +1579,13 @@ static void transfer_routine_z(void)
         { case BRANCH_MV:
             long_form = 1; if (zcode_markers[i+1] == DELETED_MV) long_form = 0;
 
-            j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x3ff;
+            j = (256*zcode_holding_area[i] + zcode_holding_area[i+1]) & 0x7fff;
             branch_on_true = ((zcode_holding_area[i]) & 0x80);
             offset_of_next = new_pc + long_form + 1;
 
             addr = label_offsets[j] - offset_of_next + 2;
+            if (addr<-0x2000 || addr>0x1fff) 
+                fatalerror("Branch out of range: divide the routine up?");
             if (addr<0) addr+=(int32) 0x10000L;
 
             addr=addr&0x3fff;
@@ -1603,6 +1606,8 @@ static void transfer_routine_z(void)
           case LABEL_MV:
             j = 256*zcode_holding_area[i] + zcode_holding_area[i+1];
             addr = label_offsets[j] - new_pc;
+            if (addr<-0x8000 || addr>0x7fff) 
+                fatalerror("Jump out of range: divide the routine up?");
             if (addr<0) addr += (int32) 0x10000L;
             zcode_holding_area[i] = addr/256;
             zcode_holding_area[i+1] = addr%256;
@@ -1652,7 +1657,6 @@ static void transfer_routine_z(void)
 
     {   uchar zero[1];
         zero[0] = 0;
-        while ((adjusted_pc%scale_factor)!=0) transfer_byte(zero);
         if (oddeven_packing_switch)
             while ((adjusted_pc%(scale_factor*2))!=0) transfer_byte(zero);
         else
@@ -1665,7 +1669,7 @@ static void transfer_routine_z(void)
 
 static void transfer_routine_g(void)
 {   int32 i, j, pc, new_pc, label, form_len, offset_of_next, addr,
-          branch_on_true, rstart_pc;
+          rstart_pc;
     void (* transfer_byte)(uchar *);
 
     adjusted_pc = zmachine_pc - zcode_ha_size; rstart_pc = adjusted_pc;
@@ -1684,44 +1688,44 @@ static void transfer_routine_g(void)
 
     for (i=0, pc=adjusted_pc; i<zcode_ha_size; i++, pc++) {
       if (zcode_markers[i] >= BRANCH_MV && zcode_markers[i] < BRANCHMAX_MV) {
-	int opmodeoffset = (zcode_markers[i] - BRANCH_MV);
-	int32 opmodebyte;
-	if (asm_trace_level >= 4)
-	  printf("Branch detected at offset %04x\n", pc);
-	j = ((zcode_holding_area[i] << 24) 
-	  | (zcode_holding_area[i+1] << 16)
-	  | (zcode_holding_area[i+2] << 8)
-	  | (zcode_holding_area[i+3]));
-	offset_of_next = pc + 4;
-	addr = (label_offsets[j] - offset_of_next) + 2;
-	if (asm_trace_level >= 4)
-	  printf("To label %d, which is (%d-2) = %d from here\n",
-	    j, addr, label_offsets[j] - offset_of_next);
-	if (addr >= -0x80 && addr < 0x80) {
-	  if (asm_trace_level >= 4) printf("...Byte form\n");
-	  zcode_markers[i+1] = DELETED_MV;
-	  zcode_markers[i+2] = DELETED_MV;
-	  zcode_markers[i+3] = DELETED_MV;
-	  opmodebyte = i - ((opmodeoffset+1)/2);
-	  if ((opmodeoffset & 1) == 0)
-	    zcode_holding_area[opmodebyte] = 
-	      (zcode_holding_area[opmodebyte] & 0xF0) | 0x01;
-	  else
-	    zcode_holding_area[opmodebyte] = 
-	      (zcode_holding_area[opmodebyte] & 0x0F) | 0x10;
-	}
-	else if (addr >= -0x8000 && addr < 0x8000) {
-	  if (asm_trace_level >= 4) printf("...Short form\n");
-	  zcode_markers[i+2] = DELETED_MV;
-	  zcode_markers[i+3] = DELETED_MV;
-	  opmodebyte = i - ((opmodeoffset+1)/2);
-	  if ((opmodeoffset & 1) == 0)
-	    zcode_holding_area[opmodebyte] = 
-	      (zcode_holding_area[opmodebyte] & 0xF0) | 0x02;
-	  else
-	    zcode_holding_area[opmodebyte] = 
-	      (zcode_holding_area[opmodebyte] & 0x0F) | 0x20;
-	}
+        int opmodeoffset = (zcode_markers[i] - BRANCH_MV);
+        int32 opmodebyte;
+        if (asm_trace_level >= 4)
+            printf("Branch detected at offset %04x\n", pc);
+        j = ((zcode_holding_area[i] << 24) 
+            | (zcode_holding_area[i+1] << 16)
+            | (zcode_holding_area[i+2] << 8)
+            | (zcode_holding_area[i+3]));
+        offset_of_next = pc + 4;
+        addr = (label_offsets[j] - offset_of_next) + 2;
+        if (asm_trace_level >= 4)
+            printf("To label %d, which is (%d-2) = %d from here\n",
+                j, addr, label_offsets[j] - offset_of_next);
+        if (addr >= -0x80 && addr < 0x80) {
+            if (asm_trace_level >= 4) printf("...Byte form\n");
+            zcode_markers[i+1] = DELETED_MV;
+            zcode_markers[i+2] = DELETED_MV;
+            zcode_markers[i+3] = DELETED_MV;
+            opmodebyte = i - ((opmodeoffset+1)/2);
+            if ((opmodeoffset & 1) == 0)
+                zcode_holding_area[opmodebyte] = 
+                    (zcode_holding_area[opmodebyte] & 0xF0) | 0x01;
+            else
+                zcode_holding_area[opmodebyte] = 
+                    (zcode_holding_area[opmodebyte] & 0x0F) | 0x10;
+        }
+        else if (addr >= -0x8000 && addr < 0x8000) {
+            if (asm_trace_level >= 4) printf("...Short form\n");
+            zcode_markers[i+2] = DELETED_MV;
+            zcode_markers[i+3] = DELETED_MV;
+            opmodebyte = i - ((opmodeoffset+1)/2);
+            if ((opmodeoffset & 1) == 0)
+                zcode_holding_area[opmodebyte] = 
+                    (zcode_holding_area[opmodebyte] & 0xF0) | 0x02;
+            else
+                zcode_holding_area[opmodebyte] = 
+                    (zcode_holding_area[opmodebyte] & 0x0F) | 0x20;
+        }
       }
     }
 
@@ -1734,23 +1738,23 @@ static void transfer_routine_g(void)
             a previous optimisation).  However, this is acceptably uncommon. */
     if (next_label > 0) {
       if (asm_trace_level >= 4) {
-	printf("Opening label: %d\n", first_label);
-	for (i=0;i<next_label;i++)
-	  printf("Label %d offset %04x next -> %d previous -> %d\n",
-	    i, label_offsets[i], label_next[i], label_prev[i]);
+        printf("Opening label: %d\n", first_label);
+        for (i=0;i<next_label;i++)
+            printf("Label %d offset %04x next -> %d previous -> %d\n",
+                i, label_offsets[i], label_next[i], label_prev[i]);
       }
 
       for (i=0, pc=adjusted_pc, new_pc=adjusted_pc, label = first_label;
-	   i<zcode_ha_size; 
-	   i++, pc++) {
-	while ((label != -1) && (label_offsets[label] == pc)) {
-	  if (asm_trace_level >= 4)
-	    printf("Position of L%d corrected from %04x to %04x\n",
-	      label, label_offsets[label], new_pc);
-	  label_offsets[label] = new_pc;
-	  label = label_next[label];
-	}
-	if (zcode_markers[i] != DELETED_MV) new_pc++;
+        i<zcode_ha_size; 
+        i++, pc++) {
+        while ((label != -1) && (label_offsets[label] == pc)) {
+            if (asm_trace_level >= 4)
+                printf("Position of L%d corrected from %04x to %04x\n",
+                label, label_offsets[label], new_pc);
+            label_offsets[label] = new_pc;
+            label = label_next[label];
+        }
+        if (zcode_markers[i] != DELETED_MV) new_pc++;
       }
     }
 
@@ -1761,95 +1765,95 @@ static void transfer_routine_g(void)
     for (i=0, new_pc=adjusted_pc; i<zcode_ha_size; i++) {
 
       if (zcode_markers[i] >= BRANCH_MV && zcode_markers[i] < BRANCHMAX_MV) {
-	form_len = 4;
-	if (zcode_markers[i+1] == DELETED_MV) {
-	  form_len = 1;
-	}
-	else {
-	  if (zcode_markers[i+2] == DELETED_MV)
-	    form_len = 2;
-	}
-	j = ((zcode_holding_area[i] << 24) 
-	  | (zcode_holding_area[i+1] << 16)
-	  | (zcode_holding_area[i+2] << 8)
-	  | (zcode_holding_area[i+3]));
+        form_len = 4;
+        if (zcode_markers[i+1] == DELETED_MV) {
+            form_len = 1;
+        }
+        else {
+            if (zcode_markers[i+2] == DELETED_MV)
+                form_len = 2;
+        }
+        j = ((zcode_holding_area[i] << 24) 
+            | (zcode_holding_area[i+1] << 16)
+            | (zcode_holding_area[i+2] << 8)
+            | (zcode_holding_area[i+3]));
 
-	/* At the moment, we can safely assume that the branch operand
-	   is the end of the opcode, so the next opcode starts right
-	   after it. */
-	offset_of_next = new_pc + form_len;
+        /* At the moment, we can safely assume that the branch operand
+           is the end of the opcode, so the next opcode starts right
+           after it. */
+        offset_of_next = new_pc + form_len;
 
-	addr = (label_offsets[j] - offset_of_next) + 2;
-	if (asm_trace_level >= 4) {
-	  printf("Branch at offset %04x: %04x (%s)\n",
-	    new_pc, addr, ((form_len == 1) ? "byte" :
-	      ((form_len == 2) ? "short" : "long")));
-	}
-	if (form_len == 1) {
-	  if (addr < -0x80 && addr >= 0x80) {
-	    error("*** Label out of range for byte branch ***");
-	  }
-	  zcode_holding_area[i] = (addr) & 0xFF;
-	}
-	else if (form_len == 2) {
-	  if (addr < -0x8000 && addr >= 0x8000) {
-	    error("*** Label out of range for short branch ***");
-	  }
-	  zcode_holding_area[i] = (addr >> 8) & 0xFF;
-	  zcode_holding_area[i+1] = (addr) & 0xFF;
-	}
-	else {
-	  zcode_holding_area[i] = (addr >> 24) & 0xFF;
-	  zcode_holding_area[i+1] = (addr >> 16) & 0xFF;
-	  zcode_holding_area[i+2] = (addr >> 8) & 0xFF;
-	  zcode_holding_area[i+3] = (addr) & 0xFF;
-	}
-	transfer_byte(zcode_holding_area + i); new_pc++;
+        addr = (label_offsets[j] - offset_of_next) + 2;
+        if (asm_trace_level >= 4) {
+            printf("Branch at offset %04x: %04x (%s)\n",
+                new_pc, addr, ((form_len == 1) ? "byte" :
+                ((form_len == 2) ? "short" : "long")));
+        }
+        if (form_len == 1) {
+            if (addr < -0x80 && addr >= 0x80) {
+                error("*** Label out of range for byte branch ***");
+            }
+        zcode_holding_area[i] = (addr) & 0xFF;
+        }
+        else if (form_len == 2) {
+            if (addr < -0x8000 && addr >= 0x8000) {
+                error("*** Label out of range for short branch ***");
+            }
+            zcode_holding_area[i] = (addr >> 8) & 0xFF;
+            zcode_holding_area[i+1] = (addr) & 0xFF;
+        }
+        else {
+            zcode_holding_area[i] = (addr >> 24) & 0xFF;
+            zcode_holding_area[i+1] = (addr >> 16) & 0xFF;
+            zcode_holding_area[i+2] = (addr >> 8) & 0xFF;
+            zcode_holding_area[i+3] = (addr) & 0xFF;
+        }
+        transfer_byte(zcode_holding_area + i); new_pc++;
       }
       else if (zcode_markers[i] == LABEL_MV) {
-	error("*** No LABEL opcodes in Glulx ***");
+          error("*** No LABEL opcodes in Glulx ***");
       }
       else if (zcode_markers[i] == DELETED_MV) {
-	/* skip it */
+        /* skip it */
       }
       else {
-	switch(zcode_markers[i] & 0x7f) {
-	case NULL_MV: 
-	  break;
-	case ACTION_MV:
-	case IDENT_MV:
-	  if (!module_switch) break;
-	case OBJECT_MV:
-	case VARIABLE_MV:
-	default:
-	  if ((zcode_markers[i] & 0x7f) > LARGEST_BPATCH_MV) {
-	    error("*** Illegal code backpatch value ***");
-	    printf("Illegal value of %02x at PC = %04x\n",
-	      zcode_markers[i] & 0x7f, new_pc);
-	    break;
-	  }
-	  /* The backpatch table format for Glulx:
-	     First, the marker byte (0..LARGEST_BPATCH_MV).
-	     Then a byte indicating the data size to be patched (1, 2, 4).
-	     Then the four-byte address (new_pc).
-	  */
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++,
-	    zcode_markers[i]);
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++,
-	    4);
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++, ((new_pc >> 24) & 0xFF));
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++, ((new_pc >> 16) & 0xFF));
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++, ((new_pc >> 8) & 0xFF));
-	  write_byte_to_memory_block(&zcode_backpatch_table,
-	    zcode_backpatch_size++, (new_pc & 0xFF));
-	  break;
-	}
-	transfer_byte(zcode_holding_area + i); new_pc++;
+        switch(zcode_markers[i] & 0x7f) {
+        case NULL_MV: 
+            break;
+        case ACTION_MV:
+        case IDENT_MV:
+            if (!module_switch) break;
+        case OBJECT_MV:
+        case VARIABLE_MV:
+        default:
+            if ((zcode_markers[i] & 0x7f) > LARGEST_BPATCH_MV) {
+                error("*** Illegal code backpatch value ***");
+                printf("Illegal value of %02x at PC = %04x\n",
+                zcode_markers[i] & 0x7f, new_pc);
+                break;
+            }
+          /* The backpatch table format for Glulx:
+             First, the marker byte (0..LARGEST_BPATCH_MV).
+             Then a byte indicating the data size to be patched (1, 2, 4).
+             Then the four-byte address (new_pc).
+          */
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++,
+            zcode_markers[i]);
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++,
+            4);
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++, ((new_pc >> 24) & 0xFF));
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++, ((new_pc >> 16) & 0xFF));
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++, ((new_pc >> 8) & 0xFF));
+          write_byte_to_memory_block(&zcode_backpatch_table,
+            zcode_backpatch_size++, (new_pc & 0xFF));
+          break;
+        }
+        transfer_byte(zcode_holding_area + i); new_pc++;
       }
     }
 
@@ -2212,6 +2216,31 @@ void assembleg_3(int internal_number, assembly_operand o1,
     assembleg_instruction(&AI);
 }
 
+void assembleg_4(int internal_number, assembly_operand o1,
+  assembly_operand o2, assembly_operand o3,
+  assembly_operand o4)
+{   AI.internal_number = internal_number;
+    AI.operand_count = 4;
+    AI.operand[0] = o1;
+    AI.operand[1] = o2;
+    AI.operand[2] = o3;
+    AI.operand[3] = o4;
+    assembleg_instruction(&AI);
+}
+
+void assembleg_5(int internal_number, assembly_operand o1,
+  assembly_operand o2, assembly_operand o3,
+  assembly_operand o4, assembly_operand o5)
+{   AI.internal_number = internal_number;
+    AI.operand_count = 5;
+    AI.operand[0] = o1;
+    AI.operand[1] = o2;
+    AI.operand[2] = o3;
+    AI.operand[3] = o4;
+    AI.operand[4] = o5;
+    assembleg_instruction(&AI);
+}
+
 void assembleg_0_branch(int internal_number,
     int label)
 {
@@ -2230,18 +2259,18 @@ void assembleg_1_branch(int internal_number,
        to zero. */
     if (o1.marker == 0 && is_constant_ot(o1.type)) {
         if ((internal_number == jz_gc && o1.value == 0)
-	  || (internal_number == jnz_gc && o1.value != 0)) {
-	    assembleg_0_branch(jump_gc, label);
-	    /* We clear the "can't reach statement" flag here, 
-	       so that "if (1)" doesn't produce that warning. */
-	    execution_never_reaches_here = 0;
-	    return;
-	}
-	if ((internal_number == jz_gc && o1.value != 0)
-	  || (internal_number == jnz_gc && o1.value == 0)) {
-	    /* assemble nothing at all! */
-	    return;
-	}
+          || (internal_number == jnz_gc && o1.value != 0)) {
+            assembleg_0_branch(jump_gc, label);
+            /* We clear the "can't reach statement" flag here, 
+               so that "if (1)" doesn't produce that warning. */
+            execution_never_reaches_here = 0;
+            return;
+        }
+        if ((internal_number == jz_gc && o1.value != 0)
+          || (internal_number == jnz_gc && o1.value == 0)) {
+            /* assemble nothing at all! */
+            return;
+        }
     }
     AI.internal_number = internal_number;
     AI.operand_count = 2;
@@ -2268,20 +2297,21 @@ void assembleg_2_branch(int internal_number,
 void assembleg_call_1(assembly_operand oaddr, assembly_operand o1, 
   assembly_operand odest)
 {
-  /* Copy argument to stack ptr, unless it's already there. */
+  assembleg_3(callfi_gc, oaddr, o1, odest);
+  /* Copy argument to stack ptr, unless it's already there. 
   if (!(o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0)) {
     assembleg_2(copy_gc, o1, stack_pointer);
   }
-  assembleg_3(call_gc, oaddr, one_operand, odest);
+  assembleg_3(call_gc, oaddr, one_operand, odest); */
 }
 
 void assembleg_call_2(assembly_operand oaddr, assembly_operand o1, 
   assembly_operand o2, assembly_operand odest)
 {
-  /* Copy arguments to stack ptr, unless they're already there. */
+  assembleg_4(callfii_gc, oaddr, o1, o2, odest);
+  /* Copy arguments to stack ptr, unless they're already there. 
   if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
     if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
-      /* both already there. */
     }
     else {
       assembleg_2(copy_gc, o2, stack_pointer);
@@ -2297,32 +2327,33 @@ void assembleg_call_2(assembly_operand oaddr, assembly_operand o1,
       assembleg_2(copy_gc, o1, stack_pointer);
     }
   }
-  assembleg_3(call_gc, oaddr, two_operand, odest);
+  assembleg_3(call_gc, oaddr, two_operand, odest); */
 }
 
 void assembleg_call_3(assembly_operand oaddr, assembly_operand o1, 
   assembly_operand o2, assembly_operand o3, assembly_operand odest)
 {
-  /* Copy arguments to stack ptr, unless they're already there. */
+  assembleg_5(callfiii_gc, oaddr, o1, o2, o3, odest);
+  /* Copy arguments to stack ptr, unless they're already there. 
   if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
     if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
       if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-	/* all already there. */
+    // all already there. 
       }
       else {
-	assembleg_2(copy_gc, o3, stack_pointer);
-	assembleg_2(stkroll_gc, three_operand, one_operand);
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_2(stkroll_gc, three_operand, one_operand);
       }
     }
     else {
       if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-	assembleg_2(copy_gc, o2, stack_pointer);
-	assembleg_0(stkswap_gc);
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_0(stkswap_gc);
       }
       else {
-	assembleg_2(copy_gc, o3, stack_pointer);
-	assembleg_0(stkswap_gc);
-	assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_0(stkswap_gc);
+    assembleg_2(copy_gc, o2, stack_pointer);
         assembleg_0(stkswap_gc);
       }
     }
@@ -2330,28 +2361,28 @@ void assembleg_call_3(assembly_operand oaddr, assembly_operand o1,
   else {
     if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
       if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-	assembleg_2(copy_gc, o1, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
       }
       else {
-	assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_2(copy_gc, o3, stack_pointer);
         assembleg_0(stkswap_gc);
-	assembleg_2(copy_gc, o1, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
       }
     }
     else {
       if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
-	assembleg_2(copy_gc, o2, stack_pointer);
-	assembleg_2(copy_gc, o1, stack_pointer);
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
       }
       else {
-	assembleg_2(copy_gc, o3, stack_pointer);
-	assembleg_2(copy_gc, o2, stack_pointer);
-	assembleg_2(copy_gc, o1, stack_pointer);
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
       }
     }
   }
 
-  assembleg_3(call_gc, oaddr, three_operand, odest);
+  assembleg_3(call_gc, oaddr, three_operand, odest); */
 }
 
 void assembleg_inc(assembly_operand o1)
@@ -2699,7 +2730,6 @@ static void parse_assembly_g(void)
   opcodeg O;
   assembly_operand AO;
   int error_flag = FALSE;
-  int n;
 
   AI.operand_count = 0;
 
@@ -2738,9 +2768,9 @@ static void parse_assembly_g(void)
 
     if ((O.flags & Br) && (AI.operand_count == O.no-1)) {
       if (!((token_type == SEP_TT) && (token_value == BRANCH_SEP))) {
-	error_flag = TRUE;
-	error("Branch opcode must have '?' label");
-	put_token_back();
+        error_flag = TRUE;
+        error("Branch opcode must have '?' label");
+        put_token_back();
       }
       AO.type = CONSTANT_OT;
       AO.value = parse_label();

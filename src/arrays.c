@@ -3,8 +3,8 @@
 /*               likewise global variables, which are in some ways a         */
 /*               simpler form of the same thing.                             */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -36,7 +36,7 @@ int no_globals;                        /* Number of global variables used
                                           uses the top seven -- but these do
                                           not count)                         */
                                        /* In Glulx, Inform uses the bottom 
-					  ten.                               */
+                                          ten.                               */
 
 int dynamic_array_area_size;           /* Size in bytes                      */
 
@@ -54,7 +54,7 @@ static int array_entry_size,           /* 1 for byte array, 2 for word array */
                                           different (by 2 and 1 bytes resp)  */
 
                                        /* In Glulx, of course, that will be
-					  4 instead of 2.                    */
+                                          4 instead of 2.                    */
 
 extern void finish_array(int32 i)
 {
@@ -63,7 +63,7 @@ extern void finish_array(int32 i)
   if (!glulx_mode) {
 
     if (array_base!=dynamic_array_area_size)
-    {   if (array_entry_size==2)
+    {   if (dynamic_array_area_size-array_base==2)
         {   dynamic_array_area[array_base]   = i/256;
             dynamic_array_area[array_base+1] = i%256;
         }
@@ -77,12 +77,12 @@ extern void finish_array(int32 i)
   }
   else {
     if (array_base!=dynamic_array_area_size)
-    {   if (array_entry_size==4)
+    {   if (dynamic_array_area_size-array_base==4)
         {   
-	    dynamic_array_area[array_base]   = (i >> 24) & 0xFF;
-	    dynamic_array_area[array_base+1] = (i >> 16) & 0xFF;
-	    dynamic_array_area[array_base+2] = (i >> 8) & 0xFF;
-	    dynamic_array_area[array_base+3] = (i) & 0xFF;
+            dynamic_array_area[array_base]   = (i >> 24) & 0xFF;
+            dynamic_array_area[array_base+1] = (i >> 16) & 0xFF;
+            dynamic_array_area[array_base+2] = (i >> 8) & 0xFF;
+            dynamic_array_area[array_base+3] = (i) & 0xFF;
         }
         else
         {   if (i>=256)
@@ -118,7 +118,7 @@ extern void array_entry(int32 i, assembly_operand VAL)
             and truncate the value                                           */
         else
         if (VAL.value >= 256)
-            warning("Entry in '->' or 'string' array not in range 0 to 255");
+            warning("Entry in '->', 'string' or 'buffer' array not in range 0 to 255");
     }
     else
     {   dynamic_array_area[dynamic_array_area_size + 2*i]   = (VAL.value)/256;
@@ -144,7 +144,7 @@ extern void array_entry(int32 i, assembly_operand VAL)
             and truncate the value                                           */
         else
         if (VAL.value >= 256)
-            warning("Entry in '->' or 'string' array not in range 0 to 255");
+            warning("Entry in '->', 'string' or 'buffer' array not in range 0 to 255");
     }
     else if (array_entry_size==4)
     {   dynamic_array_area[dynamic_array_area_size + 4*i]   = (VAL.value >> 24) & 0xFF;
@@ -210,12 +210,12 @@ extern void make_global(int array_flag, int name_only)
 
     if (!glulx_mode) {
         if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T)
-	    && (svals[i] >= LOWEST_SYSTEM_VAR_NUMBER))
-	    goto RedefinitionOfSystemVar;
+            && (svals[i] >= LOWEST_SYSTEM_VAR_NUMBER))
+            goto RedefinitionOfSystemVar;
     }
     else {
         if ((token_type==SYMBOL_TT) && (stypes[i]==GLOBAL_VARIABLE_T))
-	    goto RedefinitionOfSystemVar;
+            goto RedefinitionOfSystemVar;
     }
 
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
@@ -231,10 +231,10 @@ extern void make_global(int array_flag, int name_only)
     if (array_flag)
     {   
         if (!glulx_mode)
-	    assign_symbol(i, dynamic_array_area_size, ARRAY_T);
-	else
-	    assign_symbol(i, 
-	        dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES, ARRAY_T);
+            assign_symbol(i, dynamic_array_area_size, ARRAY_T);
+        else
+            assign_symbol(i, 
+                dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES, ARRAY_T);
         if (no_arrays == MAX_ARRAYS)
             memoryerror("MAX_ARRAYS", MAX_ARRAYS);
         array_symbols[no_arrays] = i;
@@ -247,7 +247,7 @@ extern void make_global(int array_flag, int name_only)
         }
         if (glulx_mode && no_globals==MAX_GLOBAL_VARIABLES)
         {   error_numbered("All global variables already declared; max is",
-	        MAX_GLOBAL_VARIABLES);
+                MAX_GLOBAL_VARIABLES);
             panic_mode_error_recovery();
             return;
         }
@@ -282,32 +282,32 @@ extern void make_global(int array_flag, int name_only)
     {
         if ((token_type == SEP_TT) && (token_value == SETEQUALS_SEP))
         {   AO = parse_expression(CONSTANT_CONTEXT);
-	    if (!glulx_mode) {
-	      if (AO.marker != 0)
-                backpatch_zmachine(AO.marker, DYNAMIC_ARRAY_ZA,
-		  2*(no_globals-1));
-	    }
-	    else {
-	      if (AO.marker != 0)
+            if (!glulx_mode) {
+                if (AO.marker != 0)
+                    backpatch_zmachine(AO.marker, DYNAMIC_ARRAY_ZA,
+                        2*(no_globals-1));
+            }
+            else {
+            if (AO.marker != 0)
                 backpatch_zmachine(AO.marker, GLOBALVAR_ZA,
-		  4*(no_globals-1));
-	    }
+                4*(no_globals-1));
+            }
             global_initial_value[no_globals-1] = AO.value;
             return;
         }
 
         obsolete_warning("more modern to use 'Array', not 'Global'");
 
-	if (!glulx_mode) {
-	  backpatch_zmachine(ARRAY_MV, DYNAMIC_ARRAY_ZA, 2*(no_globals-1));
-	  global_initial_value[no_globals-1]
-            = dynamic_array_area_size+variables_offset;
-	}
-	else {
-	  backpatch_zmachine(ARRAY_MV, GLOBALVAR_ZA, 4*(no_globals-1));
-	  global_initial_value[no_globals-1]
-            = dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES;
-	}
+        if (!glulx_mode) {
+            backpatch_zmachine(ARRAY_MV, DYNAMIC_ARRAY_ZA, 2*(no_globals-1));
+            global_initial_value[no_globals-1]
+                = dynamic_array_area_size+variables_offset;
+        }
+        else {
+            backpatch_zmachine(ARRAY_MV, GLOBALVAR_ZA, 4*(no_globals-1));
+            global_initial_value[no_globals-1]
+                = dynamic_array_area_size - 4*MAX_GLOBAL_VARIABLES;
+        }
     }
 
     array_type = BYTE_ARRAY; data_type = UNSPECIFIED_AI;
@@ -330,10 +330,12 @@ extern void make_global(int array_flag, int name_only)
              array_type = STRING_ARRAY;
     else if ((token_type==DIR_KEYWORD_TT)&&(token_value==TABLE_DK))
              array_type = TABLE_ARRAY;
+    else if ((token_type==DIR_KEYWORD_TT)&&(token_value==BUFFER_DK))
+             array_type = BUFFER_ARRAY;
     else {   if (array_flag)
-               ebf_error("'->', '-->', 'string' or 'table'", token_text);
+               ebf_error("'->', '-->', 'string', 'table' or 'buffer'", token_text);
              else
-               ebf_error("'=', '->', '-->', 'string' or 'table'", token_text);
+               ebf_error("'=', '->', '-->', 'string', 'table' or 'buffer'", token_text);
              panic_mode_error_recovery();
              return;
          }
@@ -374,6 +376,8 @@ extern void make_global(int array_flag, int name_only)
 
     if ((array_type==STRING_ARRAY) || (array_type==TABLE_ARRAY))
         dynamic_array_area_size += array_entry_size;
+    if (array_type==BUFFER_ARRAY)
+        dynamic_array_area_size += WORDSIZE;
     array_types[no_arrays] = array_type;
 
     switch(data_type)
@@ -389,18 +393,18 @@ extern void make_global(int array_flag, int name_only)
                 break;
             }
 
-	    if (!glulx_mode) {
-	        if ((AO.value <= 0) || (AO.value >= 32768))
-		{   error("An array must have between 1 and 32767 entries");
+            if (!glulx_mode) {
+                if ((AO.value <= 0) || (AO.value >= 32768))
+                {   error("An array must have between 1 and 32767 entries");
                     AO.value = 1;
-		}
-	    }
-	    else {
-	        if (AO.value <= 0 || (AO.value & 0x80000000))
+                }
+            }
+            else {
+                if (AO.value <= 0 || (AO.value & 0x80000000))
                 {   error("An array may not have 0 or fewer entries");
                     AO.value = 1;
-		}
-	    }
+                }
+            }
 
             {   for (i=0; i<AO.value; i++) array_entry(i, zero_operand);
             }
@@ -421,7 +425,7 @@ extern void make_global(int array_flag, int name_only)
                     && ((token_value == OPEN_SQUARE_SEP)
                         || (token_value == CLOSE_SQUARE_SEP)))
                 {   error(
-          "Missing ';' to end the initial array values before \"[\" or \"]\"");
+            "Missing ';' to end the initial array values before \"[\" or \"]\"");
                     return;
                 }
                 put_token_back();
@@ -456,10 +460,36 @@ extern void make_global(int array_flag, int name_only)
             }
 
             {   assembly_operand chars;
-		chars.marker = 0;
-                for (i=0; token_text[i]!=0; i++)
-                {   chars.value = token_text[i];
-		    set_constant_ot(&chars);
+
+                int j;
+                chars.marker = 0;
+                for (i=0,j=0; token_text[j]!=0; i++,j+=textual_form_length)
+                {
+                    int32 unicode; int zscii;
+                    unicode = text_to_unicode(token_text+j);
+                    if (glulx_mode)
+                    {
+                        if (unicode < 0 || unicode >= 256)
+                        {
+                            error("Unicode characters beyond Latin-1 are not yet supported in Glulx");
+                        }
+                        else
+                        {
+                            chars.value = unicode;
+                        }
+                    }
+                    else  /* Z-code */
+                    {                          
+                        zscii = unicode_to_zscii(unicode);
+                        if ((zscii != 5) && (zscii < 0x100)) chars.value = zscii;
+                        else
+                        {   unicode_char_error("Character can only be used if declared in \
+advance as part of 'Zcharacter table':", unicode);
+                            chars.value = '?';
+                        }
+                    }
+                    chars.marker = 0;
+                    set_constant_ot(&chars);
                     array_entry(i, chars);
                 }
             }
@@ -495,6 +525,7 @@ extern void make_global(int array_flag, int name_only)
     finish_array(i);
 
     if ((array_type==BYTE_ARRAY) || (array_type==WORD_ARRAY)) i--;
+    if (array_type==BUFFER_ARRAY) i+=WORDSIZE-1;
     array_sizes[no_arrays++] = i;
 }
 
@@ -545,7 +576,7 @@ extern void arrays_begin_pass(void)
     if (!glulx_mode)
         no_globals=0; 
     else
-        no_globals=10;
+        no_globals=11;
     dynamic_array_area_size = WORDSIZE * MAX_GLOBAL_VARIABLES;
 }
 

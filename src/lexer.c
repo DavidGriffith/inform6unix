@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "lexer" : Lexical analyser                                              */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -201,7 +201,7 @@ extern void describe_token(token_data t)
 }
 
 /* ------------------------------------------------------------------------- */
-/*   All but one of the 278 Inform keywords (116 of them opcode names used   */
+/*   All but one of the 280 Inform keywords (118 of them opcode names used   */
 /*   only by the assembler).  (The one left over is "sp", a keyword used in  */
 /*   assembly language only.)                                                */
 /*                                                                           */
@@ -243,7 +243,8 @@ static char *opcode_list_z[] = {
     "set_margins", "move_window", "window_size", "window_style",
     "get_wind_prop", "scroll_window", "pop_stack", "read_mouse",
     "mouse_window", "push_stack", "put_wind_prop", "print_form",
-    "make_menu", "picture_table", ""
+    "make_menu", "picture_table", "print_unicode", "check_unicode",
+    ""
 };
 
 static char *opcode_list_g[] = {
@@ -296,7 +297,7 @@ keyword_group directive_keywords =
     "noun", "held", "multi", "multiheld", "multiexcept",
     "multiinside", "creature", "special", "number", "scope", "topic",
     "reverse", "meta", "only", "replace", "first", "last",
-    "string", "table", "data", "initial", "initstr",
+    "string", "table", "buffer", "data", "initial", "initstr",
     "with", "private", "has", "class",
     "error", "fatalerror", "warning",
     "terminating",
@@ -307,7 +308,7 @@ keyword_group directive_keywords =
 keyword_group misc_keywords =
 { { "char", "name", "the", "a", "an", "The", "number",
     "roman", "reverse", "bold", "underline", "fixed", "on", "off",
-    "to", "address", "string", "object", "near", "from", "property", "" },
+    "to", "address", "string", "object", "near", "from", "property", "A", "" },
     MISC_KEYWORD_TT, FALSE, TRUE
 };
 
@@ -869,7 +870,7 @@ typedef struct Sourcefile_s
 {   char *buffer;                                /*  Input buffer            */
     int   read_pos;                              /*  Read position in buffer */
     int   size;                                  /*  Number of meaningful
-    	  					     characters in buffer    */
+                                                     characters in buffer    */
     int   la, la2, la3;                          /*  Three characters of
                                                      lookahead pipeline      */
     int   file_no;                               /*  Internal file number
@@ -877,7 +878,7 @@ typedef struct Sourcefile_s
     LexicalBlock LB;
 } Sourcefile;
 
-static Sourcefile FileStack[MAX_INCLUSION_DEPTH];
+static Sourcefile *FileStack;
 static int File_sp;                              /*  Stack pointer           */
 
 static Sourcefile *CF;                           /*  Top entry on stack      */
@@ -885,12 +886,10 @@ static Sourcefile *CF;                           /*  Top entry on stack      */
 static int last_no_files;
 
 static void begin_buffering_file(int i, int file_no)
-{   uchar *p;
+{   int j, cnt; uchar *p;
 
     if (i >= MAX_INCLUSION_DEPTH) 
-    {  fatalerror("Too many nested Includes");
-       /* ###-bugfix */
-    }
+       memoryerror("MAX_INCLUSION_DEPTH",MAX_INCLUSION_DEPTH);
 
     p = (uchar *) FileStack[i].buffer;
 
@@ -919,6 +918,16 @@ static void begin_buffering_file(int i, int file_no)
 
     CurrentLB = &(FileStack[i].LB);
     CF = &(FileStack[i]);
+
+    /* Check for recursive inclusion */
+    cnt = 0;
+    for (j=0; j<i; j++)
+    {   if (!strcmp(FileStack[i].LB.filename, FileStack[j].LB.filename))
+            cnt++;
+    }
+    if (cnt==1)
+        warning_named("File included more than once",
+            FileStack[j].LB.filename);
 }
 
 static void create_char_pipeline(void)
@@ -1128,7 +1137,7 @@ extern void get_next_token(void)
             quoted_size=0;
             do
             {   e = d; d = (*get_next_char)(); *lex_p++ = d;
-                if (quoted_size++==54)
+                if (quoted_size++==64)
                 {   error(
                     "Too much text for one pair of quotations '...' to hold");
                     *lex_p='\''; break;
@@ -1318,8 +1327,8 @@ extern void restart_lexer(char *lexical_source, char *name)
     circle_position = 0;
     for (i=0; i<CIRCLE_SIZE; i++)
     {   circle[i].type = 0;
-    	circle[i].value = 0;
-    	circle[i].text = "(if this is ever visible, there is a bug)";
+        circle[i].value = 0;
+        circle[i].text = "(if this is ever visible, there is a bug)";
         token_contexts[i] = 0;
     }
 
@@ -1381,6 +1390,9 @@ extern void lexer_endpass(void)
 extern void lexer_allocate_arrays(void)
 {   int i;
 
+    FileStack = my_malloc(MAX_INCLUSION_DEPTH*sizeof(Sourcefile),
+        "filestack buffer");
+
     for (i=0; i<MAX_INCLUSION_DEPTH; i++)
     FileStack[i].buffer = my_malloc(SOURCE_BUFFER_SIZE+4, "source file buffer");
 
@@ -1414,6 +1426,7 @@ extern void lexer_free_arrays(void)
     {   p = FileStack[i].buffer;
         my_free(&p, "source file buffer");
     }
+    my_free(&FileStack, "filestack buffer");
     my_free(&lexeme_memory, "lexeme memory");
 
     my_free(&keywords_hash_table, "keyword hash table");

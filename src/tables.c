@@ -3,8 +3,8 @@
 /*               end of dynamic memory, gluing together all the required     */
 /*               tables.                                                     */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -145,6 +145,7 @@ static int32 rough_size_of_paged_memory_z(void)
             + 6*32;                                   /* abbreviations table */
 
     total += 8;                                    /* header extension table */
+    if (header_ext_setting>3) total += (header_ext_setting-3)*2;
 
     if (alphabet_modified) total += 78;               /* character set table */
 
@@ -188,7 +189,7 @@ static int32 rough_size_of_paged_memory_g(void)
         memory required to store the machine's paged memory area
         (that is, everything up to the start of the code area).              */
 
-    int32 total, i;
+    int32 total;
 
     ASSERT_GLULX();
 
@@ -227,12 +228,11 @@ static int32 rough_size_of_paged_memory_g(void)
 static void construct_storyfile_z(void)
 {   uchar *p;
     int32 i, j, k, l, mark, objs, strings_length,
-          limit, excess, extend_offset;
+          limit, excess, extend_offset, headerext_length;
     int32 globals_at, link_table_at, dictionary_at, actions_at, preactions_at,
           abbrevs_at, prop_defaults_at, object_tree_at, object_props_at,
           map_of_module, grammar_table_at, charset_at, headerext_at,
-          terminating_chars_at,
-          unicode_at, id_names_length;
+          terminating_chars_at, unicode_at, id_names_length;
     char *output_called = (module_switch)?"module":"story file";
 
     ASSERT_ZCODE();
@@ -289,8 +289,12 @@ static void construct_storyfile_z(void)
     /*  ------------------- Header extension table ------------------------- */
 
     headerext_at = mark;
-    p[mark++] = 0; p[mark++] = 3;                  /* Currently 3 words long */
-    for (i=2; i<8; i++) p[mark++] = 0;
+    headerext_length = 3;                            /* Usually 3 words long */
+    if (header_ext_setting>3) headerext_length = header_ext_setting;
+    p[mark++] = 0; p[mark++] = headerext_length;
+    for (i=0; i<headerext_length; i++)
+    {   p[mark++] = 0; p[mark++] = 0;
+    }
 
     /*  -------------------- Z-character set table ------------------------- */
 
@@ -419,9 +423,9 @@ static void construct_storyfile_z(void)
         constant_names_offset = routine_names_offset + 2*no_named_routines;
         for (i=0; i<no_arrays + no_globals
                     + no_named_routines + no_named_constants; i++)
-        {   p[mark++] = array_name_strings[i]/256;
+        {   if ((i == no_arrays) && (define_INFIX_switch == FALSE)) break;
+            p[mark++] = array_name_strings[i]/256;
             p[mark++] = array_name_strings[i]%256;
-            if (define_INFIX_switch == FALSE) break;
         }
 
         id_names_length = (mark - identifier_names_offset)/2;
@@ -1126,13 +1130,11 @@ printf("        +---------------------+   %05lx\n", (long int) Out_Size);
 
 static void construct_storyfile_g(void)
 {   uchar *p;
-    int32 i, j, k, l, mark, objs, strings_length,
-          limit, excess, extend_offset;
-    int32 globals_at, link_table_at, dictionary_at, actions_at, preactions_at,
+    int32 i, j, k, l, mark, strings_length, limit;
+    int32 globals_at, dictionary_at, actions_at, preactions_at,
           abbrevs_at, prop_defaults_at, object_tree_at, object_props_at,
-          map_of_module, grammar_table_at, charset_at, headerext_at,
-          terminating_chars_at,
-          unicode_at, id_names_length, arrays_at;
+          grammar_table_at, charset_at, headerext_at,
+          unicode_at, arrays_at;
     int32 threespaces;
     char *output_called = (module_switch)?"module":"story file";
 
@@ -1236,49 +1238,49 @@ static void construct_storyfile_g(void)
       int32 objmark = mark;
       p[mark++] = 0x70; /* type byte -- object */
       for (j=0; j<NUM_ATTR_BYTES; j++) {
-	p[mark++] = objectatts[i*NUM_ATTR_BYTES+j];
+        p[mark++] = objectatts[i*NUM_ATTR_BYTES+j];
       }
       for (j=0; j<6; j++) {
-	int32 val;
-	switch (j) {
-	case 0: /* next object in the linked list. */
-	  if (i == no_objects-1)
-	    val = 0;
-	  else
-	    val = Write_RAM_At + objmark + OBJECT_BYTE_LENGTH;
-	  break;
-	case 1: /* hardware name address */
-	  val = Write_Strings_At + compressed_offsets[objectsg[i].shortname-1];
-	  break;
-	case 2: /* property table address */
-	  val = Write_RAM_At + object_props_at + objectsg[i].propaddr;
-	  break;
-	case 3: /* parent */
-	  if (objectsg[i].parent == 0)
-	    val = 0;
-	  else
-	    val = Write_RAM_At + object_tree_at +
-	      (OBJECT_BYTE_LENGTH*(objectsg[i].parent-1));
-	  break;
-	case 4: /* sibling */
-	  if (objectsg[i].next == 0)
-	    val = 0;
-	  else
-	    val = Write_RAM_At + object_tree_at +
-	      (OBJECT_BYTE_LENGTH*(objectsg[i].next-1));
-	  break;
-	case 5: /* child */
-	  if (objectsg[i].child == 0)
-	    val = 0;
-	  else
-	    val = Write_RAM_At + object_tree_at +
-	      (OBJECT_BYTE_LENGTH*(objectsg[i].child-1));
-	  break;
-	}
-	p[mark++] = (val >> 24) & 0xFF;
-	p[mark++] = (val >> 16) & 0xFF;
-	p[mark++] = (val >> 8) & 0xFF;
-	p[mark++] = (val) & 0xFF;
+        int32 val;
+        switch (j) {
+        case 0: /* next object in the linked list. */
+          if (i == no_objects-1)
+            val = 0;
+          else
+            val = Write_RAM_At + objmark + OBJECT_BYTE_LENGTH;
+          break;
+        case 1: /* hardware name address */
+          val = Write_Strings_At + compressed_offsets[objectsg[i].shortname-1];
+          break;
+        case 2: /* property table address */
+          val = Write_RAM_At + object_props_at + objectsg[i].propaddr;
+          break;
+        case 3: /* parent */
+          if (objectsg[i].parent == 0)
+            val = 0;
+          else
+            val = Write_RAM_At + object_tree_at +
+              (OBJECT_BYTE_LENGTH*(objectsg[i].parent-1));
+          break;
+        case 4: /* sibling */
+          if (objectsg[i].next == 0)
+            val = 0;
+          else
+            val = Write_RAM_At + object_tree_at +
+              (OBJECT_BYTE_LENGTH*(objectsg[i].next-1));
+          break;
+        case 5: /* child */
+          if (objectsg[i].child == 0)
+            val = 0;
+          else
+            val = Write_RAM_At + object_tree_at +
+              (OBJECT_BYTE_LENGTH*(objectsg[i].child-1));
+          break;
+        }
+        p[mark++] = (val >> 24) & 0xFF;
+        p[mark++] = (val >> 16) & 0xFF;
+        p[mark++] = (val >> 8) & 0xFF;
+        p[mark++] = (val) & 0xFF;
       }
     }
 
@@ -1293,10 +1295,10 @@ static void construct_storyfile_g(void)
       int32 tablelen = ReadInt32(p+tableaddr);
       tableaddr += 4;
       for (j=0; j<tablelen; j++) {
-	k = ReadInt32(p+tableaddr+4);
-	k += (Write_RAM_At + object_props_at);
-	WriteInt32(p+tableaddr+4, k);
-	tableaddr += 10;
+        k = ReadInt32(p+tableaddr+4);
+        k += (Write_RAM_At + object_props_at);
+        WriteInt32(p+tableaddr+4, k);
+        tableaddr += 10;
       }
     }
 
@@ -1314,7 +1316,7 @@ static void construct_storyfile_g(void)
     class_numbers_offset = mark;
     for (i=0; i<no_classes; i++) {
       j = Write_RAM_At + object_tree_at +
-	(OBJECT_BYTE_LENGTH*(class_object_numbers[i]-1));
+        (OBJECT_BYTE_LENGTH*(class_object_numbers[i]-1));
       WriteInt32(p+mark, j);
       mark += 4;
     }
@@ -1342,7 +1344,7 @@ static void construct_storyfile_g(void)
     for (i=0; i<no_properties; i++) {
       j = individual_name_strings[i];
       if (j)
-	j = Write_Strings_At + compressed_offsets[j-1];
+        j = Write_Strings_At + compressed_offsets[j-1];
       WriteInt32(p+mark, j);
       mark += 4;
     }
@@ -1353,7 +1355,7 @@ static void construct_storyfile_g(void)
     for (i=INDIV_PROP_START; i<no_individual_properties; i++) {
       j = individual_name_strings[i];
       if (j)
-	j = Write_Strings_At + compressed_offsets[j-1];
+        j = Write_Strings_At + compressed_offsets[j-1];
       WriteInt32(p+mark, j);
       mark += 4;
     }
@@ -1363,7 +1365,7 @@ static void construct_storyfile_g(void)
     for (i=0; i<NUM_ATTR_BYTES*8; i++) {
       j = attribute_name_strings[i];
       if (j)
-	j = Write_Strings_At + compressed_offsets[j-1];
+        j = Write_Strings_At + compressed_offsets[j-1];
       WriteInt32(p+mark, j);
       mark += 4;
     }
@@ -1375,7 +1377,7 @@ static void construct_storyfile_g(void)
     for (i=0; i<no_actions + no_fake_actions; i++) {
       j = action_name_strings[i];
       if (j)
-	j = Write_Strings_At + compressed_offsets[j-1];
+        j = Write_Strings_At + compressed_offsets[j-1];
       WriteInt32(p+mark, j);
       mark += 4;
     }
@@ -1386,7 +1388,7 @@ static void construct_storyfile_g(void)
     for (i=0; i<no_arrays; i++) {
       j = array_name_strings[i];
       if (j)
-	j = Write_Strings_At + compressed_offsets[j-1];
+        j = Write_Strings_At + compressed_offsets[j-1];
       WriteInt32(p+mark, j);
       mark += 4;
     }    
@@ -1413,20 +1415,20 @@ table format requested (producing number 2 format instead)");
       WriteInt32(p+(grammar_table_at+4+i*4), j);
       p[mark++] = Inform_verbs[i].lines;
       for (j=0; j<Inform_verbs[i].lines; j++) {
-	int tok;
-	k = Inform_verbs[i].l[j];
-	p[mark++] = grammar_lines[k++];
-	p[mark++] = grammar_lines[k++];
-	p[mark++] = grammar_lines[k++];
-	for (;;) {
-	  tok = grammar_lines[k++];
-	  p[mark++] = tok;
-	  if (tok == 15) break;
-	  p[mark++] = grammar_lines[k++];
-	  p[mark++] = grammar_lines[k++];
-	  p[mark++] = grammar_lines[k++];
-	  p[mark++] = grammar_lines[k++];
-	}
+        int tok;
+        k = Inform_verbs[i].l[j];
+        p[mark++] = grammar_lines[k++];
+        p[mark++] = grammar_lines[k++];
+        p[mark++] = grammar_lines[k++];
+        for (;;) {
+          tok = grammar_lines[k++];
+          p[mark++] = tok;
+          if (tok == 15) break;
+          p[mark++] = grammar_lines[k++];
+          p[mark++] = grammar_lines[k++];
+          p[mark++] = grammar_lines[k++];
+          p[mark++] = grammar_lines[k++];
+        }
       }
     }
 
@@ -1454,7 +1456,7 @@ table format requested (producing number 2 format instead)");
       k = 4 + i*(7+DICT_WORD_SIZE);
       j = mark + 4 + final_dict_order[i]*(7+DICT_WORD_SIZE);
       for (l=0; l<(7+DICT_WORD_SIZE); l++)
-	p[j++] = dictionary[k++];
+        p[j++] = dictionary[k++];
     }
     mark += 4 + dict_entries * (7+DICT_WORD_SIZE);
 
@@ -1467,6 +1469,7 @@ table format requested (producing number 2 format instead)");
     RAM_Size = mark;
 
     Out_Size = Write_RAM_At + RAM_Size;
+    limit=1024*1024;
 
     /*  --------------------------- Offsets -------------------------------- */
 
@@ -1494,37 +1497,37 @@ table format requested (producing number 2 format instead)");
 
         mark = actions_at + 4;
         for (i=0; i<no_actions; i++) {
-	  j = action_byte_offset[i] + code_offset;
-	  WriteInt32(p+mark, j);
-	  mark += 4;
+          j = action_byte_offset[i] + code_offset;
+          WriteInt32(p+mark, j);
+          mark += 4;
         }
 
-	for (l = 0; l<no_Inform_verbs; l++) {
-	  k = grammar_table_at + 4 + 4*l; 
-	  i = ((p[k] << 24) | (p[k+1] << 16) | (p[k+2] << 8) | (p[k+3]));
-	  i -= Write_RAM_At;
-	  for (j = p[i++]; j>0; j--) {
-	    int topbits; 
-	    int32 value;
-	    i = i + 3;
-	    while (p[i] != 15) {
-	      topbits = (p[i]/0x40) & 3;
-	      value = ((p[i+1] << 24) | (p[i+2] << 16) 
-		| (p[i+3] << 8) | (p[i+4]));
-	      switch(topbits) {
-	      case 1:
-		value = dictionary_offset + 4
-		  + final_dict_order[value]*(7+DICT_WORD_SIZE);
-		break;
-	      case 2:
-		value += code_offset;
-		break;
-	      }
-	      WriteInt32(p+(i+1), value);
-	      i = i + 5;
-	    }
-	    i++;
-	  }
+        for (l = 0; l<no_Inform_verbs; l++) {
+          k = grammar_table_at + 4 + 4*l; 
+          i = ((p[k] << 24) | (p[k+1] << 16) | (p[k+2] << 8) | (p[k+3]));
+          i -= Write_RAM_At;
+          for (j = p[i++]; j>0; j--) {
+            int topbits; 
+            int32 value;
+            i = i + 3;
+            while (p[i] != 15) {
+              topbits = (p[i]/0x40) & 3;
+              value = ((p[i+1] << 24) | (p[i+2] << 16) 
+                | (p[i+3] << 8) | (p[i+4]));
+              switch(topbits) {
+              case 1:
+                value = dictionary_offset + 4
+                  + final_dict_order[value]*(7+DICT_WORD_SIZE);
+                break;
+              case 2:
+                value += code_offset;
+                break;
+              }
+              WriteInt32(p+(i+1), value);
+              i = i + 5;
+            }
+            i++;
+          }
         }
 
     }
@@ -1550,6 +1553,8 @@ table format requested (producing number 2 format instead)");
                     name_of_iso_set(character_set_setting));
             }
 
+            {char serialnum[8];
+            write_serial_number(serialnum);
             printf("Allocated:\n\
 %6d symbols (maximum %4d)       %6ld bytes of memory\n\
 Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
@@ -1558,8 +1563,11 @@ Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  version_number,
                  version_name(version_number),
                  output_called,
-                 release_number, p[18], p[19], p[20], p[21], p[22], p[23],
+                 release_number,
+                 serialnum[0], serialnum[1], serialnum[2],
+                 serialnum[3], serialnum[4], serialnum[5],
                  (long int) k_long, k_str);
+            } 
 
             printf("\
 %6d classes (maximum %2d)         %6d objects (maximum %3d)\n\
@@ -1623,8 +1631,6 @@ Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
             (long int) dictionary_at,
             (long int) Write_Code_At,
             (long int) Write_Strings_At);
-            if (module_switch)
-                printf("%05lx Linking data\n",(long int) link_table_at);
         }
     }
 
@@ -1656,7 +1662,7 @@ Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
         write_debug_string("global variables");
           write_debug_address(globals_at);
         write_debug_string("array space");
-      	  write_debug_address(globals_at+480); /* ###fix in Glulx */
+          write_debug_address(globals_at+480); /* ###fix in Glulx */
         write_debug_string("grammar table");
           write_debug_address(grammar_table_at);
         write_debug_string("actions table");
@@ -1741,17 +1747,6 @@ printf("        |     adjectives      |\n");
 printf("        +---------------------+   %06lx\n", 
   (long int) dictionary_offset);
 printf("        |     dictionary      |\n");
-if (module_switch)
-{
-printf("        + - - - - - - - - - - +   %06lx\n",
-                                          (long int) map_of_module);
-printf("        | map of module addrs |\n");
-}
-if (module_switch)
-{
-printf("        +=====================+   %06lx\n", (long int) link_table_at);
-printf("        | module linking data |\n");
-}
 printf("        +---------------------+   %06lx\n", (long int) Out_Size);
 
         }

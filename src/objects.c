@@ -6,8 +6,8 @@
 /*                    checks syntax and translates such directives into      */
 /*                    specifications for the object-maker.                   */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -33,10 +33,10 @@ static fpropt full_object;             /* "fpropt" is a typedef for a struct
                                           definition is complete, since
                                           sizeof(fpropt) is about 6200 bytes */
 static fproptg full_object_g;          /* Equivalent for Glulx. This object
-					  is very small, since the large arrays
-					  are allocated dynamically by the
-					  Glulx compiler                     */
-static char shortname_buffer[256];     /* Text buffer to hold the short name
+                                          is very small, since the large arrays
+                                          are allocated dynamically by the
+                                          Glulx compiler                     */
+static char shortname_buffer[766];     /* Text buffer to hold the short name
                                           (which is read in first, but
                                           written almost last)               */
 static int parent_of_this_obj;
@@ -104,9 +104,9 @@ game to get an extra 16)");
  else {
     if (no_attributes==NUM_ATTR_BYTES*8) {
       error_numbered(
-	"All attributes already declared -- increase NUM_ATTR_BYTES to use \
+        "All attributes already declared -- increase NUM_ATTR_BYTES to use \
 more than", 
-	NUM_ATTR_BYTES*8);
+        NUM_ATTR_BYTES*8);
       panic_mode_error_recovery(); 
       return;
     }
@@ -154,18 +154,18 @@ extern void make_property(void)
                 error("All 30 properties already declared (compile as \
 Advanced game to get an extra 62)");
             else
-	        error("All 62 properties already declared");
+                error("All 62 properties already declared");
             panic_mode_error_recovery(); return;
-	}
+        }
     }
     else {
         /* INDIV_PROP_START could be a memory setting */
         if (no_properties==INDIV_PROP_START) {
-	    error_numbered("All properties already declared -- max is",
-	        INDIV_PROP_START);
-	    panic_mode_error_recovery(); 
-	    return;
-	}
+            error_numbered("All properties already declared -- max is",
+                INDIV_PROP_START);
+            panic_mode_error_recovery(); 
+            return;
+        }
     }
 
     do
@@ -192,6 +192,8 @@ Advanced game to get an extra 62)");
     directive_keywords.enabled = TRUE;
     get_next_token();
     directive_keywords.enabled = FALSE;
+
+    if (strcmp(name+strlen(name)-3, "_to") == 0) sflags[i] |= STAR_SFLAG;
 
     if ((token_type == DIR_KEYWORD_TT) && (token_value == ALIAS_DK))
     {   if (additive_flag)
@@ -221,7 +223,7 @@ Advanced game to get an extra 62)");
         default_value = AO.value;
         if (AO.marker != 0)
             backpatch_zmachine(AO.marker, PROP_DEFAULTS_ZA, 
-	        (no_properties-1) * WORDSIZE);
+                (no_properties-1) * WORDSIZE);
     }
 
     prop_default_value[no_properties] = default_value;
@@ -280,10 +282,6 @@ int properties_table_size;             /* Number of bytes in this table      */
 /*   properties, common and individual, are stored in the same table.        */
 /* ------------------------------------------------------------------------- */
 
-       int *property3_lists;           /* p3_l[n] = the offset of prop 3
-                                          (i.p. table addr) for object n+1,
-                                          or -1 if it has none (Z-code only) */
-
        int no_individual_properties;   /* Actually equal to the next
                                           identifier number to be allocated,
                                           so this is initially 72 even though
@@ -329,37 +327,6 @@ extern void list_object_tree(void)
 /*   a little in "error recovery" (i.e. in stopping lots more errors being   */
 /*   produced for essentially the same mistake).                             */
 /* ------------------------------------------------------------------------- */
-
-/* ###-This is not called from anywhere. */
-#if 0
-extern int object_provides(int obj, int id)
-{
-    /*  Does the given object provide the identifier id?
-
-        This is a matter of searching the object's property 3 list,
-        but for speed and convenience we have kept an array of the
-        addresses of these.
-
-        Returns: 0 if not provided
-                 1 if provided but "private" to that object
-                 2 if provided and on public access                          */
-
-    uchar *p; int i=0, b1, b2, c1;
-
-    if (property3_lists[obj-1] == -1) return 0;
-
-    p = individuals_table + property3_lists[obj-1];
-
-    b1 = id/256; b2 = id%256; c1 = b1 | 0x80;
-
-    while ((p[i] != 0) || (p[i+1]!=0))
-    {   if ((p[i] == b1) && (p[i+1] == b2)) return 2;
-        if ((p[i] == c1) && (p[i+1] == b2)) return 1;
-        i = i + p[i+2] + 3;
-    }
-    return 0;
-}
-#endif
 
 /* ========================================================================= */
 /*   [1]  The object-maker: builds an object from a specification, viz.:     */
@@ -590,7 +557,7 @@ static void property_inheritance_g(void)
       On exit, full_object contains the final state of the properties to
       be written. */
 
-  int i, j, k, kmax, class, num_props,
+  int i, j, k, class, num_props,
     prop_number, prop_length, prop_flags, prop_in_current_defn;
   int32 mark, prop_addr;
   uchar *cpb, *pe;
@@ -615,97 +582,97 @@ static void property_inheritance_g(void)
       pe += 2;
 
       /*  So we now have property number prop_number present in the
-	  property block for the class being read. Its bytes are
-	  cpb[prop_addr ... prop_addr + prop_length - 1]
-	  Question now is: is there already a value given in the
-	  current definition under this property name? */
+          property block for the class being read. Its bytes are
+          cpb[prop_addr ... prop_addr + prop_length - 1]
+          Question now is: is there already a value given in the
+          current definition under this property name? */
 
       prop_in_current_defn = FALSE;
 
       for (k=0; k<full_object_g.numprops; k++) {
-	if (full_object_g.props[k].num == prop_number) {
-	  prop_in_current_defn = TRUE;
-	  break;
-	}
+        if (full_object_g.props[k].num == prop_number) {
+          prop_in_current_defn = TRUE;
+          break;
+        }
       }
 
       if (prop_in_current_defn) {
-	if ((prop_number==1)
-	  || (prop_number < INDIV_PROP_START 
-	    && prop_is_additive[prop_number])) {
-	  /*  The additive case: we accumulate the class
-	      property values onto the end of the full_object
-	      properties. Remember that k is still the index number
-	      of the first prop-block matching our property number. */
-	  int prevcont;
-	  if (full_object_g.props[k].continuation == 0) {
-	    full_object_g.props[k].continuation = 1;
-	    prevcont = 1;
-	  }
-	  else {
-	    prevcont = full_object_g.props[k].continuation;
-	    for (k++; k<full_object_g.numprops; k++) {
-	      if (full_object_g.props[k].num == prop_number) {
-		prevcont = full_object_g.props[k].continuation;
-	      }
-	    }
-	  }
-	  k = full_object_g.numprops++;
-	  full_object_g.props[k].num = prop_number;
-	  full_object_g.props[k].flags = 0;
-	  full_object_g.props[k].datastart = full_object_g.propdatasize;
-	  full_object_g.props[k].continuation = prevcont+1;
-	  full_object_g.props[k].datalen = prop_length;
-	  if (full_object_g.propdatasize + prop_length 
-	    > MAX_OBJ_PROP_TABLE_SIZE) {
-	    error_numbered("Limit of property data exceeded for this object; \
+        if ((prop_number==1)
+          || (prop_number < INDIV_PROP_START 
+            && prop_is_additive[prop_number])) {
+          /*  The additive case: we accumulate the class
+              property values onto the end of the full_object
+              properties. Remember that k is still the index number
+              of the first prop-block matching our property number. */
+          int prevcont;
+          if (full_object_g.props[k].continuation == 0) {
+            full_object_g.props[k].continuation = 1;
+            prevcont = 1;
+          }
+          else {
+            prevcont = full_object_g.props[k].continuation;
+            for (k++; k<full_object_g.numprops; k++) {
+              if (full_object_g.props[k].num == prop_number) {
+                prevcont = full_object_g.props[k].continuation;
+              }
+            }
+          }
+          k = full_object_g.numprops++;
+          full_object_g.props[k].num = prop_number;
+          full_object_g.props[k].flags = 0;
+          full_object_g.props[k].datastart = full_object_g.propdatasize;
+          full_object_g.props[k].continuation = prevcont+1;
+          full_object_g.props[k].datalen = prop_length;
+          if (full_object_g.propdatasize + prop_length 
+            > MAX_OBJ_PROP_TABLE_SIZE) {
+            error_numbered("Limit of property data exceeded for this object; \
 MAX_OBJ_PROP_TABLE_SIZE is", MAX_OBJ_PROP_TABLE_SIZE);
-	    break;
-	  }
+            break;
+          }
 
-	  for (i=0; i<prop_length; i++) {
-	    int ppos = full_object_g.propdatasize++;
-	    full_object_g.propdata[ppos].value = prop_addr + 4*i;
-	    full_object_g.propdata[ppos].marker = INHERIT_MV;
-	    full_object_g.propdata[ppos].type = CONSTANT_OT;
-	  }
-	}
-	else {
-	  /*  The ordinary case: the full_object_g property
-	      values simply overrides the class definition,
-	      so we skip over the values in the class table. */
-	}
+          for (i=0; i<prop_length; i++) {
+            int ppos = full_object_g.propdatasize++;
+            full_object_g.propdata[ppos].value = prop_addr + 4*i;
+            full_object_g.propdata[ppos].marker = INHERIT_MV;
+            full_object_g.propdata[ppos].type = CONSTANT_OT;
+          }
+        }
+        else {
+          /*  The ordinary case: the full_object_g property
+              values simply overrides the class definition,
+              so we skip over the values in the class table. */
+        }
       }
-      else {
-	/*  The case where the class defined a property which wasn't
-	    defined at all in full_object_g: we copy out the data into
-	    a new property added to full_object_g. */
-	k = full_object_g.numprops++;
-	full_object_g.props[k].num = prop_number;
-	full_object_g.props[k].flags = prop_flags;
-	full_object_g.props[k].datastart = full_object_g.propdatasize;
-	full_object_g.props[k].continuation = 0;
-	full_object_g.props[k].datalen = prop_length;
-	if (full_object_g.propdatasize + prop_length 
-	  > MAX_OBJ_PROP_TABLE_SIZE) {
-	  error_numbered("Limit of property data exceeded for this object; \
+          else {
+            /*  The case where the class defined a property which wasn't
+                defined at all in full_object_g: we copy out the data into
+                a new property added to full_object_g. */
+            k = full_object_g.numprops++;
+            full_object_g.props[k].num = prop_number;
+            full_object_g.props[k].flags = prop_flags;
+            full_object_g.props[k].datastart = full_object_g.propdatasize;
+            full_object_g.props[k].continuation = 0;
+            full_object_g.props[k].datalen = prop_length;
+            if (full_object_g.propdatasize + prop_length 
+              > MAX_OBJ_PROP_TABLE_SIZE) {
+              error_numbered("Limit of property data exceeded for this object; \
 MAX_OBJ_PROP_TABLE_SIZE is", MAX_OBJ_PROP_TABLE_SIZE);
-	  break;
-	}
+              break;
+            }
 
-	for (i=0; i<prop_length; i++) {
-	  int ppos = full_object_g.propdatasize++;
-	  full_object_g.propdata[ppos].value = prop_addr + 4*i;
-	  full_object_g.propdata[ppos].marker = INHERIT_MV; 
-	  full_object_g.propdata[ppos].type = CONSTANT_OT;
-	}
-      }
+            for (i=0; i<prop_length; i++) {
+              int ppos = full_object_g.propdatasize++;
+              full_object_g.propdata[ppos].value = prop_addr + 4*i;
+              full_object_g.propdata[ppos].marker = INHERIT_MV; 
+              full_object_g.propdata[ppos].type = CONSTANT_OT;
+            }
+          }
 
-      if (full_object_g.numprops == MAX_OBJ_PROP_COUNT) {
-	error_numbered("Limit of property entries exceeded for this \
+          if (full_object_g.numprops == MAX_OBJ_PROP_COUNT) {
+            error_numbered("Limit of property entries exceeded for this \
 object; MAX_OBJ_PROP_COUNT is", MAX_OBJ_PROP_COUNT);
-	break;
-      }
+            break;
+          }
     }
   }
   
@@ -768,6 +735,7 @@ static int write_property_block_z(char *shortname)
     if (shortname != NULL)
     {   uchar *tmp = translate_text(p+mark+1,shortname);
         i = subtract_pointers(tmp,(p+mark+1));
+        if (i>510) error ("Short name of object exceeded 765 Z-characters");
         p[mark] = i/2;
         mark += i+1;
     }
@@ -803,7 +771,7 @@ static int gpropsort(void *ptr1, void *ptr2)
   return (prop1->continuation - prop2->continuation);
 }
 
-static int32 write_property_block_g(char *shortname)
+static int32 write_property_block_g(void)
 {
   /*  Compile the (now complete) full_object properties into a
       property-table block at "p" in Inform's memory. 
@@ -824,7 +792,7 @@ static int32 write_property_block_g(char *shortname)
   }
 
   qsort(full_object_g.props, full_object_g.numprops, sizeof(propg), 
-    (int (*)())(&gpropsort));
+    (int (*)(const void *, const void *))(&gpropsort));
 
   full_object_g.finalpropaddr = mark;
 
@@ -833,10 +801,10 @@ static int32 write_property_block_g(char *shortname)
   for (ix=0; ix<full_object_g.numprops; ix=jx) {
     int propnum = full_object_g.props[ix].num;
     if (propnum == -1)
-      break;
+        break;
     for (jx=ix; 
-	 jx<full_object_g.numprops && full_object_g.props[jx].num == propnum;
-	 jx++);
+        jx<full_object_g.numprops && full_object_g.props[jx].num == propnum;
+        jx++);
     totalprops++;
   }
 
@@ -854,17 +822,17 @@ static int32 write_property_block_g(char *shortname)
     if (propnum == -1)
       break;
     for (jx=ix; 
-	 jx<full_object_g.numprops && full_object_g.props[jx].num == propnum;
-	 jx++) {
+        jx<full_object_g.numprops && full_object_g.props[jx].num == propnum;
+        jx++) {
       int32 datastart = full_object_g.props[jx].datastart;
       for (kx=0; kx<full_object_g.props[jx].datalen; kx++) {
-	int32 val = full_object_g.propdata[datastart+kx].value;
-	WriteInt32(p+datamark, val);
-	if (full_object_g.propdata[datastart+kx].marker != 0)
-	  backpatch_zmachine(full_object_g.propdata[datastart+kx].marker,
-	    PROP_ZA, datamark);
-	totallen++;
-	datamark += 4;
+        int32 val = full_object_g.propdata[datastart+kx].value;
+        WriteInt32(p+datamark, val);
+        if (full_object_g.propdata[datastart+kx].marker != 0)
+          backpatch_zmachine(full_object_g.propdata[datastart+kx].marker,
+            PROP_ZA, datamark);
+        totallen++;
+        datamark += 4;
       }
     }
     WriteInt16(p+mark, propnum);
@@ -958,7 +926,7 @@ static void manufacture_object_g(void)
             blocks, one for each object in order of definition, exactly as
             it will appear in the final machine image.                      */
 
-    j = write_property_block_g(shortname_buffer);
+    j = write_property_block_g();
 
     objectsg[no_objects].propaddr = full_object_g.finalpropaddr;
 
@@ -968,7 +936,7 @@ static void manufacture_object_g(void)
 
     if (current_defn_is_class)
         for (i=0;i<NUM_ATTR_BYTES;i++) 
-	    objectatts[no_objects*NUM_ATTR_BYTES+i] = 0;
+            objectatts[no_objects*NUM_ATTR_BYTES+i] = 0;
     else
         for (i=0;i<NUM_ATTR_BYTES;i++)
             objectatts[no_objects*NUM_ATTR_BYTES+i] = full_object_g.atts[i];
@@ -1045,8 +1013,6 @@ and may not be used as a property name too",
                 full_object.pp[full_object.l].ao[0].marker = INDIVPT_MV;
 
                 i_m = individuals_length;
-                if (!current_defn_is_class)
-                    property3_lists[no_objects] = i_m;
                 full_object.l++;
             }
             individuals_table[i_m] = this_identifier_number/256;
@@ -1101,6 +1067,12 @@ the names '%s' and '%s' actually refer to the same property",
                 break;
 
             if (token_type == SEGMENT_MARKER_TT) { put_token_back(); break; }
+
+            if ((!individual_property) && (property_number==1)
+                && ((token_type != SQ_TT) || (strlen(token_text) <2 )) 
+                && (token_type != DQ_TT)
+                )
+                warning ("'name' property should only contain dictionary words");
 
             if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
             {   char embedded_name[80];
@@ -1289,11 +1261,11 @@ and may not be used as a property name too",
 
             next_prop=full_object_g.numprops++;
             full_object_g.props[next_prop].num = property_number;
-	    full_object_g.props[next_prop].flags = 
-	      ((this_segment == PRIVATE_SEGMENT) ? 1 : 0);
-	    full_object_g.props[next_prop].datastart = full_object_g.propdatasize;
-	    full_object_g.props[next_prop].continuation = 0;
-	    full_object_g.props[next_prop].datalen = 0;
+            full_object_g.props[next_prop].flags = 
+              ((this_segment == PRIVATE_SEGMENT) ? 1 : 0);
+            full_object_g.props[next_prop].datastart = full_object_g.propdatasize;
+            full_object_g.props[next_prop].continuation = 0;
+            full_object_g.props[next_prop].datalen = 0;
         }
         else
         {   if (sflags[token_value] & UNKNOWN_SFLAG)
@@ -1309,10 +1281,10 @@ not 'private':", token_text);
 
             next_prop=full_object_g.numprops++;
             full_object_g.props[next_prop].num = property_number;
-	    full_object_g.props[next_prop].flags = 0;
-	    full_object_g.props[next_prop].datastart = full_object_g.propdatasize;
-	    full_object_g.props[next_prop].continuation = 0;
-	    full_object_g.props[next_prop].datalen = 0;
+            full_object_g.props[next_prop].flags = 0;
+            full_object_g.props[next_prop].datastart = full_object_g.propdatasize;
+            full_object_g.props[next_prop].continuation = 0;
+            full_object_g.props[next_prop].datalen = 0;
         }
 
         for (i=0; i<(def_t_s-1); i++)
@@ -1331,11 +1303,11 @@ the names '%s' and '%s' actually refer to the same property",
                 error(error_b);
             }
 
-	if (full_object_g.numprops == MAX_OBJ_PROP_COUNT) {
-	  error_numbered("Limit of property entries exceeded for this \
+        if (full_object_g.numprops == MAX_OBJ_PROP_COUNT) {
+          error_numbered("Limit of property entries exceeded for this \
 object; MAX_OBJ_PROP_COUNT is", MAX_OBJ_PROP_COUNT);
-	  break;
-	}
+          break;
+        }
 
         property_name_symbol = token_value;
         sflags[token_value] |= USED_SFLAG;
@@ -1350,6 +1322,11 @@ object; MAX_OBJ_PROP_COUNT is", MAX_OBJ_PROP_COUNT);
                 break;
 
             if (token_type == SEGMENT_MARKER_TT) { put_token_back(); break; }
+
+            if ((!individual_property) && (property_number==1)
+                && (token_type != SQ_TT) && (token_type != DQ_TT)
+                )
+                warning ("'name' property should only contain dictionary words");
 
             if ((token_type == SEP_TT) && (token_value == OPEN_SQUARE_SEP))
             {   char embedded_name[80];
@@ -1386,7 +1363,7 @@ object; MAX_OBJ_PROP_COUNT is", MAX_OBJ_PROP_COUNT);
             if ((!individual_property) &&
                 (property_number==1) && (token_type == DQ_TT))
             {   AO.value = dictionary_add(token_text, 0x80, 0, 0);
-	        AO.type = CONSTANT_OT; 
+                AO.type = CONSTANT_OT; 
                 AO.marker = DWORD_MV;
             }
             else
@@ -1419,14 +1396,14 @@ object; MAX_OBJ_PROP_COUNT is", MAX_OBJ_PROP_COUNT);
                 break;
             }
 
-	    if (full_object_g.propdatasize >= MAX_OBJ_PROP_TABLE_SIZE) {
-	      error_numbered("Limit of property data exceeded for this \
+            if (full_object_g.propdatasize >= MAX_OBJ_PROP_TABLE_SIZE) {
+              error_numbered("Limit of property data exceeded for this \
 object; MAX_OBJ_PROP_TABLE_SIZE is", MAX_OBJ_PROP_TABLE_SIZE);
-	      break;
-	    }
+              break;
+            }
 
-	    full_object_g.propdata[full_object_g.propdatasize++] = AO;
-	    length += 1;
+            full_object_g.propdata[full_object_g.propdatasize++] = AO;
+            length += 1;
 
         } while (TRUE);
 
@@ -1439,16 +1416,16 @@ object; MAX_OBJ_PROP_TABLE_SIZE is", MAX_OBJ_PROP_TABLE_SIZE);
             created as in effect variables and initialised to zero.          */
 
         if (length == 0)
-	{
-	    assembly_operand AO;
-	    AO.value = 0;
-	    AO.type = CONSTANT_OT;
-	    AO.marker = 0;
-	    full_object_g.propdata[full_object_g.propdatasize++] = AO;
+        {
+            assembly_operand AO;
+            AO.value = 0;
+            AO.type = CONSTANT_OT;
+            AO.marker = 0;
+            full_object_g.propdata[full_object_g.propdatasize++] = AO;
             length += 1;
         }
 
-	full_object_g.props[next_prop].datalen = length;
+        full_object_g.props[next_prop].datalen = length;
 
         if ((token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1506,17 +1483,17 @@ static void attributes_segment(void)
         attribute_number = svals[token_value];
         sflags[token_value] |= USED_SFLAG;
 
-	if (!glulx_mode) {
-	    bitmask = (1 << (7-attribute_number%8));
-	    attrbyte = &(full_object.atts[attribute_number/8]);
-	}
-	else {
-	    /* In Glulx, my prejudices rule, and therefore bits are numbered
-	       from least to most significant. This is the opposite of the
-	       way the Z-machine works. */
-	    bitmask = (1 << (attribute_number%8));
-	    attrbyte = &(full_object_g.atts[attribute_number/8]);
-	}
+        if (!glulx_mode) {
+            bitmask = (1 << (7-attribute_number%8));
+            attrbyte = &(full_object.atts[attribute_number/8]);
+        }
+        else {
+            /* In Glulx, my prejudices rule, and therefore bits are numbered
+               from least to most significant. This is the opposite of the
+               way the Z-machine works. */
+            bitmask = (1 << (attribute_number%8));
+            attrbyte = &(full_object_g.atts[attribute_number/8]);
+        }
 
         if (truth_state)
             *attrbyte |= bitmask;     /* Set attribute bit */
@@ -1558,8 +1535,8 @@ static void add_class_to_inheritance_list(int class_number)
     else {
         for (i=0; i<NUM_ATTR_BYTES; i++)
             full_object_g.atts[i]
-	        |= properties_table[class_begins_at[class_number-1] 
-	            - NUM_ATTR_BYTES + i];
+                |= properties_table[class_begins_at[class_number-1] 
+                    - NUM_ATTR_BYTES + i];
     }
 }
 
@@ -1656,7 +1633,6 @@ static void initialise_full_object(void)
     full_object.atts[3] = 0;
     full_object.atts[4] = 0;
     full_object.atts[5] = 0;
-    property3_lists[no_objects] = -1;
   }
   else {
     full_object_g.numprops = 0;
@@ -1711,7 +1687,7 @@ inconvenience, please contact the author.");
     }
     else {
         /*  In Glulx, metaclasses have to be backpatched too! So we can't 
-	    mark it as "system", but we should mark it "used". */
+            mark it as "system", but we should mark it "used". */
         if (metaclass_flag) sflags[token_value] |= USED_SFLAG;
     }
 
@@ -1757,7 +1733,7 @@ inconvenience, please contact the author.");
         if ((token_type == SEP_TT) && (token_value == OPENB_SEP))
         {   assembly_operand AO;
             AO = parse_expression(CONSTANT_CONTEXT);
-            if (module_switch && (AO.marker != 0))
+            if (AO.marker != 0)
             {   error("Duplicate-number not known at compile time");
                 n=0;
             }
@@ -1956,7 +1932,11 @@ extern void make_object(int nearby_flag,
         else
             sprintf(shortname_buffer, "(%d)", no_objects+1);
     }
-    else strcpy(shortname_buffer, textual_name);
+    else
+    {   if (strlen(textual_name)>765)
+            error("Short name of object (in quotes) exceeded 765 characters");
+        strncpy(shortname_buffer, textual_name, 765);
+    }
 
     if (specified_parent != -1)
     {   if (tree_depth > 0)
@@ -1981,18 +1961,18 @@ extern void make_object(int nearby_flag,
                 if ((!module_switch) && (i<4))
                     continue;
 
-		if (!glulx_mode) {
-  		    if (objectsz[i].parent == 1)
-  		        continue;
-		    while (objectsz[j].parent != 0)
-		    {   j = objectsz[j].parent - 1; k++; }
-		}
-		else {
-  		    if (objectsg[i].parent == 1)
-  		        continue;
-		    while (objectsg[j].parent != 0)
-		    {   j = objectsg[j].parent - 1; k++; }
-		}
+                if (!glulx_mode) {
+                    if (objectsz[i].parent == 1)
+                        continue;
+                    while (objectsz[j].parent != 0)
+                    {   j = objectsz[j].parent - 1; k++; }
+                }
+                else {
+                    if (objectsg[i].parent == 1)
+                        continue;
+                    while (objectsg[j].parent != 0)
+                    {   j = objectsg[j].parent - 1; k++; }
+                }
 
                 if (k == tree_depth - 1)
                 {   parent_of_this_obj = i+1;
@@ -2040,7 +2020,6 @@ extern void init_objects_vars(void)
     prop_is_additive = NULL;
     prop_default_value = NULL;
 
-    property3_lists = NULL;
     objectsz = NULL;
     objectsg = NULL;
     objectatts = NULL;
@@ -2053,14 +2032,10 @@ extern void objects_begin_pass(void)
     properties_table_size=0;
     prop_is_long[1] = TRUE; prop_is_additive[1] = TRUE;            /* "name" */
     prop_is_long[2] = TRUE; prop_is_additive[2] = TRUE;  /* inheritance prop */
-    if (!glulx_mode) {
+    if (!glulx_mode)
         prop_is_long[3] = TRUE; prop_is_additive[3] = FALSE;
                                          /* instance variables table address */
-	no_properties = 4;
-    }
-    else {
-        no_properties = 3;
-    }
+    no_properties = 4;
 
     if (define_INFIX_switch) no_attributes = 1;
     else no_attributes = 0;
@@ -2068,11 +2043,11 @@ extern void objects_begin_pass(void)
     no_objects = 0;
     if (!glulx_mode) {
         objectsz[0].parent = 0; objectsz[0].child = 0; objectsz[0].next = 0;
-	no_individual_properties=72;
+        no_individual_properties=72;
     }
     else {
         objectsg[0].parent = 0; objectsg[0].child = 0; objectsg[0].next = 0;
-	no_individual_properties = INDIV_PROP_START+8;
+        no_individual_properties = INDIV_PROP_START+8;
     }
     no_classes = 0;
 
@@ -2086,7 +2061,6 @@ extern void objects_allocate_arrays(void)
     objectsz = NULL;
     objectsg = NULL;
     objectatts = NULL;
-    property3_lists = NULL;
 
     prop_default_value    = my_calloc(sizeof(int32), INDIV_PROP_START,
                                 "property default values");
@@ -2108,16 +2082,13 @@ extern void objects_allocate_arrays(void)
 
     if (!glulx_mode) {
       objectsz            = my_calloc(sizeof(objecttz), MAX_OBJECTS, 
-	                        "z-objects");
-      /* ###-I believe property3_lists isn't used even on the Z-code side. */
-      property3_lists     = my_calloc(sizeof(int), MAX_OBJECTS,
-                                "property 3 lists");
+                                "z-objects");
     }
     else {
       objectsg            = my_calloc(sizeof(objecttg), MAX_OBJECTS, 
-	                        "g-objects");
+                                "g-objects");
       objectatts          = my_calloc(NUM_ATTR_BYTES, MAX_OBJECTS, 
-	                        "g-attributes");
+                                "g-attributes");
       full_object_g.props = my_calloc(sizeof(propg), MAX_OBJ_PROP_COUNT,
                               "object property list");
       full_object_g.propdata = my_calloc(sizeof(assembly_operand),
@@ -2142,10 +2113,7 @@ extern void objects_free_arrays(void)
     my_free(&properties_table, "properties table");
     my_free(&individuals_table,"individual properties table");
 
-    if (glulx_mode) {
-        my_free(&property3_lists,  "property 3 lists");
-    }
-    else {
+    if (!glulx_mode) {
         my_free(&full_object_g.props, "object property list");
         my_free(&full_object_g.propdata, "object property data table");
     }

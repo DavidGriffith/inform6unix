@@ -1,13 +1,13 @@
 /* ------------------------------------------------------------------------- */
 /*   Header file for Inform:  Z-machine ("Infocom" format) compiler          */
 /*                                                                           */
-/*                               Inform 6.2                                  */
+/*                              Inform 6.30                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
-/*   Manuals for this language are available from the if-archive at          */
-/*   ftp.gmd.de.                                                             */
+/*   Manuals for this language are available from the IF-Archive at          */
+/*   http://www.ifarchive.org/                                               */
 /*                                                                           */
 /*   For notes on how this program may legally be used, see the Designer's   */
 /*   Manual introduction.  (Any recreational use is fine, and so is some     */
@@ -30,9 +30,9 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "24th Aug 2000"
-#define RELEASE_NUMBER 1621
-#define GLULX_RELEASE_NUMBER 37
+#define RELEASE_DATE "27th Feb 2004"
+#define RELEASE_NUMBER 1630
+#define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
 #define VNUMBER RELEASE_NUMBER
 
@@ -50,6 +50,7 @@
 /*     #define MACINTOSH   -  for the Apple Mac under Think C or Codewarrior */
 /*     #define MAC_MPW     -  for MPW under Codewarrior (and maybe Think C)  */
 /*     #define OS2         -  for OS/2 32-bit mode under IBM's C Set++       */
+/*     #define OSX         -  for the Apple Mac with OS X (another Unix)     */
 /*     #define PC          -  for 386+ IBM PCs, eg. Microsoft Visual C/C++   */
 /*     #define PC_QUICKC   -  for small IBM PCs under QuickC                 */
 /*     #define PC_WIN32    -  for Borland C++ or Microsoft Visual C++        */
@@ -57,14 +58,17 @@
 /*     #define UNIX64      -  for 64-bit Unix under gcc                      */
 /*     #define VMS         -  for VAX or ALPHA under DEC C, but not VAX C    */
 /*                                                                           */
-/*     In most cases executables are already available at ftp.gmd.de, and    */
-/*     these are sometimes enhanced with e.g. windowed interfaces whose      */
-/*     source is not archived with the main Inform source.]                  */
+/*     In most cases executables are already available at                    */
+/*     http://www.ifarchive.org/, and these are sometimes enhanced with      */
+/*     e.g. windowed interfaces whose source is not archived with the        */
+/*     main Inform source.]                                                  */
 /*                                                                           */
 /*   (If no machine is defined, then cautious #defines will be made.  In     */
 /*   most cases, porting to a new machine is a matter of carefully filling   */
 /*   out a block of definitions like those below.)                           */
 /* ------------------------------------------------------------------------- */
+
+/* #define UNIX */
 
 /* ------------------------------------------------------------------------- */
 /*   The first task is to include the ANSI header files, and typedef         */
@@ -115,8 +119,8 @@
 /*   PROMPT_INPUT        - prompt input (don't use Unix-style command line)  */
 /*   TIME_UNAVAILABLE    - don't use ANSI time routines to work out today's  */
 /*                         date                                              */
-/*   CHAR_IS_SIGNED      - if on your compiler the type "char" is signed     */
-/*                         by default, you must define this                  */
+/*   CHAR_IS_UNSIGNED    - if on your compiler the type "char" is unsigned   */
+/*                         by default, you should define this                */
 /*                                                                           */
 /*   3. An estimate of the typical amount of memory likely to be free        */
 /*   should be given in DEFAULT_MEMORY_SIZE.                                 */
@@ -140,22 +144,22 @@
 /*   character FN_ALT, which unless defined here will be a comma and will    */
 /*   be used to separate alternative locations in a path variable.           */
 /*                                                                           */
-/*   If FILE_EXTENSIONS is defined then the OS allows "file extensions" of   */
-/*   1 to 3 alphanumeric characters like ".txt" (for text files), ".z5"      */
+/*   If NO_FILE_EXTENSIONS is undefined then the OS allows "file extensions" */
+/*   of 1 to 3 alphanumeric characters like ".txt" (for text files), ".z5"   */
 /*   (for game files), etc., to indicate the file's type (and, crucially,    */
 /*   regards the same filename but with different extensions -- e.g.,        */
 /*   "frog.amp" and "frog.lil" -- as being different names).                 */
 /*   (The file extensions defined below are widely accepted, so please use   */
 /*   them unless there's a good reason why not.)                             */
 /*                                                                           */
-/*   Alternatively (or possibly as well) you can define STANDARD_DIRECTORIES */
+/*   You should then define STANDARD_DIRECTORIES (you can define it anyway)  */
 /*   in which case Inform will expect by default that files are sorted out   */
 /*   by being put into suitable directories (e.g., a "games" directory for   */
 /*   story files).                                                           */
 /*                                                                           */
 /*   If it's convenient for your port you can alter the detailed definitions */
-/*   which these broad settings make.  Be careful if neither                 */
-/*   STANDARD_DIRECTORIES nor FILE_EXTENSIONS is set, as then Inform may     */
+/*   which these broad settings make.  Be careful if NO_FILE_EXTENSIONS      */
+/*   is set without STANDARD_DIRECTORIES, as then Inform may                 */
 /*   overwrite its source with object code.                                  */
 /*                                                                           */
 /*   5. Filenames (or code related to filenames) for the three temporary     */
@@ -188,13 +192,10 @@
 #ifdef AMIGA
 /* 1 */
 #define MACHINE_STRING   "Amiga"
-/* 2 */
-#define CHAR_IS_SIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 /* 5 */
 #define __USE_SYSBASE
 #include <proto/exec.h>
@@ -213,11 +214,13 @@ static int32 unique_task_id(void)
 /* 1 */
 #define MACHINE_STRING   "RISC OS"
 /* 2 */
+#define CHAR_IS_UNSIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '.'
 #define STANDARD_DIRECTORIES
+#define NO_FILE_EXTENSIONS
 #define Source_Directory "inform"
 #define ICL_Directory "ICL"
 /* 5 */
@@ -232,13 +235,10 @@ static int32 unique_task_id(void)
 #ifdef ATARIST
 /* 1 */
 #define MACHINE_STRING   "Atari ST"
-/* 2 */
-#define CHAR_IS_SIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 /* 5 */
 #ifndef TOSFS
 #define Temporary_Directory "/tmp"
@@ -256,8 +256,6 @@ static int32 unique_task_id(void)
 #ifdef BEOS
 /* 1 */
 #define MACHINE_STRING   "BeOS"
-/* 2 */
-#define CHAR_IS_SIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
@@ -272,15 +270,13 @@ static int32 unique_task_id(void)
 #ifdef LINUX
 /* 1 */
 #define MACHINE_STRING   "Linux"
-/* 2 */
-#define CHAR_IS_SIGNED
 /* 3 */
-#define DEFAULT_MEMORY_SIZE LARGE_SIZE
+#define DEFAULT_MEMORY_SIZE HUGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 /* 5 */
 #define Temporary_Directory "/tmp"
+#define PATHLEN 512
 #endif
 /* ------------------------------------------------------------------------- */
 /*   Macintosh block                                                         */
@@ -297,7 +293,6 @@ static int32 unique_task_id(void)
 #define MACHINE_STRING   "Macintosh"
 #endif
 /* 2 */
-#define CHAR_IS_SIGNED
 #ifdef MAC_FACE
 #define EXTERNAL_SHELL
 #endif
@@ -310,7 +305,6 @@ static int32 unique_task_id(void)
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP           ':'
-#define FILE_EXTENSIONS
 #ifdef MAC_MPW
 #define Include_Extension ".h"
 #endif
@@ -329,11 +323,35 @@ static int32 unique_task_id(void)
 #ifdef OS2
 /* 1 */
 #define MACHINE_STRING   "OS/2"
+/* 2 */
+#define CHAR_IS_UNSIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
+#endif
+/* ------------------------------------------------------------------------- */
+/*   OSX block                                                              */
+/* ------------------------------------------------------------------------- */
+#ifdef OSX
+/* 1 */
+#define MACHINE_STRING   "Mac OS X"
+/* 3 */
+#define DEFAULT_MEMORY_SIZE LARGE_SIZE
+/* 4 */
+#define FN_SEP '/'
+/* 5 */
+#define Temporary_Directory "/tmp"
+#define INCLUDE_TASK_ID
+#define _POSIX_C_SOURCE 199506L
+#define _XOPEN_SOURCE 500
+#ifdef MAIN_INFORM_FILE
+#include <sys/types.h>
+#include <unistd.h>
+static int32 unique_task_id(void)
+{   return (int32)getpid();
+}
+#endif
 #endif
 /* ------------------------------------------------------------------------- */
 /*   PC and PC_QUICKC block                                                  */
@@ -347,7 +365,6 @@ static int32 unique_task_id(void)
 #define MACHINE_STRING   "PC"
 /* 2 */
 #define USE_TEMPORARY_FILES
-#define CHAR_IS_SIGNED
 /* 3 */
 #ifdef PC_QUICKC
 #define DEFAULT_MEMORY_SIZE SMALL_SIZE
@@ -356,7 +373,6 @@ static int32 unique_task_id(void)
 #endif
 /* 4 */
 #define FN_SEP '\\'
-#define FILE_EXTENSIONS
 /* 6 */
 #define DEFAULT_ERROR_FORMAT 1
 #endif
@@ -365,14 +381,11 @@ static int32 unique_task_id(void)
 /* ------------------------------------------------------------------------- */
 #ifdef PC_WIN32
 /* 1 */
-#define MACHINE_STRING   "PC/Win32"
-/* 2 */
-#define CHAR_IS_SIGNED
+#define MACHINE_STRING   "Win32"
 /* 3 */
 #define DEFAULT_MEMORY_SIZE HUGE_SIZE
 /* 4 */
 #define FN_SEP '\\'
-#define FILE_EXTENSIONS
 /* 6 */
 #define DEFAULT_ERROR_FORMAT 1
 #endif
@@ -383,13 +396,11 @@ static int32 unique_task_id(void)
 /* 1 */
 #define MACHINE_STRING   "Unix"
 /* 2 */
-#define CHAR_IS_SIGNED
 #define USE_TEMPORARY_FILES
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 /* 5 */
 #define Temporary_Directory "/tmp"
 #define INCLUDE_TASK_ID
@@ -406,13 +417,11 @@ static int32 unique_task_id(void)
 /* 1 */
 #define MACHINE_STRING   "Unix"
 /* 2 */
-#define CHAR_IS_SIGNED
 #define USE_TEMPORARY_FILES
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 /* 5 */
 #define Temporary_Directory "/tmp"
 #define INCLUDE_TASK_ID
@@ -436,11 +445,12 @@ static int32 unique_task_id(void)
 #else
 #define MACHINE_STRING   "VAX/VMS"
 #endif
+/* 2 */
+#define CHAR_IS_UNSIGNED
 /* 3 */
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 /* 4 */
 #define FN_SEP '/'
-#define FILE_EXTENSIONS
 #define Code_Extension   ".zip"
 #define V4Code_Extension ".zip"
 #define V5Code_Extension ".zip"
@@ -451,6 +461,10 @@ static int32 unique_task_id(void)
 /* ========================================================================= */
 /* Default settings:                                                         */
 /* ------------------------------------------------------------------------- */
+
+#ifndef NO_FILE_EXTENSIONS
+#define FILE_EXTENSIONS
+#endif
 
 #ifndef Transcript_File
 #ifdef FILE_EXTENSIONS
@@ -512,6 +526,7 @@ static int32 unique_task_id(void)
 #define V6Code_Extension  ""
 #define V7Code_Extension  ""
 #define V8Code_Extension  ""
+#define GlulxCode_Extension  ""
 #define Module_Extension  ""
 #define ICL_Extension     ""
 #endif
@@ -566,6 +581,10 @@ static int32 unique_task_id(void)
 #define FN_ALT ','
 #endif
 
+#ifndef PATHLEN
+#define PATHLEN 128
+#endif
+
 #ifndef Temporary_File
 #define Temporary_File "Inftemp"
 #endif
@@ -574,7 +593,11 @@ static int32 unique_task_id(void)
 #define DEFAULT_ERROR_FORMAT 0
 #endif
 
-#ifdef CHAR_IS_SIGNED
+#ifndef DEFAULT_MEMORY_SIZE
+#define DEFAULT_MEMORY_SIZE LARGE_SIZE
+#endif
+
+#ifndef CHAR_IS_UNSIGNED
     typedef unsigned char uchar;
 #else
     typedef char uchar;
@@ -657,8 +680,6 @@ static int32 unique_task_id(void)
 #define  MAX_ERRORS            100
 #define  MAX_IDENTIFIER_LENGTH  32
 #define  MAX_ABBREV_LENGTH      64
-#define  MAX_SOURCE_FILES      256
-#define  MAX_INCLUSION_DEPTH     5
 #define  MAX_DICT_WORD_SIZE     40
 #define  MAX_NUM_ATTR_BYTES     39
 
@@ -687,6 +708,8 @@ static int32 unique_task_id(void)
 typedef struct assembly_operand_t
 {   int   type;
     int32 value;
+    int   symtype;   /* 6.30 */
+    int   symflags;  /* 6.30 */
     int   marker;
 } assembly_operand;
 
@@ -700,13 +723,6 @@ typedef struct prop {
     uchar l, num;
     assembly_operand ao[32];
 } prop;
-
-#if 0 /* ###-unused */
-typedef struct propt {
-    char l;
-    prop pp[32];
-} propt;
-#endif /* ###-unused */
 
 /* Only one of this object. */
 typedef struct fpropt {
@@ -747,15 +763,6 @@ typedef struct objecttg {
     int32 propsize;
 } objecttg;
 
-/* ###- We pitch this structure entirely; the compiler code can now
-   deal with dict words whose size is defined at run-time. (Although
-   for Z-code, the size will always be 6.) */
-/*
-typedef struct dict_word {
-    uchar b[6];
-} dict_word;
-*/
-
 typedef struct dbgl_s
 {   int b1, b2, b3;
     uchar cc;
@@ -772,6 +779,8 @@ typedef struct token_data_s
 {   char *text;
     int32 value; /* ###-long */
     int type;
+    int symtype;  /* 6.30 */
+    int symflags;   /* 6.30 */
     int marker;
     dbgl line_ref;
 } token_data;
@@ -869,7 +878,7 @@ typedef struct operator_s
     Glulx:
         an internal opcode number if the operator can be translated
             directly to a single Glulx opcode;
-	FIRST_CC to LAST_CC if it is a condition;
+        FIRST_CC to LAST_CC if it is a condition;
         -1 otherwise                                                         */
 
 /* ------------------------------------------------------------------------- */
@@ -1020,6 +1029,9 @@ typedef struct operator_s
 #define print_form_zc 113
 #define make_menu_zc 114
 #define picture_table_zc 115
+#define print_unicode_zc 116
+#define check_unicode_zc 117
+
 
 /* ------------------------------------------------------------------------- */
 /*   Internal numbers representing assemble-able Glulx opcodes               */
@@ -1146,11 +1158,12 @@ typedef struct operator_s
 #define ASSEMBLY_CONTEXT   6
 #define ARRAY_CONTEXT      7
 #define FORINIT_CONTEXT    8
+#define RETURN_Q_CONTEXT   9
 
 #define LOWEST_SYSTEM_VAR_NUMBER 249        /* globals 249 to 255 are used
                                                in compiled code (Z-code 
-					       only; in Glulx, the range can
-					       change) */
+                                               only; in Glulx, the range can
+                                               change) */
 
 /* ------------------------------------------------------------------------- */
 /*   Symbol flag definitions (in no significant order)                       */
@@ -1321,6 +1334,7 @@ typedef struct operator_s
 #define NEAR_MK         18
 #define FROM_MK         19
 #define PROPERTY_MK     20
+#define CAP_A_MK        21
 
 /*  Index numbers into the keyword group "directive_keywords" (see "lexer.c")  */
 
@@ -1348,17 +1362,18 @@ typedef struct operator_s
 #define LAST_DK         21
 #define STRING_DK       22
 #define TABLE_DK        23
-#define DATA_DK         24
-#define INITIAL_DK      25
-#define INITSTR_DK      26
-#define WITH_DK         27
-#define PRIVATE_DK      28
-#define HAS_DK          29
-#define CLASS_DK        30
-#define ERROR_DK        31
-#define FATALERROR_DK   32
-#define WARNING_DK      33
-#define TERMINATING_DK  34
+#define BUFFER_DK       24
+#define DATA_DK         25
+#define INITIAL_DK      26
+#define INITSTR_DK      27
+#define WITH_DK         28
+#define PRIVATE_DK      29
+#define HAS_DK          30
+#define CLASS_DK        31
+#define ERROR_DK        32
+#define FATALERROR_DK   33
+#define WARNING_DK      34
+#define TERMINATING_DK  35
 
 /*  Index numbers into the keyword group "trace_keywords" (see "lexer.c")  */
 
@@ -1619,20 +1634,21 @@ typedef struct operator_s
 #define PUSH_OP 67 /* Glulx only */
 
 /* ------------------------------------------------------------------------- */
-/*   The four types of compiled array                                        */
+/*   The five types of compiled array                                        */
 /* ------------------------------------------------------------------------- */
 
 #define BYTE_ARRAY      0
 #define WORD_ARRAY      1
 #define STRING_ARRAY    2
 #define TABLE_ARRAY     3
+#define BUFFER_ARRAY    4
 
 /* ------------------------------------------------------------------------- */
 /*   Internal numbers used to refer to veneer routines                       */
 /*   (must correspond to entries in the table in "veneer.c")                 */
 /* ------------------------------------------------------------------------- */
 
-#define VENEER_ROUTINES 46
+#define VENEER_ROUTINES 48
 
 #define Box__Routine_VR    0
 
@@ -1640,51 +1656,53 @@ typedef struct operator_s
 #define DefArt_VR          2
 #define InDefArt_VR        3
 #define CDefArt_VR         4
-#define PrintShortName_VR  5
-#define EnglishNumber_VR   6
-#define Print__Pname_VR    7
+#define CInDefArt_VR       5
+#define PrintShortName_VR  6
+#define EnglishNumber_VR   7
+#define Print__Pname_VR    8
 
-#define WV__Pr_VR          8
-#define RV__Pr_VR          9
-#define CA__Pr_VR         10
-#define IB__Pr_VR         11
-#define IA__Pr_VR         12
-#define DB__Pr_VR         13
-#define DA__Pr_VR         14
-#define RA__Pr_VR         15
-#define RL__Pr_VR         16
-#define RA__Sc_VR         17
-#define OP__Pr_VR         18
-#define OC__Cl_VR         19
+#define WV__Pr_VR          9
+#define RV__Pr_VR         10
+#define CA__Pr_VR         11
+#define IB__Pr_VR         12
+#define IA__Pr_VR         13
+#define DB__Pr_VR         14
+#define DA__Pr_VR         15
+#define RA__Pr_VR         16
+#define RL__Pr_VR         17
+#define RA__Sc_VR         18
+#define OP__Pr_VR         19
+#define OC__Cl_VR         20
 
-#define Copy__Primitive_VR 20
-#define RT__Err_VR         21
-#define Z__Region_VR       22
-#define Unsigned__Compare_VR 23
-#define Metaclass_VR      24
-#define CP__Tab_VR        25
-#define Cl__Ms_VR         26
-#define RT__ChT_VR        27
-#define RT__ChR_VR        28
-#define RT__ChG_VR        29
-#define RT__ChGt_VR       30
-#define RT__ChPS_VR       31
-#define RT__TrPS_VR       32
-#define RT__ChLDB_VR      33
-#define RT__ChLDW_VR      34
-#define RT__ChSTB_VR      35
-#define RT__ChSTW_VR      36
-#define RT__ChPrintC_VR   37
-#define RT__ChPrintA_VR   38
-#define RT__ChPrintS_VR   39
-#define RT__ChPrintO_VR   40
+#define Copy__Primitive_VR 21
+#define RT__Err_VR         22
+#define Z__Region_VR       23
+#define Unsigned__Compare_VR 24
+#define Metaclass_VR      25
+#define CP__Tab_VR        26
+#define Cl__Ms_VR         27
+#define RT__ChT_VR        28
+#define RT__ChR_VR        29
+#define RT__ChG_VR        30
+#define RT__ChGt_VR       31
+#define RT__ChPS_VR       32
+#define RT__ChPR_VR       33 
+#define RT__TrPS_VR       34
+#define RT__ChLDB_VR      35
+#define RT__ChLDW_VR      36
+#define RT__ChSTB_VR      37
+#define RT__ChSTW_VR      38
+#define RT__ChPrintC_VR   39
+#define RT__ChPrintA_VR   40
+#define RT__ChPrintS_VR   41
+#define RT__ChPrintO_VR   42
 
 /* Glulx-only veneer routines */
-#define OB__Move_VR       41
-#define OB__Remove_VR     42
-#define Print__Addr_VR    43
-#define Glk__Wrap_VR      44
-#define Dynam__String_VR  45
+#define OB__Move_VR       43
+#define OB__Remove_VR     44
+#define Print__Addr_VR    45
+#define Glk__Wrap_VR      46
+#define Dynam__String_VR  47
 
 /* ------------------------------------------------------------------------- */
 /*   Run-time-error numbers (must correspond with RT__Err code in veneer)    */
@@ -1820,10 +1838,10 @@ typedef struct operator_s
 #define DELETED_MV            37     /* Ditto: marks bytes deleted from code */
 #define BRANCH_MV             38     /* Used in "asm.c" for routine coding */
 #define BRANCHMAX_MV          58     /* In fact, the range BRANCH_MV to 
-					BRANCHMAX_MV all means the same thing.
-					The position within the range means
-					how far back from the label to go
-					to find the opmode byte to modify. */
+                                        BRANCHMAX_MV all means the same thing.
+                                        The position within the range means
+                                        how far back from the label to go
+                                        to find the opmode byte to modify. */
 
 /* ========================================================================= */
 /*   Initialisation extern definitions                                       */
@@ -2203,7 +2221,7 @@ extern int test_for_incdec(assembly_operand AO);
 /* ------------------------------------------------------------------------- */
 
 extern int  input_file;
-extern FileId InputFiles[];
+extern FileId *InputFiles;
 
 extern FILE *Temp1_fp, *Temp2_fp, *Temp3_fp;
 extern char Temp1_Name[], Temp2_Name[], Temp3_Name[];
@@ -2266,11 +2284,13 @@ extern int oddeven_packing_switch;
 extern int glulx_mode, compression_switch;
 
 extern int error_format,    store_the_text,       asm_trace_setting,
-    double_space_setting,   trace_fns_setting,    character_set_setting;
+    double_space_setting,   trace_fns_setting,    character_set_setting,
+    header_ext_setting;
 
 extern char Debugging_Name[];
 extern char Transcript_Name[];
 extern char Language_Name[];
+extern char Charset_Map[];
 
 extern char banner_line[];
 
@@ -2355,10 +2375,12 @@ extern int MAX_QTEXT_SIZE,  MAX_SYMBOLS,    HASH_TAB_SIZE,   MAX_DICT_ENTRIES,
            MAX_STATIC_DATA,      MAX_PROP_TABLE_SIZE,   SYMBOLS_CHUNK_SIZE,
            MAX_EXPRESSION_NODES, MAX_LABELS,            MAX_LINESPACE,
            MAX_LOW_STRINGS,      MAX_CLASSES,           MAX_CLASS_TABLE_SIZE,
-           MAX_VERBS,            MAX_VERBSPACE,         MAX_ARRAYS;
+           MAX_VERBS,            MAX_VERBSPACE,         MAX_ARRAYS,
+           MAX_INCLUSION_DEPTH,  MAX_SOURCE_FILES;
 
 extern int32 MAX_STATIC_STRINGS, MAX_ZCODE_SIZE, MAX_LINK_DATA_SIZE,
-           MAX_TRANSCRIPT_SIZE,  MAX_INDIV_PROP_TABLE_SIZE;
+           MAX_TRANSCRIPT_SIZE,  MAX_INDIV_PROP_TABLE_SIZE,
+           MAX_NUM_STATIC_STRINGS;
 
 extern int32 MAX_OBJ_PROP_COUNT, MAX_OBJ_PROP_TABLE_SIZE;
 extern int MAX_LOCAL_VARIABLES, MAX_GLOBAL_VARIABLES;
@@ -2483,7 +2505,7 @@ extern int32
     abbreviations_offset;    /* For Glulx */
 
 extern int32 Out_Size,      Write_Code_At,        Write_Strings_At;
-extern int32 RAM_Size, 	    Write_RAM_At;    /* For Glulx */
+extern int32 RAM_Size,      Write_RAM_At;    /* For Glulx */
 
 extern int release_number, statusline_flag;
 extern int flags2_requirements[];
@@ -2523,7 +2545,6 @@ extern int32 static_strings_extent;
 extern int32 no_strings, no_dynamic_strings;
 
 #define MAX_DYNAMIC_STRINGS (64)
-#define MAX_NUM_STATIC_STRINGS (10000)
 
 /* This is the maximum number of (8-bit) bytes that can encode a single
    Huffman entity. Four should be plenty, unless someone starts encoding

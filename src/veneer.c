@@ -3,8 +3,8 @@
 /*              by the compiler (e.g. DefArt) which the program doesn't      */
 /*              provide                                                      */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -24,7 +24,7 @@ extern void compile_initial_routine(void)
         trivial routine consisting of a call to "Main" followed by "quit".   */
 
   int32 j;
-    assembly_operand AO, AO2; dbgl null_dbgl;
+    assembly_operand AO; dbgl null_dbgl;
     null_dbgl.b1 = 0; null_dbgl.b2 = 0; null_dbgl.b3 = 0; null_dbgl.cc = 0;
 
     j = symbol_index("Main__", -1);
@@ -37,26 +37,25 @@ extern void compile_initial_routine(void)
     if (!glulx_mode) {
 
         AO.value = 0; AO.type = LONG_CONSTANT_OT; AO.marker = MAIN_MV;
-	AO2.value = 255; AO2.type = VARIABLE_OT; AO2.marker = 0;
 
-	sequence_point_follows = FALSE;
+        sequence_point_follows = FALSE;
 
-	if (version_number > 3)
-	    assemblez_1_to(call_vs_zc, AO, AO2);
-	else
-	    assemblez_1_to(call_zc, AO, AO2);
+        if (version_number > 3)
+            assemblez_1_to(call_vs_zc, AO, temp_var1);
+        else
+            assemblez_1_to(call_zc, AO, temp_var1);
 
-	assemblez_0(quit_zc);
+        assemblez_0(quit_zc);
 
     }
     else {
 
         AO.value = 0; AO.type = CONSTANT_OT; AO.marker = MAIN_MV;
 
-	sequence_point_follows = FALSE;
+        sequence_point_follows = FALSE;
 
-	assembleg_3(call_gc, AO, zero_operand, zero_operand);
-	assembleg_1(return_gc, zero_operand);
+        assembleg_3(call_gc, AO, zero_operand, zero_operand);
+        assembleg_1(return_gc, zero_operand);
 
     }
 
@@ -159,6 +158,9 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
     {   "CDefArt",
         "obj; print \"The \", obj; ]", "", "", "", "", ""
     },
+    {   "CInDefArt",
+        "obj; print \"A \", obj; ]", "", "", "", "", ""
+    },
     {   "PrintShortName",
         "obj; switch(metaclass(obj))\
          {   0: print \"nothing\";\
@@ -222,9 +224,10 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
         "obj identifier x;\
          x = obj..&identifier;\
          if (x==0)\
-         {   if (identifier >= 1 && identifier < 64)\
+         {   if (identifier >= 1 && identifier < 64 && obj.#identifier <= 2)\
                  return obj.identifier;\
              RT__Err(\"read\", obj, identifier); return; }\
+         if (obj.#identifier > 2) RT__Err(\"read\", obj, identifier, 2);\
          return x-->0;\
          ]", "", "", "", "", ""
     },
@@ -536,7 +539,7 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          print \"^[** Programming error: \";\
          if (crime<0) jump RErr;\
          if (crime==1) { print \"class \"; @print_obj obj;\
-         \": 'create' can have 0 to 5 parameters only **]\";}\
+         \": 'create' can have 0 to 3 parameters only **]\";}\
          if (crime == 32) \"objectloop broken because the object \",\
          (name) obj, \" was moved while the loop passed through it **]\";\
          if (crime == 33) \"tried to print (char) \", obj,\
@@ -551,12 +554,11 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          if (crime >= 28) { if (crime==28 or 29) print \"read from \";\
          else print \"write to \";\
          if (crime==29 or 31) print \"-\"; print \"->\", obj,\
-         \" in the\"; if(size>=8) { print\" (->)\"; size=size-8; }\
-         if(size>=4) { print\" (-->)\"; size=size-4; }\
-         switch(size){0,1:q=0; 2:print \" string\";\
-         q=1; 3:print \" table\";q=1;} \" array ~\",\
-         (string) #array_names_offset-->p, \"~, which has entries \", q,\
-         \" up to \",id,\" **]\"; }\
+         \" in the\"; switch(size&7){0,1:q=0; 2:print \" string\";\
+         q=1; 3:print \" table\";q=1; 4:print \" buffer\";q=WORDSIZE;} \
+         if(size&16) print\" (->)\"; if(size&8) print\" (-->)\";\
+         \" array ~\", (string) #array_names_offset-->p,\
+         \"~, which has entries \", q, \" up to \",id,\" **]\"; }\
          if (crime >= 24 && crime <=27) { if (crime<=25) print \"read\";\
          else print \"write\"; print \" outside memory using \";\
          switch(crime) { 24,26:\"-> **]\"; 25,27:\"--> **]\"; } }\
@@ -577,8 +579,8 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          p=id; if (p==obj) p=obj;\
          else do { print \" in \", (name) p; p=parent(p);} until (p==obj);\
          \" in \", (name) p, \" **]\"; }\
-         \" **]\"; 19: \"give~ or test ~has~ or ~hasnt~ with a non-attribute\
-         on the object \",(name) obj,\" **]\";\
+         \" **]\"; 19: \"give~ or test ~has~ or ~hasnt~ with a non-attribute"\
+        " on the object \",(name) obj,\" **]\";\
          21: print \".&\"; 22: print \".#\"; 23: print \".\"; }\
          \"~ of \", (name) obj, \" **]\"; }",
         ".RErr; if (obj>=0 && obj<=(#largest_object-255)) {\
@@ -586,7 +588,9 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          if (obj) @print_obj obj;else print \"nothing\";print\" \";}\
          print \"(object number \", obj, \") \";\
          if (id<0) print \"is not of class \", (name) -id;",
-        "else\
+        "else if (size) print \"has a property \", (property) id,\
+         \", but it is longer than 2 bytes so you cannot use ~.~\";\
+         else\
          {   print \" has no property \", (property) id;\
              p = #identifiers_table;\
              size = p-->0;\
@@ -603,8 +607,12 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
                         0  none of the above                                 */
 
         "Z__Region",
-        "addr;\
-         if (addr==0 || Unsigned__Compare(addr, $001A-->0) >= 0) rfalse;\
+        "addr top;\
+         if (addr==0 or -1) rfalse;\
+         top = addr;\
+         #IfV5; #iftrue (#version_number == 6) || (#version_number == 7);\
+         @log_shift addr $FFFF -> top; #Endif; #Endif;\
+         if (Unsigned__Compare(top, $001A-->0) >= 0) rfalse;\
          if (addr>=1 && addr<=(#largest_object-255)) rtrue;\
          #iftrue #oddeven_packing;\
          @test addr 1 ?~NotString;\
@@ -665,15 +673,13 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
     {   /*  Cl__Ms:   the five message-receiving properties of Classes       */
 
         "Cl__Ms",
-        "obj id y a b c d e f x;\
+        "obj id y a b c d x;\
          switch(id)\
          {   create:\
                  if (children(obj)<=1) rfalse; x=child(obj);\
                  remove x; if (x provides create) { if (y==0) x..create();\
                  if (y==1) x..create(a); if (y==2) x..create(a,b);\
-                 if (y==3) x..create(a,b,c); if (y==4) x..create(a,b,c,d);\
-                 if (y>5) RT__Err(1,obj);\
-                 if (y>=5) x..create(a,b,c,d,e);}\
+                 if (y>3) RT__Err(1,obj); if (y>=3) x..create(a,b,c);}\
                  return x;\
              recreate:\
                  if (~~(a ofclass obj))\
@@ -681,9 +687,7 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
                  Copy__Primitive(a, child(obj));\
                  if (a provides create) { if (y==1) a..create();\
                  if (y==2) a..create(b); if (y==3) a..create(b,c);\
-                 if (y==4) a..create(b,c,d); if (y==5) a..create(b,c,d,e);\
-                 if (y>6) RT__Err(1,obj);\
-                 if (y>=6) a..create(b,c,d,e,f);\
+                 if (y>4) RT__Err(1,obj); if (y>=4) a..create(b,c,d);\
                  } rfalse;",
             "destroy:\
                  if (~~(a ofclass obj))\
@@ -777,9 +781,9 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
                       cause error and do nothing if not; otherwise make it */
 
         "RT__ChPS",
-        "obj prop val;\
-         if (obj<5 || obj>(#largest_object-255) || obj in 1 || obj.&prop==0)\
-         return RT__Err(\"set\", obj, prop);\
+        "obj prop val size;\
+         if (obj<5 || obj>(#largest_object-255) || obj in 1 || obj.&prop==0 || (size=obj.#prop)>2 )\
+         return RT__Err(\"set\", obj, prop, size);\
          @put_prop obj prop val;",
         "#ifdef INFIX;\
          if (obj has infix__watching || (debug_flag & 15)) RT__TrPS(obj,prop,val);\
@@ -787,6 +791,16 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          if (debug_flag & 15) RT__TrPS(obj,prop,val);\
          #endif; #endif;\
          return val; ]", "", "", "", ""
+    },
+    {   /*  RT__ChPR:  check at run-time that a proposed property read is legal
+                      cause error and return 0 if not; otherwise read it */
+
+        "RT__ChPR",
+        "obj prop val size;\
+         if (obj<5 || obj>(#largest_object-255) || (size=obj.#prop)>2)\
+           {RT__Err(\"read\", obj, prop, size); obj=2;}\
+         @get_prop obj prop -> val;",
+        "return val; ]", "", "", "", ""
     },
     {   /*  RT__TrPS:  trace property settings  */
 
@@ -920,6 +934,9 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
     {   "CDefArt",
         "obj; print \"The \", obj; ]", "", "", "", "", ""
     },
+    {   "CInDefArt",
+        "obj; print \"A \", obj; ]", "", "", "", "", ""
+    },
     {   "PrintShortName",
         "obj q; switch(metaclass(obj))\
          {   0: print \"nothing\";\
@@ -1017,8 +1034,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                return z;\
              }\
              jump Call__Error;\
-           }\
-           if (zr == 3) {\
+           }",
+        "  if (zr == 3) {\
              if (id == print) {\
                @streamstr obj; rtrue;\
              }\
@@ -1032,8 +1049,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                  len = $7FFFFFFF;\
                }\
                s2 = glk($0048);\
-               s = glk($0043, m+4, len-4, 1, 0);\
-               if (s) {\
+               s = glk($0043, m+4, len-4, 1, 0);",
+        "      if (s) {\
                  glk($0047, s);\
                  @streamstr obj;\
                  glk($0047, s2);\
@@ -1048,8 +1065,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                rfalse;\
              }\
              jump Call__Error;\
-           }\
-           if (zr ~= 1)\
+           }",
+        "  if (zr ~= 1)\
              jump Call__Error;\
            #ifdef DEBUG;#ifdef InformLibrary;\
            if (debug_flag & 1 ~= 0) {\
@@ -1079,8 +1096,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                  @call Cl__Ms m val;\
                  return val;\
              }\
-           }\
-           addr = obj.&id;\
+           }",
+        "  addr = obj.&id;\
            if (addr == 0) {\
              if (id > 0 && id < INDIV_PROP_START) {\
                addr = #cpv__start + 4*id;\
@@ -1101,8 +1118,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                  s = sender; sender = self; self = obj; s2 = sw__var;\
                  #ifdef LibSerial;\
                  if (id==life) sw__var=reason_code; else sw__var=action;\
-                 #endif;\
-                 @stkcopy _vararg_count;\
+                 #endif;",
+        "        @stkcopy _vararg_count;\
                  @call val _vararg_count z;\
                  self = sender; sender = s; sw__var = s2;\
                  if (z ~= 0) return z;\
@@ -1118,7 +1135,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
            .Call__Error;\
            RT__Err(\"send message\", obj, id);\
            rfalse;\
-         ]", "", "", "", "", ""
+         ]"
     },
     {
         /*  IB__Pr:  ++(individual property)                                 */
@@ -1381,12 +1398,11 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
          if (crime >= 28) { if (crime==28 or 29) print \"read from \";\
          else print \"write to \";\
          if (crime==29 or 31) print \"-\"; print \"->\", obj,\
-         \" in the\"; if(size>=8) { print\" (->)\"; size=size-8; }\
-         if(size>=4) { print\" (-->)\"; size=size-4; }\
-         switch(size){0,1:q=0; 2:print \" string\";\
-         q=1; 3:print \" table\";q=1;} \" array ~\",\
-         (string) #array_names_offset-->(p+1), \"~, which has entries \", q,\
-         \" up to \",id,\" **]\"; }\
+         \" in the\"; switch(size&7){0,1:q=0; 2:print \" string\";\
+         q=1; 3:print \" table\";q=1; 4:print \" buffer\";q=WORDSIZE;} \
+         if(size&16) print\" (->)\"; if(size&8) print\" (-->)\";\
+         \" array ~\", (string) #array_names_offset-->(p+1),\
+         \"~, which has entries \", q, \" up to \",id,\" **]\"; }\
          if (crime >= 24 && crime <=27) { if (crime<=25) print \"read\";\
          else print \"write\"; print \" outside memory using \";\
          switch(crime) { 24,26:\"-> **]\"; 25,27:\"--> **]\"; } }\
@@ -1407,8 +1423,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
          p=id; if (p==obj) p=obj;\
          else do { print \" in \", (name) p; p=parent(p);} until (p==obj);\
          \" in \", (name) p, \" **]\"; }\
-         \" **]\"; 19: \"give~ or test ~has~ or ~hasnt~ with a non-attribute\
-         on the object \",(name) obj,\" **]\";\
+         \" **]\"; 19: \"give~ or test ~has~ or ~hasnt~ with a non-attribute"\
+        " on the object \",(name) obj,\" **]\";\
          21: print \".&\"; 22: print \".#\"; 23: print \".\"; }\
          \"~ of \", (name) obj, \" **]\"; }",
         ".RErr; if (obj==0 || obj->0>=$70 && obj->0<=$7F) {\
@@ -1437,11 +1453,12 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
         "addr tb endmem;\
            if (addr<36) rfalse;\
            @getmemsize endmem;\
-           if (Unsigned__Compare(addr, endmem) >= 0) rfalse;\
+           @jgeu addr endmem?outrange;\
            tb=addr->0;\
            if (tb >= $E0) return 3;\
            if (tb >= $C0) return 2;\
            if (tb >= $70 && tb <= $7F && addr >= (0-->2)) return 1;\
+           .outrange;\
            rfalse;\
          ]", "", "", "", "", ""
     },
@@ -1484,6 +1501,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
         */
         "CP__Tab",
         "obj id otab max res;\
+           if (Z__Region(obj)~=1) {RT__Err(23, obj); rfalse;}\
            otab = obj-->4;\
            if (otab == 0) return 0;\
            max = otab-->0;\
@@ -1664,6 +1682,15 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
            #endif; #endif;\
            return res;\
          ]", "", "", "", "", ""
+    },
+    {   /*  RT__ChPR:  check at run-time that a proposed property read is legal.
+                       cause error and return 0 if not; otherwise read it */
+        "RT__ChPR",
+        "obj prop val;\
+         if (obj==0 or Class or String or Routine or Object || Z_Region(obj)~=1 )\
+           {RT__Err(\"read\", obj, prop); obj=2;}\
+         val = RV__Pr(obj, prop);",
+        "return val; ]", "", "", "", ""
     },
     {   /*  RT__TrPS:  trace property settings  */
 
@@ -1947,6 +1974,7 @@ static void mark_as_needed_z(int code)
             case RT__ChT_VR:
             case RT__ChG_VR:
             case RT__ChGt_VR:
+            case RT__ChPR_VR:
                 mark_as_needed_z(RT__Err_VR);
                 return;
             case RT__ChPS_VR:
@@ -1985,12 +2013,12 @@ static void mark_as_needed_g(int code)
            calls as needed */
         switch(code)
         {
-	    case PrintShortName_VR:
-	        mark_as_needed_g(Metaclass_VR);
-	        return;
-	    case Print__Pname_VR:
-	        mark_as_needed_g(PrintShortName_VR);
-		return;
+            case PrintShortName_VR:
+                mark_as_needed_g(Metaclass_VR);
+                return;
+            case Print__Pname_VR:
+                mark_as_needed_g(PrintShortName_VR);
+                return;
             case WV__Pr_VR:
                 mark_as_needed_g(RA__Pr_VR);
                 mark_as_needed_g(RT__TrPS_VR);
@@ -2040,13 +2068,14 @@ static void mark_as_needed_g(int code)
                 mark_as_needed_g(RT__Err_VR);
                 return;
             case Copy__Primitive_VR:
-	        mark_as_needed_g(CP__Tab_VR);
-	        return;
+                mark_as_needed_g(CP__Tab_VR);
+                return;
             case Z__Region_VR:
                 mark_as_needed_g(Unsigned__Compare_VR);
                 return;
+            case CP__Tab_VR:
             case Metaclass_VR:
-	        mark_as_needed_g(Z__Region_VR);
+                mark_as_needed_g(Z__Region_VR);
                 return;
             case Cl__Ms_VR:
                 mark_as_needed_g(OC__Cl_VR);
@@ -2065,7 +2094,7 @@ static void mark_as_needed_g(int code)
                 mark_as_needed_g(Z__Region_VR);
                 mark_as_needed_g(OB__Remove_VR);
                 return;
-	    case RT__ChT_VR:
+            case RT__ChT_VR:
                 mark_as_needed_g(RT__Err_VR);
                 mark_as_needed_g(Z__Region_VR);
                 mark_as_needed_g(OB__Move_VR);
@@ -2075,6 +2104,9 @@ static void mark_as_needed_g(int code)
                 mark_as_needed_g(RT__TrPS_VR);
                 mark_as_needed_g(WV__Pr_VR);
                 return;
+            case RT__ChPR_VR:
+                mark_as_needed_g(RT__Err_VR);
+                mark_as_needed_g(RV__Pr_VR); return;
             case RT__ChLDB_VR:
             case RT__ChLDW_VR:
             case RT__ChSTB_VR:
@@ -2095,12 +2127,12 @@ static void mark_as_needed_g(int code)
                 mark_as_needed_g(RT__Err_VR);
                 mark_as_needed_g(Z__Region_VR);
                 return;
-	    case Print__Addr_VR:
+            case Print__Addr_VR:
                 mark_as_needed_g(RT__Err_VR);
-	        return;
-	    case Dynam__String_VR:
+                return;
+            case Dynam__String_VR:
                 mark_as_needed_g(RT__Err_VR);
-	        return;
+                return;
         }
     }
 }
@@ -2109,22 +2141,22 @@ extern assembly_operand veneer_routine(int code)
 {   assembly_operand AO;
     if (!glulx_mode) { 
         AO.type = LONG_CONSTANT_OT;
-	AO.marker = VROUTINE_MV;
-	AO.value = code;
-	mark_as_needed_z(code);
+        AO.marker = VROUTINE_MV;
+        AO.value = code;
+        mark_as_needed_z(code);
     }
     else {
         AO.type = CONSTANT_OT;
-	AO.marker = VROUTINE_MV;
-	AO.value = code;
-	mark_as_needed_g(code);
+        AO.marker = VROUTINE_MV;
+        AO.value = code;
+        mark_as_needed_g(code);
     }
     return(AO);
 }
 
 static void compile_symbol_table_routine(void)
 {   int32 j, nl, arrays_l, routines_l, constants_l;
-    assembly_operand AO, AO2, AO3, tv2, tv3; dbgl null_dbgl;
+    assembly_operand AO, AO2, AO3; dbgl null_dbgl;
     null_dbgl.b1 = 0; null_dbgl.b2 = 0; null_dbgl.b3 = 0; null_dbgl.cc = 0;
 
     veneer_mode = TRUE; j = symbol_index("Symb__Tab", -1);
@@ -2148,9 +2180,6 @@ static void compile_symbol_table_routine(void)
     AO.value = 1; AO.type = VARIABLE_OT; AO.marker = 0;
     AO2.type = SHORT_CONSTANT_OT; AO2.marker = 0;
     AO3.type = LONG_CONSTANT_OT; AO3.marker = 0;
-
-    tv2.type = VARIABLE_OT; tv2.value = 254; tv2.marker = 0;
-    tv3.type = VARIABLE_OT; tv3.value = 253; tv3.marker = 0;
 
     arrays_l = next_label++;
     routines_l = next_label++;
@@ -2179,12 +2208,12 @@ static void compile_symbol_table_routine(void)
             assemblez_2_branch(je_zc, AO, AO2, nl, FALSE);
             AO3.value = array_sizes[j];
             AO3.marker = 0;
-            assemblez_store(tv2, AO3);
+            assemblez_store(temp_var2, AO3);
             AO3.value = array_types[j];
             if (sflags[array_symbols[j]] & (INSF_SFLAG+SYSTEM_SFLAG))
                 AO3.value = AO3.value + 16;
             AO3.marker = 0;
-            assemblez_store(tv3, AO3);
+            assemblez_store(temp_var3, AO3);
             AO3.value = svals[array_symbols[j]];
             AO3.marker = ARRAY_MV;
             assemblez_1(ret_zc, AO3);
@@ -2205,7 +2234,7 @@ static void compile_symbol_table_routine(void)
         if (sflags[named_routine_symbols[j]]
             & (INSF_SFLAG+SYSTEM_SFLAG)) AO3.value = 16;
         AO3.marker = 0;
-        assemblez_store(tv3, AO3);
+        assemblez_store(temp_var3, AO3);
         AO3.value = svals[named_routine_symbols[j]];
         AO3.marker = IROUTINE_MV;
         assemblez_1(ret_zc, AO3);
@@ -2231,7 +2260,7 @@ static void compile_symbol_table_routine(void)
             if (sflags[j] & (INSF_SFLAG+SYSTEM_SFLAG))
                 AO3.value = AO3.value + 16;
             AO3.marker = 0;
-            assemblez_store(tv3, AO3);
+            assemblez_store(temp_var3, AO3);
             AO3.value = j;
             AO3.marker = SYMBOL_MV;
             assemblez_1(ret_zc, AO3);
@@ -2246,7 +2275,6 @@ static void compile_symbol_table_routine(void)
     variable_usage[2] = TRUE;
     assemble_routine_end(FALSE, &null_dbgl);
     veneer_mode = FALSE;
-
   }
   else {
 

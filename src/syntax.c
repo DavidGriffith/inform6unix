@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "syntax" : Syntax analyser and compiler                                 */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -179,8 +179,8 @@ static void compile_alternatives_g(assembly_operand switch_value, int n,
 
     if (n == 1) {
       assembleg_2_branch(the_zc, switch_value,
-	spec_stack[stack_level],
-	label); 
+        spec_stack[stack_level],
+        label); 
     }
     else {
       error("*** Cannot generate multi-equality tests in Glulx ***");
@@ -213,8 +213,8 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
 
         if (action_switch)
         {   get_next_token();
-	    spec_stack[spec_sp].type = 
-	        ((!glulx_mode) ? LONG_CONSTANT_OT : CONSTANT_OT);
+            spec_stack[spec_sp].type = 
+                ((!glulx_mode) ? LONG_CONSTANT_OT : CONSTANT_OT);
             spec_stack[spec_sp].value = 0;
             spec_stack[spec_sp].marker = 0;
             spec_stack[spec_sp] = action_of_name(token_text);
@@ -270,8 +270,8 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
          }
          else
          {   
-	   if (!glulx_mode) {
-	     if (i == spec_sp - 2)
+           if (!glulx_mode) {
+             if (i == spec_sp - 2)
              {   assemblez_2_branch(jl_zc, switch_value, spec_stack[i],
                      label, TRUE);
                  assemblez_2_branch(jg_zc, switch_value, spec_stack[i+1],
@@ -284,9 +284,9 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
                      label_after, FALSE);
                  assemble_label_no(next_label++);
              }
-	   }
-	   else {
-	     if (i == spec_sp - 2)
+           }
+           else {
+             if (i == spec_sp - 2)
              {   assembleg_2_branch(jlt_gc, switch_value, spec_stack[i],
                      label);
                  assembleg_2_branch(jgt_gc, switch_value, spec_stack[i+1],
@@ -299,8 +299,8 @@ static void parse_switch_spec(assembly_operand switch_value, int label,
                      label_after);
                  assemble_label_no(next_label++);
              }
-	   }
-	   i = i+2;
+           }
+           i = i+2;
          }
      }
 
@@ -346,7 +346,7 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
 
         if (no_locals == MAX_LOCAL_VARIABLES-1)
         {   error_numbered("Too many local variables for a routine; max is",
-	        MAX_LOCAL_VARIABLES-1);
+                MAX_LOCAL_VARIABLES-1);
             panic_mode_error_recovery();
             break;
         }
@@ -399,11 +399,11 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
             if (switch_clause_made)
             {   if (!execution_never_reaches_here)
                 {   sequence_point_follows = FALSE;
-		    if (!glulx_mode)
+                    if (!glulx_mode)
                         assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
-		    else
-		        assembleg_1(return_gc, 
-			    ((embedded_flag)?zero_operand:one_operand));
+                    else
+                        assembleg_1(return_gc, 
+                            ((embedded_flag)?zero_operand:one_operand));
                 }
                 assemble_label_no(switch_label);
             }
@@ -419,9 +419,10 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
 
         /*  Only check for the form of a case switch if the initial token
             isn't double-quoted text, as that would mean it was a print_ret
-            statement: this is a mild ambiguity in the grammar.  */
+            statement: this is a mild ambiguity in the grammar. 
+            Action statements also cannot be cases. */
 
-        if (token_type != DQ_TT)
+        if ((token_type != DQ_TT) && (token_type != SEP_TT))
         {   get_next_token();
             if (switch_sign() > 0)
             {   assembly_operand AO;
@@ -431,11 +432,11 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                 if (switch_clause_made)
                 {   if (!execution_never_reaches_here)
                     {   sequence_point_follows = FALSE;
-		        if (!glulx_mode)
-			    assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
-			else
-			    assembleg_1(return_gc, 
-			        ((embedded_flag)?zero_operand:one_operand));
+                        if (!glulx_mode)
+                            assemblez_0((embedded_flag)?rfalse_zc:rtrue_zc);
+                        else
+                            assembleg_1(return_gc, 
+                                ((embedded_flag)?zero_operand:one_operand));
                     }
                     assemble_label_no(switch_label);
                 }
@@ -444,14 +445,14 @@ extern int32 parse_routine(char *source, int embedded_flag, char *name,
                 switch_clause_made = TRUE;
                 put_token_back(); put_token_back();
 
-		if (!glulx_mode) {
-		    AO.type = VARIABLE_OT; AO.value = 249; AO.marker = 0;
-		}
-		else {
-		    AO.type = GLOBALVAR_OT;
-		    AO.value = MAX_LOCAL_VARIABLES+6; /* sw__var */
-		    AO.marker = 0;
-		}
+                if (!glulx_mode) {
+                    AO.type = VARIABLE_OT; AO.value = 249; AO.marker = 0;
+                }
+                else {
+                    AO.type = GLOBALVAR_OT;
+                    AO.value = MAX_LOCAL_VARIABLES+6; /* sw__var */
+                    AO.marker = 0;
+                }
                 parse_switch_spec(AO, switch_label, TRUE);
 
                 continue;
@@ -550,7 +551,7 @@ extern void parse_code_block(int break_label, int continue_label,
                     put_token_back(); put_token_back();
                     if (unary_minus_flag) put_token_back();
 
-		    AO = temp_var1;
+                    AO = temp_var1;
                     parse_switch_spec(AO, switch_label, FALSE);
                     continue;
                 }

@@ -2,8 +2,8 @@
 /*   "verbs" :  Manages actions and grammar tables; parses the directives    */
 /*              Verb and Extend.                                             */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -166,10 +166,10 @@ extern assembly_operand action_of_name(char *name)
     if (stypes[j] == FAKE_ACTION_T)
     {   AO.value = svals[j];
         AO.marker = 0;
-	if (!glulx_mode)
-	  AO.type = LONG_CONSTANT_OT;
-	else
-	  set_constant_ot(&AO);
+        if (!glulx_mode)
+          AO.type = LONG_CONSTANT_OT;
+        else
+          set_constant_ot(&AO);
         sflags[j] |= USED_SFLAG;
         return AO;
     }
@@ -243,7 +243,7 @@ static int make_adjective(char *English_word)
     dictionary_prepare(English_word, new_sort_code);
     for (i=0; i<no_adjectives; i++)
         if (compare_sorts(new_sort_code,
-	  adjective_sort_code+i*DICT_WORD_SIZE) == 0)
+          adjective_sort_code+i*DICT_WORD_SIZE) == 0)
             return(0xff-i);
     adjectives[no_adjectives]
         = dictionary_add(English_word,8,0,0xff-no_adjectives);
@@ -274,16 +274,29 @@ static int make_parsing_routine(int32 routine_address)
 /*   The English-verb list.                                                  */
 /* ------------------------------------------------------------------------- */
 
-static int find_verb(char *English_verb)
+static int find_or_renumber_verb(char *English_verb, int *new_number)
 {
-    /*  Returns the Inform-verb number which the given English verb causes,
-        or -1 if the given verb is not in the dictionary                     */
+    /*  If new_number is null, returns the Inform-verb number which the
+     *  given English verb causes, or -1 if the given verb is not in the
+     *  dictionary                     */
+
+    /*  If new_number is non-null, renumbers the Inform-verb number which
+     *  English_verb matches in English_verb_list to account for the case
+     *  when we are extending a verb.  Returns 0 if successful, or -1 if
+     *  the given verb is not in the dictionary (which shouldn't happen as
+     *  get_verb has already run) */
 
     char *p;
     p=English_verb_list;
     while (p < English_verb_list_top)
-    {   if (strcmp(English_verb, p+2) == 0) return(p[1]);
-        p=p+p[0];
+    {   if (strcmp(English_verb, p+2) == 0)
+        {   if (new_number)
+            {   p[1] = *new_number;
+                return 0;
+            }
+            return((uchar)p[1]);
+        }
+        p=p+(uchar)p[0];
     }
     return(-1);
 }
@@ -293,7 +306,7 @@ static void register_verb(char *English_verb, int number)
     /*  Registers a new English verb as referring to the given Inform-verb
         number.  (See comments above for format of the list.)                */
 
-    if (find_verb(English_verb) != -1)
+    if (find_or_renumber_verb(English_verb, NULL) != -1)
     {   error_named("Two different verb definitions refer to", English_verb);
         return;
     }
@@ -317,7 +330,7 @@ static int get_verb(void)
     int j;
 
     if ((token_type == DQ_TT) || (token_type == SQ_TT))
-    {   j = find_verb(token_text);
+    {   j = find_or_renumber_verb(token_text, NULL);
         if (j==-1)
             error_named("There is no previous grammar for the verb",
                 token_text);
@@ -381,22 +394,22 @@ into Inform, so suggest rewriting grammar using general parsing routines");
     mark = grammar_lines_top;
     if (!glulx_mode) {
         if (mark + 100 >= MAX_LINESPACE)
-	    memoryerror("MAX_LINESPACE", MAX_LINESPACE);
+            memoryerror("MAX_LINESPACE", MAX_LINESPACE);
     }
     else {
         if (mark + 165 >= MAX_LINESPACE)
-	    memoryerror("MAX_LINESPACE", MAX_LINESPACE);
+            memoryerror("MAX_LINESPACE", MAX_LINESPACE);
     }
 
     Inform_verbs[verbnum].l[line] = mark;
 
     if (!glulx_mode) {
         mark = mark + 2;
-	TOKEN_SIZE = 3;
+        TOKEN_SIZE = 3;
     }
     else {
         mark = mark + 3;
-	TOKEN_SIZE = 5;
+        TOKEN_SIZE = 5;
     }
 
     grammar_token = 0; last_was_slash = TRUE; slash_mode = FALSE;
@@ -562,16 +575,16 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
                 bytecode |= 0x10;
             }
             grammar_lines[mark++] = bytecode;
-	    if (!glulx_mode) {
-	        grammar_lines[mark++] = wordcode/256;
-		grammar_lines[mark++] = wordcode%256;
-	    }
-	    else {
-	        grammar_lines[mark++] = ((wordcode >> 24) & 0xFF);
-		grammar_lines[mark++] = ((wordcode >> 16) & 0xFF);
-		grammar_lines[mark++] = ((wordcode >> 8) & 0xFF);
-		grammar_lines[mark++] = ((wordcode) & 0xFF);
-	    }
+            if (!glulx_mode) {
+                grammar_lines[mark++] = wordcode/256;
+                grammar_lines[mark++] = wordcode%256;
+            }
+            else {
+                grammar_lines[mark++] = ((wordcode >> 24) & 0xFF);
+                grammar_lines[mark++] = ((wordcode >> 16) & 0xFF);
+                grammar_lines[mark++] = ((wordcode >> 8) & 0xFF);
+                grammar_lines[mark++] = ((wordcode) & 0xFF);
+            }
         }
 
     } while (TRUE);
@@ -609,14 +622,14 @@ Library 6/3 or later");
 
     if (!glulx_mode) {
         if (reverse_action)
-	    j = j + 0x400;
-	grammar_lines[mark++] = j/256;
-	grammar_lines[mark++] = j%256;
+            j = j + 0x400;
+        grammar_lines[mark++] = j/256;
+        grammar_lines[mark++] = j%256;
     }
     else {
         grammar_lines[mark++] = ((j >> 8) & 0xFF);
-	grammar_lines[mark++] = ((j) & 0xFF);
-	grammar_lines[mark++] = (reverse_action ? 1 : 0);
+        grammar_lines[mark++] = ((j) & 0xFF);
+        grammar_lines[mark++] = (reverse_action ? 1 : 0);
     }
 
     return TRUE;
@@ -725,6 +738,10 @@ extern void extend_verb(void)
               warning_named("Verb disagrees with previous verbs:", token_text);
             l = Inform_verb;
             dictionary_set_verb_number(token_text, 0xff-no_Inform_verbs);
+            /* make call to renumber verb in English_verb_list too */
+            if (find_or_renumber_verb(token_text, &no_Inform_verbs) == -1)
+              warning_named("Verb to extend not found in English_verb_list:",
+                 token_text);
         }
 
         /*  Copy the old Inform-verb into a new one which the list of

@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "text" : Text translation, the abbreviations optimiser, the dictionary  */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -48,35 +48,35 @@ uchar *abbreviations_at;                 /* Memory to hold the text of any
 /* ------------------------------------------------------------------------- */
 
 int no_strings;                        /* No of strings in static strings
-					  area.                              */
+                                          area.                              */
 int no_dynamic_strings;                /* No. of @.. string escapes used
-					  (actually, the highest value used
-					  plus one)                          */
+                                          (actually, the highest value used
+                                          plus one)                          */
 
 static int MAX_CHARACTER_SET;          /* Number of possible entities */
 huffentity_t *huff_entities;           /* The list of entities (characters,
-					  abbreviations, @.. escapes, and 
-					  the terminator)                    */
+                                          abbreviations, @.. escapes, and 
+                                          the terminator)                    */
 static huffentity_t **hufflist;        /* Copy of the list, for sorting      */
 
 int no_huff_entities;                  /* The number of entities in the list */
 int huff_abbrev_start;                 /* Position in the list where string
-					  abbreviations begin.               */
+                                          abbreviations begin.               */
 int huff_dynam_start;                  /* Position in the list where @..
-					  entities begin.                    */
+                                          entities begin.                    */
 int huff_entity_root;                  /* The position in the list of the root
-					  entry (when considering the table
-					  as a tree).                        */
+                                          entry (when considering the table
+                                          as a tree).                        */
 
 int done_compression;                  /* Has the game text been compressed? */
 int32 compression_table_size;          /* Length of the Huffman table, in 
-					  bytes                              */
+                                          bytes                              */
 int32 compression_string_size;         /* Length of the compressed string
-					  data, in bytes                     */
+                                          data, in bytes                     */
 int32 *compressed_offsets;             /* The beginning of every string in
-					  the game, relative to the beginning
-					  of the Huffman table. (So entry 0
-					  is equal to compression_table_size)*/
+                                          the game, relative to the beginning
+                                          of the Huffman table. (So entry 0
+                                          is equal to compression_table_size)*/
 
 /* ------------------------------------------------------------------------- */
 /*   Abbreviation arrays                                                     */
@@ -170,9 +170,9 @@ static int try_abbreviations_from(unsigned char *text, int i, int from)
     {   if (text[i+1]==p[1])
         {   for (k=2; p[k]!=0; k++)
                 if (text[i+k]!=p[k]) goto NotMatched;
-	    if (!glulx_mode) {
-	        for (k=0; p[k]!=0; k++) text[i+k]=1;
-	    }
+            if (!glulx_mode) {
+                for (k=0; p[k]!=0; k++) text[i+k]=1;
+            }
             abbrev_freqs[j]++;
             return(j);
             NotMatched: ;
@@ -260,7 +260,7 @@ extern int32 compile_string(char *b, int in_low_memory, int is_abbrev)
     }
     else {
         /* The marker value is a one-based string number. (We reserve zero
-	   to mean "not a string at all". */
+           to mean "not a string at all". */
         return (++no_strings);
     }
 }
@@ -544,88 +544,95 @@ advance as part of 'Zcharacter table':", unicode);
     for (i=0; text_in[i]!=0; i++) {
 
       /*  Contract ".  " into ". " if double-space-removing switch set:
-	  likewise "?  " and "!  " if the setting is high enough. */
+          likewise "?  " and "!  " if the setting is high enough. */
       if ((double_space_setting >= 1)
-	&& (text_in[i+1]==' ') && (text_in[i+2]==' ')) {
-	if (text_in[i]=='.'
-	  || (double_space_setting >= 2 
-	    && (text_in[i]=='?' || text_in[i]=='!'))) {
-	  text_in[i+1] = text_in[i];
-	  i++;
-	}
+        && (text_in[i+1]==' ') && (text_in[i+2]==' ')) {
+        if (text_in[i]=='.'
+          || (double_space_setting >= 2 
+            && (text_in[i]=='?' || text_in[i]=='!'))) {
+          text_in[i+1] = text_in[i];
+          i++;
+        }
       }
 
       total_chars_trans++;
 
       /*  Try abbreviations if the economy switch set. We have to be in
-	  compression mode too, since the abbreviation mechanism is part
-	  of string decompression. */
+          compression mode too, since the abbreviation mechanism is part
+          of string decompression. */
       
       if ((economy_switch) && (compression_switch) && (!is_abbreviation)
-	&& ((k=abbrevs_lookup[text_in[i]])!=-1)
-	&& ((j=try_abbreviations_from(text_in, i, k)) != -1)) {
-	char *cx = (char *)abbreviations_at+j*MAX_ABBREV_LENGTH;
-	i += (strlen(cx)-1);
-	write_z_char_g('@');
-	write_z_char_g('A');
-	write_z_char_g('A' + ((j >>12) & 0x0F));
-	write_z_char_g('A' + ((j >> 8) & 0x0F));
-	write_z_char_g('A' + ((j >> 4) & 0x0F));
-	write_z_char_g('A' + ((j     ) & 0x0F));
+        && ((k=abbrevs_lookup[text_in[i]])!=-1)
+        && ((j=try_abbreviations_from(text_in, i, k)) != -1)) {
+        char *cx = (char *)abbreviations_at+j*MAX_ABBREV_LENGTH;
+        i += (strlen(cx)-1);
+        write_z_char_g('@');
+        write_z_char_g('A');
+        write_z_char_g('A' + ((j >>12) & 0x0F));
+        write_z_char_g('A' + ((j >> 8) & 0x0F));
+        write_z_char_g('A' + ((j >> 4) & 0x0F));
+        write_z_char_g('A' + ((j     ) & 0x0F));
       }
       else if (text_in[i] == '@') {
-	if (text_in[i+1]=='@') {
-	  /* An ASCII code */
-	  i+=2; j=atoi((char *) (text_in+i));
-	  if (j == '@' || j == '\0') {
-	    write_z_char_g('@');
-	    if (j == 0) {
-	      j = '0';
-	      if (!compression_switch)
-		warning("Ascii @@0 will prematurely terminate non-compressed \
+        if (text_in[i+1]=='@') {
+          /* An ASCII code */
+          i+=2; j=atoi((char *) (text_in+i));
+          if (j == '@' || j == '\0') {
+            write_z_char_g('@');
+            if (j == 0) {
+              j = '0';
+              if (!compression_switch)
+                warning("Ascii @@0 will prematurely terminate non-compressed \
 string.");
-	    }
-	  }
-	  write_z_char_g(j);
-	  while (isdigit(text_in[i])) i++; i--;
-	}
-	else if (isdigit(text_in[i+1])) {
-	  int d1, d2;
-	  d1 = character_digit_value[text_in[i+1]];
-	  d2 = character_digit_value[text_in[i+2]];
-	  if ((d1 == 127) || (d1 >= 10) || (d2 == 127) || (d2 >= 10)) {
-	    error("'@..' must have two decimal digits");
-	  }
-	  else {
-	    if (!compression_switch)
-	      warning("'@..' print variable will not work in non-compressed \
+            }
+          }
+          write_z_char_g(j);
+          while (isdigit(text_in[i])) i++; i--;
+        }
+        else if (isdigit(text_in[i+1])) {
+          int d1, d2;
+          d1 = character_digit_value[text_in[i+1]];
+          d2 = character_digit_value[text_in[i+2]];
+          if ((d1 == 127) || (d1 >= 10) || (d2 == 127) || (d2 >= 10)) {
+            error("'@..' must have two decimal digits");
+          }
+          else {
+            if (!compression_switch)
+              warning("'@..' print variable will not work in non-compressed \
 string; substituting '   '.");
-	    i += 2;
-	    j = d1*10 + d2;
-	    if (j >= MAX_DYNAMIC_STRINGS) {
-	      memoryerror("MAX_DYNAMIC_STRINGS", MAX_DYNAMIC_STRINGS);
-	      j = 0;
-	    }
-	    if (j+1 >= no_dynamic_strings)
-	      no_dynamic_strings = j+1;
-	    write_z_char_g('@');
-	    write_z_char_g('D');
-	    write_z_char_g('A' + ((j >>12) & 0x0F));
-	    write_z_char_g('A' + ((j >> 8) & 0x0F));
-	    write_z_char_g('A' + ((j >> 4) & 0x0F));
-	    write_z_char_g('A' + ((j     ) & 0x0F));
-	  }
-	}
-	else {
-	  error("'@..' accent codes are not yet supported in Glulx");
-	}
+            i += 2;
+            j = d1*10 + d2;
+            if (j >= MAX_DYNAMIC_STRINGS) {
+              memoryerror("MAX_DYNAMIC_STRINGS", MAX_DYNAMIC_STRINGS);
+              j = 0;
+            }
+            if (j+1 >= no_dynamic_strings)
+              no_dynamic_strings = j+1;
+            write_z_char_g('@');
+            write_z_char_g('D');
+            write_z_char_g('A' + ((j >>12) & 0x0F));
+            write_z_char_g('A' + ((j >> 8) & 0x0F));
+            write_z_char_g('A' + ((j >> 4) & 0x0F));
+            write_z_char_g('A' + ((j     ) & 0x0F));
+          }
+        }
+        else {
+          unicode = text_to_unicode((char *) (text_in+i));
+          i += textual_form_length - 1;
+          if (unicode >= 0 && unicode < 256) {
+            write_z_char_g(unicode);
+          }
+          else {
+            error("Unicode characters beyond Latin-1 are not yet supported in Glulx");
+          }
+        }
       }
       else if (text_in[i] == '^')
-	write_z_char_g(0x0A);
+        write_z_char_g(0x0A);
       else if (text_in[i] == '~')
-	write_z_char_g('"');
+        write_z_char_g('"');
       else
-	write_z_char_g(text_in[i]);
+        write_z_char_g(text_in[i]);
     }
     write_z_char_g(0);
 
@@ -679,9 +686,9 @@ void compress_game_text()
     huff_entities[256].count = 0;
     if (economy_switch) {
       for (jx=0; jx<no_abbreviations; jx++) {
-	huff_entities[huff_abbrev_start+jx].type = 3;
-	huff_entities[huff_abbrev_start+jx].count = 0;
-	huff_entities[huff_abbrev_start+jx].u.val = jx;
+        huff_entities[huff_abbrev_start+jx].type = 3;
+        huff_entities[huff_abbrev_start+jx].count = 0;
+        huff_entities[huff_abbrev_start+jx].u.val = jx;
       }
     }
     for (jx=0; jx<no_dynamic_strings; jx++) {
@@ -713,67 +720,67 @@ void compress_game_text()
       int done=FALSE;
       int32 escapeval;
       while (!done) {
-	if (temporary_files_switch)
-	  ch = fgetc(Temp1_fp);
-	else
-	  ch = read_byte_from_memory_block(&static_strings_area, ix);
-	ix++;
-	if (ix > static_strings_extent || ch < 0)
-	  compiler_error("Read too much not-yet-compressed text.");
-	if (escapelen == -1) {
-	  escapelen = 0;
-	  if (ch == '@') {
-	    ch = '@';
-	  }
-	  else if (ch == '0') {
-	    ch = '\0';
-	  }
-	  else if (ch == 'A' || ch == 'D') {
-	    escapelen = 4;
-	    escapetype = ch;
-	    escapeval = 0;
-	    continue;
-	  }
-	  else {
-	    compiler_error("Strange @ escape in processed text.");
-	  }
-	}
-	else if (escapelen) {
-	  escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
-	  escapelen--;
-	  if (escapelen == 0) {
-	    if (escapetype == 'A') {
-	      ch = huff_abbrev_start+escapeval;
-	    }
-	    else if (escapetype == 'D') {
-	      ch = huff_dynam_start+escapeval;
-	    }
-	    else {
-	      compiler_error("Strange @ escape in processed text.");
-	    }
-	  }
-	  else
-	    continue;
-	}
-	else {
-	  if (ch == '@') {
-	    escapelen = -1;
-	    continue;
-	  }
-	  if (ch == 0) {
-	    ch = 256;
-	    done = TRUE;
-	  }
-	}
-	huff_entities[ch].count++;
+        if (temporary_files_switch)
+          ch = fgetc(Temp1_fp);
+        else
+          ch = read_byte_from_memory_block(&static_strings_area, ix);
+        ix++;
+        if (ix > static_strings_extent || ch < 0)
+          compiler_error("Read too much not-yet-compressed text.");
+        if (escapelen == -1) {
+          escapelen = 0;
+          if (ch == '@') {
+            ch = '@';
+          }
+          else if (ch == '0') {
+            ch = '\0';
+          }
+          else if (ch == 'A' || ch == 'D') {
+            escapelen = 4;
+            escapetype = ch;
+            escapeval = 0;
+            continue;
+          }
+          else {
+            compiler_error("Strange @ escape in processed text.");
+          }
+        }
+        else if (escapelen) {
+          escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
+          escapelen--;
+          if (escapelen == 0) {
+            if (escapetype == 'A') {
+              ch = huff_abbrev_start+escapeval;
+            }
+            else if (escapetype == 'D') {
+              ch = huff_dynam_start+escapeval;
+            }
+            else {
+              compiler_error("Strange @ escape in processed text.");
+            }
+          }
+          else
+            continue;
+        }
+        else {
+          if (ch == '@') {
+            escapelen = -1;
+            continue;
+          }
+          if (ch == 0) {
+            ch = 256;
+            done = TRUE;
+          }
+        }
+        huff_entities[ch].count++;
       }
     }
 
     numlive = 0;
     for (jx=0; jx<entities; jx++) {
       if (huff_entities[jx].count) {
-	hufflist[numlive] = &(huff_entities[jx]);
-	numlive++;
+        hufflist[numlive] = &(huff_entities[jx]);
+        numlive++;
       }
     }
 
@@ -786,28 +793,28 @@ void compress_game_text()
       huffentity_t *bran;
 
       if (hufflist[0]->count < hufflist[1]->count) {
-	best1 = 0;
-	best2 = 1;
+        best1 = 0;
+        best2 = 1;
       }
       else {
-	best2 = 0;
-	best1 = 1;
+        best2 = 0;
+        best1 = 1;
       }
 
       best1num = hufflist[best1]->count;
       best2num = hufflist[best2]->count;
 
       for (jx=2; jx<numlive; jx++) {
-	if (hufflist[jx]->count < best1num) {
-	  best2 = best1;
-	  best2num = best1num;
-	  best1 = jx;
-	  best1num = hufflist[best1]->count;
-	}
-	else if (hufflist[jx]->count < best2num) {
-	  best2 = jx;
-	  best2num = hufflist[best2]->count;
-	}
+        if (hufflist[jx]->count < best1num) {
+          best2 = best1;
+          best2num = best1num;
+          best1 = jx;
+          best1num = hufflist[best1]->count;
+        }
+        else if (hufflist[jx]->count < best2num) {
+          best2 = jx;
+          best2num = hufflist[best2]->count;
+        }
       }
 
       bran = &(huff_entities[branchstart+branches]);
@@ -818,8 +825,8 @@ void compress_game_text()
       bran->u.branch[1] = (hufflist[best2] - huff_entities);
       hufflist[best1] = bran;
       if (best2 < numlive-1) {
-	memmove(&(hufflist[best2]), &(hufflist[best2+1]), 
-	  ((numlive-1) - best2) * sizeof(huffentity_t *));
+        memmove(&(hufflist[best2]), &(hufflist[best2+1]), 
+          ((numlive-1) - best2) * sizeof(huffentity_t *));
       }
       numlive--;
     }
@@ -844,6 +851,9 @@ void compress_game_text()
     fseek(Temp1_fp, 0, SEEK_SET);
   }
 
+  if (no_strings >= MAX_NUM_STATIC_STRINGS) 
+    memoryerror("MAX_NUM_STATIC_STRINGS", MAX_NUM_STATIC_STRINGS);
+
   for (lx=0, ix=0; lx<no_strings; lx++) {
     int escapelen=0, escapetype=0;
     int done=FALSE;
@@ -853,73 +863,73 @@ void compress_game_text()
     compression_string_size++; /* for the type byte */
     while (!done) {
       if (temporary_files_switch)
-	ch = fgetc(Temp1_fp);
+        ch = fgetc(Temp1_fp);
       else
-	ch = read_byte_from_memory_block(&static_strings_area, ix);
+        ch = read_byte_from_memory_block(&static_strings_area, ix);
       ix++;
       if (ix > static_strings_extent || ch < 0)
-	compiler_error("Read too much not-yet-compressed text.");
+        compiler_error("Read too much not-yet-compressed text.");
       if (escapelen == -1) {
-	escapelen = 0;
-	if (ch == '@') {
-	  ch = '@';
-	}
-	else if (ch == '0') {
-	  ch = '\0';
-	}
-	else if (ch == 'A' || ch == 'D') {
-	  escapelen = 4;
-	  escapetype = ch;
-	  escapeval = 0;
-	  continue;
-	}
-	else {
-	  compiler_error("Strange @ escape in processed text.");
-	}
+        escapelen = 0;
+        if (ch == '@') {
+          ch = '@';
+        }
+        else if (ch == '0') {
+          ch = '\0';
+        }
+        else if (ch == 'A' || ch == 'D') {
+          escapelen = 4;
+          escapetype = ch;
+          escapeval = 0;
+          continue;
+        }
+        else {
+          compiler_error("Strange @ escape in processed text.");
+        }
       }
       else if (escapelen) {
-	escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
-	escapelen--;
-	if (escapelen == 0) {
-	  if (escapetype == 'A') {
-	    ch = huff_abbrev_start+escapeval;
-	  }
-	  else if (escapetype == 'D') {
-	    ch = huff_dynam_start+escapeval;
-	  }
-	  else {
-	    compiler_error("Strange @ escape in processed text.");
-	  }
-	}
-	else
-	  continue;
+        escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
+        escapelen--;
+        if (escapelen == 0) {
+          if (escapetype == 'A') {
+            ch = huff_abbrev_start+escapeval;
+          }
+          else if (escapetype == 'D') {
+            ch = huff_dynam_start+escapeval;
+          }
+          else {
+            compiler_error("Strange @ escape in processed text.");
+          }
+        }
+        else
+          continue;
       }
       else {
-	if (ch == '@') {
-	  escapelen = -1;
-	  continue;
-	}
-	if (ch == 0) {
-	  ch = 256;
-	  done = TRUE;
-	}
+        if (ch == '@') {
+          escapelen = -1;
+          continue;
+        }
+        if (ch == 0) {
+          ch = 256;
+          done = TRUE;
+        }
       }
 
       if (compression_switch) {
-	jx += huff_entities[ch].depth;
-	compression_string_size += (jx/8);
-	jx = (jx % 8);
+        jx += huff_entities[ch].depth;
+        compression_string_size += (jx/8);
+        jx = (jx % 8);
       }
       else {
-	if (ch >= huff_dynam_start) {
-	  compression_string_size += 3;
-	}
-	else if (ch >= huff_abbrev_start) {
-	  compiler_error("Abbreviation in non-compressed string should \
+        if (ch >= huff_dynam_start) {
+          compression_string_size += 3;
+        }
+        else if (ch >= huff_abbrev_start) {
+          compiler_error("Abbreviation in non-compressed string should \
 be impossible.");
-	}
-	else
-	  compression_string_size += 1;
+        }
+        else
+          compression_string_size += 1;
       }
     }
     if (compression_switch && jx)
@@ -973,7 +983,6 @@ static void compress_makebits(int entnum, int depth, int prevbit,
   huffbitlist_t *bits)
 {
   huffentity_t *ent = &(huff_entities[entnum]);
-  int ix;
   char *cx;
 
   ent->addr = compression_table_size;
@@ -1155,13 +1164,13 @@ extern void optimise_abbreviations(void)
     bestyet=my_calloc(sizeof(optab), 256, "bestyet");
     bestyet2=my_calloc(sizeof(optab), 64, "bestyet2");
 
-            bestyet2[0].text[0]='.';
-            bestyet2[0].text[1]=' ';
-            bestyet2[0].text[2]=0;
+    bestyet2[0].text[0]='.';
+    bestyet2[0].text[1]=' ';
+    bestyet2[0].text[2]=0;
 
-            bestyet2[1].text[0]=',';
-            bestyet2[1].text[1]=' ';
-            bestyet2[1].text[2]=0;
+    bestyet2[1].text[0]=',';
+    bestyet2[1].text[1]=' ';
+    bestyet2[1].text[2]=0;
 
     for (i=0; all_text+i<all_text_top; i++)
     {
@@ -1384,7 +1393,7 @@ extern void copy_sorts(uchar *d1, uchar *d2)
 }
 
 static uchar prepared_sort[MAX_DICT_WORD_SIZE];      /* Holds the sort code
-							of current word */
+                                                        of current word */
 
 static int number_and_case;
 
@@ -1398,7 +1407,7 @@ static void dictionary_prepare_z(char *dword, uchar *optresult)
 
     number_and_case = 0;
 
-    for (i=0, j=0; (i<9)&&(dword[j]!=0); i++, j++)
+    for (i=0, j=0; dword[j]!=0; i++, j++)
     {   if ((dword[j] == '/') && (dword[j+1] == '/'))
         {   for (j+=2; dword[j] != 0; j++)
             {   switch(dword[j])
@@ -1411,14 +1420,18 @@ to give number of dictionary word", dword);
             }
             break;
         }
+        if (i>=9) break;
+
         k=(int) dword[j];
         if (k==(int) '\'')
             warning_named("Obsolete usage: use the ^ character for the \
 apostrophe in", dword);
         if (k==(int) '^') k=(int) '\'';
+        if (k=='\"') k='~';
 
         if (k==(int) '@')
         {   int unicode = text_to_unicode(dword+j);
+            if ((unicode < 128) && isupper(unicode)) unicode = tolower(unicode);
             k = unicode_to_zscii(unicode);
             j += textual_form_length - 1;
             if ((k == 5) || (k >= 0x100))
@@ -1428,7 +1441,10 @@ apostrophe in", dword);
             }
             k2 = zscii_to_alphabet_grid[(uchar) k];
         }
-        else k2 = iso_to_alphabet_grid[(uchar) k];
+        else
+        {   if (isupper(k)) k = tolower(k);
+            k2 = iso_to_alphabet_grid[(uchar) k];
+        }
 
         if (k2 < 0)
         {   if ((k2 == -5) || (k2 <= -0x100))
@@ -1442,9 +1458,7 @@ apostrophe in", dword);
             }
         }
         else
-        {   if ((character_set_setting < 2) &&
-                (k2>=26)&&(k2<2*26)) k2=k2-26; /* Upper down to lower case   */
-            alphabet_used[k2] = 'Y';
+        {   alphabet_used[k2] = 'Y';
             if ((k2/26)!=0)
                 wd[i++]=3+(k2/26);            /* Change alphabet for symbols */
             wd[i]=6+(k2%26);                  /* Write the Z character       */
@@ -1478,34 +1492,47 @@ apostrophe in", dword);
 /* Also used by verbs.c */
 static void dictionary_prepare_g(char *dword, uchar *optresult)
 { 
-  int i, j, k, k2; 
-  int32 tot;
+  int i, j, k;
 
   number_and_case = 0;
 
-  for (i=0, j=0; (i<DICT_WORD_SIZE) && (dword[j]!=0); i++, j++) {
+  for (i=0, j=0; (dword[j]!=0); i++, j++) {
     if ((dword[j] == '/') && (dword[j+1] == '/')) {
       for (j+=2; dword[j] != 0; j++) {
-	switch(dword[j]) {
-	case 'p':
-	  number_and_case |= 4;  
-	  break;
-	default:
-	  error_named("Expected 'p' after '//' \
+        switch(dword[j]) {
+        case 'p':
+          number_and_case |= 4;  
+          break;
+        default:
+          error_named("Expected 'p' after '//' \
 to give gender or number of dictionary word", dword);
-	  break;
-	}
+          break;
+        }
       }
       break;
     }
+    if (i>=DICT_WORD_SIZE) break;
+
     k= (int)dword[j];
     if (k=='\'') 
       warning_named("Obsolete usage: use the ^ character for the \
 apostrophe in", dword);
     if (k=='^') 
       k='\'';
-    
-    /* ###fix: put in @ handling */
+    if (k=='~') /* as in iso_to_alphabet_grid */
+      k='\"';
+
+    if (k=='@') {
+      int32 unicode = text_to_unicode(dword+j);
+      j += textual_form_length - 1;
+      if (unicode >= 0 && unicode < 256) {
+        k = unicode;
+      }
+      else {
+        error("Unicode characters beyond Latin-1 are not yet supported in Glulx");
+        k = '?';
+      }
+    }
     
     if (k >= 'A' && k <= 'Z')
       k += ('a' - 'A');
@@ -1643,16 +1670,16 @@ extern int dictionary_add(char *dword, int x, int y, int z)
         n = compare_sorts(prepared_sort, dict_sort_codes+at*DICT_WORD_SIZE);
         if (n==0)
         {
-	    if (!glulx_mode) {
-	        p = dictionary+7 + at*(3+res) + res;
-		p[0]=(p[0])|x; p[1]=(p[1])|y; p[2]=(p[2])|z;
-		if (x & 128) p[0] = (p[0])|number_and_case;
-	    }
-	    else {
-	        p = dictionary+4 + at*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE;
-		p[1]=(p[1])|x; p[3]=(p[3])|y; p[5]=(p[5])|z;
-		if (x & 128) p[1] = (p[1]) | number_and_case;
-	    }
+            if (!glulx_mode) {
+                p = dictionary+7 + at*(3+res) + res;
+                p[0]=(p[0])|x; p[1]=(p[1])|y; p[2]=(p[2])|z;
+                if (x & 128) p[0] = (p[0])|number_and_case;
+            }
+            else {
+                p = dictionary+4 + at*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE;
+                p[1]=(p[1])|x; p[3]=(p[3])|y; p[5]=(p[5])|z;
+                if (x & 128) p[1] = (p[1]) | number_and_case;
+            }
             return at;
         }
         if (n>0) r=1; else r=0;
@@ -1751,34 +1778,34 @@ extern int dictionary_add(char *dword, int x, int y, int z)
 
         p = dictionary + (3+res)*dict_entries + 7;
 
-	/*  So copy in the 4 (or 6) bytes of Z-coded text and the 3 data 
-	    bytes */
+        /*  So copy in the 4 (or 6) bytes of Z-coded text and the 3 data 
+            bytes */
 
-	p[0]=prepared_sort[0]; p[1]=prepared_sort[1];
-	p[2]=prepared_sort[2]; p[3]=prepared_sort[3];
-	if (version_number > 3)
-	  {   p[4]=prepared_sort[4]; p[5]=prepared_sort[5]; }
-	p[res]=x; p[res+1]=y; p[res+2]=z;
-	if (x & 128) p[res] = (p[res])|number_and_case;
+        p[0]=prepared_sort[0]; p[1]=prepared_sort[1];
+        p[2]=prepared_sort[2]; p[3]=prepared_sort[3];
+        if (version_number > 3)
+          {   p[4]=prepared_sort[4]; p[5]=prepared_sort[5]; }
+        p[res]=x; p[res+1]=y; p[res+2]=z;
+        if (x & 128) p[res] = (p[res])|number_and_case;
 
-	dictionary_top += res+3;
+        dictionary_top += res+3;
 
     }
     else {
         int i;
         p = dictionary + 4 + (7+DICT_WORD_SIZE)*dict_entries;
-	p[0] = 0x60; /* type byte -- dict word */
+        p[0] = 0x60; /* type byte -- dict word */
 
-	for (i=0; i<DICT_WORD_SIZE; i++)
-	  p[1+i] = prepared_sort[i];
-	
-	p[1+DICT_WORD_SIZE+0] = 0; p[1+DICT_WORD_SIZE+1] = x;
-	p[1+DICT_WORD_SIZE+2] = 0; p[1+DICT_WORD_SIZE+3] = y;
-	p[1+DICT_WORD_SIZE+4] = 0; p[1+DICT_WORD_SIZE+5] = z;
-	if (x & 128) 
-	  p[1+DICT_WORD_SIZE+1] |= number_and_case;
-	
-	dictionary_top += (7+DICT_WORD_SIZE);
+        for (i=0; i<DICT_WORD_SIZE; i++)
+          p[1+i] = prepared_sort[i];
+        
+        p[1+DICT_WORD_SIZE+0] = 0; p[1+DICT_WORD_SIZE+1] = x;
+        p[1+DICT_WORD_SIZE+2] = 0; p[1+DICT_WORD_SIZE+3] = y;
+        p[1+DICT_WORD_SIZE+4] = 0; p[1+DICT_WORD_SIZE+5] = z;
+        if (x & 128) 
+          p[1+DICT_WORD_SIZE+1] |= number_and_case;
+        
+        dictionary_top += (7+DICT_WORD_SIZE);
 
     }
 
@@ -1800,13 +1827,13 @@ extern void dictionary_set_verb_number(char *dword, int to)
     if (i!=0)
     {   
         if (!glulx_mode) {
-	    p=dictionary+7+(i-1)*(3+res)+res; 
-	    p[1]=to;
-	}
-	else {
-	    p=dictionary+4 + (i-1)*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE; 
-	    p[3]=to;
-	}
+            p=dictionary+7+(i-1)*(3+res)+res; 
+            p[1]=to;
+        }
+        else {
+            p=dictionary+4 + (i-1)*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE; 
+            p[3]=to;
+        }
     }
 }
 
@@ -1945,9 +1972,9 @@ extern void show_dictionary(void)
     if (dict_entries != 0)
     {   d_show_total = 0; d_show_to = NULL; 
         if (!glulx_mode)    
-	    recursively_show_z(root);
-	else
-	    recursively_show_g(root);
+            recursively_show_z(root);
+        else
+            recursively_show_g(root);
     }
     printf("\nZ-machine alphabet entries:\n");
     show_alphabet(0);
@@ -1965,9 +1992,9 @@ extern void write_dictionary_to_transcript(void)
     if (dict_entries != 0)
     {   d_show_total = 0; d_show_to = d_buffer; 
         if (!glulx_mode)    
-	    recursively_show_z(root);
-	else
-	    recursively_show_g(root);
+            recursively_show_z(root);
+        else
+            recursively_show_g(root);
     }
     if (d_show_total != 0) write_to_transcript_file(d_buffer);
 }
@@ -2030,10 +2057,10 @@ extern void text_allocate_arrays(void)
 
     if (!glulx_mode)
         dictionary = my_malloc(9*MAX_DICT_ENTRIES+7,
-	    "dictionary");
+            "dictionary");
     else
         dictionary = my_malloc((7+DICT_WORD_SIZE)*MAX_DICT_ENTRIES+4,
-	    "dictionary");
+            "dictionary");
 
     strings_holding_area
          = my_malloc(MAX_STATIC_STRINGS,"static strings holding area");
@@ -2049,14 +2076,14 @@ extern void text_allocate_arrays(void)
 
     if (glulx_mode) {
       if (compression_switch) {
-	MAX_CHARACTER_SET = 257 + MAX_ABBREVS + MAX_DYNAMIC_STRINGS;
-	huff_entities = my_calloc(sizeof(huffentity_t), MAX_CHARACTER_SET*2+1, 
-	  "huffman entities");
-	hufflist = my_calloc(sizeof(huffentity_t *), MAX_CHARACTER_SET, 
-	  "huffman node list");
+        MAX_CHARACTER_SET = 257 + MAX_ABBREVS + MAX_DYNAMIC_STRINGS;
+        huff_entities = my_calloc(sizeof(huffentity_t), MAX_CHARACTER_SET*2+1, 
+          "huffman entities");
+        hufflist = my_calloc(sizeof(huffentity_t *), MAX_CHARACTER_SET, 
+          "huffman node list");
       }
       compressed_offsets = my_calloc(sizeof(int32), MAX_NUM_STATIC_STRINGS,
-	"static strings index table");
+        "static strings index table");
     }
 }
 

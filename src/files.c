@@ -7,14 +7,12 @@
 /*             routines in "inform.c", since they are tied up with ICL       */
 /*             settings and are very host OS-dependent.                      */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
 #include "header.h"
-
-#define PATHLEN 512
 
 int input_file;                         /* Number of source files so far     */
 
@@ -32,7 +30,7 @@ static int checksum_count;              /* similarly                         */
 /*   level is only concerned with file names and handles.                    */
 /* ------------------------------------------------------------------------- */
 
-FileId InputFiles[MAX_SOURCE_FILES];    /*  Ids for all the source files     */
+FileId *InputFiles=NULL;                /*  Ids for all the source files     */
 static char *filename_storage,          /*  Translated filenames             */
             *filename_storage_p;
 static int filename_storage_left;
@@ -56,8 +54,7 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
     char name[PATHLEN]; int x = 0; FILE *handle;
 
     if (input_file == MAX_SOURCE_FILES)
-        fatalerror("Program contains too many source files: \
-increase #define MAX_SOURCE_FILES");
+        memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
 
     do
     {   x = translate_in_filename(x, name, filename_given, same_directory_flag,
@@ -65,9 +62,8 @@ increase #define MAX_SOURCE_FILES");
         handle = fopen(name,"r");
     } while ((handle == NULL) && (x != 0));
 
-    if (filename_storage_left <= strlen(name))
-        fatalerror("Source files have unduly long file names: \
-increase #define MAX_SOURCE_FILES");
+    if (filename_storage_left <= (int)strlen(name))
+        memoryerror("MAX_SOURCE_FILES", MAX_SOURCE_FILES);
 
     filename_storage_left -= strlen(name)+1;
     strcpy(filename_storage_p, name);
@@ -162,9 +158,9 @@ static void sf_put(int c)
     if (!glulx_mode) {
 
       /*  The checksum is the unsigned sum mod 65536 of the bytes in the
-	  story file from 0x0040 (first byte after header) to the end.
+          story file from 0x0040 (first byte after header) to the end.
 
-	  The link data does not contribute to the checksum of a module.     */
+          The link data does not contribute to the checksum of a module.     */
 
       checksum_low_byte += c;
       if (checksum_low_byte>=256)
@@ -176,22 +172,22 @@ static void sf_put(int c)
     else {
 
       /*  The checksum is the unsigned 32-bit sum of the entire story file,
-	  considered as a list of 32-bit words, with the checksum field
-	  being zero. */
+          considered as a list of 32-bit words, with the checksum field
+          being zero. */
 
       switch (checksum_count) {
       case 0:
-	checksum_long += (((int32)(c & 0xFF)) << 24);
-	break;
+        checksum_long += (((int32)(c & 0xFF)) << 24);
+        break;
       case 1:
-	checksum_long += (((int32)(c & 0xFF)) << 16);
-	break;
+        checksum_long += (((int32)(c & 0xFF)) << 16);
+        break;
       case 2:
-	checksum_long += (((int32)(c & 0xFF)) << 8);
-	break;
+        checksum_long += (((int32)(c & 0xFF)) << 8);
+        break;
       case 3:
-	checksum_long += ((int32)(c & 0xFF));
-	break;
+        checksum_long += ((int32)(c & 0xFF));
+        break;
       }
       
       checksum_count = (checksum_count+1) & 3;
@@ -395,8 +391,8 @@ static void output_file_z(void)
     }
     else
       for (i=0; i<static_strings_extent; i++) {
-	sf_put(read_byte_from_memory_block(&static_strings_area,i));
-	size++;
+        sf_put(read_byte_from_memory_block(&static_strings_area,i));
+        size++;
       }
 
     /*  (5)  Output the linking data table (in the case of a module).        */
@@ -471,8 +467,8 @@ static void output_file_z(void)
 }
 
 static void output_file_g(void)
-{   FILE *fin; char new_name[128];
-    int32 length, blanks=0, size, i, j;
+{   FILE *fin; char new_name[PATHLEN];
+    int32 size, i, j;
 
     ASSERT_GLULX();
 
@@ -495,7 +491,7 @@ static void output_file_g(void)
     checksum_count = 0;
 
     /*  (1)  Output the header. We use sf_put here, instead of fputc,
-	because the header is included in the checksum. */
+        because the header is included in the checksum. */
 
     /* Magic number */
     sf_put('G');
@@ -573,7 +569,7 @@ static void output_file_g(void)
       char serialnum[8];
       write_serial_number(serialnum);
       for (i=0; i<6; i++)
-	sf_put(serialnum[i]);
+        sf_put(serialnum[i]);
     }
     size += GLULX_STATIC_ROM_SIZE;
 
@@ -589,84 +585,84 @@ static void output_file_g(void)
     j=0;
     if (!module_switch)
       for (i=0; i<zcode_backpatch_size; i=i+6) {
-	int data_len;
+        int data_len;
         int32 offset, v;
-	offset = 
-	  (read_byte_from_memory_block(&zcode_backpatch_table, i+2) << 24)
-	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+3) << 16)
-	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+4) << 8)
-	  | (read_byte_from_memory_block(&zcode_backpatch_table, i+5));
+        offset = 
+          (read_byte_from_memory_block(&zcode_backpatch_table, i+2) << 24)
+          | (read_byte_from_memory_block(&zcode_backpatch_table, i+3) << 16)
+          | (read_byte_from_memory_block(&zcode_backpatch_table, i+4) << 8)
+          | (read_byte_from_memory_block(&zcode_backpatch_table, i+5));
         backpatch_error_flag = FALSE;
         backpatch_marker =
-	  read_byte_from_memory_block(&zcode_backpatch_table, i);
-	data_len =
-	  read_byte_from_memory_block(&zcode_backpatch_table, i+1);
+          read_byte_from_memory_block(&zcode_backpatch_table, i);
+        data_len =
+          read_byte_from_memory_block(&zcode_backpatch_table, i+1);
 
         while (j<offset) {
-	  size++;
-	  sf_put((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j));
-	  j++;
+          size++;
+          sf_put((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j));
+          j++;
         }
 
-	switch (data_len) {
+        switch (data_len) {
 
-	case 4:
-	  v = ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j));
-	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j+1));
-	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j+2));
-	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j+3));
-	  v = backpatch_value(v);
-	  sf_put((v >> 24) & 0xFF);
-	  sf_put((v >> 16) & 0xFF);
-	  sf_put((v >> 8) & 0xFF);
-	  sf_put((v) & 0xFF);
-	  size += 4;
-	  j += 4;
-	  break;
+        case 4:
+          v = ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j));
+          v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j+1));
+          v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j+2));
+          v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j+3));
+          v = backpatch_value(v);
+          sf_put((v >> 24) & 0xFF);
+          sf_put((v >> 16) & 0xFF);
+          sf_put((v >> 8) & 0xFF);
+          sf_put((v) & 0xFF);
+          size += 4;
+          j += 4;
+          break;
 
-	case 2:
-	  v = ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j));
-	  v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j+1));
-	  v = backpatch_value(v);
-	  if (v >= 0x10000) {
-	    printf("*** backpatch value does not fit ***\n");
-	    backpatch_error_flag = TRUE;
-	  }
-	  sf_put((v >> 8) & 0xFF);
-	  sf_put((v) & 0xFF);
-	  size += 2;
-	  j += 2;
-	  break;
+        case 2:
+          v = ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j));
+          v = (v << 8) | ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j+1));
+          v = backpatch_value(v);
+          if (v >= 0x10000) {
+            printf("*** backpatch value does not fit ***\n");
+            backpatch_error_flag = TRUE;
+          }
+          sf_put((v >> 8) & 0xFF);
+          sf_put((v) & 0xFF);
+          size += 2;
+          j += 2;
+          break;
 
-	case 1:
-	  v = ((temporary_files_switch)?fgetc(fin):
-	    read_byte_from_memory_block(&zcode_area, j));
-	  v = backpatch_value(v);
-	  if (v >= 0x100) {
-	    printf("*** backpatch value does not fit ***\n");
-	    backpatch_error_flag = TRUE;
-	  }
-	  sf_put((v) & 0xFF);
-	  size += 1;
-	  j += 1;
-	  break;
+        case 1:
+          v = ((temporary_files_switch)?fgetc(fin):
+            read_byte_from_memory_block(&zcode_area, j));
+          v = backpatch_value(v);
+          if (v >= 0x100) {
+            printf("*** backpatch value does not fit ***\n");
+            backpatch_error_flag = TRUE;
+          }
+          sf_put((v) & 0xFF);
+          size += 1;
+          j += 1;
+          break;
 
-	default:
-	  printf("*** unknown backpatch data len = %d ***\n",
-	    data_len);
-	  backpatch_error_flag = TRUE;
-	}
+        default:
+          printf("*** unknown backpatch data len = %d ***\n",
+            data_len);
+          backpatch_error_flag = TRUE;
+        }
 
         if (backpatch_error_flag) {
-	  printf("*** %d bytes  zcode offset=%08lx  backpatch offset=%08lx ***\n",
-	    data_len, (long int) j, (long int) i);
+          printf("*** %d bytes  zcode offset=%08lx  backpatch offset=%08lx ***\n",
+            data_len, (long int) j, (long int) i);
         }
     }
 
@@ -699,137 +695,137 @@ static void output_file_g(void)
 
       if (compression_switch) {
 
-	/* The 12-byte table header. */
-	lx = compression_table_size;
-	sf_put((lx >> 24) & 0xFF);
-	sf_put((lx >> 16) & 0xFF);
-	sf_put((lx >> 8) & 0xFF);
-	sf_put((lx) & 0xFF);
-	size += 4;
-	sf_put((no_huff_entities >> 24) & 0xFF);
-	sf_put((no_huff_entities >> 16) & 0xFF);
-	sf_put((no_huff_entities >> 8) & 0xFF);
-	sf_put((no_huff_entities) & 0xFF);
-	size += 4;
-	lx = Write_Strings_At + 12;
-	sf_put((lx >> 24) & 0xFF);
-	sf_put((lx >> 16) & 0xFF);
-	sf_put((lx >> 8) & 0xFF);
-	sf_put((lx) & 0xFF);
-	size += 4;
+        /* The 12-byte table header. */
+        lx = compression_table_size;
+        sf_put((lx >> 24) & 0xFF);
+        sf_put((lx >> 16) & 0xFF);
+        sf_put((lx >> 8) & 0xFF);
+        sf_put((lx) & 0xFF);
+        size += 4;
+        sf_put((no_huff_entities >> 24) & 0xFF);
+        sf_put((no_huff_entities >> 16) & 0xFF);
+        sf_put((no_huff_entities >> 8) & 0xFF);
+        sf_put((no_huff_entities) & 0xFF);
+        size += 4;
+        lx = Write_Strings_At + 12;
+        sf_put((lx >> 24) & 0xFF);
+        sf_put((lx >> 16) & 0xFF);
+        sf_put((lx >> 8) & 0xFF);
+        sf_put((lx) & 0xFF);
+        size += 4;
 
-	output_compression(huff_entity_root, &size);
+        output_compression(huff_entity_root, &size);
       }
 
       if (size - origsize != compression_table_size)
-	compiler_error("Compression table size mismatch.");
+        compiler_error("Compression table size mismatch.");
 
       origsize = size;
 
       for (lx=0, ix=0; lx<no_strings; lx++) {
-	int escapelen=0, escapetype=0;
-	int done=FALSE;
-	int32 escapeval;
-	if (compression_switch)
-	  sf_put(0xE1); /* type byte -- compressed string */
-	else
-	  sf_put(0xE0); /* type byte -- non-compressed string */
-	size++;
-	jx = 0; 
-	curbyte = 0;
-	while (!done) {
-	  if (temporary_files_switch)
-	    ch = fgetc(Temp1_fp);
-	  else
-	    ch = read_byte_from_memory_block(&static_strings_area, ix);
-	  ix++;
-	  if (ix > static_strings_extent || ch < 0)
-	    compiler_error("Read too much not-yet-compressed text.");
+        int escapelen=0, escapetype=0;
+        int done=FALSE;
+        int32 escapeval;
+        if (compression_switch)
+          sf_put(0xE1); /* type byte -- compressed string */
+        else
+          sf_put(0xE0); /* type byte -- non-compressed string */
+        size++;
+        jx = 0; 
+        curbyte = 0;
+        while (!done) {
+          if (temporary_files_switch)
+            ch = fgetc(Temp1_fp);
+          else
+            ch = read_byte_from_memory_block(&static_strings_area, ix);
+          ix++;
+          if (ix > static_strings_extent || ch < 0)
+            compiler_error("Read too much not-yet-compressed text.");
 
-	  if (escapelen == -1) {
-	    escapelen = 0;
-	    if (ch == '@') {
-	      ch = '@';
-	    }
-	    else if (ch == '0') {
-	      ch = '\0';
-	    }
-	    else if (ch == 'A' || ch == 'D') {
-	      escapelen = 4;
-	      escapetype = ch;
-	      escapeval = 0;
-	      continue;
-	    }
-	    else {
-	      compiler_error("Strange @ escape in processed text.");
-	    }
-	  }
-	  else if (escapelen) {
-	    escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
-	    escapelen--;
-	    if (escapelen == 0) {
-	      if (escapetype == 'A') {
-		ch = huff_abbrev_start+escapeval;
-	      }
-	      else if (escapetype == 'D') {
-		ch = huff_dynam_start+escapeval;
-	      }
-	      else {
-		compiler_error("Strange @ escape in processed text.");
-	      }
-	    }
-	    else 
-	      continue;
-	  }
-	  else {
-	    if (ch == '@') {
-	      escapelen = -1;
-	      continue;
-	    }
-	    if (ch == 0) {
-	      ch = 256;
-	      done = TRUE;
-	    }
-	  }
+          if (escapelen == -1) {
+            escapelen = 0;
+            if (ch == '@') {
+              ch = '@';
+            }
+            else if (ch == '0') {
+              ch = '\0';
+            }
+            else if (ch == 'A' || ch == 'D') {
+              escapelen = 4;
+              escapetype = ch;
+              escapeval = 0;
+              continue;
+            }
+            else {
+              compiler_error("Strange @ escape in processed text.");
+            }
+          }
+          else if (escapelen) {
+            escapeval = (escapeval << 4) | ((ch-'A') & 0x0F);
+            escapelen--;
+            if (escapelen == 0) {
+              if (escapetype == 'A') {
+                ch = huff_abbrev_start+escapeval;
+              }
+              else if (escapetype == 'D') {
+                ch = huff_dynam_start+escapeval;
+              }
+              else {
+                compiler_error("Strange @ escape in processed text.");
+              }
+            }
+            else 
+              continue;
+          }
+          else {
+            if (ch == '@') {
+              escapelen = -1;
+              continue;
+            }
+            if (ch == 0) {
+              ch = 256;
+              done = TRUE;
+            }
+          }
 
-	  if (compression_switch) {
-	    bits = &(huff_entities[ch].bits);
-	    depth = huff_entities[ch].depth;
-	    for (bx=0; bx<depth; bx++) {
-	      if (bits->b[bx / 8] & (1 << (bx % 8)))
-		curbyte |= (1 << jx);
-	      jx++;
-	      if (jx == 8) {
-		sf_put(curbyte);
-		size++;
-		curbyte = 0;
-		jx = 0;
-	      }
-	    }
-	  }
-	  else {
-	    if (ch >= huff_dynam_start) {
-	      sf_put(' '); sf_put(' '); sf_put(' ');
-	      size += 3;
-	    }
-	    else if (ch >= huff_abbrev_start) {
-	      /* nothing */
-	    }
-	    else {
-	      /* 256, the string terminator, comes out as zero */
-	      sf_put(ch & 0xFF);
-	      size++;
-	    }
-	  }
-	}
-	if (compression_switch && jx) {
-	  sf_put(curbyte);
-	  size++;
-	}
+          if (compression_switch) {
+            bits = &(huff_entities[ch].bits);
+            depth = huff_entities[ch].depth;
+            for (bx=0; bx<depth; bx++) {
+              if (bits->b[bx / 8] & (1 << (bx % 8)))
+                curbyte |= (1 << jx);
+              jx++;
+              if (jx == 8) {
+                sf_put(curbyte);
+                size++;
+                curbyte = 0;
+                jx = 0;
+              }
+            }
+          }
+          else {
+            if (ch >= huff_dynam_start) {
+              sf_put(' '); sf_put(' '); sf_put(' ');
+              size += 3;
+            }
+            else if (ch >= huff_abbrev_start) {
+              /* nothing */
+            }
+            else {
+              /* 256, the string terminator, comes out as zero */
+              sf_put(ch & 0xFF);
+              size++;
+            }
+          }
+        }
+        if (compression_switch && jx) {
+          sf_put(curbyte);
+          size++;
+        }
       }
       
       if (size - origsize != compression_string_size)
-	compiler_error("Compression string size mismatch.");
+        compiler_error("Compression string size mismatch.");
 
     }
     
@@ -859,7 +855,7 @@ static void output_file_g(void)
     fclose(sf_handle);
 
 #ifdef ARCHIMEDES
-    {   char settype_command[128];
+    {   char settype_command[PATHLEN];
         sprintf(settype_command, "settype %s %s",
             new_name, riscos_file_type());
         system(settype_command);
@@ -1097,10 +1093,13 @@ extern void files_allocate_arrays(void)
 {   filename_storage = my_malloc(MAX_SOURCE_FILES*64, "filename storage");
     filename_storage_p = filename_storage;
     filename_storage_left = MAX_SOURCE_FILES*64;
+    InputFiles = my_malloc(MAX_SOURCE_FILES*sizeof(FileId), 
+        "input file storage");
 }
 
 extern void files_free_arrays(void)
 {   my_free(&filename_storage, "filename storage");
+    my_free(&InputFiles, "input file storage");
 }
 
 /* ========================================================================= */

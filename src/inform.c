@@ -2,15 +2,13 @@
 /*   "inform" :  The top level of Inform: switches, pathnames, filenaming    */
 /*               conventions, ICL (Inform Command Line) files, main          */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
 #define MAIN_INFORM_FILE
 #include "header.h"
-
-#define PATHLEN 512
 
 /* ------------------------------------------------------------------------- */
 /*   Compiler progress                                                       */
@@ -191,6 +189,7 @@ int character_set_setting,          /* set by -C */
     double_space_setting,           /* set by -d: 0, 1 or 2 */
     trace_fns_setting,              /* set by -g: 0, 1 or 2 */
     linker_trace_setting,           /* set by -y: ditto for linker_... */
+    header_ext_setting,             /* set by -W */
     store_the_text;                 /* when set, record game text to a chunk
                                        of memory (used by both -r & -k) */
 static int r_e_c_s_set;             /* has -S been explicitly set? */
@@ -247,6 +246,7 @@ static void reset_switch_settings(void)
     error_format=DEFAULT_ERROR_FORMAT;
 
     character_set_setting = 1;                     /* Default is ISO Latin-1 */
+    header_ext_setting = 0;
 
     compression_switch = TRUE;
     glulx_mode = FALSE;
@@ -409,6 +409,7 @@ static char current_source_path[PATHLEN];
        char Debugging_Name[PATHLEN];
        char Transcript_Name[PATHLEN];
        char Language_Name[PATHLEN];
+       char Charset_Map[PATHLEN];
 static char ICL_Path[PATHLEN];
 
 static void set_path_value(char *path, char *value)
@@ -425,7 +426,7 @@ Module_Path or ICL_Path variables. Other paths are for output only.", FN_ALT);
                 exit(1);
             }
             if ((path != Debugging_Name) && (path != Transcript_Name)
-                 && (path != Language_Name)
+                 && (path != Language_Name) && (path != Charset_Map)
                  && (i>0) && (isalnum(path[i-1]))) path[i++] = FN_SEP;
             path[i++] = value[j++];
             if (value[j-1] == 0) return;
@@ -445,6 +446,7 @@ static void set_default_paths(void)
     set_path_value(Debugging_Name,  Debugging_File);
     set_path_value(Transcript_Name, Transcript_File);
     set_path_value(Language_Name,   "English");
+    set_path_value(Charset_Map,     "");
 }
 
 static void set_path_command(char *command)
@@ -470,6 +472,7 @@ static void set_path_command(char *command)
         if (strcmp(pathname, "debugging_name")==0) path_to_set=Debugging_Name;
         if (strcmp(pathname, "transcript_name")==0) path_to_set=Transcript_Name;
         if (strcmp(pathname, "language_name")==0) path_to_set=Language_Name;
+        if (strcmp(pathname, "charset_map")==0) path_to_set=Charset_Map;
 
         if (path_to_set == NULL)
         {   printf("No such path setting as \"%s\"\n", pathname);
@@ -658,18 +661,18 @@ extern void translate_out_filename(char *new_name, char *old_name)
     else
     {
         if (!glulx_mode) {
-	    switch(version_number)
-	    {   case 3: extension = Code_Extension;   break;
-	        case 4: extension = V4Code_Extension; break;
-	        case 5: extension = V5Code_Extension; break;
-		case 6: extension = V6Code_Extension; break;
-		case 7: extension = V7Code_Extension; break;
-		case 8: extension = V8Code_Extension; break;
-	    }
-	}
-	else {
-	    extension = GlulxCode_Extension;
-	}
+            switch(version_number)
+            {   case 3: extension = Code_Extension;   break;
+                case 4: extension = V4Code_Extension; break;
+                case 5: extension = V5Code_Extension; break;
+                case 6: extension = V6Code_Extension; break;
+                case 7: extension = V7Code_Extension; break;
+                case 8: extension = V8Code_Extension; break;
+            }
+        }
+        else {
+            extension = GlulxCode_Extension;
+        }
         if (Code_Path[0]!=0) prefix_path = Code_Path;
     }
 
@@ -783,13 +786,14 @@ Inform translates plain filenames (such as \"xyzzy\") into full pathnames\n\
    \".\" then Inform uses no file extension at all (removing the \".\").\n\n");
 #endif
 
-    printf("Names of three individual files can also be set using the same\n\
+    printf("Names of four individual files can also be set using the same\n\
   + command notation (though they aren't really pathnames).  These are:\n\n\
       transcript_name  (text written by -r switch): now \"%s\"\n\
       debugging_name   (data written by -k switch): now \"%s\"\n\
       language_name    (library file defining natural language of game):\n\
-                       now \"%s\"\n\n",
-    Transcript_Name, Debugging_Name, Language_Name);
+                       now \"%s\"\n\
+      charset_map      (file for character set mapping): now \"%s\"\n\n",
+    Transcript_Name, Debugging_Name, Language_Name, Charset_Map);
 
     translate_in_filename(0, new_name, "rezrov", 0, 1);
     printf("Examples: 1. \"inform rezrov\"\n\
@@ -954,21 +958,26 @@ static void rennab(int32 time_taken)
 /*   The compiler abstracted to a routine.                                   */
 /* ------------------------------------------------------------------------- */
 
+static int execute_icl_header(char *file1);
+
 static int compile(int number_of_files_specified, char *file1, char *file2)
 {   int32 time_start;
+
+    if (execute_icl_header(file1))
+      return 1;
 
     select_target(glulx_mode);
 
     if (define_INFIX_switch && glulx_mode) {
         printf("Infix (-X) facilities are not available in Glulx: \
 disabling -X switch\n");
-	define_INFIX_switch = FALSE;
+        define_INFIX_switch = FALSE;
     }
 
     if (module_switch && glulx_mode) {
         printf("Modules are not available in Glulx: \
 disabling -M switch\n");
-	module_switch = FALSE;
+        module_switch = FALSE;
     }
 
     if (define_INFIX_switch && module_switch)
@@ -1029,8 +1038,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998.\
-\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2004.\n\n");
 
    /* For people typing just "inform", a summary only: */
 
@@ -1158,6 +1166,7 @@ printf("  S   compile strict error-checking at run-time (on by default)\n");
 printf("  T   enable throwback of errors in the DDE\n");
 #endif
 printf("  U   insert \"Constant USE_MODULES;\" automatically\n");
+printf("  Wn  header extension table is at least n words (n = 3 to 99)\n");
 printf("  X   compile with INFIX debugging facilities present\n");
   printf("\n");
 }
@@ -1209,7 +1218,7 @@ extern void switches(char *p, int cmode)
         case 'i': ignore_switches_switch = state; break;
         case 'j': listobjects_switch = state; break;
         case 'k': if (cmode == 0)
-                      error("The switch ~-k~ can't be set with ~Switches~");
+                      error("The switch '-k' can't be set with 'Switches'");
                   else
                   {   debugfile_switch = state;
                       if (state) define_DEBUG_switch = TRUE;
@@ -1222,7 +1231,7 @@ extern void switches(char *p, int cmode)
         case 'p': percentages_switch = state; break;
         case 'q': obsolete_switch = state; break;
         case 'r': if (cmode == 0)
-                      error("The switch ~-r~ can't be set with ~Switches~");
+                      error("The switch '-r' can't be set with 'Switches'");
                   else
                       transcript_switch = state; break;
         case 's': statistics_switch = state; break;
@@ -1286,9 +1295,23 @@ extern void switches(char *p, int cmode)
 #endif
         case 'S': runtime_error_checking_switch = state;
                   r_e_c_s_set = TRUE; break;
-        case 'G': glulx_mode = state; adjust_memory_sizes(); break; /* ###- */
+        case 'G': if (cmode == 0)
+                      error("The switch '-G' can't be set with 'Switches'");
+                  else
+                  {   glulx_mode = state; /* ###- */
+                      adjust_memory_sizes();
+                  }
+                  break;
         case 'H': compression_switch = state; break;
         case 'U': define_USE_MODULES_switch = state; break;
+        case 'W': if ((p[i+1]>='0') && (p[i+1]<='9'))
+                  {   s=2; header_ext_setting = p[i+1]-'0';
+                      if ((p[i+2]>='0') && (p[i+2]<='9'))
+                      {   s=3; header_ext_setting *= 10;
+                          header_ext_setting += p[i+2]-'0';
+                      }
+                  }
+                  break;
         case 'X': define_INFIX_switch = state; break;
         default:
           printf("Switch \"-%c\" unknown (try \"inform -h2\" for the list)\n",
@@ -1323,6 +1346,10 @@ static void icl_error(char *filename, int line)
 {   printf("Error in ICL file '%s', line %d:\n", filename, line);
 }
 
+static void icl_header_error(char *filename, int line)
+{   printf("Error in ICL header of file '%s', line %d:\n", filename, line);
+}
+
 static int copy_icl_word(char *from, char *to)
 {
     /*  Copies one token from 'from' to 'to', null-terminated:
@@ -1352,6 +1379,56 @@ static int copy_icl_word(char *from, char *to)
 }
 
 static void execute_icl_command(char *p);
+
+static int execute_icl_header(char *argname)
+{
+  FILE *command_file;
+  char cli_buff[256], fw[256];
+  int line = 0;
+  int errcount = 0;
+  int i;
+  char filename[PATHLEN]; 
+  int x = 0;
+
+  do
+    {   x = translate_in_filename(x, filename, argname, 0, 1);
+        command_file = fopen(filename,"r");
+    } while ((command_file == NULL) && (x != 0));
+  if (!command_file) {
+    /* Fail silently. The regular compiler will try to open the file
+       again, and report the problem. */
+    return 0;
+  }
+
+  while (feof(command_file)==0) {
+    if (fgets(cli_buff,256,command_file)==0) break;
+    line++;
+    if (!(cli_buff[0] == '!' && cli_buff[1] == '%'))
+      break;
+    i = copy_icl_word(cli_buff+2, fw);
+    if (icl_command(fw)) {
+      execute_icl_command(fw);
+      copy_icl_word(cli_buff+2 + i, fw);
+      if ((fw[0] != 0) && (fw[0] != '!')) {
+        icl_header_error(filename, line);
+        errcount++;
+        printf("expected comment or nothing but found '%s'\n", fw);
+      }
+    }
+    else {
+      if (fw[0]!=0) {
+        icl_header_error(filename, line);
+        errcount++;
+        printf("Expected command or comment but found '%s'\n", fw);
+      }
+    }
+  }
+  fclose(command_file);
+
+  return (errcount==0)?0:1;
+}
+
+
 static void run_icl_file(char *filename, FILE *command_file)
 {   char cli_buff[256], fw[256];
     int i, x, line = 0;
@@ -1441,14 +1518,16 @@ char banner_line[80];
 
 static void banner(void)
 {
-    sprintf(banner_line, MACHINE_STRING);
-    sprintf(banner_line+strlen(banner_line), " Inform %d.%d%d",
+    sprintf(banner_line, "Inform %d.%d%d",
         (VNUMBER/100)%10, (VNUMBER/10)%10, VNUMBER%10);
-    if (1) {
+    if (0) {
         sprintf(banner_line+strlen(banner_line), " (biplatform, G%d.%d%d)",
-	    (GLULX_RELEASE_NUMBER/100)%10, (GLULX_RELEASE_NUMBER/10)%10, 
-	    GLULX_RELEASE_NUMBER%10);
+            (GLULX_RELEASE_NUMBER/100)%10, (GLULX_RELEASE_NUMBER/10)%10, 
+            GLULX_RELEASE_NUMBER%10);
     }
+#ifdef MACHINE_STRING
+    sprintf(banner_line+strlen(banner_line), " for %s", MACHINE_STRING);
+#endif
     sprintf(banner_line+strlen(banner_line), " (%s)",
         RELEASE_DATE);
     printf("%s\n", banner_line);

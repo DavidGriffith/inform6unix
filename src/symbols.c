@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "symbols" :  The symbols table; creating stock of reserved words        */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -194,7 +194,7 @@ extern int symbol_index(char *p, int hashcode)
     symbols_free_space += strlen((char *)symbols_free_space) + 1;
 
     svals[no_symbols]   =  0x100; /* ###-wrong? Would this fix the
-				     unbound-symbol-causes-asm-error? */
+                                     unbound-symbol-causes-asm-error? */
     sflags[no_symbols]  =  UNKNOWN_SFLAG;
     stypes[no_symbols]  =  CONSTANT_T;
     slines[no_symbols]  =  ErrorReport.line_number
@@ -269,6 +269,12 @@ extern void issue_unused_warnings(void)
 {   int32 i;
 
     if (module_switch) return;
+
+    /*  Update any ad-hoc variables that might help the library  */
+    if (glulx_mode)
+    {   global_initial_value[10]=statusline_flag;
+    }
+    /*  Now back to mark anything necessary as used  */
 
     i = symbol_index("Main", -1);
     if (!(sflags[i] & UNKNOWN_SFLAG)) sflags[i] |= USED_SFLAG;
@@ -469,11 +475,6 @@ extern void write_the_identifier_names(void)
 /*   Creating symbols                                                        */
 /* ------------------------------------------------------------------------- */
 
-#if 0 /* ###-unused? This doesn't seem to be necessary, and it's declared
-	 in header.h anyhow. */
-extern int32 variable_tokens[256];
-#endif /* ###-unused */
-
 static void assign_symbol_base(int index, int32 value, int type)
 {   svals[index]  = value;
     stypes[index] = type;
@@ -492,7 +493,7 @@ extern void assign_symbol(int index, int32 value, int type)
     }
     else {
         smarks[index] = 0;
-	assign_symbol_base(index, value, type);
+        assign_symbol_base(index, value, type);
     }
 }
 
@@ -500,11 +501,11 @@ extern void assign_marked_symbol(int index, int marker, int32 value, int type)
 {
     if (!glulx_mode) {
         assign_symbol_base(index, (int32)marker*0x10000 + (value % 0x10000),
-	    type);
+            type);
     }
     else {
         smarks[index] = marker;
-	assign_symbol_base(index, value, type);
+        assign_symbol_base(index, value, type);
     }
 }
 
@@ -561,80 +562,84 @@ static void stockup_symbols(void)
     create_symbol("WORDSIZE",        WORDSIZE, CONSTANT_T);
     if (!glulx_mode) {
         create_symbol("DICT_WORD_SIZE", ((version_number==3)?4:6), CONSTANT_T);
-	create_symbol("NUM_ATTR_BYTES", ((version_number==3)?4:6), CONSTANT_T);
+        create_symbol("NUM_ATTR_BYTES", ((version_number==3)?4:6), CONSTANT_T);
     }
     else {
         create_symbol("DICT_WORD_SIZE",     DICT_WORD_SIZE, CONSTANT_T);
-	create_symbol("NUM_ATTR_BYTES",     NUM_ATTR_BYTES, CONSTANT_T);
+        create_symbol("NUM_ATTR_BYTES",     NUM_ATTR_BYTES, CONSTANT_T);
         create_symbol("INDIV_PROP_START",   INDIV_PROP_START, CONSTANT_T);
     }    
 
     if (!glulx_mode) {
         create_symbol("temp_global",  255, GLOBAL_VARIABLE_T);
-	create_symbol("temp__global2", 254, GLOBAL_VARIABLE_T);
-	create_symbol("temp__global3", 253, GLOBAL_VARIABLE_T);
-	create_symbol("temp__global4", 252, GLOBAL_VARIABLE_T);
-	create_symbol("self",         251, GLOBAL_VARIABLE_T);
-	create_symbol("sender",       250, GLOBAL_VARIABLE_T);
-	create_symbol("sw__var",      249, GLOBAL_VARIABLE_T);
-	
-	create_symbol("sys__glob0",     16, GLOBAL_VARIABLE_T);
-	create_symbol("sys__glob1",     17, GLOBAL_VARIABLE_T);
-	create_symbol("sys__glob2",     18, GLOBAL_VARIABLE_T);
-	
-	create_symbol("create",        64, INDIVIDUAL_PROPERTY_T);
-	create_symbol("recreate",      65, INDIVIDUAL_PROPERTY_T);
-	create_symbol("destroy",       66, INDIVIDUAL_PROPERTY_T);
-	create_symbol("remaining",     67, INDIVIDUAL_PROPERTY_T);
-	create_symbol("copy",          68, INDIVIDUAL_PROPERTY_T);
-	create_symbol("call",          69, INDIVIDUAL_PROPERTY_T);
-	create_symbol("print",         70, INDIVIDUAL_PROPERTY_T);
-	create_symbol("print_to_array",71, INDIVIDUAL_PROPERTY_T);
+        create_symbol("temp__global2", 254, GLOBAL_VARIABLE_T);
+        create_symbol("temp__global3", 253, GLOBAL_VARIABLE_T);
+        create_symbol("temp__global4", 252, GLOBAL_VARIABLE_T);
+        create_symbol("self",         251, GLOBAL_VARIABLE_T);
+        create_symbol("sender",       250, GLOBAL_VARIABLE_T);
+        create_symbol("sw__var",      249, GLOBAL_VARIABLE_T);
+        
+        create_symbol("sys__glob0",     16, GLOBAL_VARIABLE_T);
+        create_symbol("sys__glob1",     17, GLOBAL_VARIABLE_T);
+        create_symbol("sys__glob2",     18, GLOBAL_VARIABLE_T);
+        
+        create_symbol("create",        64, INDIVIDUAL_PROPERTY_T);
+        create_symbol("recreate",      65, INDIVIDUAL_PROPERTY_T);
+        create_symbol("destroy",       66, INDIVIDUAL_PROPERTY_T);
+        create_symbol("remaining",     67, INDIVIDUAL_PROPERTY_T);
+        create_symbol("copy",          68, INDIVIDUAL_PROPERTY_T);
+        create_symbol("call",          69, INDIVIDUAL_PROPERTY_T);
+        create_symbol("print",         70, INDIVIDUAL_PROPERTY_T);
+        create_symbol("print_to_array",71, INDIVIDUAL_PROPERTY_T);
     }
     else {
         /* In Glulx, these system globals are entered in order, not down 
-	   from 255. */
+           from 255. */
         create_symbol("temp_global",  MAX_LOCAL_VARIABLES+0, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("temp__global2", MAX_LOCAL_VARIABLES+1, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("temp__global3", MAX_LOCAL_VARIABLES+2, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("temp__global4", MAX_LOCAL_VARIABLES+3, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("self",         MAX_LOCAL_VARIABLES+4, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("sender",       MAX_LOCAL_VARIABLES+5, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("sw__var",      MAX_LOCAL_VARIABLES+6, 
-	  GLOBAL_VARIABLE_T);
+          GLOBAL_VARIABLE_T);
+        create_symbol("temp__global2", MAX_LOCAL_VARIABLES+1, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("temp__global3", MAX_LOCAL_VARIABLES+2, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("temp__global4", MAX_LOCAL_VARIABLES+3, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("self",         MAX_LOCAL_VARIABLES+4, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("sender",       MAX_LOCAL_VARIABLES+5, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("sw__var",      MAX_LOCAL_VARIABLES+6, 
+          GLOBAL_VARIABLE_T);
 
-	/* These are almost certainly meaningless, and can be removed. */
-	create_symbol("sys__glob0",     MAX_LOCAL_VARIABLES+7, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("sys__glob1",     MAX_LOCAL_VARIABLES+8, 
-	  GLOBAL_VARIABLE_T);
-	create_symbol("sys__glob2",     MAX_LOCAL_VARIABLES+9, 
-	  GLOBAL_VARIABLE_T);
+        /* These are almost certainly meaningless, and can be removed. */
+        create_symbol("sys__glob0",     MAX_LOCAL_VARIABLES+7, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("sys__glob1",     MAX_LOCAL_VARIABLES+8, 
+          GLOBAL_VARIABLE_T);
+        create_symbol("sys__glob2",     MAX_LOCAL_VARIABLES+9, 
+          GLOBAL_VARIABLE_T);
 
-	/* These are created in order, but not necessarily at a fixed
-	   value. */
-	create_symbol("create",        INDIV_PROP_START+0, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("recreate",      INDIV_PROP_START+1, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("destroy",       INDIV_PROP_START+2, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("remaining",     INDIV_PROP_START+3, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("copy",          INDIV_PROP_START+4, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("call",          INDIV_PROP_START+5, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("print",         INDIV_PROP_START+6, 
-	  INDIVIDUAL_PROPERTY_T);
-	create_symbol("print_to_array",INDIV_PROP_START+7, 
-	  INDIVIDUAL_PROPERTY_T);
+        /* value of statusline_flag to be written later */
+        create_symbol("sys_statusline_flag",  MAX_LOCAL_VARIABLES+10, 
+          GLOBAL_VARIABLE_T);
+
+        /* These are created in order, but not necessarily at a fixed
+           value. */
+        create_symbol("create",        INDIV_PROP_START+0, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("recreate",      INDIV_PROP_START+1, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("destroy",       INDIV_PROP_START+2, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("remaining",     INDIV_PROP_START+3, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("copy",          INDIV_PROP_START+4, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("call",          INDIV_PROP_START+5, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("print",         INDIV_PROP_START+6, 
+          INDIVIDUAL_PROPERTY_T);
+        create_symbol("print_to_array",INDIV_PROP_START+7, 
+          INDIVIDUAL_PROPERTY_T);
     }
 }
 

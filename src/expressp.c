@@ -1,24 +1,12 @@
 /* ------------------------------------------------------------------------- */
 /*   "expressp" :  The expression parser                                     */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
 #include "header.h"
-
-/* ###- This is now a global variable in expressc.c.
-
-static assembly_operand zero_operand;
-
-static void make_operands(void)
-{   zero_operand.type = SHORT_CONSTANT_OT;
-    zero_operand.value = 0;
-    zero_operand.marker = 0;
-}
-
-*/
 
 /* --- Interface to lexer -------------------------------------------------- */
 
@@ -62,6 +50,7 @@ static token_data current_token, previous_token, heldback_token;
 static void function_call_triggered(void);
 
 static int comma_allowed, arrow_allowed, superclass_allowed,
+           bare_prop_allowed,
            array_init_ambiguity, action_ambiguity,
 
            etoken_count, inserting_token, bracket_level;
@@ -86,6 +75,8 @@ static int get_next_etoken(void)
         current_token.value = token_value;
         current_token.type = token_type;
         current_token.marker = 0;
+        current_token.symtype = 0;
+        current_token.symflags = -1;
     }
 
     switch(current_token.type)
@@ -101,23 +92,25 @@ static int get_next_etoken(void)
         case SQ_TT:
             {   int32 unicode = text_to_unicode(token_text);
                 if (token_text[textual_form_length] == 0)
-                {   current_token.value = unicode_to_zscii(unicode);
-                    if (current_token.value == 5)
-                    {   unicode_char_error("Character can be printed \
+                {
+                    if (!glulx_mode) {
+                        current_token.value = unicode_to_zscii(unicode);
+                        if (current_token.value == 5)
+                        {   unicode_char_error("Character can be printed \
 but not used as a value:", unicode);
-                        current_token.value = '?';
+                            current_token.value = '?';
+                        }
+                        if (current_token.value >= 0x100)
+                            current_token.type = LARGE_NUMBER_TT;
+                        else current_token.type = SMALL_NUMBER_TT;
                     }
-		    if (!glulx_mode) {
-		        if (current_token.value >= 0x100)
-			    current_token.type = LARGE_NUMBER_TT;
-			else current_token.type = SMALL_NUMBER_TT;
-		    }
-		    else {
-		        if (current_token.value >= 0x8000
-			  || current_token.value < -0x8000) 
-			    current_token.type = LARGE_NUMBER_TT;
-			else current_token.type = SMALL_NUMBER_TT;
-		    }
+                    else {
+                        current_token.value = unicode;
+                        if (current_token.value >= 0x8000
+                          || current_token.value < -0x8000) 
+                            current_token.type = LARGE_NUMBER_TT;
+                        else current_token.type = SMALL_NUMBER_TT;
+                    }
                 }
                 else
                 {   current_token.type = DICTWORD_TT;
@@ -134,6 +127,8 @@ but not used as a value:", unicode);
 
             v = svals[symbol];
 
+            current_token.symtype = stypes[symbol];
+            current_token.symflags = sflags[symbol];
             switch(stypes[symbol])
             {   case ROUTINE_T:
                     current_token.marker = IROUTINE_MV;
@@ -143,7 +138,7 @@ but not used as a value:", unicode);
                     break;
                 case OBJECT_T:
                 case CLASS_T:
-		    /* All objects must be backpatched in Glulx. */
+                    /* All objects must be backpatched in Glulx. */
                     if (module_switch || glulx_mode)
                         current_token.marker = OBJECT_MV;
                     break;
@@ -173,20 +168,20 @@ but not used as a value:", unicode);
 
             current_token.value = v;
 
-	    if (!glulx_mode) {
-	        if (((current_token.marker != 0)
-		  && (current_token.marker != VARIABLE_MV))
-		  || (v < 0) || (v > 255))
-		    current_token.type = LARGE_NUMBER_TT;
-		else current_token.type = SMALL_NUMBER_TT;
-	    }
-	    else {
-	        if (((current_token.marker != 0)
-		  && (current_token.marker != VARIABLE_MV))
-		  || (v < -0x8000) || (v >= 0x8000)) 
-		    current_token.type = LARGE_NUMBER_TT;
-		else current_token.type = SMALL_NUMBER_TT;
-	    }
+            if (!glulx_mode) {
+                if (((current_token.marker != 0)
+                  && (current_token.marker != VARIABLE_MV))
+                  || (v < 0) || (v > 255))
+                    current_token.type = LARGE_NUMBER_TT;
+                else current_token.type = SMALL_NUMBER_TT;
+            }
+            else {
+                if (((current_token.marker != 0)
+                  && (current_token.marker != VARIABLE_MV))
+                  || (v < -0x8000) || (v >= 0x8000)) 
+                    current_token.type = LARGE_NUMBER_TT;
+                else current_token.type = SMALL_NUMBER_TT;
+            }
 
             if (stypes[symbol] == GLOBAL_VARIABLE_T)
             {   current_token.type = VARIABLE_TT;
@@ -195,19 +190,19 @@ but not used as a value:", unicode);
             break;
 
         case NUMBER_TT:
-	    if (!glulx_mode) {
-	        if (current_token.value >= 256)
-		    current_token.type = LARGE_NUMBER_TT;
-		else
-		    current_token.type = SMALL_NUMBER_TT;
-	    }
-	    else {
-	        if (current_token.value < -0x8000 
-		  || current_token.value >= 0x8000)
-		    current_token.type = LARGE_NUMBER_TT;
-		else
-		    current_token.type = SMALL_NUMBER_TT;
-	    }
+            if (!glulx_mode) {
+                if (current_token.value >= 256)
+                    current_token.type = LARGE_NUMBER_TT;
+                else
+                    current_token.type = SMALL_NUMBER_TT;
+            }
+            else {
+                if (current_token.value < -0x8000 
+                  || current_token.value >= 0x8000)
+                    current_token.type = LARGE_NUMBER_TT;
+                else
+                    current_token.type = SMALL_NUMBER_TT;
+            }
             break;
 
         case SEP_TT:
@@ -300,7 +295,7 @@ but not used as a value:", unicode);
                     break;
 
                 case HASHADOLLAR_SEP:
-                obsolete_warning("'#a$Act' is now superceded by '##Act'");
+                obsolete_warning("'#a$Act' is now superseded by '##Act'");
                     token_text = current_token.text + 3;
                     goto ActionUsedAsConstant;
 
@@ -312,7 +307,7 @@ but not used as a value:", unicode);
 
                     if (strlen(token_text) > 4)
                         obsolete_warning(
-                            "'#n$word' is now superceded by ''word''");
+                            "'#n$word' is now superseded by ''word''");
                     current_token.type  = DICTWORD_TT;
                     current_token.value = 0;
                     current_token.text  = token_text + 3;
@@ -657,87 +652,89 @@ static int evaluate_term(token_data t, assembly_operand *o)
     int32 v;
 
     o->marker = t.marker;
+    o->symtype = t.symtype;
+    o->symflags = t.symflags;
 
     switch(t.type)
     {   case LARGE_NUMBER_TT:
              v = t.value;
              if (!glulx_mode) {
-	         if (v < 0) v = v + 0x10000;
-		 o->type = LONG_CONSTANT_OT;
-		 o->value = v;
-	     }
-	     else {
-	         o->value = v;
-		 o->type = CONSTANT_OT;
-	     }
+                 if (v < 0) v = v + 0x10000;
+                 o->type = LONG_CONSTANT_OT;
+                 o->value = v;
+             }
+             else {
+                 o->value = v;
+                 o->type = CONSTANT_OT;
+             }
              return(TRUE);
         case SMALL_NUMBER_TT:
              v = t.value;
              if (!glulx_mode) {
-	         if (v < 0) v = v + 0x10000;
-		 o->type = SHORT_CONSTANT_OT;
-		 o->value = v;
-	     }
-	     else {
-	         o->value = v;
-		 set_constant_ot(o);
-	     }
+                 if (v < 0) v = v + 0x10000;
+                 o->type = SHORT_CONSTANT_OT;
+                 o->value = v;
+             }
+             else {
+                 o->value = v;
+                 set_constant_ot(o);
+             }
              return(TRUE);
         case DICTWORD_TT:
              /*  Find the dictionary address, adding to dictionary if absent */
-	     if (!glulx_mode) 
-	         o->type = LONG_CONSTANT_OT;
-	     else
-	         o->type = CONSTANT_OT;
+             if (!glulx_mode) 
+                 o->type = LONG_CONSTANT_OT;
+             else
+                 o->type = CONSTANT_OT;
              o->value = dictionary_add(t.text, 0x80, 0, 0);
              return(TRUE);
         case DQ_TT:
              /*  Create as a static string  */
-	     if (!glulx_mode) 
-	         o->type = LONG_CONSTANT_OT;
-	     else
-	         o->type = CONSTANT_OT;
+             if (!glulx_mode) 
+                 o->type = LONG_CONSTANT_OT;
+             else
+                 o->type = CONSTANT_OT;
              o->value = compile_string(t.text, FALSE, FALSE);
              return(TRUE);
         case VARIABLE_TT:
-	     if (!glulx_mode) {
-	         o->type = VARIABLE_OT;
-	     }
-	     else {
-	         if (t.value >= MAX_LOCAL_VARIABLES) {
-		     o->type = GLOBALVAR_OT;
-		 }
-		 else {
-		     /* This includes "local variable zero", which is really
-			the stack-pointer magic variable. */
-		     o->type = LOCALVAR_OT;
-		 }
-	     }
+             if (!glulx_mode) {
+                 o->type = VARIABLE_OT;
+             }
+             else {
+                 if (t.value >= MAX_LOCAL_VARIABLES) {
+                     o->type = GLOBALVAR_OT;
+                 }
+                 else {
+                     /* This includes "local variable zero", which is really
+                        the stack-pointer magic variable. */
+                     o->type = LOCALVAR_OT;
+                 }
+             }
              o->value = t.value;
              return(TRUE);
         case SYSFUN_TT:
-	     if (!glulx_mode) {
-	         o->type = VARIABLE_OT;
-		 o->value = t.value + 256;
-	     }
-	     else {
-	         o->type = SYSFUN_OT;
-		 o->value = t.value;
-	     }
+             if (!glulx_mode) {
+                 o->type = VARIABLE_OT;
+                 o->value = t.value + 256;
+             }
+             else {
+                 o->type = SYSFUN_OT;
+                 o->value = t.value;
+             }
              system_function_usage[t.value] = 1;
              return(TRUE);
         case ACTION_TT:
              *o = action_of_name(t.text);
              return(TRUE);
         case SYSTEM_CONSTANT_TT:
-	     /*  Certain system constants depend only on the
-		 version number and need no backpatching, as they
-		 are known in advance.  We can therefore evaluate
-		 them immediately.  */
-	     if (!glulx_mode) {
-	         o->type = LONG_CONSTANT_OT;
-		 switch(t.value)
-		 {   
+             /*  Certain system constants depend only on the
+                 version number and need no backpatching, as they
+                 are known in advance.  We can therefore evaluate
+                 them immediately.  */
+             if (!glulx_mode) {
+                 o->type = LONG_CONSTANT_OT;
+                 switch(t.value)
+                 {   
                  case version_number_SC:
                      o->type = SHORT_CONSTANT_OT;
                      o->marker = 0;
@@ -776,39 +773,39 @@ static int evaluate_term(token_data t, assembly_operand *o)
                      v = t.value;
                      o->marker = INCON_MV;
                      break;
-		 }
-		 o->value = v;
-	     }
-	     else {
-	         o->type = CONSTANT_OT;
-		 switch(t.value)
-		 {
+                 }
+                 o->value = v;
+             }
+             else {
+                 o->type = CONSTANT_OT;
+                 switch(t.value)
+                 {
                  case dict_par1_SC:
                      o->type = BYTECONSTANT_OT;
                      o->marker = 0;
                      v = DICT_WORD_SIZE+2;
-		     break;
+                     break;
                  case dict_par2_SC:
                      o->type = BYTECONSTANT_OT;
                      o->marker = 0;
                      v = DICT_WORD_SIZE+4;
-		     break;
+                     break;
                  case dict_par3_SC:
                      o->type = BYTECONSTANT_OT;
                      o->marker = 0;
                      v = DICT_WORD_SIZE+6;
-		     break;
+                     break;
 
-		 /* ###fix: need to fill more of these in! */
+                 /* ###fix: need to fill more of these in! */
 
                  default:
                      v = t.value;
                      o->marker = INCON_MV;
                      break;
-		 }
-		 o->value = v;
-	     }
-	     return(TRUE);
+                 }
+                 o->value = v;
+             }
+             return(TRUE);
         default:
              return(FALSE);
     }
@@ -836,6 +833,10 @@ static void function_call_triggered(void)
     if (expr_trace_level >= 3) printf("Function call triggered\n");
 }
 
+static int is_property_t(int symbol_type)
+{   return ((symbol_type == PROPERTY_T) || (symbol_type == INDIVIDUAL_PROPERTY_T));
+}
+
 static void emit_token(token_data t)
 {   assembly_operand o1, o2; int arity, stack_size, i, mark_result = 0;
     int op_node_number, operand_node_number, previous_node_number;
@@ -857,7 +858,7 @@ static void emit_token(token_data t)
     {   if (emitter_sp == 0)
         {   error("No expression between brackets '(' and ')'");
             emitter_markers[0] = 0;
-	    emitter_stack[0] = zero_operand;
+            emitter_stack[0] = zero_operand;
             emitter_sp = 1;
         }
         if (next_marker == FVALUE_MARKER)
@@ -930,11 +931,35 @@ static void emit_token(token_data t)
             {   if (emitter_sp == MAX_EXPRESSION_NODES)
                     memoryerror("MAX_EXPRESSION_NODES2", MAX_EXPRESSION_NODES);
                 emitter_markers[emitter_sp] = 0;
-		emitter_stack[emitter_sp] = zero_operand;
+                emitter_stack[emitter_sp] = zero_operand;
                 emitter_sp++;
                 stack_size++;
             }
         }
+    }
+
+    /* pseudo-typecheck in 6.30 */
+    for (i = 1; i <= arity; i++)
+    {
+        o1 = emitter_stack[emitter_sp - i];
+        if (is_property_t(o1.symtype) ) {
+            switch(t.value) 
+            {
+                case FCALL_OP:
+                case SETEQUALS_OP: case NOTEQUAL_OP: 
+                case CONDEQUALS_OP: 
+                case PROVIDES_OP: case NOTPROVIDES_OP:
+                case PROP_ADD_OP: case PROP_NUM_OP:
+                case SUPERCLASS_OP:
+                case MPROP_ADD_OP: case MESSAGE_OP:
+                case PROPERTY_OP:
+                    if (i < arity) break;
+                case GE_OP: case LE_OP:
+                    if ((i < arity) && (o1.symflags & STAR_SFLAG)) break;
+                default:
+                    warning("Property name in expression is not qualified by object");
+            }
+        } /* if (is_property_t */
     }
 
     switch(arity)
@@ -944,10 +969,10 @@ static void emit_token(token_data t)
             {   switch(t.value)
                 {   case UNARY_MINUS_OP: x = -o1.value; goto FoldConstant;
                     case ARTNOT_OP: 
-		         if (!glulx_mode)
-			     x = (0xffffff - o1.value) & 0xffff;
-			 else
-			     x = (~o1.value) & 0xffffffff;
+                         if (!glulx_mode)
+                             x = (~o1.value) & 0xffff;
+                         else
+                             x = (~o1.value) & 0xffffffff;
                          goto FoldConstant;
                     case LOGNOT_OP:
                         if (o1.value != 0) x=0; else x=1;
@@ -961,57 +986,48 @@ static void emit_token(token_data t)
             o2 = emitter_stack[emitter_sp - 1];
 
             if ((o1.marker == 0) && (o2.marker == 0)
-  	        && is_constant_ot(o1.type) && is_constant_ot(o2.type))
+                && is_constant_ot(o1.type) && is_constant_ot(o2.type))
             {
+                int32 ov1, ov2;
+                if (glulx_mode)
+                { ov1 = o1.value;
+                  ov2 = o2.value;
+                }
+                else
+                { ov1 = (o1.value >= 0x8000) ? (o1.value - 0x10000) : o1.value;
+                  ov2 = (o2.value >= 0x8000) ? (o2.value - 0x10000) : o2.value;
+                }
+
                 switch(t.value)
                 {
-                    case PLUS_OP: x = o1.value + o2.value; goto FoldConstantC;
-                    case MINUS_OP: x = o1.value - o2.value; goto FoldConstantC;
-
-  		    case TIMES_OP:
-  		    case DIVIDE_OP:
-  		    case REMAINDER_OP:
-		      {
-			int32 ov1, ov2;
-			if (!glulx_mode) {
-			  ov1 = o1.value & 0xFFFF;
-			  ov2 = o2.value & 0xFFFF;
-			  if (ov1 & 0x8000)
-			    ov1 -= (int32)0x10000;
-			  if (ov2 & 0x8000)
-			    ov2 -= (int32)0x10000;
-			}
-			else {
-			  ov1 = o1.value;
-			  ov2 = o2.value;
-			}
-			if (t.value == TIMES_OP) {
-			  x = ov1 * ov2;
-			  goto FoldConstantC;
-			}
-			if (o2.value == 0)
-			  error("Division of constant by zero");
-			if (t.value == DIVIDE_OP) {
-			  if (ov2 < 0) {
-			    ov1 = -ov1;
-			    ov2 = -ov2;
-			  }
-			  if (ov1 >= 0) 
-			    x = ov1 / ov2;
-			  else
-			    x = -((-ov1) / ov2);
-			}
-			else {
-			  if (ov2 < 0) {
-			    ov2 = -ov2;
-			  }
-			  if (ov1 >= 0) 
-			    x = ov1 % ov2;
-			  else
-			    x = -((-ov1) % ov2);
-			}
-			goto FoldConstant;
-		      }
+                    case PLUS_OP: x = ov1 + ov2; goto FoldConstantC;
+                    case MINUS_OP: x = ov1 - ov2; goto FoldConstantC;
+                    case TIMES_OP: x = ov1 * ov2; goto FoldConstantC;
+                    case DIVIDE_OP:
+                    case REMAINDER_OP:
+                        if (ov2 == 0)
+                          error("Division of constant by zero");
+                        else
+                        if (t.value == DIVIDE_OP) {
+                          if (ov2 < 0) {
+                            ov1 = -ov1;
+                            ov2 = -ov2;
+                          }
+                          if (ov1 >= 0) 
+                            x = ov1 / ov2;
+                          else
+                            x = -((-ov1) / ov2);
+                        }
+                        else {
+                          if (ov2 < 0) {
+                            ov2 = -ov2;
+                          }
+                          if (ov1 >= 0) 
+                            x = ov1 % ov2;
+                          else
+                            x = -((-ov1) % ov2);
+                        }
+                        goto FoldConstant;
                     case ARTAND_OP: x = o1.value & o2.value; goto FoldConstant;
                     case ARTOR_OP: x = o1.value | o2.value; goto FoldConstant;
                     case CONDEQUALS_OP:
@@ -1097,16 +1113,18 @@ static void emit_token(token_data t)
 
     if (!glulx_mode && ((x<-32768) || (x > 32767)))
     {   char folding_error[40];
+        int32 ov1 = (o1.value >= 0x8000) ? (o1.value - 0x10000) : o1.value;
+        int32 ov2 = (o2.value >= 0x8000) ? (o2.value - 0x10000) : o2.value;
         switch(t.value)
         {
             case PLUS_OP:
-                sprintf(folding_error, "%d + %d = %d", o1.value, o2.value, x);
+                sprintf(folding_error, "%d + %d = %d", ov1, ov2, x);
                 break;
             case MINUS_OP:
-                sprintf(folding_error, "%d - %d = %d", o1.value, o2.value, x);
+                sprintf(folding_error, "%d - %d = %d", ov1, ov2, x);
                 break;
             case TIMES_OP:
-                sprintf(folding_error, "%d * %d = %d", o1.value, o2.value, x);
+                sprintf(folding_error, "%d * %d = %d", ov1, ov2, x);
                 break;
         }
         error_named("Signed arithmetic on compile-time constants overflowed \
@@ -1117,7 +1135,7 @@ the range -32768 to +32767:", folding_error);
 
     if (!glulx_mode) {
         while (x < 0) x = x + 0x10000;
-	x = x & 0xffff;
+        x = x & 0xffff;
     }
     else {
         x = x & 0xffffffff;
@@ -1127,18 +1145,18 @@ the range -32768 to +32767:", folding_error);
 
     if (!glulx_mode) {
         if (x<256)
-	    emitter_stack[emitter_sp - 1].type = SHORT_CONSTANT_OT;
-	else emitter_stack[emitter_sp - 1].type = LONG_CONSTANT_OT;
+            emitter_stack[emitter_sp - 1].type = SHORT_CONSTANT_OT;
+        else emitter_stack[emitter_sp - 1].type = LONG_CONSTANT_OT;
     }
     else {
         if (x == 0)
-	    emitter_stack[emitter_sp - 1].type = ZEROCONSTANT_OT;
-	else if (x >= -128 && x <= 127) 
-	    emitter_stack[emitter_sp - 1].type = BYTECONSTANT_OT;
-	else if (x >= -32768 && x <= 32767) 
-	    emitter_stack[emitter_sp - 1].type = HALFCONSTANT_OT;
-	else
-	    emitter_stack[emitter_sp - 1].type = CONSTANT_OT;
+            emitter_stack[emitter_sp - 1].type = ZEROCONSTANT_OT;
+        else if (x >= -128 && x <= 127) 
+            emitter_stack[emitter_sp - 1].type = BYTECONSTANT_OT;
+        else if (x >= -32768 && x <= 32767) 
+            emitter_stack[emitter_sp - 1].type = HALFCONSTANT_OT;
+        else
+            emitter_stack[emitter_sp - 1].type = CONSTANT_OT;
     }
 
     emitter_stack[emitter_sp - 1].value = x;
@@ -1254,7 +1272,7 @@ static void check_lvalues(int from_node)
         {   opnum_below = ET[below].operator_number;
 
             if (ET[below].down == -1)
-	    {   if (!is_variable_ot(ET[below].value.type))
+            {   if (!is_variable_ot(ET[below].value.type))
                 {   error("'=' applied to undeclared variable");
                     goto LvalueError;
                 }
@@ -1429,6 +1447,19 @@ static void insert_exp_to_cond(int n, int context)
     insert_exp_to_cond(ET[n].down, context);
 }
 
+static unsigned int etoken_num_children(int n)
+{
+    int count = 0;
+    int i;
+    i = ET[n].down;
+    if (i == -1) { return 0; }
+    do {
+        count++;
+        i = ET[i].right;
+    } while (i!=-1);
+    return count;
+}
+
 static void func_args_on_stack(int n, int context)
 {
   /* Make sure that the arguments of every function-call expression
@@ -1438,7 +1469,7 @@ static void func_args_on_stack(int n, int context)
      it's the function address, not a function argument. We also
      skip the treatment for most system functions.) */
 
-  int new, i, pn, fnaddr, opnum;
+  int new, pn, fnaddr, opnum;
 
   ASSERT_GLULX();
 
@@ -1449,25 +1480,27 @@ static void func_args_on_stack(int n, int context)
     if (pn != -1) {
       opnum = ET[pn].operator_number;
       if (opnum == FCALL_OP
-	|| opnum == MESSAGE_CALL_OP
-	|| opnum == PROP_CALL_OP) {
-	/* If it's an FCALL, get the operand which contains the function 
-	   address (or system-function number) */
-	if (opnum == MESSAGE_CALL_OP 
-	  || opnum == PROP_CALL_OP
-	  || ((fnaddr=ET[pn].down) != n
-	    && (ET[fnaddr].value.type != SYSFUN_OT
-	      || ET[fnaddr].value.value == INDIRECT_SYSF
-	      || ET[fnaddr].value.value == GLK_SYSF))) {
-	  new = ET_used++;
-	  if (new == MAX_EXPRESSION_NODES)
-	    memoryerror("MAX_EXPRESSION_NODES9", MAX_EXPRESSION_NODES);
-	  ET[new] = ET[n];
-	  ET[n].down = new; 
-	  ET[n].operator_number = PUSH_OP;
-	  ET[new].up = n; 
-	  ET[new].right = -1;
-	}
+        || opnum == MESSAGE_CALL_OP
+        || opnum == PROP_CALL_OP) {
+        /* If it's an FCALL, get the operand which contains the function 
+           address (or system-function number) */
+        if (opnum == MESSAGE_CALL_OP 
+          || opnum == PROP_CALL_OP
+          || ((fnaddr=ET[pn].down) != n
+            && (ET[fnaddr].value.type != SYSFUN_OT
+              || ET[fnaddr].value.value == INDIRECT_SYSF
+              || ET[fnaddr].value.value == GLK_SYSF))) {
+        if (etoken_num_children(pn) > (unsigned int)(opnum == FCALL_OP ? 4:3)) {
+          new = ET_used++;
+          if (new == MAX_EXPRESSION_NODES)
+            memoryerror("MAX_EXPRESSION_NODES9", MAX_EXPRESSION_NODES);
+          ET[new] = ET[n];
+          ET[n].down = new; 
+          ET[n].operator_number = PUSH_OP;
+          ET[new].up = n; 
+          ET[new].right = -1;
+        }
+        }
       }
     }
     return;
@@ -1530,6 +1563,9 @@ extern assembly_operand parse_expression(int context)
                                 used for e.g.
                                    <Insert button (random(pocket1, pocket2))>
 
+            RETURN_Q_CONTEXT    like QUANTITY_CONTEXT, but a single property
+                                name does not generate a warning
+
             ASSEMBLY_CONTEXT    a quantity which cannot use the '->' operator
                                 (needed for assembly language to indicate
                                 store destinations)
@@ -1565,6 +1601,7 @@ extern assembly_operand parse_expression(int context)
 
     comma_allowed = (context == VOID_CONTEXT);
     arrow_allowed = (context != ASSEMBLY_CONTEXT);
+    bare_prop_allowed = (context == RETURN_Q_CONTEXT);
     array_init_ambiguity = ((context == ARRAY_CONTEXT) ||
         (context == ASSEMBLY_CONTEXT));
 
@@ -1572,6 +1609,7 @@ extern assembly_operand parse_expression(int context)
 
     if (context == ASSEMBLY_CONTEXT) context = QUANTITY_CONTEXT;
     if (context == ACTION_Q_CONTEXT) context = QUANTITY_CONTEXT;
+    if (context == RETURN_Q_CONTEXT) context = QUANTITY_CONTEXT;
     if (context == ARRAY_CONTEXT) context = CONSTANT_CONTEXT;
 
     etoken_count = 0;
@@ -1628,10 +1666,15 @@ extern assembly_operand parse_expression(int context)
                 {   printf("Tree before lvalue checking:\n");
                     show_tree(AO, FALSE);
                 }
-	        if (!glulx_mode)
-		    check_property_operator(AO.value);
+                if (!glulx_mode)
+                    check_property_operator(AO.value);
                 check_lvalues(AO.value);
                 ET[AO.value].up = -1;
+            }
+            else {
+                if ((context != CONSTANT_CONTEXT) && is_property_t(AO.symtype) 
+                    && (arrow_allowed) && (!bare_prop_allowed))
+                    warning("Bare property name found. \"self.prop\" intended?");
             }
 
             check_conditions(AO, context);

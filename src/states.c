@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "states" :  Statement translator                                        */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -45,7 +45,7 @@ extern void match_close_bracket(void)
 
 static void parse_action(void)
 {   int level = 1, args = 0, codegen_action;
-    assembly_operand AO, AO2, AO3, AO4, dump;
+    assembly_operand AO, AO2, AO3, AO4;
 
     dont_enter_into_symbol_table = TRUE;
     get_next_token();
@@ -89,7 +89,6 @@ static void parse_action(void)
     if (!glulx_mode) {
 
       AO = veneer_routine(R_Process_VR);
-      dump.type = VARIABLE_OT; dump.value = 255; dump.marker = 0;
 
       switch(args)
       {   case 0:
@@ -98,9 +97,9 @@ static void parse_action(void)
                 assemblez_2(call_2n_zc, AO, AO2);
             else
             if (version_number==4)
-                assemblez_2_to(call_vs_zc, AO, AO2, dump);
+                assemblez_2_to(call_vs_zc, AO, AO2, temp_var1);
             else
-                assemblez_2_to(call_zc, AO, AO2, dump);
+                assemblez_2_to(call_zc, AO, AO2, temp_var1);
             break;
           case 1:
             AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
@@ -109,9 +108,9 @@ static void parse_action(void)
                 assemblez_3(call_vn_zc, AO, AO2, AO3);
             else
             if (version_number==4)
-                assemblez_3_to(call_vs_zc, AO, AO2, AO3, dump);
+                assemblez_3_to(call_vs_zc, AO, AO2, AO3, temp_var1);
             else
-                assemblez_3_to(call_zc, AO, AO2, AO3, dump);
+                assemblez_3_to(call_zc, AO, AO2, AO3, temp_var1);
             break;
           case 2:
             AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
@@ -121,7 +120,7 @@ static void parse_action(void)
                 assemblez_4(call_vn_zc, AO, AO2, AO3, AO4);
             else
             if (version_number==4)
-                assemblez_4_to(call_vs_zc, AO, AO2, AO3, AO4, dump);
+                assemblez_4_to(call_vs_zc, AO, AO2, AO3, AO4, temp_var1);
             else
                 assemblez_4(call_zc, AO, AO2, AO3, AO4);
             break;
@@ -137,29 +136,29 @@ static void parse_action(void)
       switch (args) {
 
       case 0:
-	if (codegen_action) 
-	  AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-	assembleg_call_1(AO, AO2, zero_operand);
-	break;
+        if (codegen_action) 
+          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
+        assembleg_call_1(AO, AO2, zero_operand);
+        break;
 
       case 1:
-	AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-	if (codegen_action)
-	  AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-	assembleg_call_2(AO, AO2, AO3, zero_operand);
-	break;
+        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
+        if (codegen_action)
+          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
+        assembleg_call_2(AO, AO2, AO3, zero_operand);
+        break;
 
       case 2:
-	AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
-	AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-	if (codegen_action) 
-	  AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
-	assembleg_call_3(AO, AO2, AO3, AO4, zero_operand);
-	break;
+        AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
+        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
+        if (codegen_action) 
+          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
+        assembleg_call_3(AO, AO2, AO3, AO4, zero_operand);
+        break;
       }
 
       if (level == 2) 
-	assembleg_1(return_gc, one_operand);
+        assembleg_1(return_gc, one_operand);
 
     }
 }
@@ -187,7 +186,7 @@ extern int parse_label(void)
 }
 
 static void parse_print_z(int finally_return)
-{   int count = 0; assembly_operand AO, AO2;
+{   int count = 0; assembly_operand AO;
 
     /*  print <printlist> -------------------------------------------------- */
     /*  print_ret <printlist> ---------------------------------------------- */
@@ -313,11 +312,15 @@ static void parse_print_z(int finally_return)
                               case THE_MK:
                                   AO = veneer_routine(DefArt_VR);
                                   goto PrintByRoutine;
+                              case AN_MK:
                               case A_MK:
                                   AO = veneer_routine(InDefArt_VR);
                                   goto PrintByRoutine;
                               case CAP_THE_MK:
                                   AO = veneer_routine(CDefArt_VR);
+                                  goto PrintByRoutine;
+                              case CAP_A_MK:
+                                  AO = veneer_routine(CInDefArt_VR);
                                   goto PrintByRoutine;
                               case NAME_MK:
                                   AO = veneer_routine(PrintShortName_VR);
@@ -351,9 +354,6 @@ static void parse_print_z(int finally_return)
 
                           PrintByRoutine:
 
-                          AO2.type = VARIABLE_OT;
-                          AO2.value = 255;
-                          AO2.marker = 0;
                           get_next_token();
                           if (version_number >= 5)
                             assemblez_2(call_2n_zc, AO,
@@ -362,11 +362,11 @@ static void parse_print_z(int finally_return)
                           else if (version_number == 4)
                             assemblez_2_to(call_vs_zc, AO,
                               code_generate(parse_expression(QUANTITY_CONTEXT),
-                                QUANTITY_CONTEXT, -1), AO2);
+                                QUANTITY_CONTEXT, -1), temp_var1);
                           else
                             assemblez_2_to(call_zc, AO,
                               code_generate(parse_expression(QUANTITY_CONTEXT),
-                                QUANTITY_CONTEXT, -1), AO2);
+                                QUANTITY_CONTEXT, -1), temp_var1);
                           goto PrintTermDone;
 
                         default: ebf_error("print specification", token_text);
@@ -413,7 +413,7 @@ static void parse_print_z(int finally_return)
 }
 
 static void parse_print_g(int finally_return)
-{   int count = 0; assembly_operand AO, AO2, AO3;
+{   int count = 0; assembly_operand AO, AO2;
 
     /*  print <printlist> -------------------------------------------------- */
     /*  print_ret <printlist> ---------------------------------------------- */
@@ -427,6 +427,7 @@ static void parse_print_g(int finally_return)
     /*       (address) <expression>                                          */
     /*       (string) <expression>                                           */
     /*       (a) <expression>                                                */
+    /*       (A) <expression>                                                */
     /*       (the) <expression>                                              */
     /*       (The) <expression>                                              */
     /*       (name) <expression>                                             */
@@ -442,7 +443,7 @@ static void parse_print_g(int finally_return)
         switch(token_type)
         {   case DQ_TT:
               /* We can't compile a string into the instruction,
-		 so this always goes into the string area. */
+                 so this always goes into the string area. */
               {   AO.marker = STRING_MV;
                   AO.type   = CONSTANT_OT;
                   AO.value  = compile_string(token_text, FALSE, FALSE);
@@ -452,11 +453,11 @@ static void parse_print_g(int finally_return)
                       if ((token_type == SEP_TT)
                           && (token_value == SEMICOLON_SEP))
                       {   AO.type = BYTECONSTANT_OT; 
-		          AO.value = 0x0A; AO.marker = 0;
-			  assembleg_1(streamchar_gc, AO); 
-			  AO.type = BYTECONSTANT_OT; 
-			  AO.value = 1; AO.marker = 0;
-			  assembleg_1(return_gc, AO); 
+                          AO.value = 0x0A; AO.marker = 0;
+                          assembleg_1(streamchar_gc, AO); 
+                          AO.type = BYTECONSTANT_OT; 
+                          AO.value = 1; AO.marker = 0;
+                          assembleg_1(return_gc, AO); 
                           return;
                       }
                       put_token_back();
@@ -501,10 +502,10 @@ static void parse_print_g(int finally_return)
                                   assembleg_1(streamchar_gc, AO1);
                                   goto PrintTermDone;
                               case ADDRESS_MK:
-				  if (runtime_error_checking_switch)
-				      AO = veneer_routine(RT__ChPrintA_VR);
-				  else
-				      AO = veneer_routine(Print__Addr_VR);
+                                  if (runtime_error_checking_switch)
+                                      AO = veneer_routine(RT__ChPrintA_VR);
+                                  else
+                                      AO = veneer_routine(Print__Addr_VR);
                                   goto PrintByRoutine;
                               case STRING_MK:
                                   if (runtime_error_checking_switch)
@@ -526,21 +527,25 @@ static void parse_print_g(int finally_return)
                                   AO1 = code_generate(
                                       parse_expression(QUANTITY_CONTEXT),
                                       QUANTITY_CONTEXT, -1);
-				  AO2.type = BYTECONSTANT_OT;
-				  AO2.value = 3;
-				  AO2.marker = 0;
-				  assembleg_3(aload_gc, AO1, AO2, 
-				    stack_pointer);
-				  assembleg_1(streamstr_gc, stack_pointer);
+                                  AO2.type = BYTECONSTANT_OT;
+                                  AO2.value = 3;
+                                  AO2.marker = 0;
+                                  assembleg_3(aload_gc, AO1, AO2, 
+                                    stack_pointer);
+                                  assembleg_1(streamstr_gc, stack_pointer);
                                   goto PrintTermDone;
                               case THE_MK:
                                   AO = veneer_routine(DefArt_VR);
                                   goto PrintByRoutine;
+                              case AN_MK:
                               case A_MK:
                                   AO = veneer_routine(InDefArt_VR);
                                   goto PrintByRoutine;
                               case CAP_THE_MK:
                                   AO = veneer_routine(CDefArt_VR);
+                                  goto PrintByRoutine;
+                              case CAP_A_MK:
+                                  AO = veneer_routine(CInDefArt_VR);
                                   goto PrintByRoutine;
                               case NAME_MK:
                                   AO = veneer_routine(PrintShortName_VR);
@@ -577,10 +582,10 @@ static void parse_print_g(int finally_return)
                           get_next_token();
                           AO2.type = ZEROCONSTANT_OT;
                           AO2.value = 0; AO2.marker = 0;
-			  assembleg_call_1(AO,
-			    code_generate(parse_expression(QUANTITY_CONTEXT),
-			      QUANTITY_CONTEXT, -1),
-			    AO2);
+                          assembleg_call_1(AO,
+                            code_generate(parse_expression(QUANTITY_CONTEXT),
+                              QUANTITY_CONTEXT, -1),
+                            AO2);
                           goto PrintTermDone;
 
                         default: ebf_error("print specification", token_text);
@@ -622,10 +627,10 @@ static void parse_print_g(int finally_return)
     if (count == 0) ebf_error("something to print", token_text);
     if (finally_return)
     {
-	AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
-	assembleg_1(streamchar_gc, AO); 
-	AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
-	assembleg_1(return_gc, AO); 
+        AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
+        assembleg_1(streamchar_gc, AO); 
+        AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
+        assembleg_1(return_gc, AO); 
     }
 }
 
@@ -1045,12 +1050,9 @@ static void parse_statement_z(int break_label, int continue_label)
                              assemblez_3(call_vn_zc, veneer_routine(ln2),
                              AO, AO2);
                          else
-                         {   assembly_operand temp_var;
-                             temp_var.type = VARIABLE_OT;
-                             temp_var.value = 255;
-                             temp_var.marker = 0;
+                         {   
                              assemblez_3_to(call_zc, veneer_routine(ln2),
-                                 AO, AO2, temp_var);
+                                 AO, AO2, temp_var1);
                          }
                      }
                      else
@@ -1127,22 +1129,18 @@ static void parse_statement_z(int break_label, int continue_label)
                  AO2.marker = 0;
                  AO2.type   = SHORT_CONSTANT_OT;
 
-                 AO3.marker = 0;
-                 AO3.type = VARIABLE_OT;
-                 AO3.value = 255;
-
                  AO2.value  = 60;
-                 assemblez_2_to(loadb_zc, AO, AO2, AO3);
-                 assemblez_1(print_char_zc, AO3);
+                 assemblez_2_to(loadb_zc, AO, AO2, temp_var1);
+                 assemblez_1(print_char_zc, temp_var1);
                  AO2.value  = 61;
-                 assemblez_2_to(loadb_zc, AO, AO2, AO3);
-                 assemblez_1(print_char_zc, AO3);
+                 assemblez_2_to(loadb_zc, AO, AO2, temp_var1);
+                 assemblez_1(print_char_zc, temp_var1);
                  AO2.value  = 62;
-                 assemblez_2_to(loadb_zc, AO, AO2, AO3);
-                 assemblez_1(print_char_zc, AO3);
+                 assemblez_2_to(loadb_zc, AO, AO2, temp_var1);
+                 assemblez_1(print_char_zc, temp_var1);
                  AO2.value  = 63;
-                 assemblez_2_to(loadb_zc, AO, AO2, AO3);
-                 assemblez_1(print_char_zc, AO3);
+                 assemblez_2_to(loadb_zc, AO, AO2, temp_var1);
+                 assemblez_1(print_char_zc, temp_var1);
                  break;
 
     /*  -------------------------------------------------------------------- */
@@ -1178,12 +1176,8 @@ static void parse_statement_z(int break_label, int continue_label)
                          assemblez_3(call_vn_zc, veneer_routine(RT__ChT_VR),
                              AO, AO2);
                      else
-                     {   assembly_operand temp_var;
-                         temp_var.type = VARIABLE_OT;
-                         temp_var.value = 255;
-                         temp_var.marker = 0;
-                         assemblez_3_to(call_zc, veneer_routine(RT__ChT_VR),
-                             AO, AO2, temp_var);
+                     {   assemblez_3_to(call_zc, veneer_routine(RT__ChT_VR),
+                             AO, AO2, temp_var1);
                      }
                  }
                  else
@@ -1370,23 +1364,19 @@ static void parse_statement_z(int break_label, int continue_label)
                          error(
 "In Version 3 no status-line drawing routine can be given");
                      else
-                     {   assembly_operand AO5, AO6;
+                     {   assembly_operand AO5;
                          put_token_back();
                          AO5 = parse_expression(CONSTANT_CONTEXT);
 
                          if (version_number >= 5)
                              assemblez_1(call_1n_zc, AO5);
                          else
-                         {   AO6.type = VARIABLE_OT; AO6.value = 255;
-                             AO6.marker = 0;
-                             assemblez_1_to(call_1n_zc, AO5, AO6);
-                         }
+                             assemblez_1_to(call_zc, AO5, temp_var1);
                      }
                  }
 
-                 if (version_number > 3)
-                 {   AO3.type = VARIABLE_OT; AO3.value = 255; AO3.marker = 0;
-                     assemblez_2_to(aread_zc, AO, AO2, AO3);
+                 if (version_number > 4)
+                 {   assemblez_2_to(aread_zc, AO, AO2, temp_var1);
                  }
                  else assemblez_2(sread_zc, AO, AO2);
                  break;
@@ -1403,12 +1393,8 @@ static void parse_statement_z(int break_label, int continue_label)
                          assemblez_2(call_2n_zc, veneer_routine(RT__ChR_VR),
                              AO);
                      else
-                     {   assembly_operand temp_var;
-                         temp_var.type = VARIABLE_OT;
-                         temp_var.value = 255;
-                         temp_var.marker = 0;
-                         assemblez_2_to(call_zc, veneer_routine(RT__ChR_VR),
-                             AO, temp_var);
+                     {   assemblez_2_to(call_zc, veneer_routine(RT__ChR_VR),
+                             AO, temp_var1);
                      }
                  }
                  else
@@ -1423,11 +1409,10 @@ static void parse_statement_z(int break_label, int continue_label)
                  if (version_number < 5)
                      assemblez_0_branch(restore_zc, parse_label(), TRUE);
                  else
-                 {   AO.type = VARIABLE_OT; AO.value = 255; AO.marker = 0;
-                     AO2.type = SHORT_CONSTANT_OT; AO2.value = 2;
+                 {   AO2.type = SHORT_CONSTANT_OT; AO2.value = 2;
                      AO2.marker = 0;
-                     assemblez_0_to(restore_zc, AO);
-                     assemblez_2_branch(je_zc, AO, AO2, parse_label(), TRUE);
+                     assemblez_0_to(restore_zc, temp_var1);
+                     assemblez_2_branch(je_zc, temp_var1, AO2, parse_label(), TRUE);
                  }
                  break;
 
@@ -1440,7 +1425,7 @@ static void parse_statement_z(int break_label, int continue_label)
                  if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                  {   assemblez_0(rtrue_zc); return; }
                  put_token_back();
-                 AO = code_generate(parse_expression(QUANTITY_CONTEXT),
+                 AO = code_generate(parse_expression(RETURN_Q_CONTEXT),
                      QUANTITY_CONTEXT, -1);
                  if ((AO.type == SHORT_CONSTANT_OT) && (AO.value == 0)
                      && (AO.marker == 0))
@@ -1807,16 +1792,16 @@ static void parse_statement_g(int break_label, int continue_label)
                      break;
                  }
 
-		 /* Call glk_set_style(normal or preformatted) */
+                 /* Call glk_set_style(normal or preformatted) */
                  AO.value = 0x0086;
                  AO.marker = 0;
-		 set_constant_ot(&AO);
-		 if (token_value == ON_MK)
-		   AO2 = zero_operand;
-		 else 
-		   AO2 = two_operand;
-		 assembleg_call_2(veneer_routine(Glk__Wrap_VR), 
-		   AO, AO2, zero_operand);
+                 set_constant_ot(&AO);
+                 if (token_value == ON_MK)
+                   AO2 = zero_operand;
+                 else 
+                   AO2 = two_operand;
+                 assembleg_call_2(veneer_routine(Glk__Wrap_VR), 
+                   AO, AO2, zero_operand);
                  break;
 
     /*  -------------------------------------------------------------------- */
@@ -1941,18 +1926,18 @@ static void parse_statement_g(int break_label, int continue_label)
                      if (flag > 0)
                      {   AO3.value = flag;
                          if (AO3.value >= MAX_LOCAL_VARIABLES)
-			   AO3.type = GLOBALVAR_OT;
-			 else
-			   AO3.type = LOCALVAR_OT;
-			 AO3.marker = 0;
+                           AO3.type = GLOBALVAR_OT;
+                         else
+                           AO3.type = LOCALVAR_OT;
+                         AO3.marker = 0;
                          assembleg_3(add_gc, AO3, one_operand, AO3);
                      }
                      else
                      {   AO3.value = -flag;
                          if (AO3.value >= MAX_LOCAL_VARIABLES)
-			   AO3.type = GLOBALVAR_OT;
-			 else
-			   AO3.type = LOCALVAR_OT;
+                           AO3.type = GLOBALVAR_OT;
+                         else
+                           AO3.type = LOCALVAR_OT;
                          AO3.marker = 0;
                          assembleg_3(sub_gc, AO3, one_operand, AO3);
                      }
@@ -1981,19 +1966,19 @@ static void parse_statement_g(int break_label, int continue_label)
                  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
                           QUANTITY_CONTEXT, -1);
                  if ((AO.type == LOCALVAR_OT) && (AO.value == 0))
-		     onstack = TRUE;
-		 else
-		     onstack = FALSE;
+                     onstack = TRUE;
+                 else
+                     onstack = FALSE;
 
                  do
                  {   get_next_token();
                      if ((token_type == SEP_TT) 
-		       && (token_value == SEMICOLON_SEP)) {
-		         if (onstack) {
-			   assembleg_2(copy_gc, stack_pointer, zero_operand);
-			 }
+                       && (token_value == SEMICOLON_SEP)) {
+                         if (onstack) {
+                           assembleg_2(copy_gc, stack_pointer, zero_operand);
+                         }
                          return;
-		     }
+                     }
                      if ((token_type == SEP_TT)&&(token_value == ARTNOT_SEP))
                          ln = 0;
                      else
@@ -2008,45 +1993,45 @@ static void parse_statement_g(int break_label, int continue_label)
                                QUANTITY_CONTEXT, -1);
                      if (runtime_error_checking_switch && (!veneer_mode))
                      {   ln2 = (ln ? RT__ChG_VR : RT__ChGt_VR);
-		         if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0)) {
-			   /* already on stack */
-			 }
-			 else {
-			   assembleg_store(stack_pointer, AO2);
-			 }
-			 if (onstack)
-			   assembleg_2(stkpeek_gc, one_operand, stack_pointer);
-			 else
-			   assembleg_store(stack_pointer, AO);
-			 assembleg_3(call_gc, veneer_routine(ln2), two_operand,
-			   zero_operand);
+                         if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0)) {
+                           /* already on stack */
+                         }
+                         else {
+                           assembleg_store(stack_pointer, AO2);
+                         }
+                         if (onstack)
+                           assembleg_2(stkpeek_gc, one_operand, stack_pointer);
+                         else
+                           assembleg_store(stack_pointer, AO);
+                         assembleg_3(call_gc, veneer_routine(ln2), two_operand,
+                           zero_operand);
                      }
                      else {
-		         if (is_constant_ot(AO2.type) && AO2.marker == 0) {
-			   AO2.value += 8;
-			   set_constant_ot(&AO2);
-			 }
-			 else {
-			   AO3.value = 8;
-			   AO3.marker = 0;
-			   AO3.type = BYTECONSTANT_OT;
-			   assembleg_3(add_gc, AO2, AO3, stack_pointer);
-			   AO2 = stack_pointer;
-			 }
-			 if (onstack) {
-			   if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0))
-			     assembleg_2(stkpeek_gc, one_operand, 
-			       stack_pointer);
-			   else
-			     assembleg_2(stkpeek_gc, zero_operand, 
-			       stack_pointer);
-			 }
-		         if (ln) 
-			   AO3 = one_operand;
-			 else
-			   AO3 = zero_operand;
-			 assembleg_3(astorebit_gc, AO, AO2, AO3);
-		     }
+                         if (is_constant_ot(AO2.type) && AO2.marker == 0) {
+                           AO2.value += 8;
+                           set_constant_ot(&AO2);
+                         }
+                         else {
+                           AO3.value = 8;
+                           AO3.marker = 0;
+                           AO3.type = BYTECONSTANT_OT;
+                           assembleg_3(add_gc, AO2, AO3, stack_pointer);
+                           AO2 = stack_pointer;
+                         }
+                         if (onstack) {
+                           if ((AO2.type == LOCALVAR_OT) && (AO2.value == 0))
+                             assembleg_2(stkpeek_gc, one_operand, 
+                               stack_pointer);
+                           else
+                             assembleg_2(stkpeek_gc, zero_operand, 
+                               stack_pointer);
+                         }
+                         if (ln) 
+                           AO3 = one_operand;
+                         else
+                           AO3 = zero_operand;
+                         assembleg_3(astorebit_gc, AO, AO2, AO3);
+                     }
                  } while(TRUE);
 
     /*  -------------------------------------------------------------------- */
@@ -2113,7 +2098,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
         case INVERSION_CODE:
                  AO2.marker = 0;
-		 AO2.type   = DEREFERENCE_OT;
+                 AO2.type   = DEREFERENCE_OT;
                  AO2.value  = GLULX_HEADER_SIZE+8; 
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
@@ -2127,31 +2112,33 @@ static void parse_statement_g(int break_label, int continue_label)
                  assembleg_2(copyb_gc, AO2, stack_pointer);
                  assembleg_1(streamchar_gc, stack_pointer);
 
-                 AO.marker = 0;
-		 AO.value = '(';
-		 set_constant_ot(&AO);
-                 assembleg_1(streamchar_gc, AO);
-		 AO.value = 'G';
-		 set_constant_ot(&AO);
-                 assembleg_1(streamchar_gc, AO);
+                 if (0) {
+                     AO.marker = 0;
+                     AO.value = '(';
+                     set_constant_ot(&AO);
+                     assembleg_1(streamchar_gc, AO);
+                     AO.value = 'G';
+                     set_constant_ot(&AO);
+                     assembleg_1(streamchar_gc, AO);
 
-                 AO2.value  = GLULX_HEADER_SIZE+12; 
-                 assembleg_2(copyb_gc, AO2, stack_pointer);
-                 assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+13; 
-                 assembleg_2(copyb_gc, AO2, stack_pointer);
-                 assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+14; 
-                 assembleg_2(copyb_gc, AO2, stack_pointer);
-                 assembleg_1(streamchar_gc, stack_pointer);
-                 AO2.value  = GLULX_HEADER_SIZE+15; 
-                 assembleg_2(copyb_gc, AO2, stack_pointer);
-                 assembleg_1(streamchar_gc, stack_pointer);
+                     AO2.value  = GLULX_HEADER_SIZE+12; 
+                     assembleg_2(copyb_gc, AO2, stack_pointer);
+                     assembleg_1(streamchar_gc, stack_pointer);
+                     AO2.value  = GLULX_HEADER_SIZE+13; 
+                     assembleg_2(copyb_gc, AO2, stack_pointer);
+                     assembleg_1(streamchar_gc, stack_pointer);
+                     AO2.value  = GLULX_HEADER_SIZE+14; 
+                     assembleg_2(copyb_gc, AO2, stack_pointer);
+                     assembleg_1(streamchar_gc, stack_pointer);
+                     AO2.value  = GLULX_HEADER_SIZE+15; 
+                     assembleg_2(copyb_gc, AO2, stack_pointer);
+                     assembleg_1(streamchar_gc, stack_pointer);
 
-                 AO.marker = 0;
-		 AO.value = ')';
-		 set_constant_ot(&AO);
-                 assembleg_1(streamchar_gc, AO);
+                     AO.marker = 0;
+                     AO.value = ')';
+                     set_constant_ot(&AO);
+                     assembleg_1(streamchar_gc, AO);
+                 }
 
                  break;
 
@@ -2184,11 +2171,11 @@ static void parse_statement_g(int break_label, int continue_label)
                      QUANTITY_CONTEXT, -1);
                  AO = code_generate(AO, QUANTITY_CONTEXT, -1);
                  if ((runtime_error_checking_switch) && (veneer_mode == FALSE))
-		     assembleg_call_2(veneer_routine(RT__ChT_VR), AO, AO2,
-		         zero_operand);
-		 else
-		     assembleg_call_2(veneer_routine(OB__Move_VR), AO, AO2,
-		         zero_operand);
+                     assembleg_call_2(veneer_routine(RT__ChT_VR), AO, AO2,
+                         zero_operand);
+                 else
+                     assembleg_call_2(veneer_routine(OB__Move_VR), AO, AO2,
+                         zero_operand);
                  break;
 
     /*  -------------------------------------------------------------------- */
@@ -2196,9 +2183,9 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case NEW_LINE_CODE:  
-	  AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
-	  assembleg_1(streamchar_gc, AO); 
-	  break;
+              AO.type = BYTECONSTANT_OT; AO.value = 0x0A; AO.marker = 0;
+              assembleg_1(streamchar_gc, AO); 
+              break;
 
     /*  -------------------------------------------------------------------- */
     /*  objectloop (<initialisation>) <codeblock> -------------------------- */
@@ -2210,22 +2197,22 @@ static void parse_statement_g(int break_label, int continue_label)
                  get_next_token();
                  if (token_type == LOCAL_VARIABLE_TT) {
                      AO.value = token_value;
-		     AO.type = LOCALVAR_OT;
-		     AO.marker = 0;
-		 }
+                     AO.type = LOCALVAR_OT;
+                     AO.marker = 0;
+                 }
                  else if ((token_type == SYMBOL_TT) &&
-		   (stypes[token_value] == GLOBAL_VARIABLE_T)) {
-		     AO.value = svals[token_value];  
-		     AO.type = GLOBALVAR_OT;
-		     AO.marker = 0;
-		 }
-		 else {
-		     ebf_error("'objectloop' variable", token_text);
-		     panic_mode_error_recovery(); 
-		     break;
-		 }
+                   (stypes[token_value] == GLOBAL_VARIABLE_T)) {
+                     AO.value = svals[token_value];  
+                     AO.type = GLOBALVAR_OT;
+                     AO.marker = 0;
+                 }
+                 else {
+                     ebf_error("'objectloop' variable", token_text);
+                     panic_mode_error_recovery(); 
+                     break;
+                 }
                  /*if ((module_switch) 
-		     && (AO.value >= MAX_LOCAL_VARIABLES)
+                     && (AO.value >= MAX_LOCAL_VARIABLES)
                      && (AO.value < LOWEST_SYSTEM_VAR_NUMBER))
                      AO.marker = VARIABLE_MV;
                  else AO.marker = 0;*/
@@ -2250,12 +2237,12 @@ static void parse_statement_g(int break_label, int continue_label)
                  }
 
                  if (ln != 0) {
-		   /*  Old style (Inform 5) objectloops: note that we
-		       implement objectloop (a in b) in the old way since
-		       this runs through objects in a different order from
-		       the new way, and there may be existing Inform code
-		       relying on this.                                    */
-		     assembly_operand AO4, AO5;
+                   /*  Old style (Inform 5) objectloops: note that we
+                       implement objectloop (a in b) in the old way since
+                       this runs through objects in a different order from
+                       the new way, and there may be existing Inform code
+                       relying on this.                                    */
+                     assembly_operand AO4, AO5;
 
                      sequence_point_follows = TRUE;
                      AO2 = code_generate(parse_expression(QUANTITY_CONTEXT),
@@ -2263,33 +2250,33 @@ static void parse_statement_g(int break_label, int continue_label)
                      match_close_bracket();
                      if (ln == 1) {
                          if (runtime_error_checking_switch)
-			     AO2 = check_nonzero_at_runtime(AO2, -1,
-			         OBJECTLOOP_RTE);
-			 AO4.type = BYTECONSTANT_OT;
-			 AO4.value = 5; /* parent */
-			 AO4.marker = 0;
-			 assembleg_3(aload_gc, AO2, AO4, stack_pointer);
-			 AO4.type = BYTECONSTANT_OT;
-			 AO4.value = 7; /* child */
-			 AO4.marker = 0;
-			 assembleg_3(aload_gc, stack_pointer, AO4, stack_pointer);
+                             AO2 = check_nonzero_at_runtime(AO2, -1,
+                                 OBJECTLOOP_RTE);
+                         AO4.type = BYTECONSTANT_OT;
+                         AO4.value = 5; /* parent */
+                         AO4.marker = 0;
+                         assembleg_3(aload_gc, AO2, AO4, stack_pointer);
+                         AO4.type = BYTECONSTANT_OT;
+                         AO4.value = 7; /* child */
+                         AO4.marker = 0;
+                         assembleg_3(aload_gc, stack_pointer, AO4, stack_pointer);
                          AO2 = stack_pointer;
                      }
                      else if (ln == 3) {
-		         if (runtime_error_checking_switch) {
-			     AO5 = AO2;
+                         if (runtime_error_checking_switch) {
+                             AO5 = AO2;
                              AO2 = check_nonzero_at_runtime(AO2, -1,
                                  CHILD_RTE);
                          }
-			 AO4.type = BYTECONSTANT_OT;
-			 AO4.value = 7; /* child */
-			 AO4.marker = 0;
-			 assembleg_3(aload_gc, AO2, AO4, stack_pointer);
+                         AO4.type = BYTECONSTANT_OT;
+                         AO4.value = 7; /* child */
+                         AO4.marker = 0;
+                         assembleg_3(aload_gc, AO2, AO4, stack_pointer);
                          AO2 = stack_pointer;
                      }
-		     else {
-		         /* do nothing */
-		     }
+                     else {
+                         /* do nothing */
+                     }
                      assembleg_store(AO, AO2);
                      assembleg_1_branch(jz_gc, AO, ln2 = next_label++);
                      assemble_label_no(ln4 = next_label++);
@@ -2305,36 +2292,36 @@ static void parse_statement_g(int break_label, int continue_label)
                          {   assembly_operand en_ao;
                              en_ao.value = OBJECTLOOP_BROKEN_RTE;
                              en_ao.marker = 0;
-			     set_constant_ot(&en_ao);
-			     AO4.type = BYTECONSTANT_OT;
-			     AO4.value = 5; /* parent */
-			     AO4.marker = 0;
-			     assembleg_3(aload_gc, AO, AO4, stack_pointer);
-			     assembleg_2_branch(jeq_gc, stack_pointer, AO5, 
-			         next_label);
+                             set_constant_ot(&en_ao);
+                             AO4.type = BYTECONSTANT_OT;
+                             AO4.value = 5; /* parent */
+                             AO4.marker = 0;
+                             assembleg_3(aload_gc, AO, AO4, stack_pointer);
+                             assembleg_2_branch(jeq_gc, stack_pointer, AO5, 
+                                 next_label);
                              assembleg_call_2(veneer_routine(RT__Err_VR),
                                  en_ao, AO, zero_operand);
                              assembleg_jump(ln2);
                              assemble_label_no(next_label++);
                          }
                      }
-		     else {
-		         AO2 = AO;
-		     }
-		     AO4.type = BYTECONSTANT_OT;
-		     AO4.value = 6; /* sibling */
-		     AO4.marker = 0;
-		     assembleg_3(aload_gc, AO2, AO4, AO);
-		     assembleg_1_branch(jnz_gc, AO, ln4);
+                     else {
+                         AO2 = AO;
+                     }
+                     AO4.type = BYTECONSTANT_OT;
+                     AO4.value = 6; /* sibling */
+                     AO4.marker = 0;
+                     assembleg_3(aload_gc, AO2, AO4, AO);
+                     assembleg_1_branch(jnz_gc, AO, ln4);
                      assemble_label_no(ln2);
                      return;
                  }
 
                  sequence_point_follows = TRUE;
-		 ln = symbol_index("Class", -1);
-		 AO2.value = svals[ln];
-		 AO2.marker = OBJECT_MV;
-		 AO2.type = CONSTANT_OT;
+                 ln = symbol_index("Class", -1);
+                 AO2.value = svals[ln];
+                 AO2.marker = OBJECT_MV;
+                 AO2.type = CONSTANT_OT;
                  assembleg_store(AO, AO2);
 
                  assemble_label_no(ln = next_label++);
@@ -2352,7 +2339,7 @@ static void parse_statement_g(int break_label, int continue_label)
 
                  sequence_point_follows = FALSE;
                  assemble_label_no(ln3);
-		 assembleg_3(aload_gc, AO, two_operand, AO);
+                 assembleg_3(aload_gc, AO, two_operand, AO);
                  assembleg_1_branch(jnz_gc, AO, ln);
                  assemble_label_no(ln2);
                  return;
@@ -2383,11 +2370,11 @@ static void parse_statement_g(int break_label, int continue_label)
                  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
                      QUANTITY_CONTEXT, -1);
                  if ((runtime_error_checking_switch) && (veneer_mode == FALSE))
-		     assembleg_call_1(veneer_routine(RT__ChR_VR), AO,
-		         zero_operand);
-		 else
-		     assembleg_call_1(veneer_routine(OB__Remove_VR), AO,
-		         zero_operand);
+                     assembleg_call_1(veneer_routine(RT__ChR_VR), AO,
+                         zero_operand);
+                 else
+                     assembleg_call_1(veneer_routine(OB__Remove_VR), AO,
+                         zero_operand);
                  break;
 
     /*  -------------------------------------------------------------------- */
@@ -2395,33 +2382,33 @@ static void parse_statement_g(int break_label, int continue_label)
     /*  -------------------------------------------------------------------- */
 
         case RETURN_CODE:
-	  get_next_token();
-	  if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) {
-	    AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
-	    assembleg_1(return_gc, AO); 
-	    return; 
-	  }
-	  put_token_back();
-	  AO = code_generate(parse_expression(QUANTITY_CONTEXT),
-	    QUANTITY_CONTEXT, -1);
-	  assembleg_1(return_gc, AO);
-	  break;
+          get_next_token();
+          if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)) {
+            AO.type = BYTECONSTANT_OT; AO.value = 1; AO.marker = 0;
+            assembleg_1(return_gc, AO); 
+            return; 
+          }
+          put_token_back();
+          AO = code_generate(parse_expression(RETURN_Q_CONTEXT),
+            QUANTITY_CONTEXT, -1);
+          assembleg_1(return_gc, AO);
+          break;
 
     /*  -------------------------------------------------------------------- */
     /*  rfalse ------------------------------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
         case RFALSE_CODE:   
-	  assembleg_1(return_gc, zero_operand); 
-	  break;
+          assembleg_1(return_gc, zero_operand); 
+          break;
 
     /*  -------------------------------------------------------------------- */
     /*  rtrue -------------------------------------------------------------- */
     /*  -------------------------------------------------------------------- */
 
         case RTRUE_CODE:   
-	  assembleg_1(return_gc, one_operand); 
-	  break;
+          assembleg_1(return_gc, one_operand); 
+          break;
 
     /*  -------------------------------------------------------------------- */
     /*  spaces <expression> ------------------------------------------------ */
@@ -2436,7 +2423,7 @@ static void parse_statement_g(int break_label, int continue_label)
                  AO.value = 32; AO.marker = 0; set_constant_ot(&AO);
 
                  assembleg_2_branch(jlt_gc, temp_var1, one_operand, 
-		     ln = next_label++);
+                     ln = next_label++);
                  assemble_label_no(ln2 = next_label++);
                  assembleg_1(streamchar_gc, AO);
                  assembleg_dec(temp_var1);
@@ -2461,7 +2448,7 @@ static void parse_statement_g(int break_label, int continue_label)
                  {   put_token_back();
                      AO4 = parse_expression(CONSTANT_CONTEXT);
                  }
-		 assembleg_call_2(veneer_routine(Dynam__String_VR),
+                 assembleg_call_2(veneer_routine(Dynam__String_VR),
                    AO2, AO4, zero_operand);
                  break;
 
@@ -2473,9 +2460,48 @@ static void parse_statement_g(int break_label, int continue_label)
                  misc_keywords.enabled = TRUE;
                  get_next_token();
                  misc_keywords.enabled = FALSE;
-		 error("style statements not supported in Glulx; use Glk calls");
-		 panic_mode_error_recovery();
-		 return;
+                 if ((token_type != MISC_KEYWORD_TT)
+                     || ((token_value != ROMAN_MK)
+                         && (token_value != REVERSE_MK)
+                         && (token_value != BOLD_MK)
+                         && (token_value != UNDERLINE_MK)
+                         && (token_value != FIXED_MK)))
+                 {   ebf_error(
+"'roman', 'bold', 'underline', 'reverse' or 'fixed'",
+                         token_text);
+                     panic_mode_error_recovery();
+                     break;
+                 }
+
+                 /* Call glk_set_style() */
+
+                 AO.value = 0x0086;
+                 AO.marker = 0;
+                 set_constant_ot(&AO);
+                 switch(token_value)
+                 {   case ROMAN_MK: 
+                         AO2 = zero_operand; /* normal */
+                         break;
+                     case REVERSE_MK: 
+                         AO2.value = 5; /* alert */
+                         AO2.marker = 0;
+                         set_constant_ot(&AO2);
+                         break;
+                     case BOLD_MK: 
+                         AO2.value = 4; /* subheader */
+                         AO2.marker = 0;
+                         set_constant_ot(&AO2);
+                         break;
+                     case UNDERLINE_MK: 
+                         AO2 = one_operand; /* emphasized */
+                         break;
+                     case FIXED_MK: 
+                         AO2 = two_operand; /* preformatted */
+                         break;
+                 }
+                 assembleg_call_2(veneer_routine(Glk__Wrap_VR), 
+                   AO, AO2, zero_operand);
+                 break;
 
     /*  -------------------------------------------------------------------- */
     /*  switch (<expression>) <codeblock> ---------------------------------- */
@@ -2527,8 +2553,8 @@ static void parse_statement_g(int break_label, int continue_label)
        Inform compiler, but which is important in development. */
 
         default:
-	  error("*** Statement code gen: Can't generate yet ***\n");
-	  panic_mode_error_recovery(); return;
+          error("*** Statement code gen: Can't generate yet ***\n");
+          panic_mode_error_recovery(); return;
     }
 
     StatementTerminator:

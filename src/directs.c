@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "directs" : Directives (# commands)                                     */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -42,7 +42,7 @@ extern int parse_given_directive(void)
            if ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                return FALSE;
 
-	   /* Glulx doesn't have a 64-abbrev limit */
+           /* Glulx doesn't have a 64-abbrev limit */
            if (!glulx_mode && MAX_ABBREVS==64)
            {   if (no_abbreviations==64)
                    error("All 64 abbreviations already declared");
@@ -295,7 +295,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
                     }
                 }
             } while (n > 0);
-	    ifdef_sp--; /* ###-bugfix */
+            ifdef_sp--; 
             dont_enter_into_symbol_table = FALSE;
             directives.enabled = FALSE;
         }
@@ -508,7 +508,7 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
             }
             warning(token_text); break;
         }
-  ebf_error("a message in double-quotes, 'error', 'fatalerror' or 'warning'",
+        ebf_error("a message in double-quotes, 'error', 'fatalerror' or 'warning'",
             token_text);
         break;
 
@@ -665,10 +665,10 @@ Fake_Action directives to a point after the inclusion of \"Parser\".)");
             /*  Ensure the return value of a stubbed routine is false,
                 since this is necessary to make the library work properly    */
 
-	    if (!glulx_mode)
-  	        assemblez_0(rfalse_zc);
-	    else
-	        assembleg_1(return_gc, zero_operand);
+            if (!glulx_mode)
+                assemblez_0(rfalse_zc);
+            else
+                assembleg_1(return_gc, zero_operand);
 
             /*  Inhibit "local variable unused" warnings  */
 
@@ -827,9 +827,9 @@ the first constant definition");
     case ZCHARACTER_CODE:
 
         if (glulx_mode) {
-	    error("Glulx Inform does not handle Unicode yet.");
-	    break;
-	}
+            error("Glulx Inform does not handle Unicode yet.");
+            break;
+        }
 
         directive_keywords.enabled = TRUE;
         get_next_token();

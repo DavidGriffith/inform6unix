@@ -2,8 +2,8 @@
 /*   "bpatch" : Keeps track of, and finally acts on, backpatch markers,      */
 /*              correcting symbol values not known at compilation time       */
 /*                                                                           */
-/*   Part of Inform 6.21                                                     */
-/*   copyright (c) Graham Nelson 1993, 1994, 1995, 1996, 1997, 1998, 1999    */
+/*   Part of Inform 6.30                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2004                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -159,18 +159,18 @@ static int32 backpatch_value_g(int32 value)
     switch(backpatch_marker)
     {
         case STRING_MV:
-	    if (value <= 0 || value > no_strings)
-	      compiler_error("Illegal string marker.");
+            if (value <= 0 || value > no_strings)
+              compiler_error("Illegal string marker.");
             value = strings_offset + compressed_offsets[value-1]; break;
         case IROUTINE_MV:
             value += code_offset; break;
         case ARRAY_MV:
             value += arrays_offset; break;
         case VARIABLE_MV:
-	    value = variables_offset + (4*value); break;
+            value = variables_offset + (4*value); break;
         case OBJECT_MV:
-	    value = object_tree_offset + (OBJECT_BYTE_LENGTH*(value-1)); 
-	    break;
+            value = object_tree_offset + (OBJECT_BYTE_LENGTH*(value-1)); 
+            break;
         case VROUTINE_MV:
             if ((value<0) || (value>=VENEER_ROUTINES))
             {   if (no_link_errors > 0) break;
@@ -199,17 +199,17 @@ static int32 backpatch_value_g(int32 value)
             }
             value = value_of_system_constant(value); break;
         case DWORD_MV:
-	    value = dictionary_offset + 4 
-	      + final_dict_order[value]*(7+DICT_WORD_SIZE);
+            value = dictionary_offset + 4 
+              + final_dict_order[value]*(7+DICT_WORD_SIZE);
             break;
         case ACTION_MV:
             break;
         case INHERIT_MV:
-	    valaddr = (prop_values_offset - Write_RAM_At) + value;
-	    value = ReadInt32(zmachine_paged_memory + valaddr);
+            valaddr = (prop_values_offset - Write_RAM_At) + value;
+            value = ReadInt32(zmachine_paged_memory + valaddr);
             break;
         case INHERIT_INDIV_MV:
-	    error("*** No individual property storage in Glulx ***");
+            error("*** No individual property storage in Glulx ***");
             break;
         case INDIVPT_MV:
             value += individuals_offset;
@@ -263,22 +263,22 @@ static int32 backpatch_value_g(int32 value)
                 {
                     case ROUTINE_T: value += code_offset; break;
                     case ARRAY_T: value += arrays_offset; break;
-		    case OBJECT_T:
-		    case CLASS_T:
-		      value = object_tree_offset + 
-			(OBJECT_BYTE_LENGTH*(value-1)); 
-		      break;
-		    case ATTRIBUTE_T:
-		      /* value is unchanged */
-		      break;
-		    case CONSTANT_T:
- 		    case INDIVIDUAL_PROPERTY_T:
-		      /* value is unchanged */
-		      break;
-  		    default:
-		      error("*** Illegal backpatch marker in forward-declared \
+                    case OBJECT_T:
+                    case CLASS_T:
+                      value = object_tree_offset + 
+                        (OBJECT_BYTE_LENGTH*(value-1)); 
+                      break;
+                    case ATTRIBUTE_T:
+                      /* value is unchanged */
+                      break;
+                    case CONSTANT_T:
+                    case INDIVIDUAL_PROPERTY_T:
+                      /* value is unchanged */
+                      break;
+                    default:
+                      error("*** Illegal backpatch marker in forward-declared \
 symbol");
-		      break;
+                      break;
                 }
             }
             break;
@@ -417,26 +417,26 @@ extern void backpatch_zmachine_image_g(void)
         zmachine_area
             = read_byte_from_memory_block(&zmachine_backpatch_table, bm+1);
         offset = read_byte_from_memory_block(&zmachine_backpatch_table, bm+2);
-	offset = (offset << 8) |
-	  read_byte_from_memory_block(&zmachine_backpatch_table, bm+3);
-	offset = (offset << 8) |
-	  read_byte_from_memory_block(&zmachine_backpatch_table, bm+4);
-	offset = (offset << 8) |
-	  read_byte_from_memory_block(&zmachine_backpatch_table, bm+5);
-        bm += 6;
+        offset = (offset << 8) |
+          read_byte_from_memory_block(&zmachine_backpatch_table, bm+3);
+        offset = (offset << 8) |
+          read_byte_from_memory_block(&zmachine_backpatch_table, bm+4);
+        offset = (offset << 8) |
+          read_byte_from_memory_block(&zmachine_backpatch_table, bm+5);
+            bm += 6;
 
-	/* printf("-MV %d ZA %d Off %06x\n", backpatch_marker, zmachine_area, offset);  */
+        /* printf("-MV %d ZA %d Off %06x\n", backpatch_marker, zmachine_area, offset);  */
 
-        switch(zmachine_area) {   
-	case PROP_DEFAULTS_ZA:   addr = prop_defaults_offset+4; break;
-	case PROP_ZA:            addr = prop_values_offset; break;
-	case INDIVIDUAL_PROP_ZA: addr = individuals_offset; break;
-	case ARRAY_ZA:           addr = arrays_offset; break;
-	case GLOBALVAR_ZA:       addr = variables_offset; break;
-	default:
-	  if (no_link_errors == 0)
-	    if (compiler_error("Illegal area to backpatch"))
-	      backpatch_error_flag = TRUE;
+            switch(zmachine_area) {   
+        case PROP_DEFAULTS_ZA:   addr = prop_defaults_offset+4; break;
+        case PROP_ZA:            addr = prop_values_offset; break;
+        case INDIVIDUAL_PROP_ZA: addr = individuals_offset; break;
+        case ARRAY_ZA:           addr = arrays_offset; break;
+        case GLOBALVAR_ZA:       addr = variables_offset; break;
+        default:
+          if (no_link_errors == 0)
+            if (compiler_error("Illegal area to backpatch"))
+              backpatch_error_flag = TRUE;
         }
         addr = addr + offset - Write_RAM_At; 
 

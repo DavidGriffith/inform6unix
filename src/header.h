@@ -276,7 +276,6 @@ static int32 unique_task_id(void)
 #define FN_SEP '/'
 /* 5 */
 #define Temporary_Directory "/tmp"
-#define PATHLEN 512
 #endif
 /* ------------------------------------------------------------------------- */
 /*   Macintosh block                                                         */

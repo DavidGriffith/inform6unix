@@ -4,6 +4,8 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src lib include doc demos
 
+EXTRA_DIST = AUTHORS
+
 EXTRA_DIRS = config tutor
 
 dist-hook:

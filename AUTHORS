@@ -6,6 +6,9 @@ The Inform program and its libraries:
 Modifications to support Glulx:
     Andrew Plotkin <erkyrath@eblong.com>
 
+Patches to fix bugs:
+    Dave Griffith <dgriffi@cs.csubak.edu>
+
 Documentation:
     Graham Nelson <graham@gnelson.demon.co.uk>
     Christopher J. Madsen <ac608@yfn.ysu.edu>

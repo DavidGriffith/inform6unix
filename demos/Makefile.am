@@ -3,11 +3,11 @@
 zcodedir = $(datadir)/zcode
 zcode_DATA = $(ZFILES)
 
-INFFILES = advent.inf adventureland.inf balances.inf museum.inf ruins.inf \
-ruinsplus.inf toyshop.inf
+INFFILES = advent.inf adventureland.inf balances.inf museum.inf ruins1.inf \
+ruins2.inf ruins3.inf toyshop.inf
 
-ZFILES = advent.z5 adventureland.z5 balances.z5 museum.z5 ruins.z5	\
-ruinsplus.z5 toyshop.z5
+ZFILES = advent.z5 adventureland.z5 balances.z5 museum.z5 ruins1.z5	\
+ruins2.z5 ruins3.z5 toyshop.z5
 
 EXTRA_DIST = $(INFFILES)
 

@@ -17,7 +17,7 @@ INFORM = $(top_builddir)/src/inform
 INCDIR = $(top_srcdir)/lib/
 MODDIR = $(top_builddir)/lib/
 
-INFFLAGS = -E1 -Ux +include_path=$(INCDIR) +module_path=$(MODDIR)
+INFFLAGS = -i -E1 -Ux +include_path=$(INCDIR) +module_path=$(MODDIR)
 
 SUFFIXES = .inf .z5
 

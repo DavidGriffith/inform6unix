@@ -1,3 +1,18 @@
+Version 6.21.4 (17 Jun 03):
+==========================
+
+* Applied patches from www.inform-fiction.org to the source and library, as
+  supplied by Dave Griffith <dgriffi@cs.csubak.edu>.
+
+* Included the latest inform-mode.el.
+
+* There's a new Ruins demo game, with more stuff implemented.  The previous
+  Ruins demos have been renamed: ruins -> ruins1, ruinsplus -> ruins2.  The
+  new one is called ruins3.
+
+* The Alice demo in the 'tutor' directory has been updated to the latest
+  Inform version.
+
 Version 6.21.3 (6 Nov 02):
 =========================
 

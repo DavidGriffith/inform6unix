@@ -24,7 +24,6 @@ The following subdirectories are included in the package:
     demos	some Inform demo games (including the classic 'advent')
     tutor	some Inform tutorial files
     contrib	other contributed Inform stuff
-    doc		miscellaneous documentation about this package
 
 The Inform distributed here is Andrew Plotkin's bi-platform version, with
 support for compiling to both Z-code and Glulx, with slight modification by

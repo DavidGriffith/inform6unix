@@ -25,6 +25,12 @@ install-data-local:
 		rm -f $$file;						\
 		$(LN_S) $$realfile $$file;				\
 	done
+
+uninstall-local:
+	@ for file in $(EXTRA_NAMES); do				\
+		echo Unlinking $$file;					\
+		rm -f $(pkgdatadir)/$$file;				\
+	done
 endif
 
 @make_include@

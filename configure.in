@@ -43,10 +43,9 @@ make_include=$srcdir/config/commondefs
 
 AC_OUTPUT(
 Makefile
-src/Makefile
-lib/Makefile
-include/Makefile
-info/Makefile
-html/Makefile
 demos/Makefile
+include/Makefile
+lib/Makefile
+manual/Makefile
+src/Makefile
 )

@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign check-news dist-bzip2
 
-SUBDIRS = src lib include info html demos
+SUBDIRS = src lib include manual demos
 
 EXTRA_DIST = AUTHORS VERSION
 

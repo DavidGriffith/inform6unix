@@ -2741,7 +2741,7 @@ test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 make_include=$srcdir/config/commondefs
 
-                                                                      ac_config_files="$ac_config_files Makefile src/Makefile lib/Makefile include/Makefile info/Makefile html/Makefile demos/Makefile"
+                                                            ac_config_files="$ac_config_files Makefile demos/Makefile include/Makefile lib/Makefile manual/Makefile src/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3304,12 +3304,11 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-  "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
-  "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
-  "info/Makefile" ) CONFIG_FILES="$CONFIG_FILES info/Makefile" ;;
-  "html/Makefile" ) CONFIG_FILES="$CONFIG_FILES html/Makefile" ;;
   "demos/Makefile" ) CONFIG_FILES="$CONFIG_FILES demos/Makefile" ;;
+  "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
+  "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
+  "manual/Makefile" ) CONFIG_FILES="$CONFIG_FILES manual/Makefile" ;;
+  "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

@@ -1,5 +1,15 @@
-Version 6.30.2 (2 Mar 2004)
-===========================
+Version 6.30.2 (16 Mar 2004)
+============================
+
+* The HTML version of the Inform Designer's Manual is now the Fourth
+  Edition.
+
+* The Info version of the Designer's Manual has been discontinued, since it
+  refers to the out-of-date Third Edition.
+
+* Many more contributed include files from the IF archive are now present
+  in the package.  Some of them come with documentation files, which are
+  also installed (in the same include directory).
 
 * Applied long path length fix to all unices (e.g. FreeBSD), not just
   Linux.

@@ -1,0 +1,57 @@
+Bi-Platform Inform compiler
+Inform version 6.21(G0.37)
+Tentatively supported by Andrew Plotkin <erkyrath@eblong.com>
+
+This is the merged Inform compiler. It compiles Inform games to either
+Z-code or Glulx, as you like.
+
+To compile this program on Linux, the following command is sufficient:
+     cc -o inform *.c
+
+See <http://www.eblong.com/zarf/glulx/> for details.
+
+See the CHANGES file in the libg610.tar package for more details.
+
+Comments to me, address above. 
+
+If you encounter any problem with the bi-platform compiler, I request
+that you test the same compilation using the Glulx-only compiler
+(which can also be found on my web page). The two compilers ought to
+behave exactly the same, and produce byte-for-byte identical output.
+If they don't, that information will aid me greatly in finding bugs.
+
+-----------
+
+This version of Inform supports several new command-line options and
+memory settings:
+
+  -G, -~G: Compile a Glulx or Z-code game file. The default is Z-code.
+  -H, -~H: Use Huffman encoding to compress Glulx strings, or don't.
+           The default is to compress.
+
+NUM_ATTR_BYTES : 7
+  NUM_ATTR_BYTES is the space used to store attribute flags. Each byte 
+  stores eight attribytes. In Z-code this is always 6 (only 4 are used in 
+  v3 games). In Glulx it can be any number which is a multiple of four, 
+  plus three.
+
+DICT_WORD_SIZE : 9
+  DICT_WORD_SIZE is the number of characters in a dictionary word. In 
+  Z-code this is always 6 (only 4 are used in v3 games). In Glulx it 
+  can be any number.
+
+MAX_GLOBAL_VARIABLES : 512
+  MAX_GLOBAL_VARIABLES is the number of global variables allowed in the 
+  program. (Glulx only)
+
+MAX_LOCAL_VARIABLES : 32
+  MAX_LOCAL_VARIABLES is the number of local variables (including 
+  arguments) allowed in a procedure. (Glulx only)
+
+MAX_OBJ_PROP_COUNT : 64
+  MAX_OBJ_PROP_COUNT is the maximum number of properties a single object 
+  can have. (Glulx only)
+
+MAX_OBJ_PROP_TABLE_SIZE : 2048
+  MAX_OBJ_PROP_TABLE_SIZE is the number of words allocated to hold a 
+  single object's properties. (Glulx only)

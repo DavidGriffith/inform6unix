@@ -126,9 +126,10 @@ HDRS = header.h
 INCPATH = ,$(DESTDIR)$(localincdir),$(DESTDIR)$(localmoddir),$(DESTDIR)$(includedir),$(DESTDIR)$(moduledir)
 MODPATH = ,$(DESTDIR)$(localmoddir),$(DESTDIR)$(moduledir)
 
-INCLUDES = -D$(HOST) -DModule_Directory=\"$(MODPATH)\" \
--DInclude_Directory=\"$(INCPATH)\"
+MODDEF = -DModule_Directory=\"$(MODPATH)\"
+INCDEF = -DInclude_Directory=\"$(INCPATH)\"
 
+INCLUDES = -D$(HOST) -DPATHLEN=1024 $(MODDEF) $(INCDEF)
 
 inform_SOURCES = $(SRCS) $(HDRS)
 subdir = src

@@ -1,7 +1,6 @@
 ## Automake template for Inform documentation.
 
-include $(top_srcdir)/config/commondefs
-
+infodir = $(prefix)/info
 info_DATA = $(INFORM)
 
 EXTRA_DIST = $(info_DATA)
@@ -18,3 +17,5 @@ split:;	@ for file in $(INFO_FILES); do \
 		cp Info/$$file $$base; \
 		infosplit -v $$base; \
 	done
+
+@make_include@

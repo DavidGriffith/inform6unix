@@ -1,13 +1,14 @@
 ## Automake template for Inform libraries.
 
-include $(top_srcdir)/config/commondefs
-
+moduledir = $(installdir)/module
 module_DATA = $(MODULES) $(INCLUDES)
 
 MODULES = parserm.m5 verblibm.m5
 
 INCLUDES = english.h grammar.h linklpa.h linklv.h parser.h parserm.h	\
 verblib.h verblibm.h infix.h
+
+EXTRA_NAMES = English.h Grammar.h Parser.h Verblib.h VerbLib.h
 
 EXTRA_DIST = $(INCLUDES)
 
@@ -25,17 +26,27 @@ INFFLAGS = -x +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
 .h.m5:;	$(INFORM) $(INFFLAGS) -M $<
 
 if CYGWIN
-#	No symlinks required under Cygwin.
+install-data-local: add-localdir
+uninstall-local: remove-localdir
 else
-EXTRA_NAMES = English.h Grammar.h Parser.h Verblib.h VerbLib.h
+all-local: add-local-names
+install-data-local: add-localdir add-names
+uninstall-local: remove-localdir remove-names
+endif
 
-all-local:
+add-localdir:
+	$(top_srcdir)/config/mkinstalldirs $(localmoddir)
+
+remove-localdir:
+	rmdir $(localmoddir)
+
+add-local-names:
 	@ for file in $(EXTRA_NAMES); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
 		test -r $$file || $(LN_S) $(srcdir)/$$realfile $$file;  \
 	done
 
-install-data-local:
+add-names:
 	@ for file in $(EXTRA_NAMES); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
 		echo Linking $$file to $$realfile;			\
@@ -44,13 +55,14 @@ install-data-local:
 		$(LN_S) $$realfile $$file;				\
 	done
 
-uninstall-local:
+remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
 		echo Unlinking $$file;					\
 		rm -f $(moduledir)/$$file;				\
 	done
-endif
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 
 $(MODULES): $(INFORM)
+
+@make_include@

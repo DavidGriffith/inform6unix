@@ -1,7 +1,5 @@
 ## Automake template for Inform program.
 
-include $(top_srcdir)/config/commondefs
-
 bin_PROGRAMS = inform
 
 SRCS = arrays.c asm.c bpatch.c chars.c directs.c errors.c expressc.c	 \
@@ -25,4 +23,5 @@ else
 	mv $(bindir)/inform $(bindir)/inform-$(INFORM_VERSION)
 	$(LN_S) $(bindir)/inform-$(INFORM_VERSION) $(bindir)/inform
 endif
-	$(top_srcdir)/config/mkinstalldirs $(localdir)
+
+@make_include@

@@ -2,11 +2,11 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src lib include doc demos
+SUBDIRS = src lib include info demos
 
-EXTRA_DIST = AUTHORS VERSION BUGS
+EXTRA_DIST = AUTHORS VERSION
 
-EXTRA_DIRS = config contrib tutor
+EXTRA_DIRS = config contrib doc tutor
 
 dist-hook:
 	cd $(srcdir)/tutor; $(MAKE) clean
@@ -14,3 +14,5 @@ dist-hook:
 		echo Adding $$dir directory to distribution; \
 		cp -rp $(srcdir)/$$dir $(distdir); \
 	done
+
+@make_include@

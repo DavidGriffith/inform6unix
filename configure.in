@@ -40,13 +40,13 @@ AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = yes)
 
 dnl Include common makefile stuff.
 AC_SUBST_FILE(make_include)
-make_include=$srcdir/config/makefile.add
+make_include=$srcdir/config/commondefs
 
 AC_OUTPUT(
 Makefile
 src/Makefile
 lib/Makefile
 include/Makefile
-doc/Makefile
+info/Makefile
 demos/Makefile
 )

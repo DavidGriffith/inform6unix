@@ -2,8 +2,9 @@ dnl Master configuration file for Inform, in -*- m4 -*- mode.
 
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Check for a file to make sure it's the source directory.
-AC_INIT(src/inform.c)
+dnl Initialize.
+AC_INIT(inform, 6.21.3)
+AC_CONFIG_SRCDIR(src/inform.c)
 
 dnl Extra config files go in this directory.
 AC_CONFIG_AUX_DIR(config)

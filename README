@@ -26,6 +26,11 @@ The following subdirectories are included in the package:
     contrib	other contributed Inform stuff
     doc		miscellaneous documentation about this package
 
+The Inform distributed here is Andrew Plotkin's bi-platform version, with
+support for compiling to both Z-code and Glulx, with slight modification by
+me for this package (mostly to increase the maximum size of pathnames).
+See the file README.glulx for details about the extra options for Glulx.
+
 How do I install it?
 ====================
 
@@ -64,14 +69,14 @@ The Interactive Fiction archive
 There's a good chance that you got this package from the IF archive, or one
 of its mirrors.  But if you didn't, you might like to check it out:
 
-    ftp://ftp.gmd.de/if-archive
+    http://www.ifarchive.org
 
 It has lots of great things: games, hints, solutions, authoring systems
 (like this one), programs for playing the games, tools for making maps, and
 stuff about the late, great Infocom.
 
-There are also more resources for programming with Inform, including a
-version of the Inform Designer's Manual suitable for printing.  See the
+There are also more resources for programming with Inform, including a new
+edition of the Inform Designer's Manual suitable for printing.  See the
 stuff in the programming/inform6 subdirectory.
 
 About this package

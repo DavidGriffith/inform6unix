@@ -3,6 +3,9 @@ Here's a list of the people who've contributed to this package.
 The Inform program and its libraries:
     Graham Nelson <graham@gnelson.demon.co.uk>
 
+Modifications to support Glulx:
+    Andrew Plotkin <erkyrath@eblong.com>
+
 Documentation:
     Graham Nelson <graham@gnelson.demon.co.uk>
     Christopher J. Madsen <ac608@yfn.ysu.edu>

@@ -18,7 +18,7 @@ TAGS_DEPENDENCIES = $(INFFILES)
 INFORM = $(top_builddir)/src/inform
 
 INCPATH = $(top_srcdir)/lib,$(top_builddir)/lib
-MODPATH = $(top_builddir)/lib
+MODPATH = $(top_srcdir)/lib,$(top_builddir)/lib
 
 INFFLAGS = -ix -~SU -E1 +include_path=$(INCPATH) +module_path=$(MODPATH)
 

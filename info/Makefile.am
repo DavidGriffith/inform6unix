@@ -2,24 +2,19 @@
 
 infodir = $(prefix)/info
 
-MANUAL = inform inform.01 inform.02 inform.03 inform.04 inform.05 inform.06 \
-inform.07 inform.08 inform.09 inform.10 inform.11 inform.12 inform.13	    \
-inform.14 inform.15 inform.16
-
-CRAFT = craft.info
-
-TUTOR = inftutor.info
-
-info_DATA = $(MANUAL) $(CRAFT) $(TUTOR)
+info_DATA = $(INFORM)
 
 EXTRA_DIST = $(info_DATA)
 
-INFOIZE = infoize
+INFORM = inform inform-1 inform-2 inform-3 inform-4 inform-5 inform-6	\
+inform-7 inform-8 inform-9 inform-10 inform-11 inform-12 inform-13	\
+inform-14
 
-INFFILES = craft.inf inftutor.inf
+INFO_FILES = inform.info
 
-doc:;	@ for file in $(INFFILES); do \
-		base=`basename $$file .inf`; \
-		cmd="$(INFOIZE) -i $$base -o $$base.info $$file"; \
-		echo $$cmd; $$cmd; \
+split:;	@ for file in $(INFO_FILES); do \
+		echo Splitting $$file; \
+		base=`basename $$file .info`; \
+		cp Info/$$file $$base; \
+		infosplit -v $$base; \
 	done

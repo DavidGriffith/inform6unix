@@ -23,7 +23,8 @@ INFORM = $(top_builddir)/src/inform
 INFFLAGS = -x +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
 +language_name=english
 
-.h.m5:;	$(INFORM) $(INFFLAGS) -M $<
+.h.m5:
+	$(INFORM) $(INFFLAGS) -M $< $@
 
 if CYGWIN
 install-data-local: add-localdir
@@ -35,29 +36,31 @@ uninstall-local: remove-localdir remove-names
 endif
 
 add-localdir:
-	$(top_srcdir)/config/mkinstalldirs $(DESTDIR)$(localmoddir)
+	$(mkinstalldirs) $(DESTDIR)$(localmoddir)
 
 remove-localdir:
 	rmdir $(DESTDIR)$(localmoddir)
 
 add-local-names:
-	@ for file in $(EXTRA_NAMES); do				\
-		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
-		test -r $$file || $(LN_S) $(srcdir)/$$realfile $$file;  \
+	@ cd $(top_builddir)/lib;					\
+	for file in $(EXTRA_NAMES); do					\
+	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
+	   test -r $$file || $(LN_S) $(srcdir)/$$realfile $$file;	\
 	done
 
 add-names:
-	@ for file in $(EXTRA_NAMES); do				\
-		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
-		echo Linking $$file to $$realfile;			\
-		rm -f $(DESTDIR)$(moduledir)/$$file;			\
-		$(LN_S) $$realfile $(DESTDIR)$(moduledir)/$$file;	\
+	@ cd $(DESTDIR)$(moduledir);					\
+	for file in $(EXTRA_NAMES); do					\
+	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
+	   echo Linking $$file to $$realfile;				\
+	   rm -f $$file;						\
+	   $(LN_S) $$realfile $$file;					\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
-		echo Unlinking $$file;					\
-		rm -f $(DESTDIR)$(moduledir)/$$file;			\
+	   echo Unlinking $$file;					\
+	   rm -f $(DESTDIR)$(moduledir)/$$file;				\
 	done
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)

@@ -286,6 +286,8 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-htmlDATA uninstall-info-am
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
 .PHONY: all all-am check check-am clean clean-generic distclean \
 	distclean-generic distdir dvi dvi-am info info-am install \
@@ -299,12 +301,18 @@ uninstall-am: uninstall-htmlDATA uninstall-info-am
 
 install-data-hook:
 	for dir in $(EXTRA_DIRS); do					\
-	    cp -rp $$dir $(DESTDIR)$(htmldir);				\
+	    cp -rp $(srcdir)/$$dir $(DESTDIR)$(htmldir);		\
+	    rm -rf $(DESTDIR)$(htmldir)/$$dir/CVS;			\
 	done
+
+uninstall-hook:
+	- chmod -R u+w $(DESTDIR)$(pkgdatadir)
+	rm -rf $(DESTDIR)$(htmldir)
 
 dist-hook:
 	for dir in $(EXTRA_DIRS); do					\
-	    cp -rp $$dir $(distdir);					\
+	    cp -rp $(srcdir)/$$dir $(distdir);				\
+	    rm -rf $(distdir)/$$dir/CVS;				\
 	done
 
 @make_include@

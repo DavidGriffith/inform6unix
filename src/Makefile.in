@@ -426,6 +426,8 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic ctags distclean distclean-compile \
@@ -443,6 +445,11 @@ install-exec-hook:
 #	Don't bother keeping old versions under Cygwin.
 @CYGWIN_FALSE@	mv $(DESTDIR)$(bindir)/inform $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION)
 @CYGWIN_FALSE@	$(LN_S) $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION) $(DESTDIR)$(bindir)/inform
+
+uninstall-hook:
+#	Ditto.
+@CYGWIN_FALSE@	- chmod u+w $(DESTDIR)$(bindir)
+@CYGWIN_FALSE@	rm -f $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION)
 
 @make_include@
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

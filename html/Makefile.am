@@ -23,12 +23,18 @@ EXTRA_DIRS = $(html_DIRS)
 
 install-data-hook:
 	for dir in $(EXTRA_DIRS); do					\
-	    cp -rp $$dir $(DESTDIR)$(htmldir);				\
+	    cp -rp $(srcdir)/$$dir $(DESTDIR)$(htmldir);		\
+	    rm -rf $(DESTDIR)$(htmldir)/$$dir/CVS;			\
 	done
+
+uninstall-hook:
+	- chmod -R u+w $(DESTDIR)$(pkgdatadir)
+	rm -rf $(DESTDIR)$(htmldir)
 
 dist-hook:
 	for dir in $(EXTRA_DIRS); do					\
-	    cp -rp $$dir $(distdir);					\
+	    cp -rp $(srcdir)/$$dir $(distdir);				\
+	    rm -rf $(distdir)/$$dir/CVS;				\
 	done
 
 @make_include@

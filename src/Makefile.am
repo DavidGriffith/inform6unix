@@ -24,4 +24,12 @@ else
 	$(LN_S) $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION) $(DESTDIR)$(bindir)/inform
 endif
 
+uninstall-hook:
+if CYGWIN
+#	Ditto.
+else
+	- chmod u+w $(DESTDIR)$(bindir)
+	rm -f $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION)
+endif
+
 @make_include@

@@ -24,23 +24,24 @@ uninstall-local: remove-localdir remove-names
 endif
 
 add-localdir:
-	$(top_srcdir)/config/mkinstalldirs $(DESTDIR)$(localincdir)
+	$(mkinstalldirs) $(DESTDIR)$(localincdir)
 
 remove-localdir:
 	rmdir $(DESTDIR)$(localincdir)
 
 add-names:
-	@ for file in $(EXTRA_NAMES); do				\
-		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
-		echo Linking $$file to $$realfile;			\
-		rm -f $(DESTDIR)$(includedir)/$$file;			\
-		$(LN_S) $$realfile $(DESTDIR)$(includedir)/$$file;	\
+	@ cd $(DESTDIR)$(includedir);					\
+	for file in $(EXTRA_NAMES); do					\
+	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
+	   echo Linking $$file to $$realfile;				\
+	   rm -f $$file;						\
+	   $(LN_S) $$realfile $$file;					\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
-		echo Unlinking $$file;					\
-		rm -f $(DESTDIR)$(includedir)/$$file;			\
+	   echo Unlinking $$file;					\
+	   rm -f $(DESTDIR)$(includedir)/$$file;			\
 	done
 
 @make_include@

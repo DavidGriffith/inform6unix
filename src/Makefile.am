@@ -8,8 +8,8 @@ symbols.c syntax.c tables.c text.c veneer.c verbs.c
 
 HDRS = header.h
 
-INCPATH = ,$(localincdir),$(localmoddir),$(includedir),$(moduledir)
-MODPATH = ,$(localmoddir),$(moduledir)
+INCPATH = ,$(DESTDIR)$(localincdir),$(DESTDIR)$(localmoddir),$(DESTDIR)$(includedir),$(DESTDIR)$(moduledir)
+MODPATH = ,$(DESTDIR)$(localmoddir),$(DESTDIR)$(moduledir)
 
 INCLUDES = -D$(HOST) -DModule_Directory=\"$(MODPATH)\" \
 -DInclude_Directory=\"$(INCPATH)\"
@@ -20,8 +20,8 @@ install-exec-hook:
 if CYGWIN
 #	Don't bother keeping old versions under Cygwin.
 else
-	mv $(bindir)/inform $(bindir)/inform-$(INFORM_VERSION)
-	$(LN_S) $(bindir)/inform-$(INFORM_VERSION) $(bindir)/inform
+	mv $(DESTDIR)$(bindir)/inform $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION)
+	$(LN_S) $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION) $(DESTDIR)$(bindir)/inform
 endif
 
 @make_include@

@@ -35,10 +35,10 @@ uninstall-local: remove-localdir remove-names
 endif
 
 add-localdir:
-	$(top_srcdir)/config/mkinstalldirs $(localmoddir)
+	$(top_srcdir)/config/mkinstalldirs $(DESTDIR)$(localmoddir)
 
 remove-localdir:
-	rmdir $(localmoddir)
+	rmdir $(DESTDIR)$(localmoddir)
 
 add-local-names:
 	@ for file in $(EXTRA_NAMES); do				\
@@ -50,15 +50,14 @@ add-names:
 	@ for file in $(EXTRA_NAMES); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
 		echo Linking $$file to $$realfile;			\
-		cd $(moduledir);					\
-		rm -f $$file;						\
-		$(LN_S) $$realfile $$file;				\
+		rm -f $(DESTDIR)$(moduledir)/$$file;			\
+		$(LN_S) $$realfile $(DESTDIR)$(moduledir)/$$file;	\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
 		echo Unlinking $$file;					\
-		rm -f $(moduledir)/$$file;				\
+		rm -f $(DESTDIR)$(moduledir)/$$file;			\
 	done
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)

@@ -2,8 +2,13 @@
 !
 !     Utility.h                         A library of reasonably useful
 !                                       Inform 6 functions by
-!       V 3.2                           L. Ross Raszewski
+!       V 4.0                           L. Ross Raszewski
 !
+! New in 4.0: Glulx support (requires infglk)
+!             Finally fixed the "strict mode" conflict in center
+!             New functions:
+!               Abs, Pow, BoldIt, SInsert, ScriptPrint,
+!               get_window_from_stream (glulx only)
 ! New in 3.2: New functions: Age, DaemonRunning, TimerRunning
 ! New in 3.1: Automatic V6lib support, new function: LocateCursor
 !               Special thanks to Jason C. Penny for V6 modifications
@@ -22,12 +27,22 @@
 ! description of each appears before it
 !
 ! e-mail me at rraszews@acm.org
-
+ifndef WORDSIZE;
+Constant WORDSIZE 2;
+Constant TARGET_ZCODE;
+endif;
+ifdef TARGET_GLULX;
+include "infglk";
+endif;
 System_File;
 ifndef UTILITY_LIBRARY;
 Constant UTILITY_LIBRARY 32;
-
+ifndef strict;
+global strict=0;
+endif;
+ifndef temp_obj;
 Object temp_obj;
+endif;
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Pmove - moves obj1 into obj2 as the youngest child
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -78,6 +93,7 @@ Constant CYAN 8;
 Constant WHITE 9;
 Global Emphasis_Color=4;        ! Default color is green
 [ Emphasis n;
+#ifdef TARGET_ZCODE;
 switch(n){
 0: style roman; 
 #ifndef SPECTEST_AVAILABLE;
@@ -103,6 +119,16 @@ else {
 }
 4: style reverse;
 }
+#ifnot;
+switch(n)
+{
+ 0: glk_set_style(style_Normal);
+ 1: glk_set_style(style_Emphasized);
+ 2: glk_set_style(style_User1);
+ 3: glk_set_style(style_User2);
+ 4: glk_set_style(style_BlockQuote);
+}
+#endif;
 ];
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -113,7 +139,12 @@ else {
 if (str==0) str="[Press Any Key]";
 if (str ofclass string) print (string) str;
 else if (str ofclass routine) indirect(str);
-@read_char 1 0 0 str;
+#ifdef TARGET_ZCODE;
+@read_char 1 str;
+#ifnot;
+KeyCharPrimitive();
+#endif;
+
 ];
 
 
@@ -149,9 +180,10 @@ else if (str ofclass routine) indirect(str);
 !       Center(x); where x is a line of text or a routine to print one
 !       (this routine shoud ONLY print text, as it will be called twice)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Array CenterText string 128;
+Array CenterText -> 80;
 [ Center instring i;
-    CenterText-->0 = 128;
+#ifdef TARGET_ZCODE;
+    CenterText-->0 = 78;
     @output_stream 3 CenterText;
     if (instring ofclass string)
   	print (string) instring;
@@ -177,6 +209,17 @@ Array CenterText string 128;
    #ifndef V6DEFS_H;
     font on;
    #endif;
+#ifnot;
+ glk_window_get_size(get_window_from_stream(glk_stream_get_current()),
+                     gg_arguments,gg_arguments+WORDSIZE);
+ i=PrintAnyToArray(CenterText,80,instring);
+glk_set_style(style_Preformatted);
+ spaces(((gg_arguments-->0)-i)/2);
+ PrintAnything(instring);
+
+ glk_set_style(style_Normal);
+#endif;
+
 ];
 
 
@@ -186,6 +229,7 @@ Array CenterText string 128;
 !           print the line
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 [ CenterU instring j i;
+#ifdef TARGET_ZCODE;
     CenterText-->0 = 128;
     @output_stream 3 CenterText;
     if (instring ofclass string)
@@ -209,6 +253,19 @@ Array CenterText string 128;
   	print (string) instring;
     if (instring ofclass Routine)
   	indirect(instring);
+#ifnot;
+ glk_window_get_size(get_window_from_stream(glk_stream_get_current()),
+                     gg_arguments,gg_arguments+WORDSIZE);
+ j=PrintAnyToArray(CenterText,80,instring);
+
+ LocateCursor(i,(gg_arguments-->0-j)/2);
+ PrintAnything(instring);
+
+! glk_set_style(style_Normal);
+
+
+#endif;
+
 ];
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! LocateCursor - places the cursor within the upper window
@@ -217,11 +274,17 @@ Array CenterText string 128;
 !                place the cursor by characters in v5/8 or v6.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 [ LocateCursor y x;
+#ifdef TARGET_ZCODE;
+ if (strict && 0==x or y) return;
  #Ifdef V6DEFS_H;
   StatusWin.SetCursorByChar(y,x);
  #Ifnot;
   @set_cursor y x;
  #Endif;
+#ifnot;
+glk_window_move_cursor(gg_statuswin,x-1,y-1);
+#endif;
+
 ];
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! DaemonRunning - Returns TRUE if the object specified is currently running
@@ -244,4 +307,98 @@ Array CenterText string 128;
    rfalse;
 ];
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Abs - Returns the absolute value of a number
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[ abs x;
+  if (x<0) return -x;
+  else return x;
+];
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Boldit - prints a string in bold
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[ Boldit x;
+ Emphasis(1);
+ print (string) x;
+ Emphasis(0);
+];
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Pow(x,y) - returns x^y
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[ pow x y z;
+ z=1;
+ while(y>0)
+ {z=z*x;
+  y--;
+ }
+return z;
+];
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! get_window_from_stream - returns the window with which a stream is
+!                       associated (suitable only for finding the
+!                       "current" window)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ifdef TARGET_GLULX;
+[ get_window_from_stream str i;
+ i=0;
+ i=glk_window_iterate(i,gg_arguments);
+ while(i)
+ {
+  if (str == glk_window_get_stream(i))
+   return i;
+  i=glk_window_iterate(i,gg_arguments);  
+ }
+ return 0;
+];
+endif;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! sinsert(x,y,comp) - Inserts x into y in sorted position. Comp is a function
+!               which takes two arguments, and returns <, >, or =  zero
+!               if the first object goes before, after, or at the same point
+!               in the sorting order as the second.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[ sinsert x y func o i l;
+ objectloop(o in y)
+ {
+  i=func(x,o);
+  if (i>0) break;
+  l=o;
+ }
+ if (o==nothing) ! o is the last one, x goes after it, or 
+  pmove(x,y);
+ else if (l<=0) ! it goes before the first one
+  move x to y;
+ else 
+  rmove(x,l);
+];
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ScriptPrint - Print to the transcript; if scripting is enabled, print
+!       x to the transcript. if x is a function, a second parameter will be
+!       passed to it.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifdef TARGET_ZCODE;
+[ ScriptPrint x y;
+if (transcript_mode)
+{
+ @output_stream -1;
+ if (x ofclass string) print (string) x;
+ else x(y);
+ @output_stream 1;
+}
+];
+ifnot;
+[ ScriptPrint x y z;
+ if (gg_scriptstr)
+ {
+  z=glk_stream_get_current();
+  glk_stream_set_current(gg_scriptstr);
+  PrintAnything(x,y);
+  glk_stream_set_current(z);
+ }
+];
+endif;
 endif;

@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src lib include doc demos
 
-EXTRA_DIRS = config
+EXTRA_DIRS = config tutor
 
 dist-hook:
 	@ for dir in $(EXTRA_DIRS); do \

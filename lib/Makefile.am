@@ -23,15 +23,14 @@ INFORM = $(top_builddir)/src/inform
 INFFLAGS = -x +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
 +language_name=english
 
-.h.m5:
-	$(INFORM) $(INFFLAGS) -M $< $@
+.h.m5:;	$(INFORM) $(INFFLAGS) -M $< $@
 
 if CYGWIN
-install-data-hook: add-localdir
+install-data-local: add-localdir
 uninstall-local: remove-localdir
 else
 all-local: add-local-names
-install-data-hook: add-localdir add-names
+install-data-local: add-localdir add-names
 uninstall-local: remove-localdir remove-names
 endif
 

@@ -10,20 +10,11 @@ symbols.c syntax.c tables.c text.c veneer.c verbs.c
 
 HDRS = header.h
 
-# Default path separator (:)
-PATH_SEP = 072
+INCPATH = ,$(localincdir),$(localmoddir),$(includedir),$(moduledir)
+MODPATH = ,$(localmoddir),$(moduledir)
 
-# Default error format
-ERROR_FMT = 1
-
-HOST_DEF = -D$(HOST)
-SEPARATOR = -DFN_ALT=$(PATH_SEP)
-ERROR_FORMAT = -DDEFAULT_ERROR_FORMAT=$(ERROR_FMT)
-INCLUDE_DIR = -DInclude_Directory=\"$(localdir):$(includedir):$(moduledir)\"
-MODULE_DIR = -DModule_Directory=\"$(moduledir)\"
-
-INCLUDES = $(HOST_DEF) $(SEPARATOR) $(ERROR_FORMAT) $(INCLUDE_DIR)	\
-$(MODULE_DIR)
+INCLUDES = -D$(HOST) -DModule_Directory=\"$(MODPATH)\" \
+-DInclude_Directory=\"$(INCPATH)\"
 
 inform_SOURCES = $(SRCS) $(HDRS)
 

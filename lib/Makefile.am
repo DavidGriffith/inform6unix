@@ -19,7 +19,8 @@ SUFFIXES = .h .m5
 
 INFORM = $(top_builddir)/src/inform
 
-INFFLAGS = -x +module_path=$(srcdir) +language_name=english
+INFFLAGS = -x +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
++language_name=english
 
 .h.m5:;	$(INFORM) $(INFFLAGS) -M $<
 
@@ -31,7 +32,7 @@ EXTRA_NAMES = English.h Grammar.h Parser.h Verblib.h VerbLib.h
 all-local:
 	@ for file in $(EXTRA_NAMES); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
-		test -r $$file || $(LN_S) $$realfile $$file;		\
+		test -r $$file || $(LN_S) $(srcdir)/$$realfile $$file;  \
 	done
 
 install-data-local:

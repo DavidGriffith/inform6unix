@@ -18,7 +18,10 @@ TAGS_DEPENDENCIES = $(INFFILES)
 
 INFORM = $(top_builddir)/src/inform
 
-INFFLAGS = -i -E1 -x +module_path=$(top_builddir)/lib
+INCPATH = $(top_srcdir)/lib,$(top_builddir)/lib
+MODPATH = $(top_builddir)/lib
+
+INFFLAGS = -i -E1 -x +include_path=$(INCPATH) +module_path=$(MODPATH)
 
 SUFFIXES = .inf .z5
 

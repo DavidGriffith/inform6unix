@@ -66,8 +66,6 @@
 /*   out a block of definitions like those below.)                           */
 /* ------------------------------------------------------------------------- */
 
-#define LINUX
-
 /* ------------------------------------------------------------------------- */
 /*   The first task is to include the ANSI header files, and typedef         */
 /*   suitable 32-bit integer types.                                          */

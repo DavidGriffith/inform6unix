@@ -10,6 +10,8 @@
 #define MAIN_INFORM_FILE
 #include "header.h"
 
+#define PATHLEN 512
+
 /* ------------------------------------------------------------------------- */
 /*   Compiler progress                                                       */
 /* ------------------------------------------------------------------------- */
@@ -396,16 +398,16 @@ extern void free_arrays(void)
 /*    Name translation code for filenames                                    */
 /* ------------------------------------------------------------------------- */
 
-static char Source_Path[128];
-static char Include_Path[128];
-static char Code_Path[128];
-static char Module_Path[128];
-static char Temporary_Path[128];
-static char current_source_path[128];
-       char Debugging_Name[128];
-       char Transcript_Name[128];
-       char Language_Name[128];
-static char ICL_Path[128];
+static char Source_Path[PATHLEN];
+static char Include_Path[PATHLEN];
+static char Code_Path[PATHLEN];
+static char Module_Path[PATHLEN];
+static char Temporary_Path[PATHLEN];
+static char current_source_path[PATHLEN];
+       char Debugging_Name[PATHLEN];
+       char Transcript_Name[PATHLEN];
+       char Language_Name[PATHLEN];
+static char ICL_Path[PATHLEN];
 
 static void set_path_value(char *path, char *value)
 {   int i, j;
@@ -449,8 +451,8 @@ static void set_path_command(char *command)
 
     if (command[i]==0) { new_value=command; path_to_set=Include_Path; }
     else
-    {   char pathname[128];
-        if (i>=128) i=127;
+    {   char pathname[PATHLEN];
+        if (i>=PATHLEN) i=PATHLEN-1;
         new_value = command+i+1;
         for (j=0;j<i;j++)
             if (isupper(command[j])) pathname[j]=tolower(command[j]);
@@ -682,8 +684,8 @@ static char *name_or_unset(char *p)
 }
 
 static void help_on_filenames(void)
-{   char old_name[128];
-    char new_name[128];
+{   char old_name[PATHLEN];
+    char new_name[PATHLEN];
     int save_mm = module_switch, x;
 
     module_switch = FALSE;
@@ -1366,7 +1368,7 @@ static void run_icl_file(char *filename, FILE *command_file)
         }
         else
         {   if (strcmp(fw, "compile")==0)
-            {   char story_name[128], code_name[128];
+            {   char story_name[PATHLEN], code_name[PATHLEN];
                 i += copy_icl_word(cli_buff + i, story_name);
                 i += copy_icl_word(cli_buff + i, code_name);
 
@@ -1403,7 +1405,7 @@ static void run_icl_file(char *filename, FILE *command_file)
 }
 
 static void execute_icl_command(char *p)
-{   char filename[128], cli_buff[256];
+{   char filename[PATHLEN], cli_buff[256];
     FILE *command_file;
 
     switch(p[0])

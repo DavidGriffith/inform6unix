@@ -14,6 +14,8 @@
 
 #include "header.h"
 
+#define PATHLEN 512
+
 int input_file;                         /* Number of source files so far     */
 
 int32 total_chars_read;                 /* Characters read in (from all
@@ -40,7 +42,7 @@ static int filename_storage_left;
 /* ------------------------------------------------------------------------- */
 
 FILE *Temp1_fp=NULL, *Temp2_fp=NULL,  *Temp3_fp=NULL;
-char Temp1_Name[128], Temp2_Name[128], Temp3_Name[128];
+char Temp1_Name[PATHLEN], Temp2_Name[PATHLEN], Temp3_Name[PATHLEN];
 
 /* ------------------------------------------------------------------------- */
 /*   Opening and closing source code files                                   */
@@ -51,7 +53,7 @@ extern void load_sourcefile(char *filename_given, int same_directory_flag)
     /*  Meaning: open a new file of Inform source.  (The lexer picks up on
         this by noticing that input_file has increased.)                     */
 
-    char name[128]; int x = 0; FILE *handle;
+    char name[PATHLEN]; int x = 0; FILE *handle;
 
     if (input_file == MAX_SOURCE_FILES)
         fatalerror("Program contains too many source files: \
@@ -256,7 +258,7 @@ static void output_compression(int entnum, int32 *size)
 }
 
 static void output_file_z(void)
-{   FILE *fin; char new_name[128];
+{   FILE *fin; char new_name[PATHLEN];
     int32 length, blanks=0, size, i, j;
 
     ASSERT_ZCODE();
@@ -454,7 +456,7 @@ static void output_file_z(void)
     }
 
 #ifdef ARCHIMEDES
-    {   char settype_command[128];
+    {   char settype_command[PATHLEN];
         sprintf(settype_command, "settype %s %s",
             new_name, riscos_file_type());
         system(settype_command);
@@ -926,7 +928,7 @@ extern void close_transcript_file(void)
     transcript_open = FALSE;
 
 #ifdef ARCHIMEDES
-    {   char settype_command[128];
+    {   char settype_command[PATHLEN];
         sprintf(settype_command, "settype %s text",
             Transcript_Name);
         system(settype_command);

@@ -7,7 +7,7 @@ outofrch.h physics.h pluralob.h printtime.h showobj.h smartcantgo.h	    \
 timepiece.h timesys.h timewait.h utility.h waittime.h whatis.h whowhat.h    \
 yesno.h znsi.h
 
-EXTRA_NAMES = AdHints.h Menus.h NewMenu.h
+EXTRA_NAMES = AdHints.h Menus.h NewMenu.h SmartCantGo.h
 
 DOCS = adhints.txt
 

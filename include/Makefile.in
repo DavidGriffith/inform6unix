@@ -114,15 +114,23 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 
-INCLUDES = adhints.h altmenu.h calyx_adjectives.h center.h clothing.h	    \
-compass.h dirs.h domenu.h doors.h footnote.h hints.h info.h istring.h	    \
-longint.h manual.h menus.h money.h moveclass.h movie.h newmenu.h newmenus.h \
-outofrch.h physics.h pluralob.h printtime.h showobj.h smartcantgo.h	    \
-timepiece.h timesys.h timewait.h utility.h waittime.h whatis.h whowhat.h    \
-yesno.h znsi.h
+INCLUDES = action.h adhints.h altmenu.h boxclever.h branch.h		    \
+calyx_adjectives.h ccpl.h center.h clothes.h clothing.h compass.h daemons.h \
+diary.h dirs.h domenu.h doors.h dynobj.h easydoors.h expertgrammar.h	    \
+fkeys.h follower.h footnote.h goneighbour.h helproutines.h hints.h	    \
+hintsms.h howtoplay.h info.h istring.h links.h locksmith.h longint.h	    \
+manual.h menus.h mistype.h money.h moveclass.h movie.h nameable.h	    \
+newbiegrammar.h newmenu.h newmenus.h oldaemon.h outofrch.h phtalkoo.h	    \
+physics.h pluralob.h printtime.h recept.h sampletranscript.h scenic.h	    \
+scoper.h showobj.h shuffle.h smartcantgo.h sound.h style.h text_functions.h \
+timepiece.h timesys.h timewait.h torch.h trinitystat.h utility.h waittime.h \
+whatis.h whowhat.h yesno.h zclock.h znsi.h
 
 
-EXTRA_NAMES = AdHints.h Menus.h NewMenu.h SmartCantGo.h
+EXTRA_NAMES = CCPL.h AdHints.h ExpertGrammar.h GoNeighbour.h HelpRoutines.h \
+Locksmith.h Menus.h NewMenu.h NewbieGrammar.h SampleTranscript.h Scenic.h   \
+Scoper.h SmartCantGo.h
+
 
 DOCS = adhints.txt
 

@@ -309,7 +309,9 @@ info: info-am
 
 info-am:
 
-install-data-am: install-data-local install-moduleDATA
+install-data-am: install-moduleDATA
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 
 install-exec-am:
 
@@ -340,22 +342,21 @@ uninstall-am: uninstall-info-am uninstall-local uninstall-moduleDATA
 .PHONY: CTAGS GTAGS all all-am all-local check check-am clean \
 	clean-generic ctags distclean distclean-generic distclean-tags \
 	distdir dvi dvi-am info info-am install install-am install-data \
-	install-data-am install-data-local install-exec install-exec-am \
-	install-info install-info-am install-man install-moduleDATA \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-info-am uninstall-local \
-	uninstall-moduleDATA
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-moduleDATA install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am tags uninstall uninstall-am uninstall-info-am \
+	uninstall-local uninstall-moduleDATA
 
 
 .h.m5:
 	$(INFORM) $(INFFLAGS) -M $< $@
 
-@CYGWIN_TRUE@install-data-local: add-localdir
+@CYGWIN_TRUE@install-data-hook: add-localdir
 @CYGWIN_TRUE@uninstall-local: remove-localdir
 @CYGWIN_FALSE@all-local: add-local-names
-@CYGWIN_FALSE@install-data-local: add-localdir add-names
+@CYGWIN_FALSE@install-data-hook: add-localdir add-names
 @CYGWIN_FALSE@uninstall-local: remove-localdir remove-names
 
 add-localdir:

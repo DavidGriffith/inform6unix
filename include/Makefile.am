@@ -16,10 +16,10 @@ include_HEADERS = $(INCLUDES)
 EXTRA_DIST = $(DOCS)
 
 if CYGWIN
-install-data-local: add-localdir
+install-data-hook: add-localdir
 uninstall-local: remove-localdir
 else
-install-data-local: add-localdir add-names
+install-data-hook: add-localdir add-names
 uninstall-local: remove-localdir remove-names
 endif
 

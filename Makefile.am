@@ -1,6 +1,6 @@
 ## Master automake template for Inform.
 
-AUTOMAKE_OPTIONS = foreign check-news dist-bzip2
+AUTOMAKE_OPTIONS = check-news
 
 SUBDIRS = src lib include manual demos
 

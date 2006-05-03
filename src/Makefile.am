@@ -14,7 +14,7 @@ MODPATH = ,$(DESTDIR)$(localmoddir),$(DESTDIR)$(moduledir)
 MODDEF = -DModule_Directory=\"$(MODPATH)\"
 INCDEF = -DInclude_Directory=\"$(INCPATH)\"
 
-INCLUDES = -D$(HOST) -DPATHLEN=1024 $(MODDEF) $(INCDEF)
+INCLUDES = -D$(HOST) $(MODDEF) $(INCDEF)
 
 inform_SOURCES = $(SRCS) $(HDRS)
 

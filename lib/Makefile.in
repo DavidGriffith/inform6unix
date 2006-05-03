@@ -401,14 +401,14 @@ add-names:
 	@ cd $(DESTDIR)$(moduledir);					\
 	for file in $(EXTRA_NAMES); do					\
 	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
-	   echo Linking $$file to $$realfile;				\
+	   echo " linking $$file to $$realfile";			\
 	   rm -f $$file;						\
 	   $(LN_S) $$realfile $$file;					\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
-	   echo Unlinking $$file;					\
+	   echo " unlinking $$file";					\
 	   rm -f $(DESTDIR)$(moduledir)/$$file;				\
 	done
 

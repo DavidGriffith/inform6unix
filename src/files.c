@@ -7,8 +7,8 @@
 /*             routines in "inform.c", since they are tied up with ICL       */
 /*             settings and are very host OS-dependent.                      */
 /*                                                                           */
-/*   Part of Inform 6.30                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2004                                 */
+/*   Part of Inform 6.31                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -326,8 +326,11 @@ static void output_file_z(void)
         if (backpatch_marker >= 0x80) long_flag = FALSE;
         backpatch_marker &= 0x7f;
         offset = offset + (backpatch_marker/32)*0x10000;
+        while (offset+0x30000 < j) {
+            offset += 0x40000;
+            long_flag = !long_flag;
+        }
         backpatch_marker &= 0x1f;
-
         while (j<offset)
         {   size++;
             sf_put((temporary_files_switch)?fgetc(fin):

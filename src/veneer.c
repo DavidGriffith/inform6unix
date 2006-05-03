@@ -3,8 +3,8 @@
 /*              by the compiler (e.g. DefArt) which the program doesn't      */
 /*              provide                                                      */
 /*                                                                           */
-/*   Part of Inform 6.30                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2004                                 */
+/*   Part of Inform 6.31                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -227,7 +227,7 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
          {   if (identifier >= 1 && identifier < 64 && obj.#identifier <= 2)\
                  return obj.identifier;\
              RT__Err(\"read\", obj, identifier); return; }\
-         if (obj.#identifier > 2) RT__Err(\"read\", obj, identifier, 2);\
+         if (obj..#identifier > 2) RT__Err(\"read\", obj, identifier, 2);\
          return x-->0;\
          ]", "", "", "", "", ""
     },

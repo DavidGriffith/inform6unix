@@ -6,8 +6,8 @@
 /*                    checks syntax and translates such directives into      */
 /*                    specifications for the object-maker.                   */
 /*                                                                           */
-/*   Part of Inform 6.30                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2004                                 */
+/*   Part of Inform 6.31                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 

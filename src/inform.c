@@ -2,8 +2,8 @@
 /*   "inform" :  The top level of Inform: switches, pathnames, filenaming    */
 /*               conventions, ICL (Inform Command Line) files, main          */
 /*                                                                           */
-/*   Part of Inform 6.30                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2004                                 */
+/*   Part of Inform 6.31                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -259,8 +259,8 @@ static void reset_switch_settings(void)
 static int cli_files_specified,
            convert_filename_flag;
 
-char Source_Name[100];                 /* Processed name of first input file */
-char Code_Name[100];                   /* Processed name of output file      */
+char Source_Name[PATHLEN];             /* Processed name of first input file */
+char Code_Name[PATHLEN];               /* Processed name of output file      */
 
 static char *cli_file1, *cli_file2;    /* Unprocessed (and unsafe to alter)  */
 
@@ -429,6 +429,11 @@ Module_Path or ICL_Path variables. Other paths are for output only.", FN_ALT);
                  && (path != Language_Name) && (path != Charset_Map)
                  && (i>0) && (isalnum(path[i-1]))) path[i++] = FN_SEP;
             path[i++] = value[j++];
+            if (i == PATHLEN-1) {
+                printf("A specified path is longer than %d characters.\n",
+                    PATHLEN-1);
+                exit(1);
+            }
             if (value[j-1] == 0) return;
         }
         else path[i++] = value[j++];
@@ -494,6 +499,10 @@ static int write_translated_name(char *new_name, char *old_name,
                                  char *prefix_path, int start_pos,
                                  char *extension)
 {   int x;
+    if (strlen(old_name)+strlen(extension) >= PATHLEN) {
+        printf("One of your filenames is longer than %d characters.\n", PATHLEN);
+        exit(1);
+    }
     if (prefix_path == NULL)
     {   sprintf(new_name,"%s%s", old_name, extension);
         return 0;
@@ -501,6 +510,10 @@ static int write_translated_name(char *new_name, char *old_name,
     strcpy(new_name, prefix_path + start_pos);
     for (x=0; (new_name[x]!=0) && (new_name[x]!=FN_ALT); x++) ;
     if (new_name[x] == 0) start_pos = 0; else start_pos += x+1;
+    if (x+strlen(old_name)+strlen(extension) >= PATHLEN) {
+        printf("One of your pathnames is longer than %d characters.\n", PATHLEN);
+        exit(1);
+    }
     sprintf(new_name + x, "%s%s", old_name, extension);
     return start_pos;
 }
@@ -862,6 +875,10 @@ extern void translate_temp_filename(int i)
         case 2: p=Temp2_Name; break;
         case 3: p=Temp3_Name; break;
     }
+    if (strlen(Temporary_Path)+strlen(Temporary_File)+6 >= PATHLEN) {
+        printf ("Temporary_Path is too long.\n");
+        exit(1);
+    }
     sprintf(p,"%s%s%d", Temporary_Path, Temporary_File, i);
 #ifdef INCLUDE_TASK_ID
     sprintf(p+strlen(p), "_proc%08lx", (long int) unique_task_id());
@@ -1038,7 +1055,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2004.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2006.\n\n");
 
    /* For people typing just "inform", a summary only: */
 
@@ -1350,14 +1367,14 @@ static void icl_header_error(char *filename, int line)
 {   printf("Error in ICL header of file '%s', line %d:\n", filename, line);
 }
 
-static int copy_icl_word(char *from, char *to)
+static int copy_icl_word(char *from, char *to, int max)
 {
     /*  Copies one token from 'from' to 'to', null-terminated:
         returns the number of chars in 'from' read past (possibly 0).  */
 
-    int i, j, quoted_mode;
+    int i, j, quoted_mode, truncated;
 
-    i = 0;
+    i = 0; truncated = 0;
     while ((from[i] == ' ') || (from[i] == TAB_CHARACTER)
            || (from[i] == (char) 10) || (from[i] == (char) 13)) i++;
 
@@ -1374,8 +1391,15 @@ static int copy_icl_word(char *from, char *to)
         if ((from[i] == ' ') && (!quoted_mode)) break;
         if (from[i] == '\"') { quoted_mode = !quoted_mode; i++; }
         else to[j++] = from[i++];
+        if (j == max) {
+            j--;
+            truncated = 1;
+        }
     }
-    to[j] = 0; return i;
+    to[j] = 0;
+    if (truncated == 1)
+        printf("The following parameter has been truncated:\n%s\n", to);
+    return i;
 }
 
 static void execute_icl_command(char *p);
@@ -1405,10 +1429,10 @@ static int execute_icl_header(char *argname)
     line++;
     if (!(cli_buff[0] == '!' && cli_buff[1] == '%'))
       break;
-    i = copy_icl_word(cli_buff+2, fw);
+    i = copy_icl_word(cli_buff+2, fw, 256);
     if (icl_command(fw)) {
       execute_icl_command(fw);
-      copy_icl_word(cli_buff+2 + i, fw);
+      copy_icl_word(cli_buff+2 + i, fw, 256);
       if ((fw[0] != 0) && (fw[0] != '!')) {
         icl_header_error(filename, line);
         errcount++;
@@ -1437,10 +1461,10 @@ static void run_icl_file(char *filename, FILE *command_file)
     while (feof(command_file)==0)
     {   if (fgets(cli_buff,256,command_file)==0) break;
         line++;
-        i = copy_icl_word(cli_buff, fw);
+        i = copy_icl_word(cli_buff, fw, 256);
         if (icl_command(fw))
         {   execute_icl_command(fw);
-            copy_icl_word(cli_buff + i, fw);
+            copy_icl_word(cli_buff + i, fw, 256);
             if ((fw[0] != 0) && (fw[0] != '!'))
             {   icl_error(filename, line);
                 printf("expected comment or nothing but found '%s'\n", fw);
@@ -1449,8 +1473,8 @@ static void run_icl_file(char *filename, FILE *command_file)
         else
         {   if (strcmp(fw, "compile")==0)
             {   char story_name[PATHLEN], code_name[PATHLEN];
-                i += copy_icl_word(cli_buff + i, story_name);
-                i += copy_icl_word(cli_buff + i, code_name);
+                i += copy_icl_word(cli_buff + i, story_name, PATHLEN);
+                i += copy_icl_word(cli_buff + i, code_name, PATHLEN);
 
                 if (code_name[0] != 0) x=2;
                 else if (story_name[0] != 0) x=1;
@@ -1466,7 +1490,7 @@ static void run_icl_file(char *filename, FILE *command_file)
                     case 2: printf("[Compiling <%s> to <%s>]\n",
                                 story_name, code_name);
                             compile(x, story_name, code_name);
-                            copy_icl_word(cli_buff + i, fw);
+                            copy_icl_word(cli_buff + i, fw, 256);
                             if (fw[0]!=0)
                             {   icl_error(filename, line);
                         printf("Expected comment or nothing but found '%s'\n",
@@ -1540,7 +1564,7 @@ static void banner(void)
 #ifdef PROMPT_INPUT
 static void read_command_line(int argc, char **argv)
 {   int i;
-    char buffer1[100], buffer2[100], buffer3[100];
+    char buffer1[PATHLEN], buffer2[PATHLEN], buffer3[PATHLEN];
     i=0;
     printf("Source filename?\n> ");
     while (gets(buffer1)==NULL); cli_file1=buffer1;

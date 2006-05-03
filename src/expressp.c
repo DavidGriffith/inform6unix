@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------------- */
 /*   "expressp" :  The expression parser                                     */
 /*                                                                           */
-/*   Part of Inform 6.30                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2004                                 */
+/*   Part of Inform 6.31                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2006                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -1792,7 +1792,7 @@ extern void expressp_begin_pass(void)
 extern void expressp_allocate_arrays(void)
 {   ET = my_calloc(sizeof(expression_tree_node), MAX_EXPRESSION_NODES,
         "expression parse trees");
-    emitter_markers = my_calloc(sizeof(char), MAX_EXPRESSION_NODES,
+    emitter_markers = my_calloc(sizeof(int), MAX_EXPRESSION_NODES,
         "emitter markers");
     emitter_stack = my_calloc(sizeof(assembly_operand), MAX_EXPRESSION_NODES,
         "emitter stack");

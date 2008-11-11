@@ -1538,6 +1538,12 @@ NIL."
         
 
 
+(defun inform-mode-after-find-file ()
+  (when (string-match "\\.inf$" (buffer-file-name))
+    (inform-mode)))
+
+(add-hook 'find-file-hooks 'inform-mode-after-find-file)
+
 (provide 'inform-mode)
 
 ;;; inform-mode.el ends here

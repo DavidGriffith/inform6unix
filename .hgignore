@@ -1,6 +1,10 @@
 syntax: glob
 
 Makefile
+Makefile.in
+
+configure
+*.m4
 
 *[A-Z]*.h
 *.m5

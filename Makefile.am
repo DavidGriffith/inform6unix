@@ -13,8 +13,6 @@ dist-hook:
 	@ for dir in $(EXTRA_DIRS); do					\
 	   echo Adding $$dir directory to distribution;			\
 	   cp -rfp $(srcdir)/$$dir $(distdir);				\
-	   rm -rf $(distdir)/$$dir/CVS;					\
-	   rm -rf $(distdir)/$$dir/.cvsignore;				\
 	done
 
 @make_include@

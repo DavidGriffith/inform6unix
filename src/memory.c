@@ -123,7 +123,7 @@ extern void write_byte_to_memory_block(memory_block *MB, int32 index, int value)
     {   compiler_error_named("memory: negative index to", chunk_name(MB, 0));
         return;
     }
-    if (ch >= 72) fatalerror("One of the memory blocks has exceeded 640K");
+    if (ch >= 72) memoryerror("ALLOC_CHUNK_SIZE", ALLOC_CHUNK_SIZE);
 
     if (MB->chunk[ch] == NULL)
     {   int i;
@@ -174,6 +174,9 @@ int MAX_GLOBAL_VARIABLES;
 int DICT_WORD_SIZE;
 int NUM_ATTR_BYTES;
 int32 MAX_NUM_STATIC_STRINGS;
+int32 MAX_UNICODE_CHARS;
+int32 MAX_STACK_SIZE;
+int ALLOC_CHUNK_SIZE;
 
 /* The way memory sizes are set causes great nuisance for those parameters
    which have different defaults under Z-code and Glulx. We have to get
@@ -185,6 +188,7 @@ static int MAX_GLOBAL_VARIABLES_z, MAX_GLOBAL_VARIABLES_g;
 static int MAX_LOCAL_VARIABLES_z, MAX_LOCAL_VARIABLES_g;
 static int DICT_WORD_SIZE_z, DICT_WORD_SIZE_g;
 static int NUM_ATTR_BYTES_z, NUM_ATTR_BYTES_g;
+static int ALLOC_CHUNK_SIZE_z, ALLOC_CHUNK_SIZE_g;
 
 /* ------------------------------------------------------------------------- */
 /*   Memory control from the command line                                    */
@@ -197,6 +201,7 @@ static void list_memory_sizes(void)
     printf("|  %25s = %-7d |\n","MAX_ABBREVS",MAX_ABBREVS);
     printf("|  %25s = %-7d |\n","MAX_ACTIONS",MAX_ACTIONS);
     printf("|  %25s = %-7d |\n","MAX_ADJECTIVES",MAX_ADJECTIVES);
+    printf("|  %25s = %-7d |\n","ALLOC_CHUNK_SIZE",ALLOC_CHUNK_SIZE);
     printf("|  %25s = %-7d |\n","NUM_ATTR_BYTES",NUM_ATTR_BYTES);
     printf("|  %25s = %-7d |\n","MAX_CLASSES",MAX_CLASSES);
     printf("|  %25s = %-7d |\n","MAX_CLASS_TABLE_SIZE",MAX_CLASS_TABLE_SIZE);
@@ -211,24 +216,35 @@ static void list_memory_sizes(void)
     printf("|  %25s = %-7d |\n","MAX_LABELS",MAX_LABELS);
     printf("|  %25s = %-7d |\n","MAX_LINESPACE",MAX_LINESPACE);
     printf("|  %25s = %-7d |\n","MAX_LINK_DATA_SIZE",MAX_LINK_DATA_SIZE);
-    printf("|  %25s = %-7d |\n","MAX_LOCAL_VARIABLES",MAX_LOCAL_VARIABLES);
+    if (glulx_mode)
+      printf("|  %25s = %-7d |\n","MAX_LOCAL_VARIABLES",MAX_LOCAL_VARIABLES);
     printf("|  %25s = %-7d |\n","MAX_LOW_STRINGS",MAX_LOW_STRINGS);
-    printf("|  %25s = %-7d |\n","MAX_NUM_STATIC_STRINGS",MAX_NUM_STATIC_STRINGS);
+    if (glulx_mode)
+      printf("|  %25s = %-7d |\n","MAX_NUM_STATIC_STRINGS",
+        MAX_NUM_STATIC_STRINGS);
     printf("|  %25s = %-7d |\n","MAX_OBJECTS",MAX_OBJECTS);
-    printf("|  %25s = %-7d |\n","MAX_OBJ_PROP_COUNT",
+    if (glulx_mode)
+      printf("|  %25s = %-7d |\n","MAX_OBJ_PROP_COUNT",
         MAX_OBJ_PROP_COUNT);
-    printf("|  %25s = %-7d |\n","MAX_OBJ_PROP_TABLE_SIZE",
+    if (glulx_mode)
+      printf("|  %25s = %-7d |\n","MAX_OBJ_PROP_TABLE_SIZE",
         MAX_OBJ_PROP_TABLE_SIZE);
     printf("|  %25s = %-7d |\n","MAX_PROP_TABLE_SIZE",MAX_PROP_TABLE_SIZE);
     printf("|  %25s = %-7d |\n","MAX_QTEXT_SIZE",MAX_QTEXT_SIZE);
     printf("|  %25s = %-7d |\n","MAX_SOURCE_FILES",MAX_SOURCE_FILES);
-    printf("|  %25s = %-7d |\n","MAX_SYMBOLS",MAX_SYMBOLS);
+    if (glulx_mode)
+      printf("|  %25s = %-7ld |\n","MAX_STACK_SIZE",
+           (long int) MAX_STACK_SIZE);
     printf("|  %25s = %-7d |\n","MAX_STATIC_DATA",MAX_STATIC_DATA);
     printf("|  %25s = %-7ld |\n","MAX_STATIC_STRINGS",
            (long int) MAX_STATIC_STRINGS);
+    printf("|  %25s = %-7d |\n","MAX_SYMBOLS",MAX_SYMBOLS);
     printf("|  %25s = %-7d |\n","SYMBOLS_CHUNK_SIZE",SYMBOLS_CHUNK_SIZE);
     printf("|  %25s = %-7ld |\n","MAX_TRANSCRIPT_SIZE",
            (long int) MAX_TRANSCRIPT_SIZE);
+    if (glulx_mode)
+      printf("|  %25s = %-7ld |\n","MAX_UNICODE_CHARS",
+           (long int) MAX_UNICODE_CHARS);
     printf("|  %25s = %-7d |\n","MAX_VERBS",MAX_VERBS);
     printf("|  %25s = %-7d |\n","MAX_VERBSPACE",MAX_VERBSPACE);
     printf("|  %25s = %-7ld |\n","MAX_ZCODE_SIZE",
@@ -285,6 +301,9 @@ extern void set_memory_sizes(int size_flag)
 
         MAX_GLOBAL_VARIABLES_z = 240;
         MAX_GLOBAL_VARIABLES_g = 512;
+        
+        ALLOC_CHUNK_SIZE_z = 8192;
+        ALLOC_CHUNK_SIZE_g = 32768;
     }
     if (size_flag == LARGE_SIZE)
     {
@@ -333,6 +352,9 @@ extern void set_memory_sizes(int size_flag)
 
         MAX_GLOBAL_VARIABLES_z = 240;
         MAX_GLOBAL_VARIABLES_g = 512;
+        
+        ALLOC_CHUNK_SIZE_z = 8192;
+        ALLOC_CHUNK_SIZE_g = 16384;
     }
     if (size_flag == SMALL_SIZE)
     {
@@ -381,6 +403,9 @@ extern void set_memory_sizes(int size_flag)
 
         MAX_GLOBAL_VARIABLES_z = 240;
         MAX_GLOBAL_VARIABLES_g = 256;
+        
+        ALLOC_CHUNK_SIZE_z = 8192;
+        ALLOC_CHUNK_SIZE_g = 8192;
     }
 
     /* Regardless of size_flag... */
@@ -392,6 +417,13 @@ extern void set_memory_sizes(int size_flag)
     DICT_WORD_SIZE_g = 9;
     NUM_ATTR_BYTES_z = 6;
     NUM_ATTR_BYTES_g = 7;
+    MAX_UNICODE_CHARS = 64;
+    /* We estimate the default Glulx stack size at 4096. That's about
+       enough for 90 nested function calls with 8 locals each -- the
+       same capacity as the Z-Spec's suggestion for Z-machine stack
+       size. Note that Inform 7 wants more stack, so if you're
+       compiling an I7 game, crank this up. */
+    MAX_STACK_SIZE = 4096;
 
     adjust_memory_sizes();
 }
@@ -405,6 +437,7 @@ extern void adjust_memory_sizes()
     MAX_LOCAL_VARIABLES = MAX_LOCAL_VARIABLES_z;
     DICT_WORD_SIZE = DICT_WORD_SIZE_z;
     NUM_ATTR_BYTES = NUM_ATTR_BYTES_z;
+    ALLOC_CHUNK_SIZE = ALLOC_CHUNK_SIZE_z;
   }
   else {
     MAX_ZCODE_SIZE = MAX_ZCODE_SIZE_g;
@@ -413,6 +446,7 @@ extern void adjust_memory_sizes()
     MAX_LOCAL_VARIABLES = MAX_LOCAL_VARIABLES_g;
     DICT_WORD_SIZE = DICT_WORD_SIZE_g;
     NUM_ATTR_BYTES = NUM_ATTR_BYTES_g;
+    ALLOC_CHUNK_SIZE = ALLOC_CHUNK_SIZE_g;
   }
 }
 
@@ -552,7 +586,6 @@ static void explain_parameter(char *command)
   Inform automatically ensures that this is at least twice the size of\n\
   MAX_QTEXT_SIZE, to be on the safe side.");
         return;
-
     }
     if (strcmp(command,"MAX_ZCODE_SIZE")==0)
     {
@@ -644,7 +677,28 @@ static void explain_parameter(char *command)
 "  MAX_NUM_STATIC_STRINGS is the maximum number of compiled strings \n\
   allowed in the program. (Glulx only)\n");
         return;
-
+    }
+    if (strcmp(command,"MAX_UNICODE_CHARS")==0)
+    {
+        printf(
+"  MAX_UNICODE_CHARS is the maximum number of different Unicode characters \n\
+  (beyond the Latin-1 range, $00..$FF) which the game text can use. \n\
+  (Glulx only)\n");
+        return;
+    }
+    if (strcmp(command,"ALLOC_CHUNK_SIZE")==0)
+    {
+        printf(
+"  ALLOC_CHUNK_SIZE is a base unit of Inform's internal memory allocation \n\
+  for various structures.\n");
+        return;
+    }
+    if (strcmp(command,"MAX_STACK_SIZE")==0)
+    {
+        printf(
+"  MAX_STACK_SIZE is the maximum size (in bytes) of the interpreter stack \n\
+  during gameplay. (Glulx only)\n");
+        return;
     }
 
     printf("No such memory setting as \"%s\"\n",command);
@@ -778,6 +832,18 @@ extern void memory_command(char *command)
             if (strcmp(command,"MAX_GLOBAL_VARIABLES")==0)
             {   MAX_GLOBAL_VARIABLES=j, flag=1;
                 MAX_GLOBAL_VARIABLES_g=MAX_GLOBAL_VARIABLES_z=j;
+            }
+            if (strcmp(command,"ALLOC_CHUNK_SIZE")==0)
+            {   ALLOC_CHUNK_SIZE=j, flag=1;
+                ALLOC_CHUNK_SIZE_g=ALLOC_CHUNK_SIZE_z=j;
+            }
+            if (strcmp(command,"MAX_UNICODE_CHARS")==0)
+                MAX_UNICODE_CHARS=j, flag=1;
+            if (strcmp(command,"MAX_STACK_SIZE")==0)
+            {
+                MAX_STACK_SIZE=j, flag=1;
+                /* Adjust up to a 256-byte boundary. */
+                MAX_STACK_SIZE = (MAX_STACK_SIZE + 0xFF) & (~0xFF);
             }
 
             if (flag==0)

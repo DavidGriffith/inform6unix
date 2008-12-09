@@ -264,6 +264,20 @@ static char *opcode_list_g[] = {
     "glk", "getstringtbl", "setstringtbl", "getiosys", "setiosys",
     "linearsearch", "binarysearch", "linkedsearch",
     "callf", "callfi", "callfii", "callfiii", 
+    "streamunichar",
+    "mzero", "mcopy", "malloc", "mfree",
+    ""
+};
+
+keyword_group opcode_macros =
+{ { "" },
+  OPCODE_MACRO_TT, FALSE, TRUE
+};
+
+static char *opmacro_list_z[] = { "" };
+
+static char *opmacro_list_g[] = {
+    "pull", "push",
     ""
 };
 
@@ -364,10 +378,10 @@ keyword_group system_constants =
     SYSTEM_CONSTANT_TT, FALSE, TRUE
 };
 
-keyword_group *keyword_groups[11]
+keyword_group *keyword_groups[12]
 = { NULL, &opcode_names, &directives, &trace_keywords, &segment_markers,
     &directive_keywords, &misc_keywords, &statements, &conditions,
-    &system_functions, &system_constants};
+    &system_functions, &system_constants, &opcode_macros};
 
 keyword_group local_variables =
 { { "" },                                 /* Filled in when routine declared */
@@ -433,24 +447,33 @@ static char one_letter_locals[128];
 
 static void make_keywords_tables(void)
 {   int i, j, h, tp=0;
-    char **oplist;
+    char **oplist, **maclist;
 
-    if (!glulx_mode)
+    if (!glulx_mode) {
         oplist = opcode_list_z;
-    else
+        maclist = opmacro_list_z;
+    }
+    else {
         oplist = opcode_list_g;
+        maclist = opmacro_list_g;
+    }
 
     for (j=0; *(oplist[j]); j++) {
         opcode_names.keywords[j] = oplist[j];
     }
     opcode_names.keywords[j] = "";
+    
+    for (j=0; *(maclist[j]); j++) {
+        opcode_macros.keywords[j] = maclist[j];
+    }
+    opcode_macros.keywords[j] = "";
 
     for (i=0; i<HASH_TAB_SIZE; i++)
     {   keywords_hash_table[i] = -1;
         keywords_hash_ends_table[i] = -1;
     }
 
-    for (i=1; i<=10; i++)
+    for (i=1; i<=11; i++)
     {   keyword_group *kg = keyword_groups[i];
         for (j=0; *(kg->keywords[j]) != 0; j++)
         {   h = hash_code_from_string(kg->keywords[j]);

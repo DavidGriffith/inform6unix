@@ -24,16 +24,15 @@ int endofpass_flag;      /* set to TRUE when an "end" directive is reached
 /*   Version control                                                         */
 /* ------------------------------------------------------------------------- */
 
-/* This stuff is Z-code only, for now. It might handle multiple Glulx
-   versions someday, if needed. */
-
-int version_number,      /* 3 to 8                                           */
+int version_number,      /* 3 to 8 (Z-code)                                  */
     instruction_set_number,
                          /* 3 to 6: versions 7 and 8 use instruction set of
                             version 5                                        */
     extend_memory_map;   /* extend using function- and string-offsets        */
 int32 scale_factor,      /* packed address multiplier                        */
     length_scale_factor; /* length-in-header multiplier                      */
+
+int32 requested_glulx_version;
 
 extern void select_version(int vn)
 {   version_number = vn;
@@ -49,6 +48,31 @@ extern void select_version(int vn)
 
     instruction_set_number = version_number;
     if ((version_number==7)||(version_number==8)) instruction_set_number = 5;
+}
+
+static int select_glulx_version(char *str)
+{
+  /* Parse an "X.Y.Z" style version number, and store it for later use. */
+  char *cx = str;
+  int major=0, minor=0, patch=0;
+
+  while (isdigit(*cx))
+    major = major*10 + ((*cx++)-'0');
+  if (*cx == '.') {
+    cx++;
+    while (isdigit(*cx))
+      minor = minor*10 + ((*cx++)-'0');
+    if (*cx == '.') {
+      cx++;
+      while (isdigit(*cx))
+        patch = patch*10 + ((*cx++)-'0');
+    }
+  }
+
+  requested_glulx_version = ((major & 0x7FFF) << 16) 
+    + ((minor & 0xFF) << 8) 
+    + (patch & 0xFF);
+  return (cx - str);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -250,6 +274,7 @@ static void reset_switch_settings(void)
 
     compression_switch = TRUE;
     glulx_mode = FALSE;
+    requested_glulx_version = 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1055,7 +1080,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2006.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2008.\n\n");
 
    /* For people typing just "inform", a summary only: */
 
@@ -1254,7 +1279,8 @@ extern void switches(char *p, int cmode)
         case 's': statistics_switch = state; break;
         case 't': asm_trace_setting=2; break;
         case 'u': optimise_switch = state; break;
-        case 'v': if ((cmode==0) && (version_set_switch)) { s=2; break; }
+        case 'v': if (glulx_mode) { s = select_glulx_version(p+i+1)+1; break; }
+                  if ((cmode==0) && (version_set_switch)) { s=2; break; }
                   version_set_switch = TRUE; s=2;
                   switch(p[i+1])
                   {   case '3': select_version(3); break;
@@ -1542,7 +1568,7 @@ char banner_line[80];
 
 static void banner(void)
 {
-    sprintf(banner_line, "Inform %d.%d%d",
+    sprintf(banner_line, "Inform %d.%d%dN",
         (VNUMBER/100)%10, (VNUMBER/10)%10, VNUMBER%10);
     if (0) {
         sprintf(banner_line+strlen(banner_line), " (biplatform, G%d.%d%d)",

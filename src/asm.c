@@ -39,6 +39,11 @@ static int label_moved_error_already_given;
 int  sequence_point_follows;       /* Will the next instruction assembled    */
                                    /* be at a sequence point in the routine? */
 
+int uses_unicode_features;         /* Makes use of Glulx Unicode (3.0)
+                                      features?                              */
+int uses_memheap_features;         /* Makes use of Glulx mem/heap (3.1)
+                                      features?                              */
+
 dbgl debug_line_ref;               /* Source code ref of current statement   */
 
 
@@ -284,6 +289,8 @@ typedef struct opcodeg
 
     /* Codes for any unusual operand assembly rules */
 
+    /* Z-code: */
+
 #define VARIAB   1    /* First operand expected to be a variable name and
                          assembled to a short constant: the variable number */
 #define TEXT     2    /* One text operand, to be Z-encoded into the program */
@@ -291,6 +298,11 @@ typedef struct opcodeg
 #define CALL     4    /* First operand is name of a routine, to be assembled
                          as long constant (the routine's packed address):
                          as if the name were prefixed by #r$ */
+
+    /* Glulx: (bit flags for Glulx VM features) */
+
+#define GOP_Unicode    1   /* uses_unicode_features */
+#define GOP_MemHeap    2   /* uses_memheap_features */
 
     /* Codes for the number of operands */
 
@@ -552,6 +564,18 @@ static opcodeg opcodes_table_g[] = {
   { (uchar *) "callfi",     0x0161, St, 0, 3 },
   { (uchar *) "callfii",    0x0162, St, 0, 4 },
   { (uchar *) "callfiii",   0x0163, St, 0, 5 },
+  { (uchar *) "streamunichar", 0x73,  0, GOP_Unicode, 1 },
+  { (uchar *) "mzero",      0x170,  0, GOP_MemHeap, 2 },
+  { (uchar *) "mcopy",      0x171,  0, GOP_MemHeap, 3 },
+  { (uchar *) "malloc",     0x178,  St, GOP_MemHeap, 2 },
+  { (uchar *) "mfree",      0x179,  0, GOP_MemHeap, 1 },
+};
+
+/* The opmacros table is used for fake opcodes. The opcode numbers are
+   ignored; this table is only used for argument parsing. */
+static opcodeg opmacros_table_g[] = {
+  { (uchar *) "pull", 0, St, 0, 1 },
+  { (uchar *) "push", 0,  0, 0, 1 },
 };
 
 static opcodeg custom_opcode_g;
@@ -609,6 +633,11 @@ static opcodeg internal_number_to_opcode_g(int32 i)
     if (i == -1) return custom_opcode_g;
     x = opcodes_table_g[i];
     return x;
+}
+
+static opcodeg internal_number_to_opmacro_g(int32 i)
+{
+    return opmacros_table_g[i];
 }
 
 static void make_opcode_syntax_g(opcodeg opco)
@@ -944,6 +973,60 @@ extern void assemblez_instruction(assembly_instruction *AI)
     error_named("Assembly mistake: syntax is", opcode_syntax_string);
 }
 
+static void assembleg_macro(assembly_instruction *AI)
+{
+    /* validate macro syntax first */
+    int ix, no_operands_given;
+    opcodeg opco;
+    
+    opco = internal_number_to_opmacro_g(AI->internal_number);
+    no_operands_given = AI->operand_count;
+    
+    if (no_operands_given != opco.no)
+        goto OpcodeSyntaxError;
+    
+    for (ix = 0; ix < no_operands_given; ix++) {
+        int type = AI->operand[ix].type;
+        if ((opco.flags & St) 
+          && ((!(opco.flags & Br) && (ix == no_operands_given-1))
+          || ((opco.flags & Br) && (ix == no_operands_given-2)))) {
+            if (is_constant_ot(type)) {
+                error("*** assembly macro tried to store to a constant ***");
+                goto OpcodeSyntaxError; 
+            }
+        }
+        if ((opco.flags & St2) 
+            && (ix == no_operands_given-2)) {
+            if (is_constant_ot(type)) {
+              error("*** assembly macro tried to store to a constant ***");
+              goto OpcodeSyntaxError; 
+            }
+        }
+    }
+    
+    /* expand the macro */
+    switch (AI->internal_number) {
+        case pull_gm:
+            assembleg_store(AI->operand[0], stack_pointer);
+            break;
+        
+        case push_gm:
+            assembleg_store(stack_pointer, AI->operand[0]);
+            break;
+        
+        default:
+            compiler_error("Invalid Glulx assembly macro");
+            break;
+    }
+    
+    return;
+    
+    OpcodeSyntaxError:
+    
+    make_opcode_syntax_g(opco);
+    error_named("Assembly mistake: syntax is", opcode_syntax_string);
+}
+
 extern void assembleg_instruction(assembly_instruction *AI)
 {
     uchar *start_pc, *opmodes_pc;
@@ -975,6 +1058,13 @@ extern void assembleg_instruction(assembly_instruction *AI)
         warning("This statement can never be reached");
 
     execution_never_reaches_here = ((opco.flags & Rf) != 0);
+
+    if (opco.op_rules & GOP_Unicode) {
+        uses_unicode_features = TRUE;
+    }
+    if (opco.op_rules & GOP_MemHeap) {
+        uses_memheap_features = TRUE;
+    }
 
     no_operands_given = AI->operand_count;
 
@@ -2729,27 +2819,95 @@ static void parse_assembly_g(void)
 {
   opcodeg O;
   assembly_operand AO;
-  int error_flag = FALSE;
+  int error_flag = FALSE, is_macro = FALSE;
 
   AI.operand_count = 0;
 
   opcode_names.enabled = TRUE;
+  opcode_macros.enabled = TRUE;
   get_next_token();
   opcode_names.enabled = FALSE;
+  opcode_macros.enabled = FALSE;
 
   if (token_type == DQ_TT) {
-    error("Runtime assembly definitions are not yet supported in Glulx.");
-    panic_mode_error_recovery();
-    return;
+    char *cx;
+    int badflags;
+
+    AI.internal_number = -1;
+
+    /* The format is @"FlagsCount:Code". Flags (which are optional)
+       can include "S" for store, "SS" for two stores, "B" for branch
+       format, "R" if execution never continues after the opcode. The
+       Count is the number of arguments (currently limited to 0-9),
+       and the Code is a decimal integer representing the opcode
+       number.
+
+       So: @"S3:123" for a three-argument opcode (load, load, store)
+       whose opcode number is (decimal) 123. Or: @"2:234" for a
+       two-argument opcode (load, load) whose number is 234. */
+
+    custom_opcode_g.name = (uchar *) token_text;
+    custom_opcode_g.flags = 0;
+    custom_opcode_g.op_rules = 0;
+    custom_opcode_g.no = 0;
+
+    badflags = FALSE;
+
+    for (cx = token_text; *cx && *cx != ':'; cx++) {
+      if (badflags)
+      continue;
+
+      switch (*cx) {
+      case 'S':
+      if (custom_opcode_g.flags & St)
+        custom_opcode_g.flags |= St2;
+      else
+        custom_opcode_g.flags |= St;
+      break;
+      case 'B':
+      custom_opcode_g.flags |= Br;
+      break;
+      case 'R':
+      custom_opcode_g.flags |= Rf;
+      break;
+      default:
+      if (isdigit(*cx)) {
+        custom_opcode_g.no = (*cx) - '0';
+        break;
+      }
+      badflags = TRUE;
+      error("Unknown custom opcode flag: options are B (branch), \
+S (store), SS (two stores), R (execution never continues)");
+      break;
+      }
+    }
+
+    if (*cx != ':') {
+      error("Custom opcode must have colon");
+    }
+    else {
+      cx++;
+      if (!(*cx))
+      error("Custom opcode must have colon followed by opcode number");
+      else
+      custom_opcode_g.code = atoi(cx);
+    }
+
+    O = custom_opcode_g;
   }
   else {
-    if (token_type != OPCODE_NAME_TT) {
+    if (token_type != OPCODE_NAME_TT && token_type != OPCODE_MACRO_TT) {
       ebf_error("an opcode name", token_text);
       panic_mode_error_recovery();
       return;
     }
     AI.internal_number = token_value;
-    O = internal_number_to_opcode_g(AI.internal_number);
+    if (token_type == OPCODE_MACRO_TT) {
+      O = internal_number_to_opmacro_g(AI.internal_number);
+      is_macro = TRUE;
+    }
+    else
+      O = internal_number_to_opcode_g(AI.internal_number);
   }
   
   return_sp_as_variable = TRUE;
@@ -2791,8 +2949,12 @@ static void parse_assembly_g(void)
     error_flag = TRUE;
   }
 
-  if (!error_flag)
-    assembleg_instruction(&AI);
+  if (!error_flag) {
+    if (is_macro)
+      assembleg_macro(&AI);
+    else
+      assembleg_instruction(&AI);
+  }
 
   if (error_flag) {
     make_opcode_syntax_g(O);
@@ -2826,6 +2988,9 @@ extern void init_asm_vars(void)
 {   int i;
 
     for (i=0;i<16;i++) flags2_requirements[i]=0;
+
+    uses_unicode_features = FALSE;
+    uses_memheap_features = FALSE;
 
     sequence_point_follows = TRUE;
     label_moved_error_already_given = FALSE;

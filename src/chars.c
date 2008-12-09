@@ -41,6 +41,7 @@
 /*      character_set_setting       source_to_iso_grid[]                     */
 /*                                  zscii_to_unicode_grid[]                  */
 /*                                  zscii_to_iso_grid[]                      */
+/*                                  iso_to_unicode_grid[]                    */
 /*      alphabet[][]                iso_to_alphabet_grid[]                   */
 /*                                  zscii_to_alphabet_grid[]                 */
 /*      zscii_to_unicode_grid[]     iso_to_alphabet_grid[]                   */
@@ -72,6 +73,8 @@
 #include "header.h"
 
 uchar source_to_iso_grid[0x100];       /* Filters source code into legal ISO */
+
+int32 iso_to_unicode_grid[0x100];      /* Filters ISO into Unicode           */
 
 int character_digit_value[128];        /* Parsing of binary, decimal and hex */
 
@@ -171,6 +174,7 @@ static void make_iso_to_alphabet_grid(void)
                 zscii_to_iso_grid[z] = j;
             iso_to_alphabet_grid[j] = -z;
         }
+        iso_to_unicode_grid[j] = iso_to_unicode(j);
     }
     for (j=0; j<3; j++)
         for (k=(j<2?0:1); k<26; k++)

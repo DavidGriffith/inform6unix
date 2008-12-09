@@ -242,6 +242,14 @@ static void output_compression(int entnum, int32 *size)
     sf_put('\0');
     (*size) += 1;  
     break;
+  case 4:
+    val = unicode_usage_entries[ent->u.val].ch;
+    sf_put((val >> 24) & 0xFF);
+    sf_put((val >> 16) & 0xFF);
+    sf_put((val >> 8) & 0xFF);
+    sf_put((val) & 0xFF);
+    (*size) += 4;
+    break;
   case 9:
     val = abbreviations_offset + 4 + ent->u.val*4;
     sf_put((val >> 24) & 0xFF);
@@ -472,6 +480,7 @@ static void output_file_z(void)
 static void output_file_g(void)
 {   FILE *fin; char new_name[PATHLEN];
     int32 size, i, j;
+    int32 VersionNum;
 
     ASSERT_GLULX();
 
@@ -493,6 +502,31 @@ static void output_file_g(void)
     checksum_long = 0;
     checksum_count = 0;
 
+    /* Determine the version number. */
+
+    VersionNum = 0x00020000;
+
+    /* Increase for various features the game may have used. */
+    if (no_unicode_chars != 0 || (uses_unicode_features)) {
+      VersionNum = 0x00030000;
+    }
+    if (uses_memheap_features) {
+      VersionNum = 0x00030100;
+    }
+
+    /* And check if the user has requested a specific version. */
+    if (requested_glulx_version) {
+      if (requested_glulx_version < VersionNum) {
+        static char error_message_buff[256];
+        sprintf(error_message_buff, "Version 0x%08lx requested, but \
+game features require version 0x%08lx", requested_glulx_version, VersionNum);
+        warning(error_message_buff);
+      }
+      else {
+        VersionNum = requested_glulx_version;
+      }
+    }
+
     /*  (1)  Output the header. We use sf_put here, instead of fputc,
         because the header is included in the checksum. */
 
@@ -501,11 +535,11 @@ static void output_file_g(void)
     sf_put('l');
     sf_put('u');
     sf_put('l');
-    /* Version number -- 0x00020000 for now. */
-    sf_put(0x00);
-    sf_put(0x02);
-    sf_put(0x00);
-    sf_put(0x00);
+    /* Version number. */
+    sf_put((VersionNum >> 24));
+    sf_put((VersionNum >> 16));
+    sf_put((VersionNum >> 8));
+    sf_put((VersionNum));
     /* RAMSTART */
     sf_put((Write_RAM_At >> 24));
     sf_put((Write_RAM_At >> 16));
@@ -521,13 +555,11 @@ static void output_file_g(void)
     sf_put((Out_Size >> 16));
     sf_put((Out_Size >> 8));
     sf_put((Out_Size));
-    /* STACKSIZE, which we guess at 4096. That's about enough for 90
-       nested function calls with 8 locals each -- the same capacity
-       as the Z-Spec's suggestion for Z-machine stack size. */
-    sf_put(0x00);
-    sf_put(0x00);
-    sf_put(0x10);
-    sf_put(0x00);
+    /* STACKSIZE */
+    sf_put((MAX_STACK_SIZE >> 24));
+    sf_put((MAX_STACK_SIZE >> 16));
+    sf_put((MAX_STACK_SIZE >> 8));
+    sf_put((MAX_STACK_SIZE));
     /* Initial function to call. Inform sets things up so that this
        is the start of the executable-code area. */
     sf_put((Write_Code_At >> 24));
@@ -753,7 +785,7 @@ static void output_file_g(void)
             else if (ch == '0') {
               ch = '\0';
             }
-            else if (ch == 'A' || ch == 'D') {
+            else if (ch == 'A' || ch == 'D' || ch == 'U') {
               escapelen = 4;
               escapetype = ch;
               escapeval = 0;
@@ -772,6 +804,9 @@ static void output_file_g(void)
               }
               else if (escapetype == 'D') {
                 ch = huff_dynam_start+escapeval;
+              }
+              else if (escapetype == 'U') {
+                ch = huff_unicode_start+escapeval;
               }
               else {
                 compiler_error("Strange @ escape in processed text.");

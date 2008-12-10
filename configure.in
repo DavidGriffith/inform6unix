@@ -44,4 +44,5 @@ include/Makefile
 lib/Makefile
 manual/Makefile
 src/Makefile
+tutor/Makefile
 )

@@ -4,11 +4,11 @@ include $(top_srcdir)/config/Makefile.inc
 
 AUTOMAKE_OPTIONS = check-news
 
-SUBDIRS = src lib include manual demos
+SUBDIRS = src lib include manual demos tutor
 
 EXTRA_DIST = AUTHORS VERSION
 
-EXTRA_DIRS = config docs contrib tutor
+EXTRA_DIRS = config docs contrib
 
 dist-hook:
 	cd $(srcdir)/tutor; $(MAKE) clean

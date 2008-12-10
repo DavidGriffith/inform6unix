@@ -1,6 +1,7 @@
 ## Automake template for Inform libraries.
 
-moduledir = $(installdir)/module
+include $(top_srcdir)/config/Makefile.inc
+
 module_DATA = $(MODULES) $(INCLUDES)
 
 MODULES = parserm.m5 verblibm.m5
@@ -65,5 +66,3 @@ remove-names:
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 
 $(MODULES): $(INFORM)
-
-@make_include@

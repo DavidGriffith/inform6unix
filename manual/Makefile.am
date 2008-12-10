@@ -1,5 +1,7 @@
 ## Automake template for Inform designer's manual.
 
+include $(top_srcdir)/config/Makefile.inc
+
 htmldir = $(pkgdatadir)/manual
 
 HTML = app.html backcover.html ch1.html ch2.html ch3.html ch4.html ch5.html \
@@ -36,5 +38,3 @@ NORMAL_UNINSTALL = chmod -R u+w $(DESTDIR)$(pkgdatadir)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(htmldir)
-
-@make_include@

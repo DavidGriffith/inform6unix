@@ -1,5 +1,7 @@
 # Automake template for Inform demos.
 
+include $(top_srcdir)/config/Makefile.inc
+
 zcodedir = $(datadir)/zcode
 zcode_DATA = $(ZFILES)
 
@@ -33,5 +35,3 @@ demos: $(ZFILES)
 $(ZFILES): $(INFORM)
 
 CLEANFILES = $(ZFILES)
-
-@make_include@

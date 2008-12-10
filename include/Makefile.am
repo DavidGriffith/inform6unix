@@ -1,5 +1,7 @@
 ## Automake template for standard include files.
 
+include $(top_srcdir)/config/Makefile.inc
+
 INCLUDES = action.h adhints.h altmenu.h boxclever.h branch.h		    \
 calyx_adjectives.h ccpl.h center.h clothes.h clothing.h compass.h daemons.h \
 diary.h dirs.h domenu.h doors.h dynobj.h easydoors.h expertgrammar.h	    \
@@ -52,5 +54,3 @@ remove-names:
 	   echo " unlinking $$file";					\
 	   rm -f $(DESTDIR)$(includedir)/$$file;			\
 	done
-
-@make_include@

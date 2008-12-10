@@ -37,10 +37,6 @@ AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_INSTALL
 
-dnl Include common makefile stuff.
-AC_SUBST_FILE(make_include)
-make_include=$srcdir/config/commondefs
-
 AC_OUTPUT(
 Makefile
 demos/Makefile

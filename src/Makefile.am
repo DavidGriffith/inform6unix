@@ -1,5 +1,7 @@
 ## Automake template for Inform program.
 
+include $(top_srcdir)/config/Makefile.inc
+
 bin_PROGRAMS = inform
 
 SRCS = arrays.c asm.c bpatch.c chars.c directs.c errors.c expressc.c	 \
@@ -33,5 +35,3 @@ else
 	- chmod u+w $(DESTDIR)$(bindir)
 	rm -f $(DESTDIR)$(bindir)/inform-$(INFORM_VERSION)
 endif
-
-@make_include@

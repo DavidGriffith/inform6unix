@@ -17,15 +17,6 @@ ETAGS_ARGS = $(ETAGS_INFORM) $(INCLUDES)
 
 TAGS_DEPENDENCIES = $(INCLUDES)
 
-SUFFIXES = .h .m5
-
-INFORM = $(top_builddir)/src/inform
-
-INFFLAGS = -x +include_path=$(srcdir)/ +module_path=$(srcdir)/	\
-+language_name=english
-
-.h.m5:;	$(INFORM) $(INFFLAGS) -M $< $@
-
 if CYGWIN
 install-data-hook: add-localdir
 uninstall-local: remove-localdir

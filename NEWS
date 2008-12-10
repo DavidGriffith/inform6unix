@@ -1,5 +1,7 @@
-Version 6.31.2 (19 Nov 2008)
-============================
+Version 6.31.2 (9 Dec 2008)
+===========================
+
+* Inform version is now 6.31N, with more patches for use with Inform 7.
 
 * The advent.inf example is now at release 9.
 
@@ -32,7 +34,7 @@ Version 6.30.2 (6 Jun 2004)
 Version 6.30.1 (27 Feb 2004)
 ============================
 
-* New version of biplatform compiler.  See docs/RelNotes.pdf.
+* New version of biplatform compiler.
 
 * Included DM4 misprints; removed patch directory and bug notice.
 

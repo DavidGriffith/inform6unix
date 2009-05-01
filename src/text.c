@@ -1772,7 +1772,7 @@ extern int dictionary_add(char *dword, int x, int y, int z)
             }
             else {
                 p = dictionary+4 + at*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE;
-                p[1]=(p[1])|x; p[3]=(p[3])|y; p[5]=(p[5])|z;
+                p[1]=(p[1])|x; p[2]=(p[2])|(y/256); p[3]=(p[3])|(y%256); p[5]=(p[5])|z;
                 if (x & 128) p[1] = (p[1]) | number_and_case;
             }
             return at;
@@ -1895,7 +1895,7 @@ extern int dictionary_add(char *dword, int x, int y, int z)
           p[1+i] = prepared_sort[i];
         
         p[1+DICT_WORD_SIZE+0] = 0; p[1+DICT_WORD_SIZE+1] = x;
-        p[1+DICT_WORD_SIZE+2] = 0; p[1+DICT_WORD_SIZE+3] = y;
+        p[1+DICT_WORD_SIZE+2] = y/256; p[1+DICT_WORD_SIZE+3] = y%256;
         p[1+DICT_WORD_SIZE+4] = 0; p[1+DICT_WORD_SIZE+5] = z;
         if (x & 128) 
           p[1+DICT_WORD_SIZE+1] |= number_and_case;
@@ -1927,7 +1927,7 @@ extern void dictionary_set_verb_number(char *dword, int to)
         }
         else {
             p=dictionary+4 + (i-1)*(7+DICT_WORD_SIZE) + 1+DICT_WORD_SIZE; 
-            p[3]=to;
+            p[2]=to/256; p[3]=to%256;
         }
     }
 }

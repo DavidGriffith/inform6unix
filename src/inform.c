@@ -105,19 +105,23 @@ static void select_target(int targ)
 
     if (DICT_WORD_SIZE != 6) {
       DICT_WORD_SIZE = 6;
-      warning("You cannot change DICT_WORD_SIZE in Z-code; resetting to 6");
+      fatalerror("You cannot change DICT_WORD_SIZE in Z-code");
     }
     if (NUM_ATTR_BYTES != 6) {
       NUM_ATTR_BYTES = 6;
-      warning("You cannot change NUM_ATTR_BYTES in Z-code; resetting to 6");
+      fatalerror("You cannot change NUM_ATTR_BYTES in Z-code");
     }
     if (MAX_LOCAL_VARIABLES != 16) {
       MAX_LOCAL_VARIABLES = 16;
-      warning("You cannot change MAX_LOCAL_VARIABLES in Z-code; resetting to 16");
+      fatalerror("You cannot change MAX_LOCAL_VARIABLES in Z-code");
     }
     if (MAX_GLOBAL_VARIABLES != 240) {
       MAX_GLOBAL_VARIABLES = 240;
-      warning("You cannot change MAX_GLOBAL_VARIABLES in Z-code; resetting to 240");
+      fatalerror("You cannot change MAX_GLOBAL_VARIABLES in Z-code");
+    }
+    if (MAX_VERBS > 255) {
+      MAX_VERBS = 255;
+      fatalerror("MAX_VERBS can only go above 255 when Glulx is used");
     }
   }
   else {
@@ -1080,7 +1084,7 @@ static void cli_print_help(int help_level)
 {
     printf(
 "\nThis program is a compiler of Infocom format (also called \"Z-machine\")\n\
-story files: copyright (c) Graham Nelson 1993 - 2008.\n\n");
+story files: copyright (c) Graham Nelson 1993 - 2009.\n\n");
 
    /* For people typing just "inform", a summary only: */
 

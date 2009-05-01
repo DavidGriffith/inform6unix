@@ -289,12 +289,13 @@ static int find_or_renumber_verb(char *English_verb, int *new_number)
     char *p;
     p=English_verb_list;
     while (p < English_verb_list_top)
-    {   if (strcmp(English_verb, p+2) == 0)
+    {   if (strcmp(English_verb, p+3) == 0)
         {   if (new_number)
-            {   p[1] = *new_number;
+            {   p[1] = (*new_number)/256;
+                p[2] = (*new_number)%256;
                 return 0;
             }
-            return((uchar)p[1]);
+            return(256*((uchar)p[1]))+((uchar)p[2]);
         }
         p=p+(uchar)p[0];
     }
@@ -311,13 +312,14 @@ static void register_verb(char *English_verb, int number)
         return;
     }
 
-    English_verb_list_size += strlen(English_verb)+3;
+    English_verb_list_size += strlen(English_verb)+4;
     if (English_verb_list_size >= MAX_VERBSPACE)
         memoryerror("MAX_VERBSPACE", MAX_VERBSPACE);
 
-    English_verb_list_top[0] = 3+strlen(English_verb);
-    English_verb_list_top[1] = number;
-    strcpy(English_verb_list_top+2, English_verb);
+    English_verb_list_top[0] = 4+strlen(English_verb);
+    English_verb_list_top[1] = number/256;
+    English_verb_list_top[2] = number%256;
+    strcpy(English_verb_list_top+3, English_verb);
     English_verb_list_top += English_verb_list_top[0];
 }
 
@@ -688,7 +690,7 @@ extern void make_verb(void)
     for (i=0; i<no_given; i++)
     {   dictionary_add(English_verbs_given[i],
             0x41 + ((meta_verb_flag)?0x02:0x00),
-            0xff-Inform_verb, 0);
+            (glulx_mode)?(0xffff-Inform_verb):(0xff-Inform_verb), 0);
         register_verb(English_verbs_given[i], Inform_verb);
     }
 
@@ -737,7 +739,8 @@ extern void extend_verb(void)
             if ((l!=-1) && (Inform_verb!=l))
               warning_named("Verb disagrees with previous verbs:", token_text);
             l = Inform_verb;
-            dictionary_set_verb_number(token_text, 0xff-no_Inform_verbs);
+            dictionary_set_verb_number(token_text,
+              (glulx_mode)?(0xffff-no_Inform_verbs):(0xff-no_Inform_verbs));
             /* make call to renumber verb in English_verb_list too */
             if (find_or_renumber_verb(token_text, &no_Inform_verbs) == -1)
               warning_named("Verb to extend not found in English_verb_list:",

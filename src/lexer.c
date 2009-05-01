@@ -266,6 +266,7 @@ static char *opcode_list_g[] = {
     "callf", "callfi", "callfii", "callfiii", 
     "streamunichar",
     "mzero", "mcopy", "malloc", "mfree",
+    "accelfunc", "accelparam",
     ""
 };
 
@@ -636,7 +637,7 @@ static const char separators[NUMBER_SEPARATORS][4] =
     ".&", ".#", "..&", "..#", "..", ".",
     "::", ":", "@", ";", "[", "]", "{", "}",
     "$", "?~", "?",
-    "#a$", "#n$", "#r$", "#w$", "##", "#"
+    "#a$", "#g$", "#n$", "#r$", "#w$", "##", "#"
 };
 
 static void make_tokeniser_grid(void)
@@ -1305,6 +1306,7 @@ extern void get_next_token(void)
                     *lex_p++ = 0;
                     break;
                 case HASHADOLLAR_SEP:
+                case HASHGDOLLAR_SEP:
                 case HASHRDOLLAR_SEP:
                 case HASHHASH_SEP:
                     if (tokeniser_grid[lookahead] != IDENTIFIER_CODE)

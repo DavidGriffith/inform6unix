@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "6th January 2008"
+#define RELEASE_DATE "29th March 2009"
 #define RELEASE_NUMBER 1631
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -277,7 +277,7 @@ static int32 unique_task_id(void)
 /* 5 */
 #define Temporary_Directory "/tmp"
 /* 6 */
-#define PATHLEN 8192
+#define PATHLEN 512
 #endif
 /* ------------------------------------------------------------------------- */
 /*   Macintosh block                                                         */
@@ -1126,6 +1126,8 @@ typedef struct operator_s
 #define mcopy_gc 82
 #define malloc_gc 83
 #define mfree_gc 84
+#define accelfunc_gc 85
+#define accelparam_gc 86
 
 /* ------------------------------------------------------------------------- */
 /*   Index numbers into the keyword group "opcode_macros_g" (see "lexer.c")  */
@@ -1504,7 +1506,7 @@ typedef struct operator_s
 
 /*  Index numbers into the operators group "separators" (see "lexer.c")  */
 
-#define NUMBER_SEPARATORS 48
+#define NUMBER_SEPARATORS 49
 
 #define ARROW_SEP        0
 #define DARROW_SEP       1
@@ -1549,11 +1551,12 @@ typedef struct operator_s
 #define NBRANCH_SEP     40
 #define BRANCH_SEP      41
 #define HASHADOLLAR_SEP 42
-#define HASHNDOLLAR_SEP 43
-#define HASHRDOLLAR_SEP 44
-#define HASHWDOLLAR_SEP 45
-#define HASHHASH_SEP    46
-#define HASH_SEP        47
+#define HASHGDOLLAR_SEP 43
+#define HASHNDOLLAR_SEP 44
+#define HASHRDOLLAR_SEP 45
+#define HASHWDOLLAR_SEP 46
+#define HASHHASH_SEP    47
+#define HASH_SEP        48
 
 #define UNARY_MINUS_SEP 100
 #define POST_INC_SEP    101
@@ -2011,7 +2014,8 @@ extern int32 zmachine_pc;
 
 extern int32 no_instructions;
 extern int   sequence_point_follows;
-extern int   uses_unicode_features, uses_memheap_features;
+extern int   uses_unicode_features, uses_memheap_features, 
+    uses_acceleration_features;
 extern dbgl  debug_line_ref;
 extern int   execution_never_reaches_here;
 extern int   *variable_usage;

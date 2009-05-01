@@ -299,6 +299,40 @@ but not used as a value:", unicode);
                     token_text = current_token.text + 3;
                     goto ActionUsedAsConstant;
 
+                case HASHGDOLLAR_SEP:
+
+                /* This form generates the position of a global variable
+                   in the global variables array. So Glob is the same as
+                   #globals_array --> #g$Glob                                */
+
+                    current_token.text += 3;
+                    current_token.type = SYMBOL_TT;
+                    symbol = symbol_index(current_token.text, -1);
+                    if (stypes[symbol] != GLOBAL_VARIABLE_T) {
+                        ebf_error(
+                        "global variable name after '#g$'",
+                        current_token.text);
+                        current_token.value = 0;
+                        current_token.type = SMALL_NUMBER_TT;
+                        current_token.marker = 0;
+                        break;
+                    }
+                    mark_symbol_as_used = TRUE;
+                    current_token.value = svals[symbol] - MAX_LOCAL_VARIABLES;
+                    current_token.marker = 0;
+                    if (!glulx_mode) {
+                        if (current_token.value >= 0x100)
+                            current_token.type = LARGE_NUMBER_TT;
+                        else current_token.type = SMALL_NUMBER_TT;
+                    }
+                    else {
+                        if (current_token.value >= 0x8000
+                          || current_token.value < -0x8000) 
+                            current_token.type = LARGE_NUMBER_TT;
+                        else current_token.type = SMALL_NUMBER_TT;
+                    }
+                    break;
+
                 case HASHNDOLLAR_SEP:
 
                 /* This form is still needed for constants like #n$a (the
@@ -338,7 +372,7 @@ but not used as a value:", unicode);
                     system_constants.enabled = FALSE;
                     if (token_type != SYSTEM_CONSTANT_TT)
                     {   ebf_error(
-                        "'r$', 'n$' or internal Inform constant name after '#'",
+                        "'r$', 'n$', 'g$' or internal Inform constant name after '#'",
                         token_text);
                         break;
                     }
@@ -626,6 +660,8 @@ static int32 value_of_system_constant_g(int t)
     return grammar_table_offset;
   case actions_table_SC:
     return actions_offset;
+  case globals_array_SC:
+    return variables_offset;
   }
 
   error_named("System constant not implemented in Glulx",

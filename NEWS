@@ -1,11 +1,7 @@
-Version 6.31.3 (unreleased)
+Version 6.31.2 (unreleased)
 ===========================
 
-* Updated to the latest Inform release, which is now distributed under the
-  Artistic License 2.0.
-
-Version 6.31.2 (9 Dec 2008)
-===========================
+* The Inform program is now distributed under the Artistic License 2.0.
 
 * Inform version is now 6.31N, with more patches for use with Inform 7.
 

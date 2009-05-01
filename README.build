@@ -1,0 +1,5 @@
+If you're reading this file, that means you've either cloned the Bitbucket
+repository of this package, or downloaded and unpacked an archive copy of
+it.  You will need to do some setup before you can build things as normal.
+Just run the 'autogen.sh' script, which requires the GNU autoconf and
+automake utilities.

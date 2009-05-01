@@ -6,4 +6,4 @@ AUTOMAKE_OPTIONS = check-news
 
 SUBDIRS = src lib include manual demos tutor
 
-EXTRA_DIST = AUTHORS VERSION config docs contrib
+EXTRA_DIST = ARTISTIC AUTHORS VERSION config docs contrib

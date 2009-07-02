@@ -1,5 +1,12 @@
-# Run this to set up GNU autotools...
+# Run this to set up the package for configuring.
 
-aclocal
-automake
-autoconf
+run()
+{
+    echo "Running '$@'"
+    eval "$@"
+}
+
+echo
+run aclocal && run automake -a -c -f && run autoconf || exit 1
+echo
+echo Now run \'./configure\'

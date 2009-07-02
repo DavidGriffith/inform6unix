@@ -4,6 +4,10 @@ Makefile
 Makefile.in
 
 configure
+config/config.*
+config/depcomp
+config/install-sh
+config/missing
 *.m4
 
 *[A-Z]*.h

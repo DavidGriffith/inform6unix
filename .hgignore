@@ -3,12 +3,19 @@ syntax: glob
 Makefile
 Makefile.in
 
+autom4te.*
 configure
+
+config.log
+config.status
 config/config.*
 config/depcomp
 config/install-sh
 config/missing
 *.m4
+
+*.o
+.deps/
 
 *[A-Z]*.h
 *.m5

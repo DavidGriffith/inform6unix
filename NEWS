@@ -1,9 +1,9 @@
-Version 6.31.2 (unreleased)
+Version 6.32.1 (unreleased)
 ===========================
 
-* The Inform program is now distributed under the Artistic License 2.0.
+* Inform version is now 6.32, with more patches for use with Inform 7.
 
-* Inform version is now 6.31N, with more patches for use with Inform 7.
+* The Inform program is now distributed under the Artistic License 2.0.
 
 * The advent.inf example is now at release 9.
 

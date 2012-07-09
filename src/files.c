@@ -7,8 +7,8 @@
 /*             routines in "inform.c", since they are tied up with ICL       */
 /*             settings and are very host OS-dependent.                      */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2006                                 */
+/*   Part of Inform 6.32                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2010                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -516,13 +516,16 @@ static void output_file_g(void)
     if (uses_acceleration_features) {
       VersionNum = 0x00030101;
     }
+    if (uses_float_features) {
+      VersionNum = 0x00030102;
+    }
 
     /* And check if the user has requested a specific version. */
     if (requested_glulx_version) {
       if (requested_glulx_version < VersionNum) {
         static char error_message_buff[256];
         sprintf(error_message_buff, "Version 0x%08lx requested, but \
-game features require version 0x%08lx", requested_glulx_version, VersionNum);
+game features require version 0x%08lx", (long)requested_glulx_version, (long)VersionNum);
         warning(error_message_buff);
       }
       else {
@@ -553,11 +556,12 @@ game features require version 0x%08lx", requested_glulx_version, VersionNum);
     sf_put((Out_Size >> 16));
     sf_put((Out_Size >> 8));
     sf_put((Out_Size));
-    /* ENDMEM, which is also game file size */
-    sf_put((Out_Size >> 24));
-    sf_put((Out_Size >> 16));
-    sf_put((Out_Size >> 8));
-    sf_put((Out_Size));
+    /* ENDMEM, which the game file size plus MEMORY_MAP_EXTENSION */
+    i = Out_Size + MEMORY_MAP_EXTENSION;
+    sf_put((i >> 24));
+    sf_put((i >> 16));
+    sf_put((i >> 8));
+    sf_put((i));
     /* STACKSIZE */
     sf_put((MAX_STACK_SIZE >> 24));
     sf_put((MAX_STACK_SIZE >> 16));

@@ -3,8 +3,8 @@
 /*              by the compiler (e.g. DefArt) which the program doesn't      */
 /*              provide                                                      */
 /*                                                                           */
-/*   Part of Inform 6.31                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2006                                 */
+/*   Part of Inform 6.32                                                     */
+/*   copyright (c) Graham Nelson 1993 - 2010                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -1045,8 +1045,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                  @copy sp len;\
                }\
                else {\
-                 @copy sp m;\
-                 len = $7FFFFFFF;\
+                 RT__Err(37); rfalse;\
                }\
                s2 = glk($0048);\
                s = glk($0043, m+4, len-4, 1, 0);",
@@ -1393,7 +1392,9 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
          if (crime == 35) \"tried to print (string) on something not a \",\
          \"string **]\";\
          if (crime == 36) \"tried to print (object) on something not an \",\
-         \"object or class **]\";",
+         \"object or class **]\";\
+         if (crime == 37) \"tried to call Glulx print_to_array with only \",\
+         \"one argument **]\";",
         "if (crime < 32) { print \"tried to \";\
          if (crime >= 28) { if (crime==28 or 29) print \"read from \";\
          else print \"write to \";\
@@ -1772,9 +1773,12 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
       */
         "RT__ChPrintC",
         "c;\
-           if (c<10 || (c>10 && c<32) || (c>126 && c<160) || c>255)\
+           if (c<10 || (c>10 && c<32) || (c>126 && c<160))\
              return RT__Err(33,c);\
-           @streamchar c;\
+           if (c>=0 && c<256)\
+             @streamchar c;\
+           else\
+             @streamunichar c;\
          ]", "", "", "", "", ""
     },
     {
@@ -1883,9 +1887,12 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
              return;\
            }\
            for (ix=1 : ix <= DICT_WORD_SIZE : ix++) {\
+             #ifndef DICT_IS_UNICODE;\
              ch = addr->ix;\
-             if (ch == 0)\
-               return;\
+             #ifnot;\
+             ch = addr-->ix;\
+             #endif;\
+             if (ch == 0) return;\
              print (char) ch;\
            }\
          ]", "", "", "", "", ""

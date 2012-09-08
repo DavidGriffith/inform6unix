@@ -84,24 +84,23 @@ more, or you think you've found a bug, visit them at:
 About this package
 ==================
 
-In my tinkerings with Inform over the years (I really *will* write a proper
-game one day), I've had to move the program, libraries and documentation to
-several different Unix machines.  Although it wasn't a big problem, it was
-just tedious enough to make me want to automate the configuration and
-installation process, and have everything I needed automatically to hand.
-The result is this package, which should build and install on all Unix,
-Linux and Win32/Cygwin systems.
+This package was originally created by Glenn Hutchings to address the 
+tedium of gathering the program, libraries, and documentation for 
+several different Unix machines.  It received blessing from Graham 
+Nelson.  The result is a package that automates the configuration and 
+installation process.  It should build and install on all Unix, Linux, 
+and Win32/Cygwin system.
 
-Then I thought, hey, maybe other people find it a bit tedious too.  So I
-asked Graham for his permission to redistribute Inform, and he gave it.
-Hope it proves useful.
+This package is an ideal base for creating pre-compiled packages in the 
+style of Debian .debs, Redhat .rpms and similar schemes as well as build 
+trees like FreeBSD ports, NetBSD pkgsrc, and Gentoo portage.
 
 Many people contributed to the contents of this package.  See the file
 AUTHORS for more details.
 
-This package is hosted at Bitbucket:
+This package is hosted at Github:
 
-    http://bitbucket.org/zondo/inform
+    https://github.com/DavidGriffith/inform6
 
 Feel free to hack on it and send me improvements!
 
@@ -111,4 +110,4 @@ Finally...
 If you have any comments or suggestions (or anything else, for that matter)
 feel free to drop me a line.  I am:
 
-Glenn Hutchings <zondo42@gmail.com>.
+David Griffith <dave@661.org>.

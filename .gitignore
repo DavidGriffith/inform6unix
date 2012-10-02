@@ -13,7 +13,7 @@ config.status
 /config/missing
 *.m4
 
-lib/
+#lib/
 
 *.[oa]
 .deps/

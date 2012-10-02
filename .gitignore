@@ -1,20 +1,21 @@
-syntax: glob
-
 Makefile
 Makefile.in
 
 autom4te.*
 configure
 
+aclocal.m4
 config.log
 config.status
-config/config.*
-config/depcomp
-config/install-sh
-config/missing
+/config/config.*
+/config/depcomp
+/config/install-sh
+/config/missing
 *.m4
 
-*.o
+lib/
+
+*.[oa]
 .deps/
 
 *[A-Z]*.h

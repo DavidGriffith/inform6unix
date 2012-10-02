@@ -1203,6 +1203,13 @@ extern void get_next_token(void)
         {   j = circle[i].type;
             if ((j==0) || ((j>=100) && (j<200)))
                 interpret_identifier(i, FALSE);
+            else if (j==DQ_TT && (token_contexts[i] & 4096))
+            {
+                if (dont_enter_into_symbol_table)
+                    context |= 4096;
+                else
+                    interpret_identifier(i, FALSE);
+            }
         }
         goto ReturnBack;
     }
@@ -1411,6 +1418,7 @@ extern void get_next_token(void)
             if (dont_enter_into_symbol_table)
             {   circle[circle_position].type = DQ_TT;
                 circle[circle_position].value = 0;
+                context |= 4096;
                 if (dont_enter_into_symbol_table == -2)
                     interpret_identifier(circle_position, TRUE);
                 break;

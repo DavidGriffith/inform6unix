@@ -922,7 +922,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
         legal syntaxes (such as <<Action a b>>;) are used.                   */
 
     {   "R_Process",
-        "a b c; print \"Action <\", a, \" \", b, \" \", c, \">^\";\
+        "a b c d; print \"Action <\", a, \" \", b, \" \", c, \" \", d, \">^\";\
          ]", "", "", "", "", ""
     },
     {   "DefArt",

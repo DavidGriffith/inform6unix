@@ -44,17 +44,23 @@ extern void match_close_bracket(void)
 }
 
 static void parse_action(void)
-{   int level = 1, args = 0, codegen_action;
-    assembly_operand AO, AO2, AO3, AO4;
+{   int level = 1, args = 0, codegen_action, comma_flag;
+    assembly_operand AO, AO2, AO3, AO4, AO5, four_ao;
 
     dont_enter_into_symbol_table = TRUE;
     get_next_token();
     if ((token_type == SEP_TT) && (token_value == LESS_SEP))
     {   level = 2; get_next_token();
     }
+
+    get_next_token();
+    comma_flag = (token_type == SEP_TT && token_value == COMMA_SEP);
+    put_token_back(); put_token_back();
+    get_next_token();
     dont_enter_into_symbol_table = FALSE;
 
-    if ((token_type==SEP_TT) && (token_value==OPENB_SEP))
+    TestAction:
+    if (((token_type==SEP_TT) && (token_value==OPENB_SEP)) || comma_flag)
     {   put_token_back();
         AO2 = parse_expression(ACTION_Q_CONTEXT);
         codegen_action = TRUE;
@@ -65,15 +71,23 @@ static void parse_action(void)
     }
 
     get_next_token();
+    if (token_type == SEP_TT && token_value == COMMA_SEP && args == 0)
+    {   if (version_number < 5)
+            error("<x, y> syntax is not available in V3 or V4");
+        args = 3;
+        AO3 = zero_operand; AO4 = zero_operand; AO5 = AO2;
+        get_next_token(); comma_flag = FALSE; goto TestAction;
+    }
+
     if (!((token_type == SEP_TT) && (token_value == GREATER_SEP)))
     {   put_token_back();
-        args = 1;
+        if (args < 3) args = 1;
         AO3 = parse_expression(ACTION_Q_CONTEXT);
 
         get_next_token();
         if (!((token_type == SEP_TT) && (token_value == GREATER_SEP)))
         {   put_token_back();
-            args = 2;
+            if (args < 3) args = 2;
             AO4 = parse_expression(QUANTITY_CONTEXT);
             get_next_token();
         }
@@ -86,13 +100,25 @@ static void parse_action(void)
         }
     }
 
-    if (!glulx_mode) {
+    AO = veneer_routine(R_Process_VR);
+    if (args >= 3) AO5 = code_generate(AO5, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO5.type != LOCALVAR_OT || AO5.value != 0)) 
+        assembleg_store(stack_pointer, AO5);
+    if (args >= 2) AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO4.type != LOCALVAR_OT || AO4.value != 0))
+        assembleg_store(stack_pointer, AO4);
+    if (args >= 1) AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO3.type != LOCALVAR_OT || AO3.value != 0))
+        assembleg_store(stack_pointer, AO3);
+    if (codegen_action)
+          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
+    if (glulx_mode && args == 3 && (AO2.type != LOCALVAR_OT || AO2.value != 0)) 
+        assembleg_store(stack_pointer, AO2);
 
-      AO = veneer_routine(R_Process_VR);
+    if (!glulx_mode) {
 
       switch(args)
       {   case 0:
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
             if (version_number>=5)
                 assemblez_2(call_2n_zc, AO, AO2);
             else
@@ -102,8 +128,6 @@ static void parse_action(void)
                 assemblez_2_to(call_zc, AO, AO2, temp_var1);
             break;
           case 1:
-            AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
             if (version_number>=5)
                 assemblez_3(call_vn_zc, AO, AO2, AO3);
             else
@@ -113,9 +137,6 @@ static void parse_action(void)
                 assemblez_3_to(call_zc, AO, AO2, AO3, temp_var1);
             break;
           case 2:
-            AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
-            AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-            if (codegen_action) AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
             if (version_number>=5)
                 assemblez_4(call_vn_zc, AO, AO2, AO3, AO4);
             else
@@ -124,6 +145,9 @@ static void parse_action(void)
             else
                 assemblez_4(call_zc, AO, AO2, AO3, AO4);
             break;
+          case 3:
+            assemblez_5(call_vn2_zc, AO, AO2, AO3, AO4, AO5);
+            /* V4 assemblez_6(call_vs2_zc, AO, AO2, AO3, AO4, AO5, temp_var1); */
       }
 
       if (level == 2) assemblez_0(rtrue_zc);
@@ -131,33 +155,28 @@ static void parse_action(void)
     }
     else {
 
-      AO = veneer_routine(R_Process_VR);
-
       switch (args) {
 
       case 0:
-        if (codegen_action) 
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_1(AO, AO2, zero_operand);
         break;
 
       case 1:
-        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-        if (codegen_action)
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_2(AO, AO2, AO3, zero_operand);
         break;
 
       case 2:
-        AO4 = code_generate(AO4, QUANTITY_CONTEXT, -1);
-        AO3 = code_generate(AO3, QUANTITY_CONTEXT, -1);
-        if (codegen_action) 
-          AO2 = code_generate(AO2, QUANTITY_CONTEXT, -1);
         assembleg_call_3(AO, AO2, AO3, AO4, zero_operand);
+        break;
+
+      case 3:
+        four_ao = three_operand; four_ao.value = 4;
+        assembleg_3(call_gc, AO, four_ao, zero_operand);
+        /*assembleg_call_4(AO, AO2, AO3, AO4, AO5, zero_operand);*/
         break;
       }
 
-      if (level == 2) 
+      if (level == 2)
         assembleg_1(return_gc, one_operand);
 
     }

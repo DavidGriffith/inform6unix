@@ -7,6 +7,7 @@ run()
 }
 
 echo
+run cp config/Makefile.am.lib lib/Makefile.am
 run aclocal && run automake -a -c -f && run autoconf || exit 1
 echo
 echo Now run \'./configure\'

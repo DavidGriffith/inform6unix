@@ -1,3 +1,4 @@
+#!/bin/sh
 # Run this to set up the package for configuring.
 
 run()
@@ -8,6 +9,7 @@ run()
 
 echo
 run cp config/Makefile.am.lib lib/Makefile.am
+run cp config/Makefile.am.src src/Makefile.am
 run aclocal && run automake -a -c -f && run autoconf || exit 1
 echo
 echo Now run \'./configure\'

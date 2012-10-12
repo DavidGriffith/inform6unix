@@ -46,3 +46,6 @@ exactly as in the first section.
 If you want to clean up things and delete files that weren't here when 
 you cloned the repository, use this command:
 	git clean -fdx
+
+For more information on submodules, see 
+http://git-scm.com/book/en/Git-Tools-Submodules

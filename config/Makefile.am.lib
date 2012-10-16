@@ -4,10 +4,10 @@ include $(top_srcdir)/config/Makefile.inc
 
 module_DATA = $(MODULES) $(INCLUDES)
 
-MODULES = parserm.m5 verblibm.m5
+MODULES = parserm.m5 verblibm.m5 io.m5
 
 INCLUDES = english.h grammar.h linklpa.h linklv.h parser.h parserm.h	\
-verblib.h verblibm.h infix.h
+verblib.h verblibm.h infix.h io.h
 
 EXTRA_NAMES = English.h Grammar.h Parser.h Verblib.h VerbLib.h
 

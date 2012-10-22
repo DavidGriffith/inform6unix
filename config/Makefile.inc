@@ -41,4 +41,4 @@ SUFFIXES = .inf .h .z5
 
 .inf.z5:; $(INFORM) $(INFFLAGS) $<
 
-.h.m5:;	$(INFORM) $(MODFLAGS) -M $< $@
+#.h.m5:;	$(INFORM) $(MODFLAGS) -M $< $@

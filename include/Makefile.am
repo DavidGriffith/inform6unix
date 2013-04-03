@@ -43,14 +43,19 @@ remove-localdir:
 add-names:
 	@ cd $(DESTDIR)$(includedir);					\
 	for file in $(EXTRA_NAMES); do					\
-	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
-	   echo " linking $$file to $$realfile";			\
-	   rm -f $$file;						\
-	   $(LN_S) $$realfile $$file;					\
+	    if test ! -e $$file -o -L $$file; then			\
+	        realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+	        echo " linking $$file to $$realfile";			\
+	        rm -f $$file;						\
+	        $(LN_S) $$realfile $$file;				\
+	    fi								\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
-	   echo " unlinking $$file";					\
-	   rm -f $(DESTDIR)$(includedir)/$$file;			\
+	    if test -L $$file; then					\
+	        echo " unlinking $$file";				\
+	        rm -f $(DESTDIR)$(includedir)/$$file;			\
+	    fi								\
 	done
+

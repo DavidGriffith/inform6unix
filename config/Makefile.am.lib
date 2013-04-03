@@ -42,16 +42,20 @@ add-local-names:
 add-names:
 	@ cd $(DESTDIR)$(moduledir);					\
 	for file in $(EXTRA_NAMES); do					\
-	   realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;			\
-	   echo " linking $$file to $$realfile";			\
-	   rm -f $$file;						\
-	   $(LN_S) $$realfile $$file;					\
+	    if test ! -e $$file -o -L $$file; then			\
+	        realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;		\
+	        echo " linking $$file to $$realfile";			\
+	        rm -f $$file;						\
+	        $(LN_S) $$realfile $$file;				\
+	    fi								\
 	done
 
 remove-names:
 	@ for file in $(EXTRA_NAMES); do				\
-	   echo " unlinking $$file";					\
-	   rm -f $(DESTDIR)$(moduledir)/$$file;				\
+	    if test -L $$file; then					\
+	        echo " unlinking $$file";				\
+	        rm -f $(DESTDIR)$(moduledir)/$$file;			\
+	    fi								\
 	done
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)

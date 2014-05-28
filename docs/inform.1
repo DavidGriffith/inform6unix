@@ -1,0 +1,350 @@
+.\" -*- nroff -*-
+.TH INFORM 1 6.33
+.SH NAME
+inform \- compiler of interactive fiction for Z-machine and Glulx VMs
+
+.SH SYNOPSIS
+.B inform
+[\fICOMMANDS\fR]...\ [\fIFILE1\fR] [\fIFILE2\fR]
+
+.SH DESCRIPTION
+.B Inform
+is a programming language and design system for interactive fiction 
+originally created in 1993 by Graham Nelson. Inform can generate 
+programs designed for the Z-Machine or Glulx virtual machines.
+
+
+.SH USAGE
+.B Inform
+translates FILE1 into a source file name (see below) for its 
+input.  FILE2 is usually omitted: if so, the output filename is made 
+from FILE1 by cutting out the name part and translating that (see 
+below). If FILE2 is given, however, the output filename is set to just 
+FILE2 (not altered in any way).
+
+Filenames given in the game source (with commands like Include "name" 
+and Link "name") are also translated by
+.B RULES OF TRANSLATION
+below.
+
+
+.SH SWITCHES
+.TP
+.B \-a
+Trace assembly-language (without hex dumps; see -t).
+
+.TP
+.B \-c
+More concise error messages.
+
+.TP
+.B \-d
+Contract double spaces after full stops in text.
+
+.TP
+.B \-d2
+Contract double spaces after exlamation and question marks, too.
+
+.TP
+.B \-e
+Economy mode (slower): make use of declared abbreviations.
+
+.TP
+.B \-f
+Frequencies mode: show how useful abbreviations are.
+
+.TP
+.B \-g
+Traces calls to functions (except in the library).
+
+.TP
+.B \-g2
+Traces calls to all functions.
+
+.TP
+.B \-h
+Print options information.
+
+.TP
+.B \-i
+Ignore default switches set within the file.
+
+.TP
+.B \-j
+List objects as constructed.
+
+.TP
+.B \-k
+Output Infix debugging information to "gameinfo.dbg" (and switch -D on).
+
+.TP
+.B \-l
+List every statement run through Inform.
+
+.TP
+.B \-m
+Say how much memory has been allocated.
+
+.TP
+.B \-n
+Print numbers of properties, attributes, and actions.
+
+.TP
+.B \-o
+Print offset addresses.
+
+.TP
+.B \-p
+Give percentage breakdown of story file.
+
+.TP
+.B \-q
+Keep quiet about obsolete usages.
+
+.TP
+.B \-r
+Record all the text to "gametext.txt".
+
+.TP
+.B \-s
+Give statistics.
+
+.TP
+.B \-t
+Trace assembly-language (with full hex dumps; see -a).
+
+.TP
+.B \-u
+Work out most useful abbreviations (very very slowly).
+
+.TP
+.B \-v3
+Compile to version-3 ("Standard") story file.
+
+.TP
+.B \-v4
+Compile to version-4 ("Plus") story file.
+
+.TP
+.B \-v5
+Compile to version-5 ("Advanced") story file (DEFAULT).
+
+.TP
+.B \-v6
+Compile to version-6 ("Graphical") story file.
+
+.TP
+.B \-v7
+Compile to version-7 (expanded "Advanced") story file.
+
+.TP
+.B \-v8
+Compile to version-8 (expanded "Advanced") story file.
+
+.TP
+.B \-w
+Disable warning messages.
+
+.TP
+.B \-x
+Print # for every 100 lines compiled.
+
+.TP
+.B \-y
+Trace linking system.
+
+.TP
+.B \-z
+Print memory map of the Z-machine.
+
+---
+
+.TP
+.B \-B
+Use big memory model (for large V6/V7 files).
+
+.TP
+.B \-C0
+Text character set is plain ASCII only.
+
+.TP
+.B \-Cu
+Text character set is UTF-8.
+
+.TP
+.B \-Cn
+Text character set is ISO 8859-n (n = 1 to 9) (1 to 4, Latin 1 to 
+Latin4; , 5, Cyrillic; 6, Arabic; 7, Greek; 8, Hebrew; 9, Latin5.  
+Default is -C1).
+
+.TP
+.B \-D
+Insert "Constant DEBUG;" automatically.
+
+.TP
+.B \-E0
+Archimedes-style error messages (current setting).
+
+.TP
+.B \-E1
+Microsoft-style error messages.
+
+.TP
+.B \-E2
+Macintosh MPW-style error messages.
+
+.TP
+.B \-F1
+Use temporary files to reduce memory consumption.
+
+.TP
+.B \-G
+Compile a Glulx game file.
+
+.TP
+.B \-H
+Use Huffman encoding to compress Glulx strings.
+
+.TP
+.B \-M
+Compile as a Module for future linking (deprecated).
+
+.TP
+.B \-S
+Compile strict error-checking at run-time (on by default)
+
+.TP
+.B \-U
+Insert "Constant USE_MODULES;" automatically (deprecated).
+
+.TP
+.B \-Wn
+Header extension table is at least n words (n = 3 to 99)
+
+.TP
+.B \-X
+Compile with INFIX debugging facilities present
+
+
+FIXME Left off here
+
+.SH RULES OF TRANSLATION
+.B Inform
+translates plain filenames (such as "xyzzy") into full pathnames (such 
+as "adventure/games/xyzzy") according to the following rules.
+
+.TP
+.B 1
+If the name contains a '/' character (so it's already a pathname), it 
+isn't changed.
+
+[Exception: when the name is given in an Include command using the > 
+form (such as Include ">prologue"), the ">" is replaced by the path of 
+the file doing the inclusion and a suitable file extension is added.]
+
+Filenames must never contain double-quotation marks ".  To use filenames
+which contain spaces, write them in double-quotes: for instance,
+
+"inform +code_path="Jigsaw Final Version" jigsaw"
+
+.TP
+.B 2
+The file is looked for at a particular "path" (the filename of a 
+directory), depending on what kind of file it is.
+
+PATH STUFF GOES HERE
+
+If the path is unset, then the current working directory is used (so the 
+filename doesn't change): if, for instance, include_path is set to 
+"backup/oldlib" then when "parser" is included it is looked for at 
+"backup/oldlib/parser".
+
+The paths can be set or unset on the Inform command line by, eg,
+"inform +code_path=finished jigsaw" or
+.br
+"inform +include_path= balances" (which unsets include_path).
+
+The four input path variables can be set to lists of alternative 
+paths separated by ',' characters: these alternatives are always tried 
+in the order they are specified in, that is, left to right through the 
+text in the path variable.
+.br
+(Modules are written to the first alternative in the module_path 
+list; it is an error to give alternatives at all for purely output 
+paths.)
+
+.TP
+.B 3
+The following file extensions are added:
+.br
+	Source code:		.inf
+.br
+	Include files:		.h
+.br
+	Story files:		.z3, .z4, .z5 (default),
+.br
+					.z6, .z7, z8, .ulx (Glulx)
+.br
+	Temporary files:	.tmp
+.br
+	Modules:			.m5
+
+except that any extension you give (on the command line or in a filename 
+used in a program) will override these.  If you give the null extension 
+"." then Inform uses no file extension at all (removing the ".").
+
+Names of four individual files can also be set using the same + command 
+notation (though they aren't really pathnames).  These are:
+
+	transcript_name	(text written by -r switch)
+.br
+	debugging_name	(data written by -k switch)
+.br
+	language_name	(library file defining natural language of game)
+.br
+	charset_map	(file for character set mapping)
+
+
+
+.SH PATH SETTING
+
+.TP
+.B \+PATH=<dir>
+Set a particular path.  These include the following:
+
+.br
+source_path
+.br
+include_path
+.br
+code_path
+.br
+temporary_path
+.br
+icl_path
+.br
+module_path
+.br
+
+
+
+.SH CAVEATS
+.B Inform
+is not capable of creating story files conforming to versions 1 or 2 of 
+the Z-Machine.  
+.br
+The Inform Library (currently 6/12) is incompatible with versions of the 
+Z-Machine lower than version 5. 
+
+
+.SH AUTHORS
+.B Inform
+was originally created by Graham Nelson.
+.br
+Documentation: Graham Nelson and Gareth Rees.
+.br
+Demo games: Graham Nelson and Roger Firth.
+.br
+Tutorial material: Gareth Rees, David Cornelson, and Ethan Dicks.
+.br
+Manpage: David Griffith.

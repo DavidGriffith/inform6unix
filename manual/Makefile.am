@@ -34,7 +34,7 @@ roller2.jpg
 
 html_DATA = $(HTML) $(JPEG)
 
-EXTRA_DIST = $(html_DATA)
+EXTRA_DIST = $(html_DATA) $(man_MANS)
 
 NORMAL_UNINSTALL = chmod -R u+w $(DESTDIR)$(pkgdatadir)
 

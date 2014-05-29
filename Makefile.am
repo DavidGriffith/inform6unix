@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = check-news
 
 SUBDIRS = src lib include manual demos tutor
 
-EXTRA_DIST = ARTISTIC AUTHORS VERSION
+EXTRA_DIST = ARTISTIC AUTHORS VERSION autogen.sh
 
 EXTRA_DIRS = config docs contrib
 

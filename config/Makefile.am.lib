@@ -51,12 +51,14 @@ add-names:
 	done
 
 remove-names:
-	@ for file in $(EXTRA_NAMES); do				\
+	@ cd $(DESTDIR)$(moduledir);					\
+	for file in $(EXTRA_NAMES); do					\
 	    if test -L $$file; then					\
 	        echo " unlinking $$file";				\
 	        rm -f $(DESTDIR)$(moduledir)/$$file;			\
 	    fi								\
 	done
+
 
 CLEANFILES = $(MODULES) $(EXTRA_NAMES)
 

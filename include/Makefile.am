@@ -52,10 +52,10 @@ add-names:
 	done
 
 remove-names:
-	@ for file in $(EXTRA_NAMES); do				\
+	@ cd $(DESTDIR)$(includedir);					\
+	for file in $(EXTRA_NAMES); do					\
 	    if test -L $$file; then					\
 	        echo " unlinking $$file";				\
 	        rm -f $(DESTDIR)$(includedir)/$$file;			\
 	    fi								\
 	done
-

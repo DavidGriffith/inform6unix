@@ -2,6 +2,8 @@
 
 include $(top_srcdir)/config/Makefile.inc
 
+man_MANS = inform.1
+
 htmldir = $(pkgdatadir)/manual
 
 HTML = app.html backcover.html ch1.html ch2.html ch3.html ch4.html ch5.html \

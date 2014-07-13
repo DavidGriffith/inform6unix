@@ -1,12 +1,9 @@
-Version 6.33.1-b1 (13 March 2013)
+Version 6.33.1-b2 (13 March 2013)
 ===========================
 
 * Inform version is now 6.33, with Inform7-related patches and new features.
 
 * The Inform Library is 6/12 with lots of bugfixes and enhancements.
-
-* Beta pre-release because 6.33 isn't quite ready yet form an Inform7 
-  perspective
 
 Version 6.32.1 (16 July 2012)
 ===========================

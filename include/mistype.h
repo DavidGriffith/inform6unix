@@ -1,10 +1,11 @@
-! mistype.h for Inform 6 with library 6/10
+! mistype.h for Inform 6 with library 6/12
 !
-! A library to automatically correct minor typing errors by the player, in a similar way
-! to nitfol but on other interpreters.
+! A library to automatically correct minor typing errors by the player,
+! in a similar way to nitfol but on other interpreters.
 !
 ! Written by C Knight.  Not copyrighted.
-! Comments and bug reports welcomed: please see www.metebelis3.free-online.co.uk to email.
+! Comments and bug reports welcomed:
+! please see www.metebelis3.free-online.co.uk to email.
 !
 ! To use, include the file after including 'parser', and put
 ! 'Replace KeyboardPrimitive;' before 'parser'.
@@ -16,17 +17,20 @@
 ! (Defining the constant 'QUICKCHECK' before including this file only looks
 ! for inserted or transposed letters, not omissions or most substitutions,
 ! and so may be useful if targetting slow platforms.  Defining the constant
-! 'NAMEABLES' allows objects with their own parse_names and general parsing routines,
-! like the cubes in 'Balances', to pass unchecked.)
+! 'NAMEABLES' allows objects with their own parse_names and general
+! parsing routines, like the cubes in 'Balances', to pass unchecked.)
 !
-! You can disable the whole correction feature for a while by setting mistype_off
-! to 1.  The user has separate controls - both must be on for correction to happen.
-! 'mistype off'; 'mistype low' (only corrects single-letter errors); 'mistype on' (default)
-! You are also reminded of DM4 p232: 'If you want objects to be unreferrable-to, put
-! them somewhere else!'
+! You can disable the whole correction feature for a while by setting
+! mistype_off to 1.  The user has separate controls - both must be on
+! for correction to happen.
+! 'mistype off';
+! 'mistype low' (only corrects single-letter errors);
+! 'mistype on' (default)
+! You are also reminded of DM4 p232: 'If you want objects to be
+! unreferrable-to, put them somewhere else!'
 !
-! Adds about 2.5K to output Z-code file. (v 1.11 was 580 bytes - still available
-! from website above)
+! Adds about 2.5K to output Z-code file. (v 1.11 was 580 bytes - still
+! available from website above)
 !
 ! Version history
 ! v 1.0, (beta) 2 May 03  First version
@@ -43,6 +47,8 @@
 !                   Last resort tweaks: optimised, prepositions searched, works with Nitfol,
 !                   reduced distance for doubled letters.
 !                   Made compatible with nameable objects and to ignore quoted words.
+! v 1.22 24 Jul 14  Updated and verified by David Griffith <dave@661.org> for 6/12.
+!
 !
 ! (TODO: structure better while retaining speed. fix code indentation and comments)
 !

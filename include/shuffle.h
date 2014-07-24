@@ -78,7 +78,7 @@
 !                   ];
 !
 ! ---------------------------------------------------------------------------- !
-#ifdef DEBUG; message "Compiling Shuffle.h"; #endif;
+!#ifdef DEBUG; message "Compiling Shuffle.h"; #endif;
 
 Array   flagBit     ->  $01 $02 $04 $08 $10 $20 $40 $80;
 Array   flagDefault -> 8;           ! default of count byte + 56 flag bits

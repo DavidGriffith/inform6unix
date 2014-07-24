@@ -1,13 +1,13 @@
 ! -------------------------------------------------------------------------
 ! torch.h
-! 
-! Copyright 2004 David Griffith <dgriffi@cs.csubak.edu>
-! Use this code freely, but don't claim you wrote it.  Give proper
-! attributions.
+!
+! Copyright 2004 David Griffith <dave@661.org>
+! This code is distributed under the Artistic License version 2.0.
+! See http://opensource.org/licenses/Artistic-2.0
 !
 ! This code allows one to simulate torches (the flaming, wooden kind).
 ! One can have good ones (ready to be ignited), burning ones, and
-! burned-out ones.  
+! burned-out ones.
 !
 !
 ! Include this file sometime after VerbLib.
@@ -47,7 +47,11 @@
 !
 ! You shouldn't need to modify anything below this point.  If you do,
 ! please let me know why and how you modified the code.
-
+!
+! Version History:
+! 1.0 - 2004
+! 1.1 - 24 Jul 2014 - Update to use 6/12's CSubject functions.
+!
 
 Class Torch
 	with name "torch",
@@ -119,8 +123,9 @@ Class Torch
 		"Error in Torch class (Examine)^";
 	Burn:
 		if (second ~= nothing) {
-			if (second hasnt on) 
-				"You can't burn ", (the) self, " with ", (the)
+			if (second hasnt on)
+				CSubjectCant(actor, true);
+				" burn ", (the) self, " with ", (the)
 				second, ".";
 		}
 		if (self has on) "But it's already lit!";
@@ -135,7 +140,8 @@ Class Torch
 			move newthing to parent(self);
 			give newthing moved;
 			remove self;
-			"You snuff out the torch.";
+			CSubjectVerb(actor, true, "snuff", 0, "snuffs");
+			" out the torch.";
 		}
 		"Error in Torch class (SwitchOff)^";
 	],
@@ -143,9 +149,10 @@ Class Torch
 	after [newthing;
 	Take:
 		if (self hasnt moved)
-			"You pull ", (the) noun, " off the wall.";
+			CSubjectVerb(actor, true, "pull", 0, "pulls");
+			" ", (the) noun, " off the wall.";
 
-	SwitchOn: 
+	SwitchOn:
 		if (second == nothing) {
 			give self ~on;
 			"Perhaps lighting the torch with something
@@ -193,4 +200,3 @@ Class DeadTorch (TORCH_COUNT)
 	with name "dead" "bad" "torch",
 	short_name "dead torch",
 	plural "dead torches";
-

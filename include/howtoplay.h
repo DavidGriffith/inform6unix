@@ -1,7 +1,10 @@
-! $Id$
-! ----------------------------------------------------------------------------
 !   howtoplay.h for Inform 6, by Michael Coyne (coyne@mts.net)
 !	How to Play text Copyright 2003 Fredrik Ramsberg
+!
+!   This code was placed in the public domain by its authors
+!   See http://mailman.greennet.org.uk/pipermail/inform-maintenance/2014-May/001966.html
+!   and
+!   http://mailman.greennet.org.uk/pipermail/inform-maintenance/2014-May/001968.html
 !
 ! ----------------------------------------------------------------------------
 !   Installation: add the lines:

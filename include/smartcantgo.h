@@ -6,6 +6,10 @@
 !       Revisited for Inform 6 by Roger Firth
 !           Version 5
 !           3-Feb-1999
+!	Revisited for Library 6/12 enhancements by David Griffith
+!	    Version 6
+!	    24-Jul-2014
+!
 !   All rights given away.
 !
 !   Defines a routine that can be used for the cant_go property of rooms to
@@ -79,8 +83,10 @@
 !==============================================================================!
 [ SmartCantGo room i dest desttype ndir;
 
-    if (location == thedark) "You can't go that way.";
-
+    if (location == thedark) {
+	CSubjectCant(actor, true);
+	" go that way.";
+    }
 !  Find what room the player is in.
 
     room = location;
@@ -103,7 +109,8 @@
 
 !  Print the exits.
 
-    print "You can go only ";
+    CSubjectCan(actor, true);
+    print " go only ";
     objectloop (i in compass) {
         dest = room.(i.door_dir);
         if (dest) {

@@ -15,7 +15,7 @@
 ! Typing "trinity" will switch statusline styles.
 
 ! Copyright (C) 2000 by Jonathan Rosebaugh. Released under GPL version 2.
-! see http://www.gnu.org/copyleft/gpl.html
+! see http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 ! This is necessary to compile with Graham's current Inform 6.21 compiler.
 #ifndef WORDSIZE;

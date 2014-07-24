@@ -2,25 +2,13 @@
 
 include $(top_srcdir)/config/Makefile.inc
 
-INCLUDES = action.h adhints.h altmenu.h boxclever.h branch.h		    \
-calyx_adjectives.h ccpl.h center.h clothes.h clothing.h compass.h daemons.h \
-diary.h dirs.h domenu.h doors.h dynobj.h easydoors.h expertgrammar.h	    \
-fkeys.h follower.h footnote.h goneighbour.h helproutines.h hints.h	    \
-hintsms.h howtoplay.h info.h istring.h links.h locksmith.h longint.h	    \
-manual.h menus.h mistype.h money.h moveclass.h movie.h nameable.h	    \
-newbiegrammar.h newmenu.h newmenus.h npc_engine.h oldaemon.h outofrch.h	    \
-phtalkoo.h physics.h pluralob.h pname.h printtime.h recept.h		    \
-sampletranscript.h scenic.h scoper.h showobj.h shuffle.h smartcantgo.h	    \
-sound.h style.h text_functions.h timepiece.h timesys.h timewait.h torch.h   \
-trinitystat.h utility.h waittime.h whatis.h whowhat.h yesno.h zclock.h	    \
-znsi.h
+INCLUDES = dmenus.h doors.h doors2.h howtoplay.h footnote.h mistype.h \
+moveclass.h newbiegrammar.h seeno.h shuffle.h sound.h tmenus.h torch.h \
+trinitystat.h
 
-EXTRA_NAMES = CCPL.h AdHints.h ExpertGrammar.h GoNeighbour.h HelpRoutines.h \
-Locksmith.h Menus.h NewMenu.h NewbieGrammar.h NPC_ENGINE.h		    \
-SampleTranscript.h Scenic.h Scoper.h SmartCantGo.h
+EXTRA_NAMES = DMenus.h SmartCantGo.h TMenus.h
 
-DOCS = adhints.txt links.inf npc_engine.inf npc_engine.txt pname.txt	\
-text_functions.inf
+DOCS =
 
 include_HEADERS = $(INCLUDES) $(DOCS)
 

@@ -10,7 +10,8 @@
 !	    Version 6
 !	    24-Jul-2014
 !
-!   All rights given away.
+!   This license for this code has been changed to Artistic License 2.0
+!   http://mailman.greennet.org.uk/pipermail/inform-maintenance/2014-July/001985.html
 !
 !   Defines a routine that can be used for the cant_go property of rooms to
 !   helpfully list the exits, instead of saying just "You can't go that way."

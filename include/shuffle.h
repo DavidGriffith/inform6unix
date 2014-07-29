@@ -2,6 +2,9 @@
 !   Shuffle.h
 !       original 1.0  Sep00 by Roger Firth (roger.firth@tesco.net) for Inform 6
 !
+!   The license for this code has been changed to Artistic License 2.0
+!   See http://mailman.greennet.org.uk/pipermail/inform-maintenance/2014-July/001985.html
+!
 ! ---------------------------------------------------------------------------- !
 !   Installation: add the line:
 !

@@ -91,6 +91,7 @@ Default SEENO_MSG2 " here.";
           } ! not end of line
        if (~~stop) print " ";
        } until (stop);
+    oops_from = saved_oops;
     print_ret (string) SEENO_MSG2;
   }
   else rfalse;

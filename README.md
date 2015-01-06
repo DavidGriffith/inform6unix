@@ -1,0 +1,112 @@
+**Welcome to Inform!**
+=======================
+
+---
+
+Inform is an Interactive Fiction (text adventure) game compiler -- it takes
+source code you write and turns it into a game data file which is then
+played using an *interpreter*.  There are several interpreters available
+which can play Inform games on different machines (e.g. frotz, jzip) -- you
+can probably obtain one from the same place you got this package.
+
+Inform was originally written by Graham Nelson, and you are free to 
+redistribute it under certain conditions -- see the file COPYING for 
+details.
+
+
+What's in this distribution?
+----------------------------
+
+The following subdirectories are included in the package:
+
+- ***src***	--- source code for the Inform program 
+- ***lib***	--- Inform library files
+- ***include***	--- selection of useful include files
+- ***manual***	--- the online Designer's Manual, in HTML format
+- ***demos***	--- some Inform demo games (including the classic *advent*)
+- ***tutor***	--- some Inform tutorial files
+- ***docs***	--- internal Inform documentation and release notes
+- ***contrib***	--- other contributed Inform stuff
+
+
+How do I install it?
+--------------------
+
+See the file called *INSTALL* for detailed instructions.  But basically, 
+it boils down to...
+
+    ./configure
+    make
+    make install
+
+This will install the following (assuming default installation):
+
+    Inform executable in /usr/local/bin
+    Inform library modules in /usr/local/share/inform/VERSION/module
+    Inform include files in /usr/local/share/inform/VERSION/include
+    HTML Designer's Manual in /usr/local/share/inform/manual
+
+OK, it's installed.  Now what?
+------------------------------
+
+Now you want to read the online Designer's Manual.  Or, alternatively, you
+could start with one of the tutorials in the tutor directory.  After that,
+you're all set to write an IF game!  Yay!
+
+Troubleshooting
+---------------
+
+If you have any problems with anything, contact the relevant person
+listed in the AUTHORS file.  If you're not sure who that is, contact me
+instead, at the address at the end of this file.
+
+The Interactive Fiction archive
+-------------------------------
+
+There's a good chance that you got this package from the IF archive, or one
+of its mirrors.  But if you didn't, you might like to check it out
+http://www.ifarchive.org
+
+It has lots of great things: games, hints, solutions, authoring systems
+(like this one), programs for playing the games, tools for making maps, and
+stuff about the late, great Infocom.
+
+There are also more resources for programming with Inform, including a
+version of the Inform Designer's Manual suitable for printing.  See the
+stuff in the programming/inform6 subdirectory.
+
+The Inform maintainers
+----------------------
+
+An active community of Inform maintainers exists to fix bugs, implement new
+features and issue new versions of the program.  If you'd like to know
+more, or you think you've found a bug, visit them at http://inform7.com
+
+About this package
+------------------
+
+This package was originally created by Glenn Hutchings to address the 
+tedium of gathering the program, libraries, and documentation for 
+several different Unix machines.  It received blessing from Graham 
+Nelson.  The result is a package that automates the configuration and 
+installation process.  It should build and install on all Unix, Linux, 
+and Win32/Cygwin system.
+
+This package is an ideal base for creating pre-compiled packages in the 
+style of Debian .debs, Redhat .rpms and similar schemes as well as build 
+trees like FreeBSD ports, NetBSD pkgsrc, and Gentoo portage.
+
+Many people contributed to the contents of this package.  See the file
+AUTHORS for more details.
+
+This package is hosted at Github:
+https://github.com/DavidGriffith/inform6unix
+
+Feel free to hack on it and send me improvements!
+
+
+Finally...
+----------
+
+If you have any comments or suggestions (or anything else, for that matter)
+feel free to drop me a line.  I am David Griffith <dave@661.org>.

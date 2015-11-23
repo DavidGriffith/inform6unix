@@ -2,7 +2,22 @@
 
 include $(top_srcdir)/config/Makefile.inc
 
-bin_SCRIPTS = pblorb.pl scanblorb.pl
+EXTRA_DIST = pblorb.pl scanblorb.pl
 
-CLEANFILES = $(bin_SCRIPTS)
+bin_SCRIPTS = pblorb scanblorb
 
+CLEANFILES = pblorb scanblorb
+
+pblorb:
+	perl -cw pblorb.pl
+	cp pblorb.pl pblorb
+	chmod 755 pblorb
+
+scanblorb:
+	perl -cw scanblorb.pl
+	cp scanblorb.pl scanblorb
+	chmod 755 scanblorb
+
+#dist-hook:
+#	rm -f pblorb
+#	rm -f scanblorb

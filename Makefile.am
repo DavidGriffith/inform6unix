@@ -8,7 +8,7 @@ SUBDIRS = src lib include contrib manual demos tutor
 
 EXTRA_DIST = ARTISTIC AUTHORS VERSION autogen.sh
 
-EXTRA_DIRS = config docs contrib
+EXTRA_DIRS = config docs
 
 uninstall-local:
 	@ echo " removing $(DESTDIR)$(moduledir)"

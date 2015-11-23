@@ -1,5 +1,5 @@
-Version 6.33.1-b2 (24 July 2014)
-================================
+Version 6.33.1-b2 (25 November 2015)
+====================================
 
 * Inform version is now 6.33, with Inform7-related patches and new features.
 
@@ -7,6 +7,12 @@ Version 6.33.1-b2 (24 July 2014)
 
 * Include files trimmed to those known to be freely redistributable and
   checked to make sure they work.
+
+* DM4 removed due to license incompatibilities.
+
+* Added a manpage.
+
+* Added pblorb.pl and scanblorb.pl utilities for dealing with Blorb files.
 
 Version 6.32.1 (16 July 2012)
 =============================

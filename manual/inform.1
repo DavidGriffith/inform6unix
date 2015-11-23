@@ -27,6 +27,13 @@ and Link "name") are also translated by
 .B RULES OF TRANSLATION
 below.
 
+.SH USING THE INFORM6 LANGUAGE
+This manpage just documents the invocation of the
+.B Inform
+compiler and library.  "The Inform Designer's Manual" and "The Inform 
+Beginner's Guide may be found at 
+.B http://inform-fiction.org/manual/
+and in hardcopy from Amazon.
 
 .SH SWITCHES
 .TP
@@ -226,8 +233,6 @@ Header extension table is at least n words (n = 3 to 99)
 Compile with INFIX debugging facilities present
 
 
-FIXME Left off here
-
 .SH RULES OF TRANSLATION
 .B Inform
 translates plain filenames (such as "xyzzy") into full pathnames (such 
@@ -252,7 +257,19 @@ which contain spaces, write them in double-quotes: for instance,
 The file is looked for at a particular "path" (the filename of a 
 directory), depending on what kind of file it is.
 
-PATH STUFF GOES HERE
+File type			Name		Usual setting
+.br
+Source code (in)	source_path	(unset)
+.br
+Include file (in)	include_path	/usr/share/inform/include
+.br
+Story file (out)	code_path	(unset)
+.br
+Temp file (out)	temporary_path	/tmp/
+.br
+ICM command file (in)	icl_path	(unset)
+.br
+Module (in & out)	module_path	(unset)
 
 If the path is unset, then the current working directory is used (so the 
 filename doesn't change): if, for instance, include_path is set to 
@@ -305,7 +322,6 @@ notation (though they aren't really pathnames).  These are:
 	charset_map	(file for character set mapping)
 
 
-
 .SH PATH SETTING
 
 .TP
@@ -335,6 +351,8 @@ the Z-Machine.
 .br
 The Inform Library (currently 6/12) is incompatible with versions of the 
 Z-Machine lower than version 5. 
+.br
+Modules cannot be used with Glulx and are deprecated for Z-machine.
 
 
 .SH AUTHORS

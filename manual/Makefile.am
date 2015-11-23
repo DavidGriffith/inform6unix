@@ -2,4 +2,6 @@
 
 include $(top_srcdir)/config/Makefile.inc
 
-man1_MANS = inform.1
+EXTRA_DIST = inform.1
+
+man_MANS = inform.1

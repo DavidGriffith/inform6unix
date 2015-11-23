@@ -4,7 +4,7 @@ include $(top_srcdir)/config/Makefile.inc
 
 AUTOMAKE_OPTIONS = check-news
 
-SUBDIRS = src lib include manual demos tutor
+SUBDIRS = src lib include contrib manual demos tutor
 
 EXTRA_DIST = ARTISTIC AUTHORS VERSION autogen.sh
 

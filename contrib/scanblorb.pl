@@ -1,9 +1,16 @@
 #!/usr/bin/perl -w
-
+# ---------------------------------------------------------------------------
 #  scanBlorb: a perl script for scanning Blorb files
-#  (c) Graham Nelson  1998 (original script)
+#  (c) Graham Nelson 1998
+#
+#  Distributed under the terms of the Artistic License 2.0
+#
 #  (c) Richard Poole  2004
 #  (c) David Griffith 2015
+#
+#  Latest version is at https://github.com/DavidGriffith/blorbtools
+# ---------------------------------------------------------------------------
+
 
 use strict;
 use Getopt::Long;

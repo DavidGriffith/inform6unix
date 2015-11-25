@@ -3,9 +3,11 @@
 #  perlBlorb: a perl script for creating Blorb files
 #  (c) Graham Nelson 1998
 #
-# Modifications applied by David Griffith in 2012, 2013
+#  Distributed under the terms of the Artistic License 2.0
 #
-# Latest version is at https://github.com/DavidGriffith/blorbtools
+#  (c) David Griffith 2012-2015
+#
+#  Latest version is at https://github.com/DavidGriffith/blorbtools
 # ---------------------------------------------------------------------------
 
 use strict;

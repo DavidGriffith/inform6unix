@@ -1,368 +1,246 @@
-.\" -*- nroff -*-
-.TH INFORM 1 6.33
+.TH INFORM "1" "2015-12-20" "Inform v6.33" "Inform v6.33 - interactive fiction story file compiler"
 .SH NAME
-inform \- compiler of interactive fiction for Z-machine and Glulx VMs
-
+inform \- compile Inform interactive fiction story files to Z-machine or Glulx bytecode
 .SH SYNOPSIS
-.B inform
-[\fICOMMANDS\fR]...\ [\fIFILE1\fR] [\fIFILE2\fR]
-
+.BI "inform " "[options...] infile [outfile]"
 .SH DESCRIPTION
-.B Inform
-is a programming language and design system for interactive fiction 
-originally created in 1993 by Graham Nelson. Inform can generate 
-programs designed for the Z-Machine or Glulx virtual machines.
-
-
-.SH USAGE
-.B Inform
-translates FILE1 into a source file name (see below) for its 
-input.  FILE2 is usually omitted: if so, the output filename is made 
-from FILE1 by cutting out the name part and translating that (see 
-below). If FILE2 is given, however, the output filename is set to just 
-FILE2 (not altered in any way).
-
-Filenames given in the game source (with commands like Include "name" 
-and Link "name") are also translated by
-.B RULES OF TRANSLATION
-below.
-
-.SH USING THE INFORM6 LANGUAGE
-This manpage just documents the invocation of the
-.B Inform
-compiler and library.  "The Inform Designer's Manual" and "The Inform 
-Beginner's Guide may be found at 
-.B http://inform-fiction.org/manual/
-and in hardcopy from Amazon.
-
-.SH SWITCHES
+\fBinform\fP compiles an Inform version 6 story file (usually with the
+extension \fB.inf\fP) into Z-machine or Glulx bytecode which can then be
+executed by a variety of Z-machine or Glulx emulators. If the output 
+filename is not explicitly given on the command line, it will be 
+constructed from the input filename.
+.PP
+\fBinform\fP's mode of operation can be controlled with switches (one- or
+two-character expressions preceded by a dash), path modifiers (starting with a
+plus sign) and memory strategy modifiers (starting with a dollar sign).
+.SS SWITCHES
 .TP
-.B \-a
-Trace assembly-language (without hex dumps; see -t).
-
+.B -a
+trace assembly-language (without hex dumps; see \fB-t\fP)
 .TP
-.B \-c
-More concise error messages.
-
+.B -c
+more concise error messages
 .TP
-.B \-d
-Contract double spaces after full stops in text.
-
+.B -d
+contract double spaces after full stops in text
 .TP
-.B \-d2
-Contract double spaces after exlamation and question marks, too.
-
+.B -d2
+contract double spaces after exclamation and question marks, too
 .TP
-.B \-e
-Economy mode (slower): make use of declared abbreviations.
-
+.B -e
+economy mode (slower): make use of declared abbreviations
 .TP
-.B \-f
-Frequencies mode: show how useful abbreviations are.
-
+.B -f
+frequencies mode: show how useful abbreviations are
 .TP
-.B \-g
-Traces calls to functions (except in the library).
-
+.B -g
+traces calls to functions (except in the library)
 .TP
-.B \-g2
-Traces calls to all functions.
-
+.B -g2
+traces calls to all functions
 .TP
-.B \-h
-Print options information.
-
+.B -h, -h1, -h2
+print usage information
 .TP
-.B \-i
-Ignore default switches set within the file.
-
+.B -i
+ignore default switches set within the file
 .TP
-.B \-j
-List objects as constructed.
-
+.B -j
+list objects as constructed
 .TP
-.B \-k
-Output Infix debugging information to "gameinfo.dbg" (and switch -D on).
-
+.B -k
+output Infix debugging information to "gameinfo.dbg" (and switch \fB-D\fP on)
 .TP
-.B \-l
-List every statement run through Inform.
-
+.B -l
+list every statement run through Inform
 .TP
-.B \-m
-Say how much memory has been allocated.
-
+.B -m
+say how much memory has been allocated
 .TP
-.B \-n
-Print numbers of properties, attributes, and actions.
-
+.B -n
+print numbers of properties, attributes and actions
 .TP
-.B \-o
-Print offset addresses.
-
+.B -o
+print offset addresses
 .TP
-.B \-p
-Give percentage breakdown of story file.
-
+.B -p
+give percentage breakdown of story file
 .TP
-.B \-q
-Keep quiet about obsolete usages.
-
+.B -q
+keep quiet about obsolete usages
 .TP
-.B \-r
-Record all the text to "gametext.txt".
-
+.B -r
+record all the text to "gametext.txt"
 .TP
-.B \-s
-Give statistics.
-
+.B -s
+give statistics
 .TP
-.B \-t
-Trace assembly-language (with full hex dumps; see -a).
-
+.B -t
+trace assembly-language (with full hex dumps; see \fB-a\fP)
 .TP
-.B \-u
-Work out most useful abbreviations (very very slowly).
-
+.B -u
+work out most useful abbreviations (very very slowly)
 .TP
-.B \-v3
-Compile to version-3 ("Standard") story file.
-
-.TP
-.B \-v4
-Compile to version-4 ("Plus") story file.
-
-.TP
-.B \-v5
-Compile to version-5 ("Advanced") story file (DEFAULT).
-
-.TP
-.B \-v6
-Compile to version-6 ("Graphical") story file.
-
-.TP
-.B \-v7
-Compile to version-7 (expanded "Advanced") story file.
-
-.TP
-.B \-v8
-Compile to version-8 (expanded "Advanced") story file.
-
-.TP
-.B \-w
-Disable warning messages.
-
-.TP
-.B \-x
-Print # for every 100 lines compiled.
-
-.TP
-.B \-y
-Trace linking system.
-
-.TP
-.B \-z
-Print memory map of the Z-machine.
-
----
-
-.TP
-.B \-B
-Use big memory model (for large V6/V7 files).
-
-.TP
-.B \-C0
-Text character set is plain ASCII only.
-
-.TP
-.B \-Cu
-Text character set is UTF-8.
-
-.TP
-.B \-Cn
-Text character set is ISO 8859-n (n = 1 to 9) (1 to 4, Latin 1 to 
-Latin4; , 5, Cyrillic; 6, Arabic; 7, Greek; 8, Hebrew; 9, Latin5.  
-Default is -C1).
-
-.TP
-.B \-D
-Insert "Constant DEBUG;" automatically.
-
-.TP
-.B \-E0
-Archimedes-style error messages (current setting).
-
-.TP
-.B \-E1
-Microsoft-style error messages.
-
-.TP
-.B \-E2
-Macintosh MPW-style error messages.
-
-.TP
-.B \-F1
-Use temporary files to reduce memory consumption.
-
-.TP
-.B \-G
-Compile a Glulx game file.
-
-.TP
-.B \-H
-Use Huffman encoding to compress Glulx strings.
-
-.TP
-.B \-M
-Compile as a Module for future linking (deprecated).
-
-.TP
-.B \-S
-Compile strict error-checking at run-time (on by default)
-
-.TP
-.B \-U
-Insert "Constant USE_MODULES;" automatically (deprecated).
-
-.TP
-.B \-Wn
-Header extension table is at least n words (n = 3 to 99)
-
-.TP
-.B \-X
-Compile with INFIX debugging facilities present
-
-
-.SH RULES OF TRANSLATION
-.B Inform
-translates plain filenames (such as "xyzzy") into full pathnames (such 
-as "adventure/games/xyzzy") according to the following rules.
-
-.TP
-.B 1
-If the name contains a '/' character (so it's already a pathname), it 
-isn't changed.
-
-[Exception: when the name is given in an Include command using the > 
-form (such as Include ">prologue"), the ">" is replaced by the path of 
-the file doing the inclusion and a suitable file extension is added.]
-
-Filenames must never contain double-quotation marks ".  To use filenames
-which contain spaces, write them in double-quotes: for instance,
-
-"inform +code_path="Jigsaw Final Version" jigsaw"
-
-.TP
-.B 2
-The file is looked for at a particular "path" (the filename of a 
-directory), depending on what kind of file it is.
-
-File type			Name		Usual setting
-.br
-Source code (in)	source_path	(unset)
-.br
-Include file (in)	include_path	/usr/share/inform/include
-.br
-Story file (out)	code_path	(unset)
-.br
-Temp file (out)	temporary_path	/tmp/
-.br
-ICM command file (in)	icl_path	(unset)
-.br
-Module (in & out)	module_path	(unset)
-
-If the path is unset, then the current working directory is used (so the 
-filename doesn't change): if, for instance, include_path is set to 
-"backup/oldlib" then when "parser" is included it is looked for at 
-"backup/oldlib/parser".
-
-The paths can be set or unset on the Inform command line by, eg,
-"inform +code_path=finished jigsaw" or
-.br
-"inform +include_path= balances" (which unsets include_path).
-
-The four input path variables can be set to lists of alternative 
-paths separated by ',' characters: these alternatives are always tried 
-in the order they are specified in, that is, left to right through the 
-text in the path variable.
-.br
-(Modules are written to the first alternative in the module_path 
-list; it is an error to give alternatives at all for purely output 
-paths.)
-
+.B -v\fIn\fP
+compile to a specific Z-code version; the default is 5. Available versions are:
+.RS
 .TP
 .B 3
-The following file extensions are added:
-.br
-	Source code:		.inf
-.br
-	Include files:		.h
-.br
-	Story files:		.z3, .z4, .z5 (default),
-.br
-					.z6, .z7, z8, .ulx (Glulx)
-.br
-	Temporary files:	.tmp
-.br
-	Modules:			.m5
-
-except that any extension you give (on the command line or in a filename 
-used in a program) will override these.  If you give the null extension 
-"." then Inform uses no file extension at all (removing the ".").
-
-Names of four individual files can also be set using the same + command 
-notation (though they aren't really pathnames).  These are:
-
-	transcript_name	(text written by -r switch)
-.br
-	debugging_name	(data written by -k switch)
-.br
-	language_name	(library file defining natural language of game)
-.br
-	charset_map	(file for character set mapping)
-
-
-.SH PATH SETTING
-
+version-3 ("Standard") story file
 .TP
-.B \+PATH=<dir>
-Set a particular path.  These include the following:
-
-.br
-source_path
-.br
-include_path
-.br
-code_path
-.br
-temporary_path
-.br
-icl_path
-.br
-module_path
-.br
-
-
+.B 4
+version-4 ("Plus") story file
+.TP
+.B 5
+version-5 ("Advanced") story file
+.TP
+.B 6
+version-6 (graphical) story file
+.TP
+.B 8
+version-8 (expanded "Advanced") story file
+.RE
+.TP
+.B -w
+disable warning messages
+.TP
+.B -x
+print # for every 100 lines compiled
+.TP
+.B -y
+trace linking system
+.TP
+.B -z
+print memory map of the Z-machine
+.TP
+.B -B
+use big memory model (for large version-6/version-7 files)
+.TP
+.B -C\fIn\fP
+select text character set (defaults to 1):
+.RS
+.TP
+.B 0
+plain ASCII only
+.TP
+.B 1
+ISO 8859-1 (Latin1)
+.TP
+.B 2
+ISO 8859-2 (Latin2)
+.TP
+.B 3
+ISO 8859-3 (Latin3)
+.TP
+.B 4
+ISO 8859-4 (Latin4)
+.TP
+.B 5
+ISO 8859-5 (Cyrillic)
+.TP
+.B 6
+ISO 8859-6 (Arabic)
+.TP
+.B 7
+ISO 8859-7 (Greek)
+.TP
+.B 8
+ISO 8859-8 (Hebrew)
+.TP
+.B 9
+ISO 8859-9 (Latin5)
+.RE
+.TP
+.B -D
+insert "Constant DEBUG;" automatically
+.TP
+.B -E\fIn\fP
+select error message style (default is Archimedes):
+.RS
+.TP
+.B 0
+Archimedes-style error messages
+.TP
+.B 1
+Microsoft-style error messages
+.TP
+.B 2
+Macintosh MPW-style error messages
+.RE
+.TP
+.B -F1
+use temporary files to reduce memory consumption
+.TP
+.B -G
+compile a Glulx game file
+.TP
+.B -H
+use Huffman encoding to compress Glulx strings
+.TP
+.B -M
+compile as a Module for future linking
+.TP
+.B -S
+compile strict error-checking at run-time (on by default)
+.TP
+.B -U
+insert "Constant USE_MODULES;" automatically
+.TP
+.B -W\fIn\fP
+header extension table is at least n words (n = 3 to 99)
+.TP
+.B -X
+compile with INFIX debugging facilities present
+.SS PATH MODIFIERS
+.TP
+.BI + dir
+set \fBInclude_Path\fP to this directory
+.TP
+.BI +PATH= dir
+change \fBPATH\fP to this directory
+.SS MEMORY STRATEGY MODIFIERS
+Note: it may be necessary to quote these parameters to prevent your shell
+from expanding them.
+.TP
+.B $small
+adjust memory settings to a small game
+.TP
+.B $large
+adjust memory settings to a large game
+.TP
+.B $huge
+adjust memory settings to a huge game (default)
+.TP
+.B $list
+list current memory allocation settings
+.TP
+.BI $? parameter
+explain memory setting \fIparameter\fP (see \fB$list\fP for available
+parameters)
+.TP
+.BI $ parameter = value
+manually set \fIparameter\fP
 
 .SH CAVEATS
-.B Inform
-is not capable of creating story files conforming to versions 1 or 2 of 
-the Z-Machine.  
+\fBinform\fP is not capable of creating story files conforming to 
+versions 1 or 2 of the Z-Machine.
 .br
-The Inform Library (currently 6/12) is incompatible with versions of the 
-Z-Machine lower than version 5. 
-.br
-Modules cannot be used with Glulx and are deprecated for Z-machine.
+Modules cannot be used with Glulx and are deprecated for Z-Machine.
 
+.SH SEE ALSO
 
-.SH AUTHORS
-.B Inform
-was originally created by Graham Nelson.
+.IR zcode-interpreter (6)
+and the manuals and language reference which can be found online at
 .br
-Documentation: Graham Nelson and Gareth Rees.
+.RI < http://inform-fiction.org/manual/ >
 .br
-Demo games: Graham Nelson and Roger Firth.
+and
 .br
-Tutorial material: Gareth Rees, David Cornelson, and Ethan Dicks.
-.br
-Manpage: David Griffith.
+.RI < http://inform-fiction.org/inform6.html >.
+
+.SH AUTHOR
+The various iterations of the \fBInform\fP language were created by 
+Graham Nelson in 1993.
+
+This manpage was written by Jan Nordholz <hesso@pool.math.tu-berlin.de> 
+for the Debian Project and altered by David Griffith <dave@661.org>.

@@ -103,7 +103,7 @@ Object -> Mailbox "mailbox"
                             around out there? Don't you know I need air? Who
                             do you think you are anyway, some big adventurer
                             or something? Pullllease!~, exclaims a small pink
-                            thing from the mailbox.^^~Hi. I'm Snark, the 
+                            thing from the mailbox.^^~Hi. I'm Snark, the
                             Jarbigruen!~, he cries in a high-pitched voice
                             and then leaps from the mailbox into your
                             arms.^";
@@ -179,7 +179,7 @@ Object -> -> Snark "small pink Jarbigruen"
                          tickles you.";
                      5: "Snark says, ~You are an excellent adventurer!~";
                      7: "Snark cries, ~Stop it! Your holding me too tight!~";
-                     9: "Snark rifles through your pockets and sighs, 
+                     9: "Snark rifles through your pockets and sighs,
                          ~Got any candy?~";
                  }
             ],

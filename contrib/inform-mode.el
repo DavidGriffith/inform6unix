@@ -461,7 +461,7 @@ That is, one found at the start of a line.")
                    (inform-make-regexp inform-code-keyword-list)
                    "\\b")
            'font-lock-keyword-face)
-     
+
      ;; Keywords that declare variable or constant names.
      (list
       (concat "^#?"
@@ -1015,7 +1015,7 @@ left is whitespace)."
              ;; Line is an inlined directive-- always put on column 0
              ((looking-at "\\s-*#[^#]")
               (setq indent 0))
-             
+
              ;; Line is in an implicit block: take indentation from
              ;; the line that introduces the block, plus one level.
              ((memq prec-token '(?\) do else))
@@ -1083,7 +1083,7 @@ left is whitespace)."
                   (if (not (memq token inform-statement-terminators))
                       (setq indent
                             (+ indent inform-indent-cont-statement)))))))
-             
+
              ;; Indent for label, if any.
              ((eq syntax 'label)
               (setq indent (+ indent inform-indent-label-offset))))))
@@ -1348,7 +1348,7 @@ table."
            (concat "--output=" tags-file)
            "--language=none"
            files)
-    
+
     (message "Running external tags program...done")
     (inform-auto-load-tags-table)))
 

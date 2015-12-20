@@ -278,8 +278,8 @@ Spell -> gnusto_spell
             print_ret
                "Your spell book begins to glow softly.  Slowly, ornately,
                 the words of ", (the) i, " are inscribed,
-                glowing even more brightly then the book itself. 
-                The book's brightness fades, but the spell remains! 
+                glowing even more brightly then the book itself.
+                The book's brightness fades, but the spell remains!
                 However, the scroll on which it was written vanishes as
                 the last word is copied.";
        ];
@@ -637,7 +637,7 @@ Spell rezrov_spell
                "It doesn't need opening.";
            if (second hasnt locked)
            {   give second open;
-               print_ret (The) second, " opens obediently. 
+               print_ret (The) second, " opens obediently.
                Like swatting a fly with a sledge hammer, if you ask me.";
            }
            give second open ~locked;
@@ -672,7 +672,7 @@ Spell yomin_spell
        ];
 
 ! ----------------------------------------------------------------------------
-!   The first scene: the Hut and its (rather easy) secret 
+!   The first scene: the Hut and its (rather easy) secret
 ! ----------------------------------------------------------------------------
 
 Class Place
@@ -680,7 +680,7 @@ Class Place
 
 Place Hut "Ramshackle Hut"
   with description
-          "Until quite recently, someone lived here, you feel sure. 
+          "Until quite recently, someone lived here, you feel sure.
            Now the furniture is matchwood and
            the windows are glassless.  Outside, it is a warm, sunny day,
            and grasslands extend to the low hills on the horizon.",
@@ -774,7 +774,7 @@ Object -> horse "horse"
            print "You begin to ride north.  Then, slowly at first but with
                   increasing sureness, the horse begins beating its powerful
                   wings.  You rise majestically through the air, sailing
-                  gracefully across a chasm where the hills fall away. 
+                  gracefully across a chasm where the hills fall away.
                   The horse lands gently on the far side and deposits you,
                   taking to the skies again.^";
            PlayerTo(Edge); rtrue;
@@ -815,7 +815,7 @@ Spell -> bozbar_spell
            if (second==player) "What wings?";
            if (second==horse && horse has general)
            {   give horse ~general;
-               "The Enchanter giveth, and the Enchanter taketh away. 
+               "The Enchanter giveth, and the Enchanter taketh away.
                 The horse looks disconsolate but returns to the oats.";
            }
            print_ret (The) second, " has no wings to lose.";
@@ -906,7 +906,7 @@ Object -> tortoise "tortoise"
                         move chewed_scroll to parent(self); remove self;
                         StartDaemon(self); score=score+5;
                        "The tortoise seems to be incapable of expressing
-                        surprise, but is now soaring away high in the sky. 
+                        surprise, but is now soaring away high in the sky.
                         Something rather grubby is left behind.";
                     yomin_spell:
                        "For a moment you think there is nothing there, as you
@@ -988,7 +988,7 @@ Object feather "tortoise feather"
   with name "tortoise" "feather",
        description
           "Possibly your rarest, and also least valuable, possession.";
-        
+
 ! ----------------------------------------------------------------------------
 !   The cave mouth and the perfect sapphire
 ! ----------------------------------------------------------------------------
@@ -1032,7 +1032,7 @@ Object -> sapphire "perfect sapphire"
                     caskly_spell.number=100;
                     "As you gaze into the perfect blue of the sapphire,
                      you feel your mind begin to reel.  Unable to bear
-                     the naked sight of perfection, you look away, ashamed. 
+                     the naked sight of perfection, you look away, ashamed.
                      As you do so, the sapphire cracks and wastes away to
                      thin hot dust.  But something remains, something in your
                      mind...";
@@ -1176,7 +1176,7 @@ Spell  -> -> -> urbzig_spell
                "Nothing obvious happens.";
            if (second in player)
            {   remove second; deadflag = true;
-               "Suddenly, a tarantula races up your arm to your throat! 
+               "Suddenly, a tarantula races up your arm to your throat!
                 Perhaps it was unwise to gizbru something you were
                 actually holding.";
            }
@@ -1479,7 +1479,7 @@ Object -> barker "barker"
                      lobal_spell:
                         "His problem is listening, not hearing.";
                      caskly_spell:
-                        "For a moment his hair seems to comb itself. 
+                        "For a moment his hair seems to comb itself.
                          Irritated, he ruffles it again, and the spell dies
                          an ignominious death.";
                      yomin_spell:
@@ -1507,7 +1507,7 @@ Object -> pelephant "prize elephant"
        description "Pink, cuddly, toy, elephant.  Says it all, really.",
        before [; Examine: ; default: "~Hands off those prizes!~"; ],
   has  scenery;
-       
+
 Object -> pcube "prize cube"
   with name "prize" "featureless" "white" "cube",
        description "Wouldn't you like to win it?",
@@ -1576,7 +1576,7 @@ Spell mortin_spell
 
 [ AfterLife;
   if (~~prepared_flag) rfalse;
-  
+
   if (player in Balance_Room)
       "^^Your foresight in preparing a resurrection was wasted.  The
          tangled magic of the Balance Room coiled around your puny
@@ -1589,7 +1589,7 @@ Spell mortin_spell
   while (child(player)~=0) move child(player) to parent(player);
   move players_book to player;
 
-  print "^^With great foresight you prepared yourself for resurrection... 
+  print "^^With great foresight you prepared yourself for resurrection...
            Your mind feels a little weaker, but at least you're alive.^";
   PlayerTo(Boneyard);
 ];
@@ -1668,7 +1668,7 @@ Object -> Temple "cubical Temple"
                          if (j<4) "The temple shakes!  White light plays
                              over your hands and possessions, but then all is
                              still again.";
-                         print "The temple shakes and white light bathes you. 
+                         print "The temple shakes and white light bathes you.
                              Smoothly it unfolds itself in a four-dimensional
                              way your senses can barely comprehend.  All you
                              know is that when it is over,
@@ -1739,7 +1739,7 @@ Object -> sockets "two by two square"
   with name "square" "two" "by" "two",
        before
        [ i;  if (action~=##Examine || number_filled==0)
-              "You'll have to say which socket you mean. 
+              "You'll have to say which socket you mean.
                (Let's call them ~top left~, ~bottom right~ and so on.)";
            objectloop (i in self)
            {   print (The) i;
@@ -1775,7 +1775,7 @@ Class Socket
                    && eye_cube in ur_socket)
                {   deadflag=2; score=score+5;
                   "As you place the final cube into the sockets, you feel
-                   imbued with celestial wisdom (more so than usually). 
+                   imbued with celestial wisdom (more so than usually).
                    You find yourself growing to the height of the cube, so
                    that you pull the balances back level by hand, and then
                    you grow still further, out of the temple until it is but

@@ -90,9 +90,9 @@ Class Toyroom
 
 Toyroom Toyshop "Toyshop"
   with description
-          "The centre of a long east-west hall. Shelves are lined 
-           with toys, painted clowns face you from the walls and 
-           the floor is lightly padded with colourful mats. A doorway 
+          "The centre of a long east-west hall. Shelves are lined
+           with toys, painted clowns face you from the walls and
+           the floor is lightly padded with colourful mats. A doorway
            leads north, with a red warning triangle above it.",
        name "clowns" "painted" "shelves" "triangle",
        e_to East_End, w_to West_End, n_to Danger_Zone;
@@ -157,7 +157,7 @@ Object -> balloon "helium balloon"
 
 Object -> car "little red car"
   with name "little" "red" "car" "kar1",
-       description "Large enough to sit inside. Among the controls is a 
+       description "Large enough to sit inside. Among the controls is a
                  prominent on/off switch. The numberplate is KAR 1.",
        when_on  "The red car sits here, its engine still running.",
        when_off "A little red car is parked here.",
@@ -179,8 +179,8 @@ Object -> -> "small note"
            ^Instructions for use:^
            ^Switch on the ignition and off you go!^
            ^Warranty:^
-           ^This car is guaranteed against all defects for a period of 
-            76 milliseconds from date of purchase or until used, 
+           ^This car is guaranteed against all defects for a period of
+            76 milliseconds from date of purchase or until used,
             whichever comes first.^
            ^Good Luck!";
 
@@ -201,7 +201,7 @@ Object padded_floor "padded floor"
 
 Toyroom Danger_Zone "Danger Zone"
   with description
-          "This is the Danger Zone, which you should know better 
+          "This is the Danger Zone, which you should know better
            than to go into. A single door leads back south.",
        s_to Toyshop;
 
@@ -213,7 +213,7 @@ Toyroom Danger_Zone "Danger Zone"
 
 Object -> grenade "nasty-looking hand grenade"
   with name "hand" "grenade" "nasty" "nasty-looking",
-       initial "A nasty-looking hand grenade (there is no other kind) 
+       initial "A nasty-looking hand grenade (there is no other kind)
                 rolls about irresponsibly on the floor.",
        description "Not recommended for children under 90.",
        before
@@ -278,7 +278,7 @@ Object -> matchbook "matchbook"
            }
        ],
        description
-       [;  print "The cover advertisement reads 
+       [;  print "The cover advertisement reads
                   ~Curses - Adventure of a Lunchtime~. The book ";
            switch(self.number)
            {   0: "is empty.";
@@ -376,8 +376,8 @@ Candle -> ->;
 Toyroom East_End "East End"
   with name "dolls" "nurses",
        description
-          "The eastern end of the toyshop is pink, and dolls and 
-           nurses line the shelves right up to the high window. 
+          "The eastern end of the toyshop is pink, and dolls and
+           nurses line the shelves right up to the high window.
            A dark doorway leads to a northern side chamber.",
        w_to Toyshop, n_to DarkRoom;
 
@@ -391,7 +391,7 @@ Toyroom East_End "East End"
 !   they are called a pair again.
 !
 !   We can do this with only three objects, one daemon and one rule.
-!   
+!
 !   When the gloves are together, and the player refers to an individual
 !   glove, the before rule splits up the pair and starts the daemon.
 !   Once active, the daemon tries every turn to re-join them into a pair.
@@ -415,7 +415,7 @@ Object -> gloves "white gloves"
 
            move right_glove to gloves; move left_glove to gloves;
            give right_glove ~worn;     give left_glove ~worn;
-           
+
            StopDaemon(self);
        ],
   has  clothing transparent;
@@ -463,7 +463,7 @@ Object -> cone "green cone"
               "^A misshapen cone of green marzipan sits here.";
           "^Nearby is an emerald green cone, one foot high.";
        ],
-       description "The cone seems to be made of emerald-coloured 
+       description "The cone seems to be made of emerald-coloured
                     marzipan.",
        before
        [; Eat: if (random(100) <= 30)
@@ -545,8 +545,8 @@ Object -> "steel box with a lid"
 Toyroom West_End "West End"
   with name "soldiers" "model" "aircraft" "planes",
        description
-          "The western end of the toyshop is blue, and soldiers and 
-           model aircraft line the shelves. A small office lies to 
+          "The western end of the toyshop is blue, and soldiers and
+           model aircraft line the shelves. A small office lies to
            the south.",
        e_to Toyshop, s_to Office;
 
@@ -595,11 +595,11 @@ Class  Block
          PutOn:
            if (second ofclass Block)
            {   if (child(second)~=0 && child(second) ofclass Block)
-                   "There's no room on the top of one cube for two more, side 
+                   "There's no room on the top of one cube for two more, side
                     by side.";
            }
            else
-               print "(They're really intended 
+               print "(They're really intended
                       to be piled on top of each other.)^";
            c=second; while (c ofclass Block) c=parent(c);
            if (c~=location or mantelpiece) "Too unsteady a base.";
@@ -621,7 +621,7 @@ Class  Block
            stack=noun;
            while (parent(stack) ofclass Block)
            {   c=stack; stack=parent(stack); move c to location; }
-           "The pile of four cubes wobbles, wobbles, steadies... and suddenly 
+           "The pile of four cubes wobbles, wobbles, steadies... and suddenly
             collapses!";
          Take:
            stack=child(noun); if (stack==0) rfalse;
@@ -693,7 +693,7 @@ Object -> Chris "Christopher"
            PutOn: if (noun notin Chris) "He is mightily confused.";
                  if (~~(noun ofclass Block && second ofclass Block))
                      "He can't see the point of this.";
-                 print "Christopher leans over with great concentration 
+                 print "Christopher leans over with great concentration
                      and does so.^";
                  move noun to player; give self general;
                  <PutOn noun second>;
@@ -721,17 +721,17 @@ Object "fluorescent juggling ball" Chris
 
 Toyroom Office "Office"
   with description
-          "A small, grey office, with a broad stone mantelpiece. 
-           In the east wall is a doorway marked ~Exit~, and the Toyshop, 
+          "A small, grey office, with a broad stone mantelpiece.
+           In the east wall is a doorway marked ~Exit~, and the Toyshop,
            of course, lies north.",
        cant_go "The Toyshop floor lies north.",
        n_to West_End,
        e_to
        [; if (score~=MAX_SCORE)
-              "A gong sounds. ~You cannot leave the Toyshop until 
+              "A gong sounds. ~You cannot leave the Toyshop until
                you have done six interesting things!~";
           deadflag=2;
-          "A gong sounds. ~Congratulations!  You may now leave the Toyshop 
+          "A gong sounds. ~Congratulations!  You may now leave the Toyshop
            and begin writing your own Inform game!~";
        ];
 
@@ -744,15 +744,15 @@ Object -> "toothed bag"
        initial "In one corner is a curious, toothed bag.",
        description "A capacious bag with a toothed mouth.",
        before
-       [; LetGo: "The bag defiantly bites itself 
+       [; LetGo: "The bag defiantly bites itself
                   shut on your hand until you desist.";
        ],
        after
        [; Receive:
               if (noun==cone)
               {   self.before=0; self.after=0;
-                  "The bag wriggles interminably as it tries 
-                   to eat the enormous mass of marzipan. That'll 
+                  "The bag wriggles interminably as it tries
+                   to eat the enormous mass of marzipan. That'll
                    teach it.";
               }
               "The bag wriggles hideously as it swallows ", (the) noun, ".";
@@ -767,7 +767,7 @@ Object -> "toothed bag"
 Object -> -> spirit_level "spirit level"
   with name "spirit" "level" "wood" "flask",
        number 0,
-       description "A length of wood containing a flask of viscous 
+       description "A length of wood containing a flask of viscous
            green liquid, in which a bubble is trapped.",
        before
        [; Examine:
@@ -775,13 +775,13 @@ Object -> -> spirit_level "spirit level"
           {   print "The bubble is at the ";
               if (self.number==1) "northeast end.";
               "southeast end.";
-          } 
+          }
        ],
        after
        [; PutOn: if (second~=mantelpiece) rfalse;
            if (spirit_level hasnt general) self.number=random(2);
            give spirit_level general; Achieved(4);
-           print "You put the spirit level on the mantelpiece, 
+           print "You put the spirit level on the mantelpiece,
                   and the bubble slowly drifts towards the ";
            if (self.number==1) "northeast.";
            "southwest.";
@@ -875,7 +875,7 @@ Global from_char; Global to_char;
 [ Initialise;
   location=chair;  move satchel to player;
 
-  print "^^^^^~What's so special about Inform,~ is the last thing you 
+  print "^^^^^~What's so special about Inform,~ is the last thing you
          remember saying to the mad alchemist. Big mistake...^^";
 
   StartDaemon(balloon);
@@ -918,10 +918,10 @@ Global from_char; Global to_char;
     if (noun has animate) <<Attack noun>>;
     if (noun==padded_floor)
     {   deadflag=1;
-        "A gong sounds, but before a sepulchral voice finishes clearing 
+        "A gong sounds, but before a sepulchral voice finishes clearing
          its throat, the whole padded floor goes up in an inferno.";
     }
-    "A gong sounds, and a sepulchral, rather disappointed voice says: 
+    "A gong sounds, and a sepulchral, rather disappointed voice says:
      ~It is forbidden to play with fire in the Toyshop.~";
 ];
 

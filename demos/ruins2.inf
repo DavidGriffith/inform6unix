@@ -980,8 +980,8 @@ Object  Chasm "horrifying chasm"
 Room At_End_Of_Road "At End Of Road"
   with  name 'road' 'street' 'path' 'forest' 'stream' 'building' 'gully',
         description
-            "You are standing at the end of a road before a small 
-             brick building. Around you is a forest. A small 
+            "You are standing at the end of a road before a small
+             brick building. Around you is a forest. A small
              stream flows out of the building and down a gully.",
         before [;
             Examine, Look:

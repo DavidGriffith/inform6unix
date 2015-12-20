@@ -44,13 +44,13 @@
 !	$Log$
 !	Revision 1.1  2004/03/15 18:32:52  glen
 !	New file.
-!	
+!
 !	Revision 1.2  2003/05/24 13:36:34  michael
 !	Removed DOS carriage-returns introduced by opening on DOS machine.
-!	
+!
 !	Revision 1.1  2003/05/24 13:32:44  michael
 !	Initial revision.
-!	
+!
 ! ---------------------------------------------------------------------------- !
 
 system_file;
@@ -79,7 +79,7 @@ Option   ->   howtoplay
          ],
          description [;
          print "These general instructions are an excerpt from:
-         ~A Beginner's Guide to Playing Interactive Fiction~. 
+         ~A Beginner's Guide to Playing Interactive Fiction~.
          The full text can be found at http://IFGuide.ramsberg.net",
 
          (bf) "^^The game starts";
@@ -264,7 +264,7 @@ Option   ->   howtoplay
          tired of being stuck in the same spot for too long, you can either
          type HELP in the game to see if there are any hints available, or
          you can ask other players for hints. A good place to ask for hints
-         is the newsgroup rec.games.int-fiction (can be reached at 
+         is the newsgroup rec.games.int-fiction (can be reached at
          http://groups.google.com/groups?group=rec.games.int-fiction ).
          That's also one of the best
          places to meet other IF players, discuss games you've played, get

@@ -48,14 +48,14 @@ Class Key with name "key";
 Object  Foyer "Foyer"
  has    light
  with   description
-           "The foyer of the magnificent Museum of Inform. A flight of 
-            stairs sweeps upward to Chapters V and VI, and corridors 
+           "The foyer of the magnificent Museum of Inform. A flight of
+            stairs sweeps upward to Chapters V and VI, and corridors
             fan out on this level into Chapter IV. These run:^
             ^  north into Room 10 (the Halls of Sense and Direction),
             ^  south along Corridor 12 (doors) to Room 13 (switches),
             ^  @00 to Room 11 (the Wonderful World of Containers)
             ^  and @01 to Room 14 (which houses larger exhibits).^^
-            (And a plain ladder descends into the basement; you can also 
+            (And a plain ladder descends into the basement; you can also
              step out onto a balcony.)",
         e_to Room11, u_to Second_Floor, n_to Room10,
         s_to Corridor12, w_to Room14,
@@ -104,9 +104,9 @@ Object basement "Museum Basement"
 
 Object Room10 "Hall of Senses"
   with description
-          "This is Room 10, north of the foyer. If you try going further 
-           north, a string will be printed instead. The exit to the @00 
-           has a routine attached, and randomly leads either to the 
+          "This is Room 10, north of the foyer. If you try going further
+           north, a string will be printed instead. The exit to the @00
+           has a routine attached, and randomly leads either to the
            Directions Room or back to the foyer.",
        s_to Foyer,
        n_to "This string is the ~n_to~ value for this room.",
@@ -164,9 +164,9 @@ Lowstring east_str "east"; Lowstring west_str "west";
 Object Room10a "Hall of Directions"
   with name "mirror",
        description
-          "An annexe to Room 10: the main exit is back @01, and there's a 
-           curiously misty mirror on the north wall. Also, there's an exit 
-           in the fourth, ~hyper~ dimension (which is only visible in the 
+          "An annexe to Room 10: the main exit is back @01, and there's a
+           curiously misty mirror on the north wall. Also, there's an exit
+           in the fourth, ~hyper~ dimension (which is only visible in the
            weird geometry of this room).",
        initial
        [;  move hyper to compass; StartDaemon(hyper);
@@ -193,7 +193,7 @@ Object hyper "hyper-dimensional direction"
 
 Object Room11 "Wonderful World of Containers"
   with description
-          "This is Room 11, @00 of the foyer. You notice a typical piece 
+          "This is Room 11, @00 of the foyer. You notice a typical piece
            of scenery which turns out to be a supporter: a mantelpiece.",
        w_to Foyer,
   has  light;
@@ -202,7 +202,7 @@ Object -> "bearded psychiatrist"
   with name "bearded" "doctor" "psychiatrist" "psychologist" "shrink",
        initial "A bearded psychiatrist has you under observation.",
        life
-       [;  "He is fascinated by your behaviour, but makes no attempt to 
+       [;  "He is fascinated by your behaviour, but makes no attempt to
             interfere with it.";
        ],
        react_after
@@ -240,7 +240,7 @@ Object -> "toothed bag"
   with name "toothed" "bag",
        description "A capacious bag with a toothed mouth.",
        before
-       [; LetGo: "The bag defiantly bites itself 
+       [; LetGo: "The bag defiantly bites itself
                   shut on your hand until you desist.";
           Close: "The bag resists all attempts to close it.";
        ],
@@ -263,7 +263,7 @@ Object -> "bolted cupboard"
 
 Object -> "portable television set"
   with name "tv" "television" "set" "portable",
-       initial "A portable television set has two sub-objects attached: 
+       initial "A portable television set has two sub-objects attached:
                 a power button and a screen.",
        before
        [;  SwitchOn: <<SwitchOn power_button>>;
@@ -312,7 +312,7 @@ Object -> -> "music box"
 
 Object Corridor12 "Corridor 12"
   with description
-          "Runs south of the foyer. A side exit leads @01 to Room 15, 
+          "Runs south of the foyer. A side exit leads @01 to Room 15,
            the manuscripts room.",
        n_to Foyer, s_to Oak_Door, w_to Room15,
   has  light;
@@ -353,7 +353,7 @@ Object -> "sinister curator"
        [;  WakeOther:
                if (self hasnt general)
                {   give self general; move self to Foyer;
-                  "He wakes and rouses to his feet, pushes past you 
+                  "He wakes and rouses to his feet, pushes past you
                    and stalks away.";
                }
            default: "He rears back with disdain.";
@@ -385,7 +385,7 @@ Object Room15 "Manuscripts Room"
 Object -> "black Tyndale Bible"
   with name "bible" "black" "book",
        initial "A black Bible rests on a spread-eagle lectern.",
-       description "A splendid foot-high Bible, which must have survived 
+       description "A splendid foot-high Bible, which must have survived
            the burnings of 1520.",
        before
        [ w x; Consult:
@@ -411,7 +411,7 @@ Object -> "black Tyndale Bible"
 
 Object Room13 "Switches Hall"
   with description
-          "This is Room 13, at the south end of a long corridor leading 
+          "This is Room 13, at the south end of a long corridor leading
            north. Progress further south is blocked by a chasm.",
        n_to Oak_Door, s_to PlankBridge,
   has  light;
@@ -420,9 +420,9 @@ Object -> "Gotham City searchlight"
   with name "gotham" "city" "search" "light" "template" "searchlight",
        article "the",
        description "It has some kind of template on it.",
-       when_on "The old city searchlight shines out a bat against 
+       when_on "The old city searchlight shines out a bat against
                 the alabaster ceiling of the Museum.",
-       when_off "The old Gotham city searchlight has been lovingly 
+       when_off "The old Gotham city searchlight has been lovingly
                 restored and housed here."
   has  switchable static;
 
@@ -442,11 +442,11 @@ Object -> PlankBridge "plank bridge"
        door_to
        [;  if (children(player)~=0)
             {   deadflag=1;
-               "You step gingerly across the plank, which bows under 
-                your weight. But your meagre possessions are the straw 
+               "You step gingerly across the plank, which bows under
+                your weight. But your meagre possessions are the straw
                 which breaks the camel's back! There is a horrid crack...";
             }
-            print "You step gingerly across the plank, grateful that 
+            print "You step gingerly across the plank, grateful that
                    you're not burdened.^";
            if (location==Room13) return FarSide; return Room13;
        ],
@@ -466,14 +466,14 @@ Object FarSide "Far Side of Chasm in Room 13"
 
 Object Room14 "Large Exhibits Room"
   with description
-          "This is Room 14, @01 of the foyer, which gives onto the Weights 
+          "This is Room 14, @01 of the foyer, which gives onto the Weights
            Room to the north.",
        e_to Foyer, n_to Weights_Room,
   has  light;
 
 Object -> "hypnotic portrait"
   with name "hypnotic" "portrait" "warthog" "picture" "of" "hog",
-       initial "A somewhat hypnotic full-length portrait of a warthog hangs 
+       initial "A somewhat hypnotic full-length portrait of a warthog hangs
            on the wall.",
        before
        [;  Examine: <Examine hog>; print "^...and somehow, so do you...^";
@@ -488,7 +488,7 @@ Object -> "Louis XV chair"
 
 Object -> car "little red car"
   with name "little" "red" "car" "kar1",
-       description "Large enough to sit inside. Among the controls is a 
+       description "Large enough to sit inside. Among the controls is a
                  prominent on/off switch. The numberplate is KAR 1.",
        when_on  "The red car sits here, its engine still running.",
        when_off "A little red car is parked here.",
@@ -510,14 +510,14 @@ Object -> -> "small note"
            ^Instructions for use:^
            ^Switch on the ignition and off you go!^
            ^Warranty:^
-           ^This car is guaranteed against all defects for a period of 
-            76 milliseconds from date of purchase or until used, 
+           ^This car is guaranteed against all defects for a period of
+            76 milliseconds from date of purchase or until used,
             whichever comes first.^
            ^Good Luck!";
 
 Object -> "Giant"
   with name "giant",
-       initial "A Giant is here. (And you know the old legend... push a 
+       initial "A Giant is here. (And you know the old legend... push a
            Giant, become a Giant!)",
        before
        [;  Push: ChangePlayer(self); <<Look>>;
@@ -532,7 +532,7 @@ Object -> "Giant"
                {   ChangePlayer(selfobj); <<Look>>; }
                rfalse;
            }
-           Attack: "The Giant looks at you with doleful eyes. 
+           Attack: "The Giant looks at you with doleful eyes.
                     ~Me not be so bad!~";
            default: "The Giant is unable to comprehend your instructions.";
        ],
@@ -543,7 +543,7 @@ Object -> "Giant"
 
 Object "Caldera"
   with description
-          "An old volcanic crater of mud and ash, from which there is 
+          "An old volcanic crater of mud and ash, from which there is
            nowhere to go.",
   has  light;
 
@@ -567,7 +567,7 @@ Object -> "red berry"
        initial "A magic red berry is half-uncovered in the mud.",
        before
        [;  Smell, Taste, Touch:
-               print "The blood-smell of the berry brings you back, 
+               print "The blood-smell of the berry brings you back,
                     back...^";
                 ChangePlayer(selfobj); <<Look>>;
        ];
@@ -579,9 +579,9 @@ Constant HEAVINESS_THRESHOLD = 100;
 
 Object Weights_Room "Weights Room"
   with description
-          "This is an annexe, south of Room 14. In here (though nowhere 
-           else) objects have given weights, and 
-           you can carry only a limited total weight. (Items from elsewhere 
+          "This is an annexe, south of Room 14. In here (though nowhere
+           else) objects have given weights, and
+           you can carry only a limited total weight. (Items from elsewhere
            in the museum all weigh 10 zobs, regardless of what they are.)
            The longer you carry heavy objects, the more tired you become,
            until you're forced to drop them; your strength recovers once
@@ -626,7 +626,7 @@ Object weight_monitor
                 objectloop(b in player)
                     if (WeightOf(b) > bw) { bw = WeightOf(b); w=b; }
                 self.players_strength = self.players_strength + bw;
-                print "^Exhausted with carrying so much, you decide 
+                print "^Exhausted with carrying so much, you decide
                     to discard ", (the) w, ": "; <<Drop w>>;
             }
 
@@ -650,10 +650,10 @@ Global day_state = 2;
 
 Object balcony "Balcony"
   with description
-       [;  print "An open-air balcony on the cliffside wall of the 
+       [;  print "An open-air balcony on the cliffside wall of the
                cathedral-like Museum, hundreds of feet above ";
            if (day_state==1) "sunlit plains of farms and settlements.";
-           "a darkling plain. Dim light from the walls above is 
+           "a darkling plain. Dim light from the walls above is
             the only beacon in this vast night.";
        ],
        in_to Foyer,
@@ -672,7 +672,7 @@ Object balcony "Balcony"
 Object -> "giant clock"
   with name "giant" "clock" "face" "clockface" "clock-face",
        before
-       [;  Examine: "According to the giant clockface on the wall 
+       [;  Examine: "According to the giant clockface on the wall
                above, it is now ", the_time/60, ":", (the_time%60)/10,
                the_time%10, ".";
            default: "The giant clock-face is too high above you.";
@@ -687,7 +687,7 @@ Object -> moth "moth"
 [ GoMothGo;
    if (moth in player)
    {   remove moth;
-      "As your eyes try to adjust, you feel a ticklish sensation 
+      "As your eyes try to adjust, you feel a ticklish sensation
        and hear a tiny fluttering sound.";
    }
 ];
@@ -695,7 +695,7 @@ Object -> moth "moth"
 Object -> "Commander Data"
   with name "data" "commander",
        orders
-       [; "~I regret that I am only here to make an example work elsewhere. 
+       [; "~I regret that I am only here to make an example work elsewhere.
             Please proceed upstairs to 10 Forward to see.~";
        ],
   has  proper animate crewmember;
@@ -704,8 +704,8 @@ Object -> "Commander Data"
 
 Object Second_Floor "Mezzanine"
   with description
-          "Halfway up the marble staircase of the building, a second floor 
-           mezzanine which leads south into Grammar Hall (an extension 
+          "Halfway up the marble staircase of the building, a second floor
+           mezzanine which leads south into Grammar Hall (an extension
            purpose-built for the Room 16 exhibition).",
        d_to Foyer,
        s_to Grammar_Hall,
@@ -758,13 +758,13 @@ Object -> "Room 16 exhibition leaflet"
            Drop orders.^^
            The alarm clock can be told ~on~, ~off~ or a time of day
            (to set its alarm to).";
-           
+
 ! --------------------------------------------------------------------------
 
 Object Grammar_Hall "Grammar Hall"
   has  light,
   with description
-          "The main exhibit on the second floor: Room 16, south of the 
+          "The main exhibit on the second floor: Room 16, south of the
            mezzanine. A Jeffreys Tube runs @00 into a Star Trek: The
            Next Generation room, while a hexagonal corridor to the south
            leads to the bridge of the spaceship ~Liberator~.",
@@ -773,7 +773,7 @@ Object Grammar_Hall "Grammar Hall"
 Object -> booth "telepathy booth"
   with name "booth" "telepathy",
        initial
-          "A telepathy booth stands invitingly open: 
+          "A telepathy booth stands invitingly open:
            ~Talk To Telekinetic Martha~.",
   has  enterable static;
 
@@ -893,24 +893,24 @@ Object -> "informative plaque"
 Object -> "Zen"
   with name "zen" "flight" "computer",
        initial
-          "Square lights flicker unpredictably across a hexagonal fascia 
+          "Square lights flicker unpredictably across a hexagonal fascia
            on one wall, indicating that the flight computer Zen is on-line.",
        grammar
        [;  return -'zen,';
        ],
        orders
-       [;  Show: "The main screen shows a starfield, 
+       [;  Show: "The main screen shows a starfield,
                   turning through ", noun, " degrees.";
            Go:  "~Confirmed.~  The ship turns to a new bearing.";
            SetTo: if (noun==0) "~Confirmed.~  The ship comes to a stop.";
                if (noun>12) "~Standard by ", (number) noun,
                             " exceeds design tolerances.~";
-               "~Confirmed.~  The ship's engines step to 
+               "~Confirmed.~  The ship's engines step to
                 standard by ", (number) noun, ".";
            Take: if (noun~=force_wall) "~Please clarify.~";
                 "~Force wall raised.~";
            Drop: if (noun~=blasters)   "~Please clarify.~";
-              "~Battle-computers on line. 
+              "~Battle-computers on line.
                 Neutron blasters cleared for firing.~";
            NotUnderstood: "~Language banks unable to decode.~";
            default: "~Information. That function is unavailable.~";
@@ -978,7 +978,7 @@ Object -> "tricorder"
                print "~", (The) noun, " radiates ";
                if (noun hasnt animate) print "no ";
               "life signs.~";
-           default: "The tricorder bleeps. It can only accept commands 
+           default: "The tricorder bleeps. It can only accept commands
                ~tricorder, <something>~.";
        ],
        life
@@ -989,7 +989,7 @@ Object -> "tricorder"
 Object -> "replicator"
   with name "replicator",
        initial
-          "A replicator (i.e. Star Trek drinks machine) occupies a niche 
+          "A replicator (i.e. Star Trek drinks machine) occupies a niche
            in one wall.",
        grammar
        [;  return 'rc,';
@@ -998,7 +998,7 @@ Object -> "replicator"
        [;  Give:
                "The replicator serves up a cup of ",
                (name) noun, " which you drink eagerly.";
-           default: "The replicator is unable to oblige. You must give 
+           default: "The replicator is unable to oblige. You must give
                it the name of a drink it knows about.";
        ],
        life
@@ -1013,7 +1013,7 @@ Object -> -> "distilled water"  with name "distilled" "water";
 
 Object "Sealed Room"
   with description
-          "I'm in a sealed room, like a squash court without a door, 
+          "I'm in a sealed room, like a squash court without a door,
            maybe six or seven yards across",
   has  light;
 Object -> "fish" with name "fish";
@@ -1032,7 +1032,7 @@ Object -> martha "Martha"
                if (noun notin r) "~That's beyond my telekinesis.~";
                if (noun==self) "~Teleportation's too hard for me.~";
                move noun to player;
-               "~Here goes...~ and Martha's telekinetic talents 
+               "~Here goes...~ and Martha's telekinetic talents
                 magically bring ", (the) noun, " to your hands.";
            Look:
                print "~", (string) r.description;
@@ -1053,9 +1053,9 @@ Object -> martha "Martha"
 Object Third_Floor "Third Floor"
   with name "trapdoor",
        description
-          "Atop the marble staircase, this third floor 
+          "Atop the marble staircase, this third floor
            foyer fans out into Rooms from Chapter V. These run:^
-           ^  south to Corridor 22 (inventories) 
+           ^  south to Corridor 22 (inventories)
            and the List Property Office,
            ^  @00 to Room 24 (Curious Names),
            ^  @01 to Room 28, which is divided by a glass window.^
@@ -1131,7 +1131,7 @@ Object -> "quartz window"
   with name "quartz" "window",
        before
        [;  Examine, Search, LookUnder:
-               print "Through the window you can hazily make out the contents 
+               print "Through the window you can hazily make out the contents
                       of the Grammar Hall below...^";
                if (Locale(Grammar_Hall, "You can see",
                           "You can also see")~=0)
@@ -1146,9 +1146,9 @@ Object -> "Geoffrey's book"
        before
        [;  Examine:
                self.invent = "that lethal old book of Geoffrey's";
-              "The apparently harmless book turns fiery hot in your hands, 
-               and your eyes are dragged toward the hideous sigils 
-               inscribed within it... Just in time, you break the gorgon 
+              "The apparently harmless book turns fiery hot in your hands,
+               and your eyes are dragged toward the hideous sigils
+               inscribed within it... Just in time, you break the gorgon
                gaze and look away.^^
                [From this moment, its inventory entry changes.]";
        ],
@@ -1156,8 +1156,8 @@ Object -> "Geoffrey's book"
 
 Object -> "platinum pyramid"
   with name "platinum" "pyramid",
-       description "No matter how many times you pick this up and put it 
-           down again, it never becomes an ~ordinary~ object for room 
+       description "No matter how many times you pick this up and put it
+           down again, it never becomes an ~ordinary~ object for room
            description purposes -- it always has a line to itself.",
        describe
        [;  "^The platinum pyramid catches the light beautifully.";
@@ -1197,7 +1197,7 @@ Object Room23a "Room 23 @01: Inventory Annexe"
 Object -> list_machine "listing machine"
   with name "listing" "list" "machine",
        describe
-       [ i;  print "The listing machine has a go button and a number of 
+       [ i;  print "The listing machine has a go button and a number of
                     switches, whose current settings are as follows:^";
              objectloop (i in self)
              {   if (i~=list_go)
@@ -1215,7 +1215,7 @@ Object -> -> list_go "go button"
        [ i j;  Push:
             objectloop (i in list_machine)
                 if (i~=self && i has on) j=j+i.number;
-            print "~In this style, your inventory is listed as 
+            print "~In this style, your inventory is listed as
                 follows...^";
             WriteListFrom(child(player), j, 1);
            "...~";
@@ -1226,29 +1226,29 @@ Class  BitSwitch
   with name "switch" "control",
   has  switchable static;
 
-BitSwitch -> -> "newline switch" 
+BitSwitch -> -> "newline switch"
   with name "newline",  number NEWLINE_BIT;
-BitSwitch -> -> "indent switch" 
+BitSwitch -> -> "indent switch"
   with name "indent",   number INDENT_BIT;
-BitSwitch -> -> "fullinv switch" 
+BitSwitch -> -> "fullinv switch"
   with name "fullinv",  number FULLINV_BIT, has on;
-BitSwitch -> -> "english switch" 
+BitSwitch -> -> "english switch"
   with name "english",  number ENGLISH_BIT, has on;
-BitSwitch -> -> "recurse switch" 
+BitSwitch -> -> "recurse switch"
   with name "recurse",  number RECURSE_BIT, has on;
-BitSwitch -> -> "always switch" 
+BitSwitch -> -> "always switch"
   with name "always",   number ALWAYS_BIT;
-BitSwitch -> -> "terse switch" 
+BitSwitch -> -> "terse switch"
   with name "terse",    number TERSE_BIT;
-BitSwitch -> -> "partinv switch" 
+BitSwitch -> -> "partinv switch"
   with name "partinv",  number PARTINV_BIT;
-BitSwitch -> -> "defart switch" 
+BitSwitch -> -> "defart switch"
   with name "defart",   number DEFART_BIT;
-BitSwitch -> -> "workflag switch" 
+BitSwitch -> -> "workflag switch"
   with name "workflag", number WORKFLAG_BIT;
-BitSwitch -> -> "isare switch" 
+BitSwitch -> -> "isare switch"
   with name "isare",    number ISARE_BIT;
-BitSwitch -> -> "conceal switch" 
+BitSwitch -> -> "conceal switch"
   with name "conceal",  number CONCEAL_BIT;
 
 ! --------------------------------------------------------------------------
@@ -1332,8 +1332,8 @@ Class  SilverCoin class Coin
   with list_together [; return CoinsLT(SilverCoin); ];
 
 Object Room23b "Room 23 @00: Chinese Room"
-  with description "A small, well-composed Chinese room for meditation, 
-           through which ~a wind can blow~. (But only if it blows from 
+  with description "A small, well-composed Chinese room for meditation,
+           through which ~a wind can blow~. (But only if it blows from
            @01 back to north@01, because they're the only exits.)
            From each cornice of the ceiling, a cherub looks down.",
        w_to Room23, nw_to Corridor22,
@@ -1343,8 +1343,8 @@ Object -> "Chinese scroll"
   with name "chinese" "scroll" "instructions",
        initial "A scroll hangs on one wall.",
        description
-          "Instructing you in the arts of the I Ching, the scroll advises 
-           you to throw the two trigrams of gold and silver coins, that 
+          "Instructing you in the arts of the I Ching, the scroll advises
+           you to throw the two trigrams of gold and silver coins, that
            you may find wisdom in the result.";
 
 GoldCoin -> "goat" with name "goat";
@@ -1366,7 +1366,7 @@ Class  Cherub
              if (j=='cherubs')
              {   parser_action=##PluralFound; flag=1;
                  if (cherub_warning_given==0)
-                     print "(I'll let this go, 
+                     print "(I'll let this go,
                          but the plural of ~cherub~ is ~cherubim~.)^";
                  cherub_warning_given = true;
              }
@@ -1387,9 +1387,9 @@ Cherub -> "southwest cherub"  with name "southwest";
 
 Object Room23 "Room 23: List Property Office"
   with description
-          "This the List Property Office (it seems that an ~O~ 
-           was lost some time ago), at the southern end of the top floor; 
-           the management have kindly provided a green baize table, while 
+          "This the List Property Office (it seems that an ~O~
+           was lost some time ago), at the southern end of the top floor;
+           the management have kindly provided a green baize table, while
            the rest is presumably the work of patrons.^^
            Room 23 continues @00 to @01.",
        n_to Corridor22,
@@ -1542,7 +1542,7 @@ Object -> genies_lamp "genie's lamp"
                if (self hasnt general) give self general;
                else give self ~general;
                "A genie appears from the lamp, declaring:^^
-                  ~Mischief is my sole delight:^ 
+                  ~Mischief is my sole delight:^
                    If white means black, black means white!~";
        ];
 
@@ -1563,8 +1563,8 @@ Object -> magnifier "magnifying glass"
       " is inscribed as being ~object ", noun, "~.^";
    if (magnifier hasnt general)
    {   give magnifier general;
-      "^(When you're carrying the magnifier, you can refer to 
-        things by their numbers like this; and you can even use 
+      "^(When you're carrying the magnifier, you can refer to
+        things by their numbers like this; and you can even use
         # to mean ~any single object~ and * to mean ~all objects~.)";
    }
 ];
@@ -1581,7 +1581,7 @@ Object -> magnifier "magnifying glass"
 
 Object -> "/?%?/ (the artiste formally known as Princess)"
   with name "princess" "artiste" "formally" "known" "as",
-       description "You somehow feel it would be appropriate 
+       description "You somehow feel it would be appropriate
                     to kiss Princess.",
        short_name
        [;   if (self hasnt general) { print "Princess"; rtrue; }
@@ -1607,8 +1607,8 @@ Object -> "/?%?/ (the artiste formally known as Princess)"
        ],
        life
        [;   Kiss: give self general; self.life = NULL;
-                "In a fairy-tale transformation, the Princess 
-                 steps back and astonishes the world by announcing 
+                "In a fairy-tale transformation, the Princess
+                 steps back and astonishes the world by announcing
                  that she will henceforth be known as ~/?%?/~.";
        ],
   has  animate proper female;
@@ -1628,11 +1628,11 @@ Object -> "upright fridge"
        after
        [;  Open:
                print
-              "On the inside of the door is a note to the effect 
-               that the pepper is a standardly-named Inform object 
-               and can be called ~green~, ~pepper~, ~green pepper~, 
-               ~pepper green~, etc.; 
-               whereas, in the case of the red tomato, ~red~ and 
+              "On the inside of the door is a note to the effect
+               that the pepper is a standardly-named Inform object
+               and can be called ~green~, ~pepper~, ~green pepper~,
+               ~pepper green~, etc.;
+               whereas, in the case of the red tomato, ~red~ and
                ~tomato fried red~, etc., will not be allowed.^^";
                <<Search self>>;
        ],
@@ -1657,7 +1657,7 @@ Object -> -> "red fried tomato"
 Object -> "drinks machine"
   with name "drinks" "machine",
        initial
-          "Next to the fridge is a drinks machine with buttons 
+          "Next to the fridge is a drinks machine with buttons
            for Cola, Coffee and Tea.",
   has  static transparent;
 Object -> -> "drinks machine button"
@@ -1684,7 +1684,7 @@ Object -> -> "drinks machine button"
                 "You'll have to say which button to press.";
              if (parent(drink) ~= 0) "The machine's broken down.";
              drink.number = self.number; move drink to player; itobj = drink;
-             "Whirr! The machine puts ", (a) drink, " into your 
+             "Whirr! The machine puts ", (a) drink, " into your
                  glad hands.";
            Attack: "The machine shudders and squirts cola at you.";
            Drink:  "You can't drink until you've worked the machine.";
@@ -1713,7 +1713,7 @@ Object  drink "drink"
         number 0,
         before
         [; Drink: remove self;
-            "Ugh, that was awful. You crumple the cup and responsibly 
+            "Ugh, that was awful. You crumple the cup and responsibly
              dispose of it.";
         ];
 
@@ -1729,10 +1729,10 @@ Class  WindowRoom
        [;  Examine, Search: ;
            default:
              if (inp1~=1 && noun~=0 && noun in self.far_side)
-                 print_ret (The) noun, " is on the far side of 
+                 print_ret (The) noun, " is on the far side of
                     the glass.";
              if (inp2~=1 && second~=0 && second in self.far_side)
-                 print_ret (The) second, " is on the far side of 
+                 print_ret (The) second, " is on the far side of
                     the glass.";
        ],
        after
@@ -1783,10 +1783,10 @@ Object ggw "great glass window"
 Object roof "Museum Roof: area 33"
   with name "trapdoor",
        description
-          "A small trapdoor leads down from this tiled roof into the 
-           museum. The view is indescribable, which saves me some typing 
-           and you some reading, right? Yes -- this is one of those 
-           post-modern room descriptions, the kind that makes you aware 
+          "A small trapdoor leads down from this tiled roof into the
+           museum. The view is indescribable, which saves me some typing
+           and you some reading, right? Yes -- this is one of those
+           post-modern room descriptions, the kind that makes you aware
            you're only playing a game.",
        d_to Third_Floor,
   has  light;
@@ -2113,7 +2113,7 @@ Global third;
   return 0;
 ];
 Verb "threefold" * noun noun GhostObject -> Threefold;
-               
+
 ! --------------------------------------------------------------------------
 
 [ MegaExam obj; print (a) obj, ": "; <Examine obj>; ];

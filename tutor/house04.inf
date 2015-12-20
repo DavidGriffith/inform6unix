@@ -98,7 +98,7 @@ Object Right_Front_Door "right front door"
 ! In this version of The House, we're going to add an object, the rock, and
 ! a place where the rock is useful. Unlike version 3 where Inform provides
 ! a special 'door' object, we must provide our own logic to 'handle' the rock.
-! 
+!
 ! To do this, we're going to use what are called 'code blocks'. A code block is a
 ! group of statements that combine to handle one particular piece of logic
 !

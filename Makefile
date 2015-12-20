@@ -37,7 +37,7 @@ all:	$(BINNAME) lib demos tutor
 
 $(OBJECTS): %.o: %.c
 	$(CC) $(DEFINES) -o $@ -c $<
-	
+
 $(BINNAME): $(OBJECTS)
 	$(CC) -o $@ $^
 
@@ -75,7 +75,7 @@ install: $(BINNAME) lib
 
 
 uninstall:
-	rm -f $(PREFIX)/bin/$(BINNAME)	
+	rm -f $(PREFIX)/bin/$(BINNAME)
 	rm -rf $(LIBDIR)
 	rm -rf $(INCLUDEDIR)
 	rm -rf $(DEMODIR)

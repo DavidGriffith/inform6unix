@@ -9,8 +9,8 @@ played using an *interpreter*.  There are several interpreters available
 which can play Inform games on different machines (e.g. frotz, jzip) -- you
 can probably obtain one from the same place you got this package.
 
-Inform was originally written by Graham Nelson, and you are free to 
-redistribute it under certain conditions -- see the file COPYING for 
+Inform was originally written by Graham Nelson, and you are free to
+redistribute it under certain conditions -- see the file COPYING for
 details.
 
 
@@ -19,7 +19,7 @@ What's in this distribution?
 
 The following subdirectories are included in the package:
 
-- ***src***	--- source code for the Inform program 
+- ***src***	--- source code for the Inform program
 - ***lib***	--- Inform library files
 - ***include***	--- selection of useful include files
 - ***manual***	--- the online Designer's Manual, in HTML format
@@ -32,7 +32,7 @@ The following subdirectories are included in the package:
 How do I install it?
 --------------------
 
-See the file called *INSTALL* for detailed instructions.  But basically, 
+See the file called *INSTALL* for detailed instructions.  But basically,
 it boils down to...
 
     ./configure
@@ -85,15 +85,15 @@ more, or you think you've found a bug, visit them at http://inform7.com
 About this package
 ------------------
 
-This package was originally created by Glenn Hutchings to address the 
-tedium of gathering the program, libraries, and documentation for 
-several different Unix machines.  It received blessing from Graham 
-Nelson.  The result is a package that automates the configuration and 
-installation process.  It should build and install on all Unix, Linux, 
+This package was originally created by Glenn Hutchings to address the
+tedium of gathering the program, libraries, and documentation for
+several different Unix machines.  It received blessing from Graham
+Nelson.  The result is a package that automates the configuration and
+installation process.  It should build and install on all Unix, Linux,
 and Win32/Cygwin system.
 
-This package is an ideal base for creating pre-compiled packages in the 
-style of Debian .debs, Redhat .rpms and similar schemes as well as build 
+This package is an ideal base for creating pre-compiled packages in the
+style of Debian .debs, Redhat .rpms and similar schemes as well as build
 trees like FreeBSD ports, NetBSD pkgsrc, and Gentoo portage.
 
 Many people contributed to the contents of this package.  See the file

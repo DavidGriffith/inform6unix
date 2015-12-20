@@ -1,19 +1,19 @@
 
 
 !---------------------------------------------------------------------------
-!	HelpRoutines.h, by Emily Short (emshort@mindspring.com) 
-!	Version 1.0 
-!	8/16/02 
+!	HelpRoutines.h, by Emily Short (emshort@mindspring.com)
+!	Version 1.0
+!	8/16/02
 !
 !	Being a file of straightforward routines that will make your game print
-!	wodges and wodges of text about IF playing. 
-!	
-!	Some portions based on paraphrase of instructional text by 
+!	wodges and wodges of text about IF playing.
+!
+!	Some portions based on paraphrase of instructional text by
 !	Stephen Granade.
 !---------------------------------------------------------------------------
 !
 !	RIGHTS:
-!	
+!
 !	This library file may be treated as public domain.  It may be
 !	used in source with or without credit to the original author.  It may be
 !	modified at the user's discretion.  It may be freely redistributed.
@@ -21,7 +21,7 @@
 !	and reused elsewhere.
 !
 !
-!	INSTALLATION: 
+!	INSTALLATION:
 !
 !	Include "HelpRoutines" in your gamefile.
 !
@@ -29,7 +29,7 @@
 !	CONTENTS:
 !
 !	-- Three basic formatting routines for doing bold and italic text
-!		and for awaiting a keypress.  (The only reason to define these 
+!		and for awaiting a keypress.  (The only reason to define these
 !		is to provide z-code/Glulx flexibility.)
 !
 !	-- LongIntro.  A description of IF, which prints both of
@@ -44,32 +44,32 @@
 !	-- AllCommunication.  Prints all of the following:
 !		-- Communication.  Basic instructions on how to form valid commands.
 !		-- OnMovement
-!		-- OnObjects 
+!		-- OnObjects
 !		-- OnNPCs, which will also call one of
 !			-- AskTellNPC (Define NPC_ASKTELL before including this file)
 !			-- MenuNPC (Define NPC_MENU before including this file)
 !			-- TalkToNPC (Define NPC_TALKTO before including this file)
-!			-- TopicMenuNPC (Define NPC_TOPIC before including this file) 
+!			-- TopicMenuNPC (Define NPC_TOPIC before including this file)
 !		-- MetaCommands.  Introduces SAVE, QUIT, RESTART, RESTORE, UNDO.
 !
 !	-- StandardVerbs.  A list of standard verbs.  Self-adjusting to reflect
-!	    the instructions about NPCS; it will list SCORE only if you have a MAX_SCORE 
+!	    the instructions about NPCS; it will list SCORE only if you have a MAX_SCORE
 !		greater than 0, and the OBJECTS/PLACES commands only if you have not defined
 !		NO_PLACES.
 !	-- Abbreviations.  A list of abbreviations and their meanings.
 !
 !	-- OnlineHelp.  How to find online IF manuals.
-!	-- MoreGames.  How to find more IF. 
+!	-- MoreGames.  How to find more IF.
 !
-!	SEE ALSO: 
+!	SEE ALSO:
 !		-- SampleTranscript.h: contains several sample transcripts formatted
 !			for inclusion in IF games.
 !
 !	CAVEAT
 !
-!	Note that in some cases this material may be incorrect for your game.  
-!	You are advised to read the resulting text and determine whether it suits 
-!	your ends. 
+!	Note that in some cases this material may be incorrect for your game.
+!	You are advised to read the resulting text and determine whether it suits
+!	your ends.
 !
 !---------------------------------------------------------------------------
 
@@ -79,53 +79,53 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! Special effects -- bold-texting and pauses for display purposes
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 #ifdef TARGET_GLULX;
-[ ES_Pause i; 
-	i = KeyCharPrimitive();  
+[ ES_Pause i;
+	i = KeyCharPrimitive();
 	if (i=='q') rtrue;
-	rfalse; 
+	rfalse;
 ];
 #ifnot;
 [ ES_Pause i;
 	@read_char 1 i;
 	if (i == 'q') rtrue;
-	rfalse; 
+	rfalse;
 ];
 #endif;
 
 #ifdef TARGET_GLULX;
-[ ESB str;	! print something in bold 
+[ ESB str;	! print something in bold
 	if (str==0) rfalse;
 	glk_set_style(style_Input);
-	print (string) str; 
+	print (string) str;
 	glk_set_style(style_Normal);
 	rtrue;
 ];
 #ifnot;
-[ ESB str;	! print something in bold 
+[ ESB str;	! print something in bold
 	if (str==0) rfalse;
 	style bold;
-	print (string) str; 
+	print (string) str;
 	style roman;
 	rtrue;
 ];
 #endif;
 
 #ifdef TARGET_GLULX;
-[ ESI str;	! print something in italics 
+[ ESI str;	! print something in italics
 	if (str==0) rfalse;
 	glk_set_style(style_Emphasized);
-	print (string) str; 
+	print (string) str;
 	glk_set_style(style_Normal);
 	rtrue;
 ];
 #ifnot;
-[ ESI str;	! print something in italics 
+[ ESI str;	! print something in italics
 	if (str==0) rfalse;
 	style underline;
-	print (string) str; 
+	print (string) str;
 	style roman;
 	rtrue;
 ];
@@ -135,7 +135,7 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! Introductions
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 [ LongIntro;
 	BasicBrief();
@@ -154,13 +154,13 @@ system_file;
 		items you can click on with a mouse, IF allows you a wide range of verbs.^";
 ];
 
-[ BasicIntro;   
+[ BasicIntro;
 	print "There are various kinds of IF in the world.  Some of them put more
 		emphasis on solving puzzles; some want to move you through a coherent plot
 		of some kind; some want to offer you something to explore.^^";
 	print "In games with a lot of challenging puzzles, you can expect to spend a fair
 		amount of time wandering around trying to figure out what you should do
-		next; this is part of the fun.  (If you like that sort of thing, anyway.) 
+		next; this is part of the fun.  (If you like that sort of thing, anyway.)
 		When you start a game, you can usually get a sense fairly early on of what
 		kind of game it is and what the author expects you to do.  Read the
 		opening text carefully: it may tell you things about the character you are
@@ -185,7 +185,7 @@ system_file;
 	print "Types of Action: Most of the actions you can perform in the world of IF
 		are brief and specific.  >WALK WEST or >OPEN DOOR are likely to be
 		provided.  >TAKE A JOURNEY or >BUILD A TABLE are not.  Things like >GO TO
-		THE HOTEL are on the borderline: some games allow them, but most do not. 
+		THE HOTEL are on the borderline: some games allow them, but most do not.
 		In general, abstract, multi-stage behavior usually has to be broken down
 		in order for the game to understand it.^^";
 	print "Other Characters: Other characters in IF games are sometimes rather
@@ -207,7 +207,7 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! Explain Prompt, Starting Instructions, Stuck Instructions
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 
 [ ExplainPrompt;
@@ -223,7 +223,7 @@ system_file;
 	print "The first thing you want to do when starting a game is acquaint yourself
 		with your surroundings and get a sense of your goal.  To this end, you should:^^";
 	print (ESB) "Read the introductory text carefully.  ", "Sometimes it contains clues.^";
-	print (ESB) "Look at the room description.  ", "Get an idea of what sort of 
+	print (ESB) "Look at the room description.  ", "Get an idea of what sort of
 		place you're in.  Usually the description will tell you two important things:
 		where the exits from the room are, and what the objects are that you can
 		interact with.  Type LOOK if you want to see the room description again.^";
@@ -241,7 +241,7 @@ system_file;
 		pause while printing them.  To stop the instructions mid-flow, press
 		Q at a pause; to continue, press any other key.]^^";
 	print (ESB) "Explore.  ", "Examine every object mentioned in room descriptions, and
-		everything in your inventory.  Examine yourself, too.  
+		everything in your inventory.  Examine yourself, too.
 		Look inside all closed containers.  Open
 		all doors and go through them.  If anything is locked, that's probably a
 		puzzle, and you should try to get it unlocked.^^";
@@ -319,7 +319,7 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! Standard Verbs list
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 [ StandardVerbs flag;
 	print "Here is a list of the standard instructions in games like this.
@@ -327,7 +327,7 @@ system_file;
 		verbs, as well.  This list is just a place to start:^^";
 #ifdef TARGET_GLULX;
 	glk_set_style(style_Preformatted);
-#ifnot;	
+#ifnot;
 	font off;
 #endif;
 	print "LOOK       ";
@@ -336,116 +336,116 @@ system_file;
 	print "LOOK UNDER ";
 	print "^";
 	print "^";
-	
+
 	print "INVENTORY  ";
 	print "TAKE       ";
 	print "DROP       ";
 	print "EMPTY      ";
 	print "^";
-	
+
 	print "REMOVE     ";
 	print "PUT ON     ";
 	print "PUT IN     ";
 	print "TRANSFER   ";
 	print "^";
 	print "^";
-	
+
 	print "NORTH [N]  ";
 	print "SOUTH [S]  ";
 	print "EAST  [E]  ";
 	print "WEST	 [W]  ";
 	print "^";
-	 
+
 	print "[NE]       ";
 	print "[NW]       ";
 	print "[SE]       ";
 	print "[SW]       ";
-	print "^"; 
-	
+	print "^";
+
 	print "UP         ";
 	print "DOWN       ";
 	print "IN         ";
 	print "OUT        ";
 	print "^";
-	 
+
 	print "GO         ";
 	print "ENTER      ";
 	print "EXIT       ";
 	print "GET OFF    ";
 	print "^";
 	print "^";
-	
+
 	print "CLIMB      ";
 	print "SWIM       ";
 	print "JUMP       ";
 	print "JUMP OVER  ";
 	print "^";
 	print "^";
-	
+
 	print "LOCK       ";
 	print "UNLOCK     ";
 	print "OPEN       ";
 	print "CLOSE      ";
 	print "^";
-	
+
 	print "SWITCH ON  ";
 	print "SWITCH OFF ";
 	print "SET        ";
 	print "TURN       ";
 	print "^";
-	
+
 	print "PULL       ";
 	print "PUSH       ";
 	print "PUSH NORTH ";
 	print "THROW AT   ";
 	print "^";
-	
+
 	print "SWING      ";
 	print "WAVE       ";
 	print "RUB        ";
 	print "SQUEEZE    ";
 	print "^";
-		
+
 	print "EAT        ";
 	print "DRINK      ";
 	print "WEAR       ";
 	print "TAKE OFF   ";
 	print "^";
-	
+
 	print "LISTEN     ";
 	print "TASTE      ";
 	print "TOUCH      ";
 	print "SMELL      ";
 	print "^";
-	
+
 	print "BURN       ";
 	print "DIG        ";
 	print "CUT        ";
 	print "TIE        ";
 	print "^";
-	
+
 	print "BLOW       ";
 	print "BREAK      ";
 	print "FILL       ";
 	print "CONSULT    ";
 	print "^";
-	
+
 	print "WAIT       ";
 	print "SLEEP      ";
 	print "SING       ";
-	print "THINK      "; 
+	print "THINK      ";
 	print "^";
 	print "^";
-	
+
 	print "GIVE       ";
 	print "SHOW       ";
 	print "WAKE       ";
 	print "KISS       ";
 	print "^";
-	
+
 	print "ATTACK     ";
 	print "BUY        ";
-	
+
 #ifdef NPC_ASKTELL;
 	print "TELL       ";
 	print "ANSWER     ";
@@ -464,33 +464,33 @@ system_file;
 	print "TALK TO    ";
 #endif;
 	print "^";
-	
+
 #ifdef TARGET_GLULX;
 	glk_set_style(style_Normal);
-#ifnot;	
+#ifnot;
 	font on;
 #endif;
 
 	print "^^The following commands control the game itself:^^";
 #ifdef TARGET_GLULX;
 	glk_set_style(style_Preformatted);
-#ifnot;	
+#ifnot;
 	font off;
-#endif; 
+#endif;
 	print "RESTART    RESTORE    SAVE^";
 	print "QUIT       UNDO       PRONOUNS^";
 	print "SCRIPT ON  SCRIPT OFF VERIFY^";
 #ifndef NO_PLACES;
 	print "OBJECTS    PLACES     ^";
 #endif;
-#ifdef MAX_SCORE; 
+#ifdef MAX_SCORE;
 	if (max_score > 0)
 	{	print "SCORE      ";
 		print "NOTIFY ON  ";
 		print "NOTIFY OFF ";
 		flag = 1;
 	}
-#endif; 
+#endif;
 #ifdef TASKS_PROVIDED;
 	if (max_score > 0)
 	{
@@ -498,15 +498,15 @@ system_file;
 		flag = 1;
 	}
 #endif;
-	if (flag) print "^"; 
+	if (flag) print "^";
 #ifdef TARGET_GLULX;
 	glk_set_style(style_Normal);
-#ifnot;	
+#ifnot;
 	font on;
 #endif;
 ];
 
-[ Abbreviations; 
+[ Abbreviations;
 	print "Standard abbreviations are as follow:^^";
 	print "D -- DOWN.";
 	print "E -- EAST.";
@@ -529,37 +529,37 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! Communication etc.
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 [ AllCommunication;
 	Communication();
 	OnMovement();
-	OnObjects(); 
+	OnObjects();
 	OnNPCs();
 	MetaCommands();
 ];
 
-[ Communication; 
+[ Communication;
 	print (ESB) "BASIC COMMUNICATION^";
-	print "In order to communicate with the game, you will need to enter 
-		instructions beginning with imperative verbs -- as though you were 
-		giving orders to someone else to carry out.  For instance, >CLOSE THE 
+	print "In order to communicate with the game, you will need to enter
+		instructions beginning with imperative verbs -- as though you were
+		giving orders to someone else to carry out.  For instance, >CLOSE THE
 		DOOR or >LOOK UNDER THE RUG.^^";
 	print "You may use articles (~the~ and ~a~), but you do not need to.  >CLOSE DOOR
 		will also work for the game's purposes.^";
 ];
-[ OnMovement; 
-	print (ESB) "ROOMS AND TRAVEL^"; 
+[ OnMovement;
+	print (ESB) "ROOMS AND TRAVEL^";
 	print "At any given time, you are in a specific location, or room.  When you
 		go into a room, the game will print a description of what you can see
 		there.  This description will contain two vital kinds of information:
-		things in the room you can interact with or take, and a list of 
+		things in the room you can interact with or take, and a list of
 		exits, or ways out.  If you want to see the description again, you may
 		just type LOOK.^^";
 	print "When you want to leave a location and go to another one, you may
 		communicate this to the game using compass directions: eg, GO NORTH.
 		For simplicity's sake, you are allowed to omit the word GO, and
-		to abbreviate the compass directions.  So you have 
+		to abbreviate the compass directions.  So you have
 		NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHEAST, NORTHWEST,
 		SOUTHWEST, UP, and DOWN, or in short form N, S, E, W, NE, SE, NW, SW,
 		U, and D.^^";
@@ -577,9 +577,9 @@ system_file;
 		name of an object even though it has been described as being in the room
 		with you.  If this is the case, the object is just there for scenery,
 		and you may assume that you do not need to interact with it.^";
-]; 
+];
 [ OnNPCs;
-	print (ESB) "OTHER CHARACTERS^"; 
+	print (ESB) "OTHER CHARACTERS^";
 #ifdef NPC_MENU;
 	MenuNPC();
 	rtrue;
@@ -591,8 +591,8 @@ system_file;
 #ifdef NPC_TOPIC;
 	TopicMenuNPC();
 	rtrue;
-#endif; 
-	AskTellNPC(); 
+#endif;
+	AskTellNPC();
 	rtrue;
 ];
 
@@ -623,7 +623,7 @@ system_file;
 	print "From time to time you will meet other people and creatures. You may use the command
 		>TALK TO CHARACTER, and the game will give you a menu of options, which you may
 		use to converse with the character in plain English.^^";
-	print "You may also find it useful to show them things:^^"; 
+	print "You may also find it useful to show them things:^^";
 	print (ESB) ">SHOW WARRANT TO DRUG LORD^";
 	print (ESB) ">SHOW BUCKET OF WATER TO EVIL WITCH^^";
 	print "or give them instructions:^";
@@ -635,28 +635,28 @@ system_file;
 	print "From time to time you will meet other people and creatures. You will be unable to
 		converse with the people in plain English; instead, you may use the command
 		>TALK TO CHARACTER, and the game will decide what you should say at this
-		juncture.^"; 
+		juncture.^";
 ];
 
 [ TopicMenuNPC;
 	print "From time to time you will meet other people and creatures. You will be unable to
 		converse with the people in plain English; instead, a more constrained system of
-		communication is used. There are three common ways to talk to characters:^^"; 
+		communication is used. There are three common ways to talk to characters:^^";
 	print "Bring up a topic for conversation.^";
 	print (ESB) ">TELL BOB ABOUT THE FLAG^";
 	print (ESB) ">ASK BETTY ABOUT CHOCOLATE CAKE^^";
 	print "These can also be abbreviated to A and T, and the game will also
-		keep track of which person you're talking to, if you've already started a 
+		keep track of which person you're talking to, if you've already started a
 		conversation.  This allows briefer commands, like so:^^";
 	print (ESB) ">A CAKE^";
 	print (ESB) ">T FLAG^^";
-	print "If there is more than one thing you are allowed to ask Betty about the chocolate 
-		cake, the game will give you a menu of options in the window at the bottom of the 
+	print "If there is more than one thing you are allowed to ask Betty about the chocolate
+		cake, the game will give you a menu of options in the window at the bottom of the
 		screen.  Otherwise, it will carry out your instruction immediately.^^";
 	print "Show them an object.^";
 	print (ESB) ">SHOW WARRANT TO DRUG LORD^";
-	print (ESB) ">SHOW BUCKET OF WATER TO EVIL WITCH^^"; 
-	print "Command them.^"; 
+	print (ESB) ">SHOW BUCKET OF WATER TO EVIL WITCH^^";
+	print "Command them.^";
 	print (ESB) ">TINY TIM, PUT THE UKELELE ON THE TABLE^";
 	print (ESB) ">TIN MAN, GET UP. CARRY US^^";
 	print "Most characters will be less than responsive to commands.^";
@@ -676,7 +676,7 @@ system_file;
 
 !---------------------------------------------------------------------------
 ! About the IF community online
-!--------------------------------------------------------------------------- 
+!---------------------------------------------------------------------------
 
 [ OnlineHelp;
 	print (ESB) "IF HELP ONLINE^^";
@@ -693,11 +693,11 @@ system_file;
 		print "If you are not familiar with newsgroups and don't have
 			a newsreader already set up, you may access it by going to http://groups.google.com/
 			and selecting ~rec~, then ~rec.games~, then ~rec.games.int-fiction.~  You will
-			be presented with a long list of things that people are already talking about.  
+			be presented with a long list of things that people are already talking about.
 			If you've never read this newsgroup before, you should look for a thread with the
 			word ~FAQ~ in the title, and read it: this will give you instructions about how
 			to post without breaking any of the community's rules of etiquette.  (They're
-			not especially fussy, but following them will get you prompter and more polite 
+			not especially fussy, but following them will get you prompter and more polite
 			assistance.)^^";
 		print "Once you've done that, you may post
 			a new message with a clearly labelled subject (like ~[HINT REQUEST] Jigsaw~ or
@@ -709,9 +709,9 @@ system_file;
 [ MoreGames;
 	print (ESB) "MORE SOURCES OF IF^^";
 	print "There are more games like this at the IF Archive, www.ifarchive.org.^^";
-	print "Instructions on setting them up are available from Frederik Ramsberg's 
+	print "Instructions on setting them up are available from Frederik Ramsberg's
 		Beginner's Guide, http://www.octagate.com/Fredrik/IFGuide/^";
 	print "Guides to good IF (for beginners or in general) are to be found at the Beginner's
-		Guide just mentioned, or at Baf's Guide to Interactive Fiction, 
+		Guide just mentioned, or at Baf's Guide to Interactive Fiction,
 		http://www.wurb.com/if/index.";
 ];

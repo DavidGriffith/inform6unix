@@ -38,7 +38,7 @@
 !                   Also buffer length checks and garbage detector.
 ! v 1.11 8 May 03   Nitfol and Zip extreme issues addressed.  No deletions from 2-letter words (RF).
 ! v 1.2  12 May 03  Keyboard, grammar and scope sensitivity added.
-!         (beta)    Now deals with multiple misspellings in last resort case 
+!         (beta)    Now deals with multiple misspellings in last resort case
 !                   Fixed couple of retained zeroes in Glulx buffer (hacky)
 !                   Changed criteria for transposing space (now only if also corrects next word)
 !                   User command added
@@ -73,7 +73,7 @@ Global mistype_loose;
 !---------------------------------------------------
 
 Array KeyNear -> "qldsvnxvfswrgdhfjguokhjlkpknbmpilowatedayryibcqezcutxalpa p lmpe";
-!                 @`A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [;\#] ~ ? 
+!                 @`A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [;\#] ~ ?
 
 #ifndef QUICKCHECK;
 Array NounPhraseConnectives table  ! additional words not mentioned elsewhere
@@ -103,7 +103,7 @@ ALL1__WD ALL2__WD ALL4__WD AND1__WD BUT1__WD BUT2__WD ME1__WD OF1__WD OTHER2__WD
     }
   ! could also check articles etc at this point when nouns are expected
   ! for (r=1: r<=LanguageDescriptors-->0: r=r+4) if (w == LanguageDescriptors-->r or LanguageDescriptors-->(r+3)) rtrue;
-  
+
   rfalse;
   ];
 
@@ -227,7 +227,7 @@ Array mistype_names -> 16;
     };
 
   rfalse; ! not a particularly good match
-    
+
   ];
 
 [ KeyboardPrimitive  buffer parse  i start len j c1 c2 t n alt fail quot;
@@ -245,7 +245,7 @@ Array mistype_names -> 16;
 
   ! JZIP has problems with overflow - can't CR if buffer is full
   ! if it's too many *words*, suppress the xzip/jzip warning
-  if (parse->1 > parse->0) { 
+  if (parse->1 > parse->0) {
     ! print "[Suppressing further 'too many words' warnings.]^";
     buffer->1 = parse->(1+4*parse->0)+parse->(4*parse->0)-2; ! truncate to 15 words
     buffer->(2+buffer->1)=0;
@@ -261,13 +261,13 @@ Array mistype_names -> 16;
     if (~~ (parse-->(n=i*2+1) || quot)) {  ! unrecognised word
 
       ! try fixing word
-      start=parse->(i*4+5); 
+      start=parse->(i*4+5);
       len=parse->(i*4+4);
       t = start+len-1;
       if (buffer->start <= '9' && buffer->t <='9') jump NxtChk;  ! numbers can't be tokenised
 
       ! oops_from=saved_oops=i+1; & 'oops_word=saved_oops;' in ParserError()
-      ! it would be nice to fiddle this in case of a miscorrection 
+      ! it would be nice to fiddle this in case of a miscorrection
 
 #ifdef NAMEABLES;  ! check for valid non-dictionary words
       mistype_loose=0; ! ensure Fits checks against GPR
@@ -290,7 +290,7 @@ Array mistype_names -> 16;
 
       !first try transpositions
       for (j=start+len +1 - 2*(i+1==parse->1 || len<3): j>start: j--) {
-        c1=buffer->j; 
+        c1=buffer->j;
         buffer->j=buffer->(j-1);
         buffer->(j-1)=c1;
         @tokenise buffer parse;
@@ -382,8 +382,8 @@ Array mistype_names -> 16;
       mistype_start=buffer+start; mistype_final=buffer+t;
       if (i==0 || parse-->(i*2-1)==',//' or './/' or THEN1__WD) { ! verb?
          ! call CheckWordDist for all verbs
-         for (j=0-->4 +7:j < 0-->2 -5: j=j+9) 
-            if (j->#dict_par1 &1) 
+         for (j=0-->4 +7:j < 0-->2 -5: j=j+9)
+            if (j->#dict_par1 &1)
                CheckWordDist (j);
          }
       else { ! consider all likely words
@@ -451,7 +451,7 @@ Array mistype_names -> 16;
     }
 
   ]; ! end of KeyboardPrimitive
-  
+
 #ifnot;
 
 !--------------------------------------------
@@ -510,7 +510,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
 
 [ Fits p i w   flag gram lineleft j tok;
   ! Does word 'i' make grammatical sense in parse-buffer context 'p'?
- 
+
   if (mistype_loose) rtrue; ! accept it on second pass
   mistype_close=1;  ! worth a second pass if there's something this close
 
@@ -552,7 +552,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
      };
 
   rfalse; ! not a particularly good match
-    
+
   ];
 
 [ KeyboardPrimitive  buffer parse  i start len j c1 c2 t n alt fail quot
@@ -560,7 +560,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
 
   done = false;
   ! this bit lifted from Andrew Plotkin's biplatform parserm.h
-  glk($00D0, gg_mainwin, buffer+WORDSIZE, INPUT_BUFFER_LEN-WORDSIZE, 
+  glk($00D0, gg_mainwin, buffer+WORDSIZE, INPUT_BUFFER_LEN-WORDSIZE,
     0); ! request_line_event
   while (~~done) {
     glk($00C0, gg_event); ! select
@@ -603,10 +603,10 @@ Array mistype_names -> DICT_WORD_SIZE+4;
 
       ! try fixing word
 
-      start=parse-->(i*3+3); 
+      start=parse-->(i*3+3);
       len=parse-->(i*3+2);
       keylen=len+1; if (keylen>DICT_WORD_SIZE) keylen=DICT_WORD_SIZE;
-      res=0; 
+      res=0;
       wordstart=buffer+start;
       t = start+len-1;
       c3=buffer->(start+len); ! keep the original word separator, while it is zeroed
@@ -642,7 +642,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
 
       !first try transpositions
       for (j=start+len +1 - 2*(i+1==parse-->0 || len<3): j>start: j--) {
-         c1=buffer->j; 
+         c1=buffer->j;
          buffer->j=buffer->(j-1);
          buffer->(j-1)=c1;
 
@@ -657,7 +657,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
             @binarysearch wordstart keylen dictstart entrylen dictlen 1 1 res;
             if (res && Fits (parse,i,res)) jump NxtChk;  ! fixed
             }
-         
+
          buffer->(j-1)=buffer->j; ! undo transposition
          buffer->j=c1;
          } ! end of for loop
@@ -695,7 +695,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
          @binarysearch wordstart keylen dictstart entrylen dictlen 1 1 res;
          if (res && Fits (parse,i,res)) { ! fixed
             buffer->t = ' '; ! replace the extra zero
-            jump NxtChk;  
+            jump NxtChk;
             }
          }
       ! and restore
@@ -752,8 +752,8 @@ Array mistype_names -> DICT_WORD_SIZE+4;
       mistype_bestv=1000; mistype_bestw=0;
       mistype_start=buffer+start; mistype_final=buffer+t;
       if (i==0 || parse-->(i*3-2)==',//' or './/' or THEN1__WD) { ! verb?
-         for (j=dictstart: j < dictstart+dictlen*entrylen: j=j+entrylen) 
-            if (j->#dict_par1 &1) 
+         for (j=dictstart: j < dictstart+dictlen*entrylen: j=j+entrylen)
+            if (j->#dict_par1 &1)
                CheckWordDist (j);
          }
       else { ! consider all likely words
@@ -855,7 +855,7 @@ Array mistype_names -> DICT_WORD_SIZE+4;
   ];
 
 Verb meta 'mistype' 'spellcheck' 'correction' 'typos' 'typing' 'atc'
-  * 'off' -> MistypeOff 
+  * 'off' -> MistypeOff
   * 'on'/'high'/'full' -> MistypeOn
   * 'half'/'semi'/'single'/'low' -> MistypeSingle
   * -> MistypeOff;

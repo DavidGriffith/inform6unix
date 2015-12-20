@@ -296,7 +296,7 @@ Class	LineGap
       tmp=(screen_width - tmp)/2;
 #IfNot; ! TARGET_ZCODE
    if (standard_interpreter)
-   {   
+   {
       @storew ForUseByOptions 0 128;
       @output_stream 3 ForUseByOptions;
       MenuPagePages(opt,page,pages);
@@ -310,7 +310,7 @@ Class	LineGap
 #EndIf; ! TARGET_
    MenuCursor(tmp,0);
    MenuPagePages(opt,page,pages);
-   
+
 ];
 
 Global top_menu = 0;
@@ -449,7 +449,7 @@ Global top_menu = 0;
    !  or 8 if fullemblaze is active.
    if (screen_height<=0 || screen_height>=250)
       screen_height=18;
-   
+
    switch (FullEmblaze)
    {
      FULLEMBLAZE_NEVER:
@@ -470,7 +470,7 @@ Global top_menu = 0;
    if (screen_height<8) screen_height=8;
    ! 8 it the minimum height with the menu in this layout,
    !  and that's one option. One option per page is usable.
-   
+
    if (lines+7+infull>screen_height)
    {
       ! Set pages to however many we need,
@@ -586,7 +586,7 @@ Global top_menu = 0;
       if (pkey==END__KY)
 	 pkey=EKEY1__KY;
 #EndIf; ! TARGET_
-      
+
       ! Pageup on page 1 means "go to top"
       if (pkey==MINUS__KY && page==1)
 	 pkey=HKEY1__KY;
@@ -699,7 +699,7 @@ Global top_menu = 0;
 	 pos=pos%page_lines;
 	 continue;
       }
-      
+
       ! Moving the pointer down
       if (pkey==NKEY1__KY or NKEY2__KY or DOWNARROW__KY)
       {
@@ -750,8 +750,8 @@ Global top_menu = 0;
 	       pos--;
 	    cur_item=elder(cur_item);
 	 }
-	 
-	   
+
+
 	 ! If we've gone off the top
 	 if (cur_item==0)
 	 {
@@ -865,7 +865,7 @@ Global top_menu = 0;
    @set_window 0;
    font on; style roman;
 #EndIf; ! TARGET_
-   
+
    new_line; new_line; new_line;
    if (opt.description)
    {
@@ -926,7 +926,7 @@ Class  	HintOption
 	    ! font on;
 	     self.getHints(i);
 	  }
-	  
+
 	  while (self.number<n)
 	  {
 #IfDef TARGET_GLULX;

@@ -41,7 +41,7 @@ GetOptions('usage|?'	=> \$options{usage},
 	'e|exec'	=> \$options{exec},
 	'x|xml'		=> \$options{xml},
 	'a|all'		=> \$options{all}
-	);  
+	);
 
 my $input_filename = $ARGV[0];
 my $output_filename;
@@ -163,7 +163,7 @@ for($pos = 12; $pos < $length; $pos += $size + ($size % 2) + 8) {
 	}
 
 	# game identifier chunk: probably only if no executable chunk
-	if ($type eq "IFhd") {   
+	if ($type eq "IFhd") {
 	    my $release = unpack("n", substr($chunkdata,0,3));
 	    my $serialcode = substr($chunkdata, 2, 6);
 	    print "\t$release.$serialcode\n";
@@ -198,7 +198,7 @@ for($pos = 12; $pos < $length; $pos += $size + ($size % 2) + 8) {
 		$output_filename = "apal_$apalcount";
 		$output_filename .= ".bin";
 		$apalcount++;
-		dumpchunk($output_filename, $pos, $chunkdata);		
+		dumpchunk($output_filename, $pos, $chunkdata);
 	}
 
 	# IFmd chunk
@@ -210,7 +210,7 @@ for($pos = 12; $pos < $length; $pos += $size + ($size % 2) + 8) {
 	}
 
 	# Dumping Exec chunks
-	if ($options{exec} && ($type eq "ZCOD" or $type eq "GLUL" or 
+	if ($options{exec} && ($type eq "ZCOD" or $type eq "GLUL" or
 			$type eq "MAGS")) {
 		$output_filename = "exec_";
 		$output_filename .= sprintf '%0*d', length($execcount) , $execs{$pos};
@@ -236,7 +236,7 @@ for($pos = 12; $pos < $length; $pos += $size + ($size % 2) + 8) {
 	}
 
 	# Dumping Snd chunks
-	if ($options{sound} && ($type eq "FORM" or $type eq "MOD " or 
+	if ($options{sound} && ($type eq "FORM" or $type eq "MOD " or
 			$type eq "OGGV" or $type eq "SONG" or
 			$type eq "MP3 " or $type eq "WAVE" or
 			$type eq "MIDI")) {
@@ -299,7 +299,7 @@ for($pos = 12; $pos < $length; $pos += $size + ($size % 2) + 8) {
 			$execs{$start} = $number if $usage eq "Exec";
 			$sounds{$start} = $number if $usage eq "Snd ";
 		}
-		$imagecount = keys %images;		
+		$imagecount = keys %images;
 		$soundcount = keys %sounds;
 		$execcount = keys %execs;
 	}
@@ -349,8 +349,8 @@ Use -h or --help for verbose help.
 
 =head1 DESCRIPTION
 
-Reads a Blorb interactive fiction resource file, checks for validity, 
-and reports on its contents.  The contents of the Blorb file can also be 
+Reads a Blorb interactive fiction resource file, checks for validity,
+and reports on its contents.  The contents of the Blorb file can also be
 extracted to individual files.
 
 =head2 Option flags
@@ -365,21 +365,21 @@ extracted to individual files.
 =head1 APPLICATION
 
 This script is intended to assist in dissecting and reverse-engineering
-blorb files.  Currently chunks having to do with Zcode, Glulx, 
+blorb files.  Currently chunks having to do with Zcode, Glulx,
 ADRIFT, and Magnetic Scrolls executable formats are recognized.
 
-Running the script without any options on a blorb file will result in a 
-list of chunks found and some information about them.  Chunks that 
-started off as standalone files may be extracted to the currect 
-directory by using the appropriate option.  The -a option will cause all 
+Running the script without any options on a blorb file will result in a
+list of chunks found and some information about them.  Chunks that
+started off as standalone files may be extracted to the currect
+directory by using the appropriate option.  The -a option will cause all
 embedded files to be extracted.
 
 Version 3.0
 
 =head1 NOTES
 
-The Blorb format was created by Andrew Plotkin in 1998.  This script 
-conforms to version 2.0.4 of the Blorb Specification.  See 
+The Blorb format was created by Andrew Plotkin in 1998.  This script
+conforms to version 2.0.4 of the Blorb Specification.  See
 L<http://www.eblong.com/zarf/blorb/>
 
 =head1 AUTHORS

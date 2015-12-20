@@ -3,19 +3,19 @@
 !                               Yes or no question, by L. Ross Raszewski
 !                               (rraszews@skipjack.bluecrab.org)
 !
-! Several infocom games have asked the player yes or no questions which are 
+! Several infocom games have asked the player yes or no questions which are
 ! partially rhetorical (Take Hitchhiker's for example)  While Inform's library
-! provides for askinga question and demanding an answer, it makes no such 
+! provides for askinga question and demanding an answer, it makes no such
 ! allowance for non-manditory yes or no questions.  This does exactly that.
 ! send the message YesNo.Ask(ifyes,ifno,ifneither);, where IfYes and IfNo
 ! are routines to run or messages to print if the player answers yes or no.
-! Ifneither is the string or routine that is printed if the player says 
+! Ifneither is the string or routine that is printed if the player says
 ! neither yes nor no in the next move.
-! 
-! This is my first fully object-oriented library extension, but it seems to 
+!
+! This is my first fully object-oriented library extension, but it seems to
 ! work anyway.
 !
-! You can omit any of the three arguments (actually, you have to put a zero in 
+! You can omit any of the three arguments (actually, you have to put a zero in
 ! to hold the place if you want to assign an action to ifno, but not ifyes.
 !
 ! The answer is only accepted druing the next turn after the question is asked,
@@ -31,7 +31,7 @@ Object YesNo
              ifAff 0,
              ifNeg 0,
              ifNeither 0,
-             Ask [ ifyes ifno ifnone; 
+             Ask [ ifyes ifno ifnone;
                         self.ifAff=ifyes;
                         self.ifNeg=ifno;
                         self.ifNeither=ifnone;

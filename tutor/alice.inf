@@ -27,7 +27,7 @@ Include "grammar";
 
 [ ReflectSub;
     if (second ~= mirror) "What a strange idea!";
-    if (noun == hearth or mirror || (player notin mantelpiece && 
+    if (noun == hearth or mirror || (player notin mantelpiece &&
         player notin armchair))
         "You can't see that in the looking-glass.";
     print "The looking-glass ";
@@ -62,7 +62,7 @@ Object  Drawing_Room "Drawing room"
             hearth, a soft rug and an arm-chair that you can curl up
             and sleep in.",
         before [;
-            if (player in mantelpiece && (action == ##Exit || 
+            if (player in mantelpiece && (action == ##Exit ||
                 (action == ##Go && noun == d_obj or out_obj)))
                 "That's not the way to get down from a mantelpiece!";
             if (player in mantelpiece &&
@@ -85,9 +85,9 @@ Object  red_queen "red queen"
         description "She's a fierce little chess piece.",
         after [;
          Take:
-            if (white_kitten.state == 1) 
+            if (white_kitten.state == 1)
                 white_kitten.state = 3;
-            if (black_kitten.state == 1) 
+            if (black_kitten.state == 1)
                 black_kitten.state = 3;
          PutOn,Transfer,Insert:
             if (second == chess_board)
@@ -149,7 +149,7 @@ Object  armchair "arm-chair" Drawing_Room
         before [ i;
          Push,Pull:
             if (player notin Drawing_Room)
-                print_ret "You'll have to get off ", (the) parent(player), 
+                print_ret "You'll have to get off ", (the) parent(player),
                     " first.";
             if (white_kitten in player || black_kitten in player)
                 "Not with a kitten in your arms!";
@@ -187,7 +187,7 @@ Object  mantelpiece "mantelpiece" Drawing_Room
             move player to mantelpiece;
             "You scramble up onto the mantelpiece.";
          PutOn,LetGo:
-            if (player notin self && (player notin armchair || 
+            if (player notin self && (player notin armchair ||
                 armchair hasnt general))
                 "The mantelpiece is so high that you can't reach.";
         ];
@@ -243,16 +243,16 @@ Object  worsted "ball of worsted" Drawing_Room
             for some embroidery.";
         ],
         before [;
-         Untangle: 
+         Untangle:
             give self ~general;
             "You're as quick as can be at rolling up balls of wool,
             though you say so yourself! Soon it's neat and tidy again.";
         ],
         after [;
          Take:
-            if (white_kitten.state == 2) 
+            if (white_kitten.state == 2)
                 white_kitten.state = 3;
-            if (black_kitten.state == 2) 
+            if (black_kitten.state == 2)
                 black_kitten.state = 3;
         ];
 
@@ -267,7 +267,7 @@ Object  chess_pieces "chess pieces" Drawing_Room
             }
             if (w == 'pawn' or 'rook' or 'castle' ||
                 w == 'knight' or 'horse' or 'bishop' ||
-                w == 'king' || (w == 'queen' && 
+                w == 'king' || (w == 'queen' &&
                 (colour == 'white' || rug hasnt general))) return n + 1;
             return 0;
         ],
@@ -298,10 +298,10 @@ Class   Kitten_Class
                 ok = 0;
                 w = NextWord();
                 if (w == 'kittens' or 'cats') {
-                    ok = 1; n++; parser_action=##PluralFound; 
+                    ok = 1; n++; parser_action=##PluralFound;
                 }
                 if (w == 'kitten' or 'kitty' or 'cat' ||
-                    w == ((self.&name)-->0)) { 
+                    w == ((self.&name)-->0)) {
                     ok = 1; n++;
                 }
             } until (ok == 0);
@@ -329,7 +329,7 @@ Class   Kitten_Class
         description [;
             print_ret "What a beautiful kitten ", (the) self, " is. Why,
                 it's quite definitely your favourite of the pair, and
-                much prettier than that naughty ", (name) 
+                much prettier than that naughty ", (name)
                 self.other_kitten, ".";
         ],
         life [;
@@ -337,12 +337,12 @@ Class   Kitten_Class
             print_ret (The) self, " twitches its whiskers and looks at
                 you with such a clever expression that you are certain it
                 understands every word you are saying.";
-         Kiss: 
+         Kiss:
             print_ret "You give ", (the) self, " a little kiss on its
                 nose, and it looks sweetly and demurely at you.";
          Attack: "You would never do such a beastly thing to such
             a defenceless little animal!";
-         Show: 
+         Show:
             print_ret (The) self, " bats a paw at ", (the) noun, ".";
          Give,ThrowAt:
             if (noun ~= red_queen or worsted) {
@@ -429,7 +429,7 @@ Class   Kitten_Class
                 }
              3: if ((self.other_kitten).state == 3 && random(2) == 1) {
                     i = random(5);
-                    switch (i) {    
+                    switch (i) {
                      1: print " chases after ";
                      2: print " jumps on top of ";
                      3: print " washes ";

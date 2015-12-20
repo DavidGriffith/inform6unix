@@ -168,7 +168,7 @@ Constant QKEYT__TX = "         Q = back";
       cur_menu=mnu;
    if (cur_item && cur_item notin cur_menu)
       cur_item=0;
-   
+
    top_obj=0; ! force top_obj to be recalculated
    tmp=2;
    ! count options
@@ -198,7 +198,7 @@ Constant QKEYT__TX = "         Q = back";
 #EndIf; ! TARGET_
 
 
-   
+
    ! Check height is vaguely sensible.
 #IfDef TARGET_GLULX;
    if (screen_height<=0 || screen_height>=250)
@@ -220,7 +220,7 @@ Constant QKEYT__TX = "         Q = back";
    if (screen_height<=0 || screen_height>=250)
       screen_height=18;
 
-   
+
    switch (FullEmblaze)
    {
      FULLEMBLAZE_NEVER:
@@ -241,7 +241,7 @@ Constant QKEYT__TX = "         Q = back";
    if (screen_height<8) screen_height=8;
    ! 8 it the minimum height with the menu in this layout,
    !  and that's one option. One option per page is usable.
-   
+
    if (lines+7+infull>screen_height)
    {
       page_lines=screen_height-7-infull;
@@ -352,7 +352,7 @@ Constant QKEYT__TX = "         Q = back";
 	 pkey=EKEY1__KY;
 #EndIf; !TARGET_
 
-      
+
       ! Pageup on page 1 means "go to top"
       if (pkey==MINUS__KY && page==1)
 	 pkey=HKEY1__KY;
@@ -440,7 +440,7 @@ Constant QKEYT__TX = "         Q = back";
 	 pos=pos%page_lines;
 	 continue;
       }
-      
+
       ! Cursor down
       if (pkey==NKEY1__KY or NKEY2__KY or DOWNARROW__KY)
       {
@@ -496,7 +496,7 @@ Constant QKEYT__TX = "         Q = back";
 	    jump Redisplay;
 	 continue;
       }
-      
+
       ! Quitting, and exitting sub-menus
       if (pkey==QKEY1__KY or QKEY2__KY or ESC__KY
 	  or LEFTARROW__KY)
@@ -594,7 +594,7 @@ Constant QKEYT__TX = "         Q = back";
    .ExitMenu;
 
    RunRoutines(mnu,after);
-   
+
    if (top_menu~=mnu)
       return tmp;
 
@@ -613,8 +613,8 @@ Constant QKEYT__TX = "         Q = back";
    if (parent(player) && location && ~~deadflag)
    { LookSub(1); rtrue; }
    return tmp;
-   
+
 ]; ! end of ShowTMenu
-   
-   
+
+
 EndIf; ! tmenus_h

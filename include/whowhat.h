@@ -102,7 +102,7 @@ verb meta "who"
            * IsAmAre scope=QueryScope "?" -> WhoIs
            * QueryTopic                   -> WhatisQ;
 
-verb meta "what" 
+verb meta "what"
            * IsAmAre                      -> WhatIsWhat
            * IsAmAre "I"                  -> WhatAmI
            * IsAmAre "I?"                 -> WhatAmI

@@ -65,7 +65,7 @@ Object 	zork_daemon "Daemon"
 	daemon [ c end tick flag;
 	  c = C_table + C_ints;
 	  end = C_table + C_TABLELEN;
-	
+
 	  while( true ) {
 	    if( c == end ) {
 	      return flag;

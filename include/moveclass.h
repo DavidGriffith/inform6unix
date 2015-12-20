@@ -1,4 +1,4 @@
-! -                                                                         
+! -
 ! MOVECLASS, a library file to provide random, directed and 'intelligent'
 !            movement for NPCs
 !
@@ -14,7 +14,7 @@
 !
 ! If you are including the library file FOLLOWER.H in your game code, please
 ! include this file AFTERWARDS and not before, otherwise errors will occur.
-! -                                                                         
+! -
 
 System_file;
 ! This is necessary to compile with Graham's current Inform 6.21 compiler.
@@ -27,7 +27,7 @@ System_file;
 Property before_action;              ! Run before moving.
 Property after_action;               ! Run after a successful move.
 Property caprice alias time_left;    ! %age chance of moving when random
-                            
+
 Property npc_open;                   ! A property of doors
 
 Global path_size_limit = 10;         ! Depth of path searching
@@ -103,7 +103,7 @@ print "[RANDOM_MOVE daemon for ", (the) self ,"]^";
 if (parser_trace>1)
 print "[Choice ",n, ": ",(GiveDir) i ,"]^";
 #endif;
-                }                
+                }
               if (n==0) rfalse;
               k=random(n); n=0;                       ! Choose one direction
 #ifdef DEBUG;
@@ -287,7 +287,7 @@ print (name) i," is ", (GiveDir) i.&link_data-->2, " of...^";
 
       steps--;                           ! Write npc_dirs with the STEP_DIRs
       i=i.&link_data-->1;                ! And go back along the STEPs
-      
+
     }
 #ifdef DEBUG;
 if (parser_trace>1)
@@ -348,7 +348,7 @@ Endif;
    #ifdef NOISY_DIR_TOS;
      if (ZRegion(k)==2) rfalse;
    #endif;
-   
+
    #ifndef NOISY_DIR_TOS;
      if (ZRegion(k)==2)
          k=RunRoutines(thisroom, direction.door_dir);

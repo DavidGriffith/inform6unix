@@ -169,7 +169,7 @@ Object -> trees "trees"
 ScottRoom Up_Oak "Branch"
   with description "You're in a branch on the top of an old oak tree.^
                     To the east you see a meadow beyond a lake.",
-       d_to Forest,  
+       d_to Forest,
   has  light;
 
 ScottRoom Sunny_Meadow "Meadow"
@@ -185,7 +185,7 @@ Object -> dragon "sleeping Dragon"
        life
        [;  Order, Answer, Ask: "Shh! You don't want to wake the dragon.";
            Give:    "The dragon is too drowsy to notice.";
-           ThrowAt: if (noun==axe) 
+           ThrowAt: if (noun==axe)
                     {   move axe to location; "The dragon isn't bothered."; }
        ],
        each_turn
@@ -204,7 +204,7 @@ Object gore "smoking hole - pieces of dragon and gore"
 
 ScottRoom Hidden_Grove "Grove"
   with description "You're in a hidden grove.",
-       n_to Forest,  e_to Dismal_Swamp,  w_to Forest,  
+       n_to Forest,  e_to Dismal_Swamp,  w_to Forest,
   has  light;
 Treasure -> "*JEWELLED FRUIT*"
   with name "jewelled" "jewel" "fruit",
@@ -234,7 +234,7 @@ Object -> cypress_tree "cypress tree"
                     ".";
        ],
        door_to Tree_Top, door_dir u_to
-  has  open door static;     
+  has  open door static;
 
 Object -> mud "evil smelling mud"
   with name "evil" "smelling" "mud", article "some",
@@ -317,7 +317,7 @@ Object tree_remains "hollow stump and remains of a felled tree"
 
 ScottRoom Tree_Top "Tree Top"
   with description "You're in the top of a tall cypress tree.",
-       d_to Dismal_Swamp,  
+       d_to Dismal_Swamp,
   has  light;
 
 Object -> "spider web with writing on it"
@@ -332,7 +332,7 @@ Object -> keys "ring of skeleton keys"
 ScottRoom Inside_Stump "Inside Stump"
   with description "You're in a large hollow damp stump in the swamp.",
        n_to Dismal_Swamp,  s_to Dismal_Swamp,  e_to Dismal_Swamp,
-       w_to Dismal_Swamp,  u_to Dismal_Swamp,  d_to Root_Chamber, 
+       w_to Dismal_Swamp,  u_to Dismal_Swamp,  d_to Root_Chamber,
   has  light;
 Sign -> "LEAVE TREASURE HERE - (say 'SCORE')";
 Object -> bottle "the bottle"
@@ -404,12 +404,12 @@ Object -> brass_lantern "old fashioned lamp"
                     3: if (ring in Inside_Stump)
                            score=score-ring.depositpoints;
                        remove ring; move player to Misty_Room;
-                       "A genie appears - says ~boy you're selfish~ - takes 
+                       "A genie appears - says ~boy you're selfish~ - takes
                         something - then vanishes!";
                     4: if (bracelet in Inside_Stump)
                            score=score-bracelet.depositpoints;
                        remove bracelet; move player to Misty_Room;
-                       "A genie appears - says ~boy you're selfish~ - takes 
+                       "A genie appears - says ~boy you're selfish~ - takes
                         something - then vanishes!";
                     default: "Nothing happens.";
                 }
@@ -438,7 +438,7 @@ Object water_in_the_bottle "bottled water" bottle
 
 ScottRoom Root_Chamber "Root Chamber"
   with description "You're in a root chamber under the stump.",
-       u_to Inside_Stump,  d_to dark_hole,  
+       u_to Inside_Stump,  d_to dark_hole,
   has  light;
 Object -> dark_hole "dark hole"
   with description "Leading below.",
@@ -584,7 +584,7 @@ Object -> "arrow pointing down"
   has  static;
 
 ScottRoom Chasm_Bottom "Chasm"
-  with description "You're in a bottom of a chasm. Above 2 ledges. 
+  with description "You're in a bottom of a chasm. Above 2 ledges.
                     One has a bricked up window.",
        u_to Maze6;
 Treasure -> net "*GOLDEN NET*"
@@ -610,7 +610,7 @@ Treasure firestone "*FIRESTONE* (cold now)"
   with name "firestone", depositpoints 11;
 
 ScottRoom Narrow_Ledge_1 "Ledge"
-  with description "You're on a narrow ledge by a chasm. 
+  with description "You're on a narrow ledge by a chasm.
                     Across the chasm is a throne room.",
        before
        [;  Jump: if (firebricks in player)
@@ -719,7 +719,7 @@ ScottRoom Real_Trouble "Trouble!"
 ScottRoom Memory_RAM "Ugly Place"
   with description
           "You're in the memory RAM of an IBM-PC. You took a wrong turn!",
-       e_to Large_Cavern,  
+       e_to Large_Cavern,
   has  light;
 Sign -> "To the Architects - TSURRIS";
 
@@ -727,7 +727,7 @@ ScottRoom Misty_Room "Misty Room"
   with description "You're in a large misty room with strange letters
                     over the exits.",
        s_to Real_Trouble,  e_to Forest,  w_to Real_Trouble,
-       u_to Up_Oak,  d_to Real_Trouble,  
+       u_to Up_Oak,  d_to Real_Trouble,
   has  light;
 Sign -> "LIMBO. FIND RIGHT EXIT AND LIVE AGAIN!";
 
@@ -755,8 +755,8 @@ Sign -> "LIMBO. FIND RIGHT EXIT AND LIVE AGAIN!";
   if (score ~= 100) rfalse;
 
   deadflag=2;
-  "Congratulations! By finding and depositing all 13 *TREASURES*, you 
-   have solved Scott Adams's ~Adventureland~ and it remains only to say 
+  "Congratulations! By finding and depositing all 13 *TREASURES*, you
+   have solved Scott Adams's ~Adventureland~ and it remains only to say
    that...";
 ];
 
@@ -766,11 +766,11 @@ Sign -> "LIMBO. FIND RIGHT EXIT AND LIVE AGAIN!";
    deadflag=0; PlayerTo(Misty_Room);
 ];
 
-[ PrintRank; "."; ]; 
+[ PrintRank; "."; ];
 
 [ DarkToDark;
   if (dark_warning==0)
-  {   dark_warning=1; "It is now pitch dark. 
+  {   dark_warning=1; "It is now pitch dark.
                        If you proceed you will likely fall into a pit.";
   }
   if (random(4) == 1)
@@ -799,7 +799,7 @@ Sign -> "LIMBO. FIND RIGHT EXIT AND LIVE AGAIN!";
   if (location ~= Memory_RAM) "Nothing happens.";
   "A voice booms out...^
    May all your teeth but one fall out, and may that one give you toothache.^
-   (You can't help feeling you have stumbled on a private quarrel which is 
+   (You can't help feeling you have stumbled on a private quarrel which is
     nothing to do with your game.)";
 ];
 

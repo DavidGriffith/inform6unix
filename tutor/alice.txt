@@ -1,7 +1,7 @@
 			    AN INFORM TUTORIAL
-                                       
+
 			 Gareth Rees, April 1995.
-       
+
 
 1. Introduction
 
@@ -10,7 +10,7 @@
    games. I'm going to take a puzzle which is tricky to implement in
    Inform, and try to take you through the steps needed to turn it into
    working code.
-   
+
    You'll need to have the following background to appreciate this
    tutorial:
 
@@ -19,24 +19,24 @@
        need guidelines on designing puzzles, structuring games, and prose
        style, then you should read Graham Nelson's essay `The Craft of
        Adventure'
-       
+
      * You can already write programs in some computer language (C would
        be most helpful, because of the similarity between the syntax of C
        and that of Inform).
-       
+
      * You have read (even if you haven't fully understood) Graham
        Nelson's The Inform Designer's Manual which describes the Inform
        language in detail.
-       
+
      * You need to have release 5.5 or later of the Inform compiler and
        revision 5/11 or later of the Inform library in order to compile
        and run the examples.
-       
+
    This tutorial will start to write an adventure game based upon the
    children's novel Through the Looking Glass by Lewis Carroll. Carroll
    died in 1898, so the novel is out of copyright, and I will be free to
    steal shamelessly from it.
-   
+
 
 2. Before starting to program
 
@@ -47,14 +47,14 @@
    computer on. Here I'll take the approach of sketching out the solution
    to a puzzle in advance, and filling in the details when I write the
    code.
-   
+
    Through the Looking-Glass starts out in a room in Alice's house, in
    which Alice is playing with two kittens, one black and one white. The
    text mentions an arm-chair, a ball of worsted, a fireplace, a
    hearth-rug, a chess set (with red and white pieces), a clock, a cat
    called Dinah, and a looking-glass above the fireplace. It should be
    possible to involve many of these objects in the puzzle.
-   
+
    The puzzle will be to get through the looking-glass. How can that be
    made difficult? Perhaps the mantelpiece is too high for Alice to climb
    up onto without a chair, and the arm-chair needs to be pushed over to
@@ -63,9 +63,9 @@
    the kittens by getting one of them tangled up in the ball of worsted,
    and giving the other one a chess piece to play with. The chess pieces
    have become lost, but she can find the red queen under the hearth-rug.
-   
+
    That seems like enough complexity for the first room of a game.
-   
+
 
 3. Getting started -- the outline of a game
 
@@ -79,7 +79,7 @@
    easy to forget something, or fail to check for some case, especially
    since you probably don't know in very much detail what the library is
    doing behind your back.
-   
+
    My first attempt is nothing more than a few simple modifications to
    the `Shell' game from the Inform distribution.
 
@@ -112,7 +112,7 @@ Include "grammar";
     7. Declare any extensions to the grammar
     8. More objects, rooms, and code
     9. End.
-       
+
    I need at least one object to be able to compile and run a game, so I
    define the initial location.
 
@@ -153,7 +153,7 @@ end;
 
    This gives me a program, alice1.inf, that can be compiled and tested,
    although it doesn't do very much yet.
-   
+
 
 4. Common difficulties
 
@@ -161,10 +161,10 @@ end;
    order routines are evaluated during play, and what to return from
    routines to affect this order. These parts cause more problems to
    beginning programmers than any of the other features of the language.
-   
+
 
 4.1 Return Codes
-  
+
    A routine inside an object returns 0 (false) by default, and a routine
    outside of an object returns 1 (true) by default. You can think of
    this as meaning that there's an invisible `rfalse' statement just
@@ -212,10 +212,10 @@ Object  thing
    yours, then you return 0 to mean `apply the usual library rules', and
    non-zero to mean `do something special' or maybe `don't do anything at
    all'.
-   
+
    Here are the meanings of the return codes of the most commonly-used
    routines:
-   
+
    `before'
           `life'
           True (1) means that the routine has successfully and completely
@@ -224,7 +224,7 @@ Object  thing
           False (0) means that the usual library rules should now apply
           to the player's input (note that this doesn't necessarily mean
           that the routine has done nothing).
-          
+
    `after'
           True (1) means that the `after' routine has printed a suitable
           response to the player's input, and the library shouldn't do
@@ -232,26 +232,26 @@ Object  thing
           False (0) means that the usual library message should now be
           printed (again, this doesn't necessarily mean that the routine
           has done nothing).
-          
+
    `describe'
           True (1) means that the `describe' routine has printed a
           suitable description. The library shouldn't add anything else.
           False (0) means that the library should print the usual
           description of the object.
-          
+
    In an object's `before' routine, it's very common to want to execute
    some code, print some text to tell the player what has happened, and
    then to return 1 to prevent the library from doing anything else. A
    good trick in this situation is to omit the `print' keyword from the
    last print statement. Much of the code in the example game developed
    here uses this trick.
-   
+
    If in doubt, read the Designer's Manual, and look carefully at the
    example games to see how they use return codes.
-   
+
 
 4.2 Evaluation Order
-  
+
    There is a table on page 21 of the Designer's Manual describing the
    evaluation order of the command `drop oyster'. Here's a summary of
    what the Inform library does when the player types a command.
@@ -278,20 +278,20 @@ Object  thing
    10. Call `GamePostRoutine' (if there is one). If this returns
        non-zero, stop here.
    11. Print a message describing what happened at stage 6.
-       
+
    It will be seen from this table that `before' routines should be used
    to change completely the effect of a particular action, and that
    `after' routines should be used to change the message associated with
    a particular action, or to cause something else to happen after an
    action has been successfully completed.
-   
+
    For example (after Adventure), a delicate ming vase that shattered
    when the player dropped it could be coded by using the `after' routine
    of the vase to look for the `Drop' action. Or (after Hitch-hiker's) a
    room with holes in the floor through which any dropped object fell
    could be coded by using the `after' routine of the room to look for
    the `Drop' action.
-   
+
 
 5. Adding objects
 
@@ -300,10 +300,10 @@ Object  thing
    kittens). I'll try to add the objects in such a way that the code can
    be tested after each addition (but if two objects refer to each other
    this won't be possible).
-   
+
 
 5.1 The Red Queen -- A Simple Object
-  
+
    The simplest objects just have a `name' and a `description', and the
    red queen is such an object. The following definition appears after
    the drawing-room.
@@ -315,10 +315,10 @@ Object  red_queen "red queen"
    Since she's absent from the game to start with, I don't specify which
    object is her parent (Inform will ensure that her parent is
    `nothing').
-   
+
 
 5.2 The Chess Board
-  
+
    The chess board is not quite so simple. Because it doesn't appear in
    the room description, I'll give it an `initial' description. And Alice
    might try to `put red queen on chess board', so I'll make it a
@@ -333,7 +333,7 @@ Object  chess_board "chess board" Drawing_Room
             on playing with them.";
 
 5.3 The Hearth -- A Scenery Object
-  
+
    The fireplace is mentioned in the initial room description, so I
    probably ought to provide a `scenery' object to represent it. The
    object plays no role in the game; it's just there for decoration.
@@ -348,12 +348,12 @@ Object  hearth "hearth" Drawing_Room
             just to make it look as if they had a fire.";
 
 5.4 The Rug -- A Complex Object
-  
+
    Often, the best way to deal with more complicated objects is to
    consider all the commands that the player might type that ought to
    make the object behave differently from the default way in which the
    library handles that action.
-   
+
    In order to do this, it helps to be familiar with the operation of the
    library. Chapter 5 of the Designer's Manual lists all the actions that
    the library knows how to deal with, and it's probably worth looking
@@ -361,11 +361,11 @@ Object  hearth "hearth" Drawing_Room
    they all do - in the cases of `Take', `Enter', and `Insert' the
    algorithm is very complex. You may also need to look at the Grammar
    file to see which actions are generated by which player commands.
-   
+
    Also, when code fails to do what you intended, you'll often find it
    worthwhile to look at the library source to see exactly what's going
    on.
-   
+
    In any case, the rug needs to respond to the following commands.
      * `take rug' - so I make it `static', and also provide a `before'
        routine for the `Take' action to provide a better message than the
@@ -377,7 +377,7 @@ Object  hearth "hearth" Drawing_Room
      * `look under rug' - provide a `before' routine for the `LookUnder'
        action (this routine prevents Alice from looking under the rug
        while she is standing on it!).
-       
+
    Some other points of interest:
      * I call the rug `rug' rather than `hearth-rug' because otherwise I
        will end up with confusion over whether the word `hearth' refers
@@ -411,7 +411,7 @@ Object  rug "rug" Drawing_Room
         ];
 
 5.5 The Arm-Chair
-  
+
    My puzzle involves not being able to move the arm-chair if the kittens
    are playing near it. But since I'm saving the kittens for last
    (because they're the most complicated objects) I can't do a full
@@ -444,7 +444,7 @@ Object  armchair "arm-chair" Drawing_Room
         ];
 
 5.6 The Mantelpiece
-  
+
    For the mantelpiece, I need to consider the following commands.
      * `climb on mantelpiece' - make it `enterable'. But since its so
        high up, I should prevent Alice from entering it unless she's
@@ -476,7 +476,7 @@ Object  mantelpiece "mantelpiece" Drawing_Room
         ];
 
 5.7 The Mirror
-  
+
    The mirror presents the following problems.
      * `examine mirror' - the amount of the room that Alice can see in
        the mirror varies, depending on where she is - if she's standing
@@ -527,7 +527,7 @@ Object  mirror "looking-glass" Drawing_Room
         ];
 
 5.8 The Ball Of Worsted
-  
+
    (Worsted is a kind of fine wool used for embroidery.) This object will
    start out neatly rolled into a ball, but when its given to a kitten,
    it will get into a tangled state. I'll use the `general' attribute to
@@ -635,7 +635,7 @@ Object  worsted "ball of worsted" Drawing_Room
     I'm not sure what "her" refers to.
 
    I need to give the queen the `female' attribute.
-   
+
    After making the above changes, Alice can climb onto the mantelpiece,
    and some more checking reveals a few more bugs.
 
@@ -687,23 +687,23 @@ Object  worsted "ball of worsted" Drawing_Room
    known in the trade as a `gross hack'. Inform doesn't support the idea
    of `physically reachable from here'; if objects are out of reach they
    are supposed to indicate so by having appropriate `before' routines.
-   
+
    N.B. The reason why there are two `if' statements rather than one long
    condition is that the Inform expression parser appears not to be able
    to cope with the latter.
-   
+
    These problems arise from having several `enterable' objects in the
    same room, and trying to restrict what Alice is allowed to do,
    according to which of the objects she's on. This has turned out to be
    a much more complicated situation to program than it seemed at first!
-   
+
 
 7. Adding characters
 
    Plausible characters are the most complicated part of any adventure
    game; they make the most infernal of devices seem easy to program by
    comparison.
-   
+
    Truly sophisticated programming of characters will involve you in
    cutting-edge areas of Artificial Intelligence research, and this is
    well beyond the scope of this tutorial (but see David Graves' essay
@@ -711,7 +711,7 @@ Object  worsted "ball of worsted" Drawing_Room
    in adventure games and some suggestions for future directions, and the
    papers of the Carnegie-Mellon Oz Project for some ongoing research).
    However, you can do fairly well without going to quite such lengths.
-   
+
    We can get a handle on this complexity by dividing up the
    functionality of a character into three parts.
     1. State, which is a set of values that describe how the actions of
@@ -721,23 +721,23 @@ Object  worsted "ball of worsted" Drawing_Room
        example, how well-disposed a merchant is to the player, how many
        times the player asked the wizard for help, whether or not the
        player has bribed the guard, and so on.
-       
+
     2. Reactions, which are things the character does in response to
        interaction from the player, for example when the player talks to
        the character, attacks him, kisses him, offers things to him,
        tries to steal things from him, and so on. In Inform these are
        typically coded in the `life', `before', and `after' routines.
-       
+
     3. Autonomous actions, which are things the character does of his own
        accord, without special prompting from the player. In Inform,
        these are encoded in the `daemon' and `each_turn' routines.
-       
+
    Obviously, the character's state will affect his actions and
    reactions, and these in turn will alter his state.
-   
+
 
 7.1 The Kittens
-  
+
    In the case of the two kittens, their state just describes where they
    are and what they are playing with: each kitten is either being
    carried by Alice (0), playing with the red queen (1), playing with the
@@ -746,22 +746,22 @@ Object  worsted "ball of worsted" Drawing_Room
    the kittens to be on the arm-chair, or on the mantelpiece, or on the
    rug, or under the arm-chair, and so on, but for simplicity I'll
    prevent the kittens from getting into these states).
-   
+
    The kittens will need to react to being spoken to, being kissed, being
    picked up, being put on things, being put down and being given objects
    to play with. I'll give them lots of autonomous actions, but these
    will just be random messages along the lines of `The white kitten
    chases its tail.'
-   
+
    I can make the programming much simpler by creating a class
    `Kitten_Class' and making each kitten a member. This will give the two
    kittens exactly the same behaviour, which is probably just about
    excusable for kittens, but this strategy probably won't convince if
    you try to apply the same technique to humans!
-   
+
    The first changes to make are those which affect other objects; I'll
    take the objects in order.
-   
+
    If Alice takes the red queen away from a kitten who's playing with it,
    then the kitten will change state from 1 to 3, so add the following to
    the red queen.
@@ -840,7 +840,7 @@ Object  black_kitten "black kitten" Drawing_Room
 
    (I'll explain why the kittens have `number's below; be patient for a
    bit).
-   
+
    If you experiment with this definition, you'll discover that you get
    the following response.
 
@@ -915,7 +915,7 @@ Object  black_kitten "black kitten" Drawing_Room
    that it knows not to describe itself (by returning 1 from `describe').
    The `daemon' routine makes sure that all the `general' flags are
    cleared at the end of each turn, ready for the next.
-   
+
    Having given the kittens more complicated descriptions, I now run the
    risk of the following happening.
 
@@ -934,7 +934,7 @@ Object  black_kitten "black kitten" Drawing_Room
         ],
 
    I write a similar routine for the red queen (not shown).
-   
+
    Next, the kittens' reactions. I have to provide a `before' routine for
    the `Take' action, because otherwise the library will respond `I don't
    think the white kitten would care for that.' I also provide special
@@ -1043,7 +1043,7 @@ Object  black_kitten "black kitten" Drawing_Room
    make it more pleasant to play. If your play-testers are very good,
    then they'll suggest commands that they tried which ought to produce a
    more interesting response.
-   
+
    A nice touch would be to provide for the following response (which
    provides a subtle clue as to the where the red queen might have gone,
    and what use it would be once you find it).
@@ -1114,7 +1114,7 @@ Object  chess_pieces "chess pieces" Drawing_Room
        on where you are - e.g. you can't see things from the floor, you
        can see things from the arm-chair, and things are fuzzy and misty
        when seen from the mantelpiece.
-       
+
    I'll also need to add some grammar (after the inclusion of the Grammar
    library file):
 
@@ -1144,7 +1144,7 @@ Extend "examine"
    I also need to add `##Reflect' to the actions that can be used when
    the player is on the mantelpiece, and to the actions that can be used
    on the mirror.
-   
+
    Another response that I could add is the following.
 
     > put red queen on chessboard
@@ -1166,7 +1166,7 @@ Extend "examine"
    allows a reasonable choice of commands; that there are clues to any
    non-obvious solutions; and that the player need never flounder in want
    of a task to attempt.
-   
+
    In this example, the task (to get through the mirror) is given at the
    very start, in the introductory text. The chain of puzzles seems
    fairly clear, and the only non-obvious puzzle is that you have to give
@@ -1174,7 +1174,7 @@ Extend "examine"
    chess board and the response to examining non-existent chess pieces
    suggests that the kittens like to play with them, and that they get
    lost in odd places.
-   
+
    In my opinion, the weakest part of the puzzle is figuring out that you
    have to push the arm-chair, since the description of the arm-chair
    doesn't mention where it is in the room. A good idea might be to
@@ -1205,13 +1205,13 @@ Object  window "window" Drawing_Room
 
    The `Search' action is generated by the command `look through the
    window', so we just cause it to do the same thing as `examine window'.
-   
+
 
 10. Testing -- part 2
 
    With all these changes included, I have a game (well, the first room
    of a game, anyway), alice3.inf, that's ready to be beta-tested.
-   
+
    Alpha-testing usually refers to testing that goes on while a program
    is still in development; beta-testing is the testing of a supposedly
    complete program. Because of the enormous number of different states
@@ -1220,25 +1220,25 @@ Object  window "window" Drawing_Room
    beta-testing is very important. (Infocom had three stages of testing:
    alpha- and beta-testing were in-house, and gamma-testing involved a
    large number of out-of-house players.)
-   
+
    Through the Looking Glass is still in beta-testing (there is a sense
    in which no complex enough game ever emerges from this stage!), and
    I've received the following reports:
    Peter Grundy <pgrundy@commerce.otago.ac.nz> suggested:
-       
+
     1. How about adding verbs to stroke, pat or tickle the kittens?
-       
+
        Graham Nelson <nelson@vax.ox.ac.uk> noticed:
-       
+
     2. The command `examine red pawn' works but `examine red pawns'
        doesn't. Also, I think it would be nice if attempts to examine the
        black pieces could be met by a polite demurral that the set is in
        white and red.
     3. The command `enter hearth' will occur to inveterate Curses
        players.
-       
+
        Martin Braun <100106.2673@compuserve.com> noticed:
-       
+
     4. If you put an object on the mantelpiece, climb up to it and type
        `take all', this object does not respond to the command (though
        you can pick it up individually).
@@ -1253,10 +1253,10 @@ Object  window "window" Drawing_Room
        again, the game describes it as unrolled. If you then give it to
        the kittens a second time, the response still says that the kitten
        is turning the neat ball (which it isn't any more) into a tangle.
-       
+
        Charles Briscoe-Smith <cpbs@ukc.ac.uk> noticed some of the above,
        and in addition:
-       
+
     9. Because the kittens are animate, the pronoun `it' never refers to
        them, despite the fact that the game, following Carroll, always
        uses `it' to refer to a kitten.
@@ -1264,10 +1264,10 @@ Object  window "window" Drawing_Room
        down from mantelpiece', `get onto chair', `jump' and `jump
        onto/into chair' don't work; but if the player types them while on
        the mantelpiece, the game should move the player to the armchair.
-       
+
    Most of these bugs should be easy to fix, and are left as an exercise
    for the reader.
-   
+
    However, problem 4 is to some extent a problem with the library. It is
    a result of the way the library interprets `all' as referring only to
    objects that aren't contained in other objects in the current room;
@@ -1276,14 +1276,14 @@ Object  window "window" Drawing_Room
    the player. Fixing this bug thus involves editing the parser sources -
    not an easy task - or waiting for the next release of the library,
    which will, with luck, provide a solution.
-   
+
    To solve problem 9, the best solution is probably to Replace the
    `ResetVagueWords' library function.
-   
+
    [If you want to test this game too, then you may fetch the version 5
    story file. Please e-mail me with your report; all comments
    gratefully received]
-   
+
 
 11. Conclusion
 
@@ -1293,7 +1293,7 @@ Object  window "window" Drawing_Room
    thirty. Not all will be as complicated as this, but if you plan to
    have plausible characters in your game then they'll need to be at
    least as complicated as the kittens, and probably much more so!
-   
+
    I've tried to make it clear that the way an adventure game progresses
    is by gradual accretion and modification of code, rather than by the
    `top-down' design of structured programming. Each new object may
@@ -1301,19 +1301,19 @@ Object  window "window" Drawing_Room
    your old code, and testing tends to indicate lots of small problems
    that need fixing. The code actually went through considerably more
    revisions than appear on this page!
-   
+
    I'd be very glad to receive feedback on the ideas and advice in this
    tutorial - do you think it goes into too much detail, or too little?
    Were there things you wanted explaining? Could some of the examples
    have been coded more clearly?
-   
+
    If you want to use the code or the puzzle ideas developed in this
    tutorial in your own games, feel free. I hereby donate the source code
    of the `Through the Looking-Glass' example games into the public
    domain. If you want to code up another room or two and write your own
    tutorial or commentary (hint, hint), I'd be glad to link this page to
    yours.
-   
+
 
 12. References
 

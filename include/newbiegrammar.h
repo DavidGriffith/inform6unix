@@ -1,7 +1,7 @@
 !---------------------------------------------------------------------------
-!	NewbieGrammar.h, by Emily Short (emshort@mindspring.com) 
+!	NewbieGrammar.h, by Emily Short (emshort@mindspring.com)
 !
-!	Being grammar statements and a couple of verbs to accomodate and 
+!	Being grammar statements and a couple of verbs to accomodate and
 !	respond to nonstandard kinds of input.  It interprets who and what
 !	questions, as well as correcting some standard errors and redirecting
 !	other questions to Help.
@@ -20,7 +20,7 @@
 !	the ExpertGrammar without all the extra encumbrances of this library file.
 !
 !	Version 0.6 -- still imperfect.  If you have suggestions about
-!		more things the library should handle, please contact me to 
+!		more things the library should handle, please contact me to
 !		suggest them.
 !
 !	Thanks to Roger Firth for his corrections.
@@ -30,10 +30,10 @@
 !
 !
 !	RIGHTS:
-!	
+!
 !	This library file may be treated as public domain.  It may be
 !	included with or without credit to the original author.  It may be
-!	modified at the user's discretion.  It may be freely redistributed.  
+!	modified at the user's discretion.  It may be freely redistributed.
 !
 !	CONTENTS:
 !
@@ -57,13 +57,13 @@
 !			calls ArchiveIntro, which explains about the IF archive.
 !
 !		WHERE CAN I GO NOW? (and variants) calls Exits, which is defined
-!			in this file just to tell the player to look around.  If you 
+!			in this file just to tell the player to look around.  If you
 !			would like to improve the functionality, you might want to look
 !			at one of the libraries that handles an EXITS command.
 !
 !		WHAT DO I DO NEXT? (and a wide range of variants) calls
 !			Help.
-!		
+!
 !		WALK TO (and variants) calls LocalGo, which tells you
 !			that movement within a room is unnecessary.
 !
@@ -75,8 +75,8 @@
 !
 !		Moreover, there is a catch-all, omnipresent item, which
 !		goes everywhere the player goes and reacts to
-!		
-!		-- attempts to use body parts to do things.  This is to counteract 
+!
+!		-- attempts to use body parts to do things.  This is to counteract
 !			newbie commands such as
 !			OPEN DOOR WITH FOOT, INFLATE RAFT WITH MOUTH, etc.
 !		-- vague instructions, such as KILL SOMEONE or TAKE SOMETHING
@@ -85,7 +85,7 @@
 !	POSSIBLE DIRECTIONS:
 !
 !	A couple of things one might also do if one really wanted to take this
-!	further: 
+!	further:
 !
 !	--	Use the UnknownVerb entrypoint to try to catch cases where the player is
 !		using a known noun to begin a sentence.  Call NewbieGrammar in this case.
@@ -94,38 +94,38 @@
 !		disambiguation
 !
 !	-- 	Use BeforeParsing to look for certain standard adverbs, or else modify
-!		the "I only understood you as far as..." library message to remind the 
+!		the "I only understood you as far as..." library message to remind the
 !		player that adverbs are not allowed.  Many of the defective commands
 !		found in a study of newbie command structure included things such as
-! 
+!
 !		>SWIM ANYWAY
 !		>JUMP ACROSS
 !		>HELP PLEASE
 !
-!	-- Implement a fully functioning "GO BACK" verb that would return the 
+!	-- Implement a fully functioning "GO BACK" verb that would return the
 !		player to his previous location.  A. O. Muniz has already released
 !		a library to do this with Platypus; with the standard Inform library
 !		it is a bit more challenging, but not impossible.
 !
 !
-!	INSTALLATION: 
+!	INSTALLATION:
 !
-!	Include "NewbieGrammar" after Grammar in your gamefile. 
+!	Include "NewbieGrammar" after Grammar in your gamefile.
 !
 !	Note that if you are actually using who, what, or where verbs in your
 !	gave for legitimate purposes, you will need to change the grammar
 !	lines accordingly.
 !
-!	Set a ChooseObjects to make sure that allbodyparts doesn't show up 
+!	Set a ChooseObjects to make sure that allbodyparts doesn't show up
 !	on commands like GET ALL.
 !
-!	It is also suggested that you Replace HelpSub before including this 
+!	It is also suggested that you Replace HelpSub before including this
 !	file.  What is here is pretty minimal.  If you wish to avoid compiling
 !	the grammar lines for 'help' (perhaps because you plan to use something
 !	else), define the constant NO_HELP_GRAMMAR before including this file.
 !
-!--------------------------------------------------------------------------- 
- 
+!---------------------------------------------------------------------------
+
 Object allbodyparts,
 	with
 	short_name [;
@@ -133,37 +133,37 @@ Object allbodyparts,
 		rtrue;
 	],
 	number 0,
-	source 0, 
-	parse_name 
+	source 0,
+	parse_name
 	[ i j w;
 		for (::)
-		{	
+		{
 			j = 0; w = NextWord();
-			if ((self.number == 0 or 1) && 
+			if ((self.number == 0 or 1) &&
 				((w == 'my' or 'head' or 'hands' or 'hand' or 'ear' or 'ears') ||
 				 (w == 'fist' or 'fists' or 'finger' or 'fingers' or 'thumb' or 'thumbs') ||
 				 (w == 'arm' or 'arms' or 'leg' or 'legs' or 'foot' or 'feet') ||
 				 (w == 'eye' or 'eyes' or 'face' or 'nose' or 'mouth' or 'teeth') ||
 				 (w == 'tooth' or 'tongue' or 'lips' or 'lip')))
 			{	self.number = 1; j = 1;
-			} 
-			if ((self.number == 0 or 2) && 
-				(w == 'someone' or 'something' or 'anyone' or 'anything')) 
+			}
+			if ((self.number == 0 or 2) &&
+				(w == 'someone' or 'something' or 'anyone' or 'anything'))
 			{	self.number = 2; j = 1;
-			}   
-			if ((self.number == 0 or 3) && 
-				(w == 'here' or 'everywhere')) 
+			}
+			if ((self.number == 0 or 3) &&
+				(w == 'here' or 'everywhere'))
 			{	self.number = 3; j = 1;
-			}    
+			}
 			if (j~=0)  i++; else return i;
 		}
-	], 
+	],
 	found_in [;
 		rtrue;
 	],
 	react_before [;
 		if ((noun && noun == self) || (second && second == self))
-		{	
+		{
 			self.message(self.number);
 			self.number = 0;
 			rtrue;
@@ -177,7 +177,7 @@ Object allbodyparts,
 			parts individually in interactive fiction.  WEAR SHOES ON FEET
 			will not necessarily be implemented, for instance; WEAR SHOES
 			is enough.  And unless you get some hint to the contrary,
-			you probably cannot OPEN DOOR WITH FOOT or 
+			you probably cannot OPEN DOOR WITH FOOT or
 			PUT THE SAPPHIRE RING IN MY MOUTH.";
 		2:  "The game will not arbitrarily guess what you want.  Be specific --
 			use a noun for an object you can see around you.";
@@ -190,18 +190,18 @@ Object allbodyparts,
 		}
 	],
 	has proper scenery;
-	
+
 [ IsAmAre;
-	if (NextWord()=='is' or 'am' or 'are' or 'was' or 'were') 
+	if (NextWord()=='is' or 'am' or 'are' or 'was' or 'were')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
-]; 
+];
 [ DoCan;
 	if (NextWord()=='do' or 'does' or 'would' or 'will' or 'shall' or
-			 'can' or 'could' or 'should' or 'may' or 'must') 
+			 'can' or 'could' or 'should' or 'may' or 'must')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
-]; 
+];
 
 [ Anybody;
 	if (NextWord()=='I//' or 'me' or 'he' or 'she' or 'it' or
@@ -221,84 +221,84 @@ Object allbodyparts,
 	for(::)
 	{
 		w = NextWord();
-		if (w==0) 
-		{	
+		if (w==0)
+		{
 			if (flag)
 			{	return GPR_PREPOSITION;
 			}
 			return GPR_FAIL;
 		}
 		if (w == 'left' or 'right' or 'straight' or 'ahead' or 'back'
-			or 'backwards' or 'forward' or 'backward' or 'forwards' or 'on' 
-			or 'onward' or 'onwards' or 'around') 
+			or 'backwards' or 'forward' or 'backward' or 'forwards' or 'on'
+			or 'onward' or 'onwards' or 'around')
 		{	flag = 1; num++;
-		} 
+		}
 	}
-];			
+];
 
 [ InternalNouns w flag num;
 	for(::)
 	{
 		w = NextWord();
-		if (w==0) 
-		{	
+		if (w==0)
+		{
 			if (flag)
 			{	return GPR_PREPOSITION;
 			}
 			return GPR_FAIL;
 		}
-		if (w == 'song' or 'music' or 'songs') 
+		if (w == 'song' or 'music' or 'songs')
 		{	flag = 1; num++;
 		}
-		if (w == 'thought' or 'idea' or 'concept') 
+		if (w == 'thought' or 'idea' or 'concept')
 		{	flag = 1; num++;
 		}
 		if (w == 'the' or 'a' or 'some' or 'any')
 		{	flag = 0; num++;
-		} 
+		}
 	}
-];			
+];
 
 [ ThePoint w flag num;
 	for(::)
 	{
 		w = NextWord();
-		if (w==0) 
-		{	
+		if (w==0)
+		{
 			if (flag)
 			{	return GPR_PREPOSITION;
 			}
 			return GPR_FAIL;
 		}
-		if (w == 'point' or 'point?' or 'idea' or 'idea?' or 'goal' 
-			or 'goal?' or 'purpose' or 'purpose?') 
+		if (w == 'point' or 'point?' or 'idea' or 'idea?' or 'goal'
+			or 'goal?' or 'purpose' or 'purpose?')
 		{	flag = 1; num++;
 		}
 		else
 		{	if (w == 'the' or 'a')
 			{	flag = 0; num++;
 			}
-			else 
+			else
 			{	if (flag)
 				{	return GPR_PREPOSITION;
 				}
 				return GPR_FAIL;
 			}
-		} 
+		}
 	}
-];	
+];
 [ IsThisGame w flag num;
 	for(::)
 	{
 		w = NextWord();
-		if (w==0) 
-		{	
+		if (w==0)
+		{
 			if (flag)
 			{	return GPR_PREPOSITION;
 			}
 			return GPR_FAIL;
 		}
-		if (w == 'this' or 'these' or 'this?' or 'these?') 
+		if (w == 'this' or 'these' or 'this?' or 'these?')
 		{	flag = 1; num++;
 		}
 		if (w == 'kind' or 'kinds' or 'of' or 'sort' or 'sorts' or 'like'
@@ -312,20 +312,20 @@ Object allbodyparts,
 		{	flag = 1; num++;
 		}
 	}
-];		
+];
 
 [ ThisGame w flag num;
 	for(::)
 	{
 		w = NextWord();
-		if (w==0) 
-		{	
+		if (w==0)
+		{
 			if (flag)
 			{	return GPR_PREPOSITION;
 			}
 			return GPR_FAIL;
 		}
-		if (w == 'this' or 'these' or 'this?' or 'these?') 
+		if (w == 'this' or 'these' or 'this?' or 'these?')
 		{	flag = 1; num++;
 		}
 		if (w == 'kind' or 'kinds' or 'of' or 'sort' or 'sorts' or 'like'
@@ -339,33 +339,33 @@ Object allbodyparts,
 		{	flag = 1; num++;
 		}
 	}
-];				
+];
 [ GetFind;
-	if (NextWord()=='get' or 'find' or 'acquire') 
+	if (NextWord()=='get' or 'find' or 'acquire')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
 ];
 [ HelpName;
 	if (NextWord()=='help' or 'assistance' or 'instructions'
-		or 'help?' or 'assistance?' or 'instructions?') 
+		or 'help?' or 'assistance?' or 'instructions?')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
 ];
-[ Meant; 
-	if (NextWord()=='supposed' or 'meant' or 'intended') 
+[ Meant;
+	if (NextWord()=='supposed' or 'meant' or 'intended')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
 ];
 [ NextThing;
 	if (NextWord()=='now' or 'now?' or 'next' or 'next?'
-		or 'here' or 'here?') 
+		or 'here' or 'here?')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
 ];
 [ PlayUse;
 	if (NextWord()=='play' or 'play?' or 'use' or 'use?' or 'operate' or 'operate?'
 		or 'type' or 'type?' or 'do' or 'do?' or 'understand' or 'understand?'
-		or 'learn' or 'learn?' or 'work' or 'work?') 
+		or 'learn' or 'learn?' or 'work' or 'work?')
 		return GPR_PREPOSITION;
 	return GPR_FAIL;
 ];
@@ -373,15 +373,15 @@ Object allbodyparts,
 Verb meta 'hello' 'hi' 'howdy' 'greetings'
 				*								 -> HelloThere;
 
-Verb meta 'you' 'he' 'she' 'it' 'they' 'we' 'its' 'theyre' 'were' 
+Verb meta 'you' 'he' 'she' 'it' 'they' 'we' 'its' 'theyre' 'were'
 	'youre' 'hes' 'shes'
-				* topic							 -> NewbieGrammar; 
-				
-Verb meta 'who' 'wh' 'whos' 
+				* topic							 -> NewbieGrammar;
+
+Verb meta 'who' 'wh' 'whos'
 				* IsAmAre 'I'/'I?' -> MustXMe
 				* IsAmAre 'you'/'you?' -> ParserHelp
 				* IsAmAre noun			-> Examine;
-Verb meta 'where'  
+Verb meta 'where'
 				* IsAmAre 'I'/'I?'/'this'/'here'/'this?'/'here?' ->MustLook
 				* IsAmAre noun	-> RightHere
 				* IsAmAre ThePoint ThisGame 					-> BoredHelp
@@ -398,17 +398,17 @@ Verb meta 'where'
 					ArchiveIntro
 				* DoCan Anybody GetFind HelpName -> OutsideHelp
 				* DoCan Anybody GetFind HelpName 'with'/'for'/'on' ThisGame -> OutsideHelp ;
-Verb meta 'wheres'  
+Verb meta 'wheres'
 				* 'here'			-> MustLook
 				* IsAmAre ThePoint ThisGame 					-> Help;
-Verb meta 'what' 
-				* NextThing						-> Help 
+Verb meta 'what'
+				* NextThing						-> Help
 				* IsAmAre 'I'/'I?'							-> MustXMe
 				* IsAmAre 'you'/'you?'							-> ParserHelp
  				* IsAmAre 'here'/'here?'					-> MustLook
 				* IsAmAre 'this'/'this?'					-> Help
 				* IsAmAre Anybody Meant 'to' PlayUse -> Help
-				* IsAmAre Anybody Meant 'to' PlayUse 
+				* IsAmAre Anybody Meant 'to' PlayUse
 					NextThing -> Help
 				* IsAmAre Anybody Meant 'to' PlayUse
 					'in'/'on'/'for'/'with' ThisGame 		-> Help
@@ -438,7 +438,7 @@ Verb meta 'how'
 				* DoCan Anybody GetFind HelpName -> OutsideHelp
 				* DoCan Anybody GetFind HelpName 'with'/'for'/'on' ThisGame -> OutsideHelp
 				* DoCan ThisGame 'work'/'work?' -> OutsideHelp;
-				
+
 #ifndef NO_HELP_GRAMMAR;   !!! added
 Verb 'help'		* 	-> Help
 				* topic	-> Help;
@@ -447,7 +447,7 @@ Verb 'help'		* 	-> Help
 Verb 'please' 'kindly'	* topic -> TooPolite;
 
 
-Extend only 'i//' 
+Extend only 'i//'
                 * topic							 -> NewbieGrammar;
 Extend 	'walk'		* SomeDirection 			-> NoReturn
 					* 'back' noun=ADirection	 -> Go
@@ -455,7 +455,7 @@ Extend 	'walk'		* SomeDirection 			-> NoReturn
 											-> VagueGo
 					* 'on'/'over'/'across' noun		-> Enter
 					* 'to'/'towards'/'around'/'past'/'under' noun
-														-> LocalGo 
+														-> LocalGo
 					* 'over'/'up'/'down' 'to'/'towards' noun
 														-> LocalGo;
 Extend 'turn'		* SomeDirection				 -> NoReturn;
@@ -466,11 +466,11 @@ Verb 	'keep'		* 'going'/'walking'/'heading'/'running'
 					* 'going'/'walking'/'heading'/'running'
 									 noun=ADirection -> MustGo;
 Verb 	'continue'	*  noun=ADirection -> MustGo
-					* 'going'/'walking'/'heading'/'running' 
+					* 'going'/'walking'/'heading'/'running'
 									noun=ADirection -> MustGo;
 Verb 	'return' 'back'	*							 -> NoReturn
 					* 'to' topic				 -> NoReturn;
-					
+
 Extend 	'check'		* 'for' noun				 -> Examine
 					* 'for' topic				 -> SpecificSearch;
 Extend 	'look'		* 'for' noun				 -> Examine
@@ -484,7 +484,7 @@ Extend  'sing'		* InternalNouns				 -> InternalAccusative;
 Extend 	'think'		* InternalNouns				 -> InternalAccusative;
 
 [ TooPoliteSub;
-	"The parser does not understand polite formulations such as 
+	"The parser does not understand polite formulations such as
 	PLEASE LOOK AROUND NOW or KINDLY OPEN THE BOX.  Start your commands
 	with an imperative verb and they will work better.";
 ];
@@ -517,7 +517,7 @@ Extend 	'think'		* InternalNouns				 -> InternalAccusative;
 ];
 
 [ NoReturnSub;
-	"The game does not keep track of your path through the rooms, nor 
+	"The game does not keep track of your path through the rooms, nor
 	your orientation within them.  Instead, you should rely on absolute
 	compass directions.  If you
 	wish to visit a new location or return to a previous one, you will have to
@@ -536,13 +536,13 @@ Extend 	'think'		* InternalNouns				 -> InternalAccusative;
 	to a riddle, eg.) try some variations, such as SAY FLOOBLE.";
 ];
 [ MustLookSub;
-	print "[You can do this in the future by typing LOOK, which is quicker and 
+	print "[You can do this in the future by typing LOOK, which is quicker and
 		more standard.]^";
 	<<Look>>;
 ];
 [ MustXMeSub;
 	print "[You're the main character of the game.  Of course, the game author may
-		have given you a description.  You can see this description in the future 
+		have given you a description.  You can see this description in the future
 		by typing EXAMINE ME, which is quicker and more standard.]^^";
 	<<Examine player>>;
 ];
@@ -606,7 +606,7 @@ Verb 'hint' 'hints' *	-> HintHelp;
 ];
 
 [ ExitsSub;
-	"If you LOOK, you may notice some compass directions you can use to 
+	"If you LOOK, you may notice some compass directions you can use to
 	move to new rooms.";
 ];
 
@@ -614,7 +614,7 @@ Verb 'hint' 'hints' *	-> HintHelp;
 	if (noun has door) <<enter noun>>;
 	"There's no need to walk towards items that are already
 	in your vicinity.";
-]; 
+];
 
 Verb 'demo' * -> Demo;
 [ DemoSub;
@@ -638,7 +638,7 @@ Verb 'demo' * -> Demo;
 #ifdef BasicBrief;
 	BasicBrief(); rtrue;
 #ifnot;
-	"This is a work of interactive fiction, in which you play the role of the 
+	"This is a work of interactive fiction, in which you play the role of the
 	main character.  You interact by typing text at the prompt.";
 #endif;
 ];

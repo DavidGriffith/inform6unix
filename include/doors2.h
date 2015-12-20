@@ -35,7 +35,7 @@
 !
 !   Using Doors2 with "doors.h"
 !   ===========================
-!   
+!
 !   This module is intended to be used with L. Ross Raszewski's
 !   "doors.h", but can be used without it. If you use it with doors.h,
 !   please make sure you include "doors2.h" *after* "doors.
@@ -43,7 +43,7 @@
 #ifndef Connector;
 class Connector;
 #endif;
-	
+
 Class DirDoor
 	class Connector,
 	with

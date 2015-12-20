@@ -132,7 +132,7 @@ sub begin_chunk
 	|| ($id eq "ZCOD") || ($id eq "GLUL") || ($id eq "MAGS")
 	|| ($id eq "ADRI"))
     {   $chunk_important_array[$chunk_count] = 1;
-        $important_count = $important_count + 1;        
+        $important_count = $important_count + 1;
     }
 
     $chunk_id_array[$chunk_count] = $id;
@@ -167,7 +167,7 @@ sub end_chunk
     $chunk_size_array[$chunk_count] = $size;
 
     # Pad chunk to an even number of bytes
-    if ($size % 2 == 1) { 
+    if ($size % 2 == 1) {
 	$size = $size + 1;
     }
 
@@ -224,7 +224,7 @@ sub storyname_chunk
 
 # The mod file formats listed here are the ones supported by libmodplug,
 # which is the mod player library used in Unix Frotz and Windows Frotz.
-# 
+#
 sub ismod
 {
     my $ext = $_[0];
@@ -441,7 +441,7 @@ sub interpret
 	if ($ext eq "jpg" or $ext eq "jpeg")
 	{   begin_chunk("JPEG", $pnum, $pfile);
 	    end_chunk();
-	} elsif ($ext eq "png") {	
+	} elsif ($ext eq "png") {
 	    begin_chunk("PNG ", $pnum, $pfile);
 	    end_chunk();
 	} elsif ($ext eq "gif") {
@@ -663,7 +663,7 @@ while ($c = <BLURB>)
 close BLURB;
 
 if ($resolution_on == 1)
-{   
+{
     begin_chunk("Reso", 0, "");
     four_word($r_stdx);
     four_word($r_stdy);
@@ -686,7 +686,7 @@ if ($resolution_on == 1)
         four_word($p_minp[$x]);
         four_word($p_minq[$x]);
         four_word($p_maxp[$x]);
-        four_word($p_maxq[$x]);    
+        four_word($p_maxq[$x]);
     }
     end_chunk();
 }
@@ -695,7 +695,7 @@ if ($repeaters > 0)
 {   begin_chunk("Loop", 0, "");
     for ($x=0; $x<$repeaters; $x = $x + 1)
     {   four_word($looped_fx[$x]);
-        four_word($looped_num[$x]);        
+        four_word($looped_num[$x]);
     }
     end_chunk();
 }
@@ -770,7 +770,7 @@ for ($x = 0; $x < $chunk_count; $x = $x + 1)
     open(CHUNKSUB, $chunk_filename)
         or fatal("unable to read data from $chunk_filename");
     binmode(CHUNKSUB);
-    
+
     while(read CHUNKSUB, $portion, 16384) {
 	print CHUNK $portion;
     }
@@ -806,7 +806,7 @@ Use -h or --help for verbose help.
 
 The blorb spell safely protects a small object as though in a strong box.
 
-B<pblorb.pl> generates a blorb file according to the supplied blurb file.  
+B<pblorb.pl> generates a blorb file according to the supplied blurb file.
 
 =head1 OPTIONS
 	B<-?>            Print simple usage message.
@@ -816,26 +816,26 @@ B<pblorb.pl> generates a blorb file according to the supplied blurb file.
 
 =head1 APPLICATION
 
-A blorb file is an IFF (Interchange File Format) file that wraps up 
-executables, sound, graphics, and other resources into a single file for 
-use with interactive fiction game interpreters.  The format was 
-originally conceived for use with Z-machine and Glulx interpreters, but 
-nothing particularly limits it use to these two.  This script also 
-provides support for building blorb files for use with ADRIFT and 
+A blorb file is an IFF (Interchange File Format) file that wraps up
+executables, sound, graphics, and other resources into a single file for
+use with interactive fiction game interpreters.  The format was
+originally conceived for use with Z-machine and Glulx interpreters, but
+nothing particularly limits it use to these two.  This script also
+provides support for building blorb files for use with ADRIFT and
 Magnetic Scrolls interpreters.
 
-A blurb file is a text file that describes the contents of the 
-soon-to-be-built blorb file.  The blurb is given to pblorb.pl at the 
-command line which is then interpreted.  A blorb is then created 
-containing the files specified along with any non-file information 
+A blurb file is a text file that describes the contents of the
+soon-to-be-built blorb file.  The blurb is given to pblorb.pl at the
+command line which is then interpreted.  A blorb is then created
+containing the files specified along with any non-file information
 given.
 
 =head1 GRAMMAR
 
-This section is intended as a quick reference on blurb grammar.  A full 
-description can be found at Andrew Plotkin's website (see below).  Blank 
-lines are ignored.  The comment character is '!'.  Everything past that 
-character is ignored.  Each command describes a chunk to be added to the 
+This section is intended as a quick reference on blurb grammar.  A full
+description can be found at Andrew Plotkin's website (see below).  Blank
+lines are ignored.  The comment character is '!'.  Everything past that
+character is ignored.  Each command describes a chunk to be added to the
 Blorb file.
 
 =over
@@ -846,8 +846,8 @@ Adds this author name to the file.
 
 =item copyright <string>
 
-Adds this copyright declaration to the blorb file.  Normally this is 
-short text like "(c) J.Mango Pineapple 2007" rather than a lengthy legal 
+Adds this copyright declaration to the blorb file.  Normally this is
+short text like "(c) J.Mango Pineapple 2007" rather than a lengthy legal
 discorse.
 
 =item release <number>
@@ -856,8 +856,8 @@ Give this release number to the blorb file
 
 =item auxiliary <filename> <string>
 
-Tells the interpreter that an auxiliary file - for instance, a PDF 
-manual - is associated with the release but will not be embedded 
+Tells the interpreter that an auxiliary file - for instance, a PDF
+manual - is associated with the release but will not be embedded
 directly into the blorb file.
 
 =item ifiction <filename> include
@@ -868,7 +868,7 @@ Include an XML file containing a valid iFiction record for this work.
 
 =item storyfile	<filename> include
 
-Specifies the filename of the story file.  If the "include" option is 
+Specifies the filename of the story file.  If the "include" option is
 used, the story file will be embedded in the blorb file.
 
 =item palette 16 bit
@@ -877,12 +877,12 @@ used, the story file will be embedded in the blorb file.
 
 =item palette {<colour-1> <colour-N>}
 
-Signal the interpreter which colour scheme is in use.  The first two 
-options suggest that the pictures are best displayed using at least 
-16-bit or 32-bit colours.  The third specifies colours used in the 
-pictures in terms of red/green/blue levels, and the braces allow the 
-sequence of colours to continue over many lines.  At least one and at 
-most 256 colours may be defined in this way.  This is only a 
+Signal the interpreter which colour scheme is in use.  The first two
+options suggest that the pictures are best displayed using at least
+16-bit or 32-bit colours.  The third specifies colours used in the
+pictures in terms of red/green/blue levels, and the braces allow the
+sequence of colours to continue over many lines.  At least one and at
+most 256 colours may be defined in this way.  This is only a
 "suggestion" to the interpreter.  Only meaningful for Z-machine V6.
 
 =item resolution <dim>
@@ -893,9 +893,9 @@ most 256 colours may be defined in this way.  This is only a
 
 =item resolution <dim> min <dim> max <dim>
 
-Signal the interpreter the preferred screen size in real pixels.  The 
-minimum and maximum values are the extremes at which the designer thinks 
-the game will be playable.  These are optional with default values being 
+Signal the interpreter the preferred screen size in real pixels.  The
+minimum and maximum values are the extremes at which the designer thinks
+the game will be playable.  These are optional with default values being
 0 x 0 and infinity x infinity.  Only meaningful for Z-machine V6.
 
 =item sound <id> <filename>
@@ -904,11 +904,11 @@ the game will be playable.  These are optional with default values being
 
 =item sound <id> <filename> repeat forever
 
-Take the named sound file and make it a sound effect with the given ID.  
-The ID may be an integer (starting with 3) or a string.  If a string is 
-provided, pblorb.pl will emit a Inform6 constant declaration associating 
-that string with an automatically assigned number.  This allows the 
-author to refer to "SOUND_buzzer" instead of "4".  The repeat 
+Take the named sound file and make it a sound effect with the given ID.
+The ID may be an integer (starting with 3) or a string.  If a string is
+provided, pblorb.pl will emit a Inform6 constant declaration associating
+that string with an automatically assigned number.  This allows the
+author to refer to "SOUND_buzzer" instead of "4".  The repeat
 information is only meaningful for Z-machine V3.
 
 =item picture <id> <filename>
@@ -919,11 +919,11 @@ information is only meaningful for Z-machine V3.
 
 =item picture <id> <filename> scale <ratio> min <ratio>
 
-Take the named image file and make it a picture with the given ID.  The 
-ID rules are the same as with sounds except pictures may start at 1.  
-Scales are expressed as fractions, so "scale 3/1" means "Always display 
-three times its normal size.".  "scale num 1/10 max 8/1" means "Display 
-this anywhere between one tenth normal size and eight times normal size, 
+Take the named image file and make it a picture with the given ID.  The
+ID rules are the same as with sounds except pictures may start at 1.
+Scales are expressed as fractions, so "scale 3/1" means "Always display
+three times its normal size.".  "scale num 1/10 max 8/1" means "Display
+this anywhere between one tenth normal size and eight times normal size,
 but if possible it ought to be just its normal size.".
 
 =item cover <filename>
@@ -934,16 +934,16 @@ Includes this image file as a picture resource marked as "cover art".
 
 =head1 NOTES
 
-This program complies the Blorb Standard version 2.0.4 and the Treaty of 
+This program complies the Blorb Standard version 2.0.4 and the Treaty of
 Babel revision 9.
 
-The Blorb Format was created by Andrew Plotkin in 1998.  For more 
+The Blorb Format was created by Andrew Plotkin in 1998.  For more
 information, see L<http://www.eblong.com/zarf/blorb/>
 
-For information on the Treaty of Babel, see 
+For information on the Treaty of Babel, see
 L<http://babel.ifarchive.org/>
 
-For more information on IFF (Interchange File Format), see 
+For more information on IFF (Interchange File Format), see
 L<https://en.wikipedia.org/wiki/Interchange_File_Format>
 
 =head1 AUTHORS

@@ -34,7 +34,7 @@ Include "VerbLib";
 !                      |
 !                      v
 [ Initialise;
-  location = HUT1; 
+  location = HUT1;
 
 thedark.description = "There is nothing here but whiteness.  If you move
 from this spot, you are likely to be hopelessly lost";
@@ -44,7 +44,7 @@ from this spot, you are likely to be hopelessly lost";
    walk by yourself, the middle of the Antarctic plateau isn't one of them.
    Despite your training to stay put and wait for him to come back, you
    decide to go after him.  It's just the two of you here, and no planes
-   due for weeks."; 
+   due for weeks.";
 ];
 
 ! --------------------------------------------------------------------------
@@ -111,7 +111,7 @@ Object CAMP14 "Weather Observation Post 14"
 with description "Behind the sign that reads, ~The United States Welcomes
      you to Observation Post 14,~ lies your camp: an orange
      eight-foot by eight-foot box that you call home.  There
-     is a line of orange trail-marker flags heading off in 
+     is a line of orange trail-marker flags heading off in
      the distance to the north.  The rest is whiteness",
 s_to DOOR1,
 n_to
@@ -150,7 +150,7 @@ has light;
 !----
 Object -> DOOR2 "freezer door" ! An ordinary two-sided door (as implemented
 ! in the Inform Designer's Manual, chpt. 12).
-with description "There is a familiar looking door in the wall of the hut, 
+with description "There is a familiar looking door in the wall of the hut,
      with a familiar looking opening plunger.",
 name "white" "freezer" "door",
 when_closed [; rfalse; ],
@@ -213,7 +213,7 @@ initial
   ],
 After
   [; Take: print "You pull the flag from the snow"; ],
-  
+
 has ~static; ! Let's let the player pick up and move the flags around.
 
 ! Now, create several instances of the flags and stick them in the holding room
@@ -256,7 +256,7 @@ Array IVEC --> 0 1   1   1 (-2)  1   1   1   1
 1   0   0   0   0   1   0   1
 1   0   0   0   0   1   0   1
 1   0   0   0   0   1   0   1
-1   1   1 (-3)  1   1   1;  
+1   1   1 (-3)  1   1   1;
 
 ! Note the north-south crevasse to the east of the expected path of the Player.
 
@@ -264,7 +264,7 @@ Array IVEC --> 0 1   1   1 (-2)  1   1   1   1
 ! Walking around on the ice field
 
 ! NB: n_obj is 7.  The array has dummy entries to match the array element
-!     number with the direction object number.  The elements/directions 
+!     number with the direction object number.  The elements/directions
 !     follow the order N, S, E, W, NE, NW, SE, SW.  If this changes, this
 !     array and it's supporting code must be redesigned.  This may not
 !     be the best way to do this, but it does work.
@@ -314,7 +314,7 @@ rtrue;
   }
 
   ! There must be a barrier.  Stop them from moving.
-  print "In the nick of time, you step back from the edge of a yawning 
+  print "In the nick of time, you step back from the edge of a yawning
 crevasse.";
   return 3;
 ];
@@ -437,7 +437,7 @@ print ".";
 
   if (S==-3)
     print "You can see your camp up and to the south.^";
-  
+
 ];
 
 !

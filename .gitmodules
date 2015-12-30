@@ -3,4 +3,4 @@
 	url = git://github.com/DavidGriffith/inform6lib.git
 [submodule "src"]
 	path = src
-	url = git@github.com:DavidKinder/Inform6.git
+	url = git://github.com/DavidKinder/Inform6.git

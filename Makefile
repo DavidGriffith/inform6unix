@@ -33,13 +33,17 @@ TUTORDIR = $(PREFIX)/share/$(BINNAME)/tutor
 
 .PHONY: all clean lib
 
-all:	$(BINNAME) lib demos tutor
+all:	lib $(BINNAME) lib demos tutor
 
-$(OBJECTS): %.o: %.c
+# Rules
+%.o: %.c
 	$(CC) $(DEFINES) -o $@ -c $<
 
 $(BINNAME): $(OBJECTS)
 	$(CC) -o $@ $^
+
+%.z5: %.inf $(BINNAME)
+	$(PWD)/$(BINNAME) +lib $< $@
 
 lib:
 	@ cd $(LIBRARY);					\
@@ -49,15 +53,9 @@ lib:
 		test -r $$file || ln -s $$realfile $$file;	\
 	done
 
-$(DEMO_Z5): %.z5: %.inf
-	$(PWD)/$(BINNAME) +lib $^ $@
+demos:	lib $(BINNAME) $(DEMO_Z5)
 
-demos:	$(BINNAME) lib $(DEMO_Z5)
-
-$(TUTOR_Z5): %.z5: %.inf
-	$(PWD)/$(BINNAME) +lib $^ $@
-
-tutor:	$(BINNAME) lib $(TUTOR_Z5)
+tutor:	lib $(BINNAME) $(TUTOR_Z5)
 
 install: $(BINNAME) lib
 	strip $(BINNAME)

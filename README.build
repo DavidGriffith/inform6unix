@@ -8,10 +8,7 @@ ARCHIVE ||
 ==========
 
 If you unpacked an archive copy, everything you need is right here.
-Make sure you have the GNU autoconf and automake utilities installed and
-run the 'configure' script.  That will create a Makefile and then you
-can type 'make' to build the Inform6 compiler.  Then type 'make install'
-as root to install Inform6.
+Type 'make install' as root to install Inform6.
 
 =========
 GITHUB ||
@@ -36,12 +33,9 @@ components, a second step is needed:
 	git submodule init
 	git submodule update
 
-You may need to issue that last command twice.  Git is just like that.
-Notice that the 'configure' script isn't there.  As with the archive
-package, make sure you have GNU autoconf and automake installed.  Now
-execute the 'autogen.sh' script.  This will build the 'configure' script
-and a few other things.  From this point, build and installation is
-exactly as in the first section.
+You may need to issue that last command twice.  Git is just like that. 
+From this point, build and installation is exactly as in the first 
+section.
 
 If you want to clean up things and delete files that weren't here when
 you cloned the repository, use this command:

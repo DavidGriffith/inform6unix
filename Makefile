@@ -1,6 +1,6 @@
 CC = gcc
 
-OPTS = -g -Wall -Wextra
+#OPTS = -g -Wall -Wextra
 
 PREFIX = /usr/local
 MAN_PREFIX = $(PREFIX)
@@ -37,7 +37,7 @@ all:	lib $(BINNAME) lib demos tutor
 
 # Rules
 %.o: %.c
-	$(CC) $(DEFINES) -o $@ -c $<
+	$(CC) $(DEFINES) $(OPTS) -o $@ -c $<
 
 $(BINNAME): $(OBJECTS)
 	$(CC) -o $@ $^

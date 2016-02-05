@@ -13,7 +13,6 @@ Inform was originally written by Graham Nelson, and you are free to
 redistribute it under certain conditions -- see the file COPYING for
 details.
 
-
 What's in this distribution?
 ----------------------------
 
@@ -22,36 +21,41 @@ The following subdirectories are included in the package:
 - ***src***	--- source code for the Inform program
 - ***lib***	--- Inform library files
 - ***include***	--- selection of useful include files
-- ***manual***	--- the online Designer's Manual, in HTML format
 - ***demos***	--- some Inform demo games (including the classic *advent*)
 - ***tutor***	--- some Inform tutorial files
 - ***docs***	--- internal Inform documentation and release notes
 - ***contrib***	--- other contributed Inform stuff
 
-
 How do I install it?
 --------------------
 
-See the file called *INSTALL* for detailed instructions.  But basically,
-it boils down to...
+All you really need to do is this:
 
-    ./configure
     make
     make install
 
 This will install the following (assuming default installation):
 
     Inform executable in /usr/local/bin
-    Inform library modules in /usr/local/share/inform/VERSION/module
-    Inform include files in /usr/local/share/inform/VERSION/include
-    HTML Designer's Manual in /usr/local/share/inform/manual
+    Inform library files in /usr/local/share/inform/lib
+    Inform include files in /usr/local/share/inform/include
+    Inform tutorial games in /usr/local/share/inform/tutor
+    Inform demo games in /usr/local/share/inform/demos
+
+If you want to install Inform somewhere other than /usr/local, edit 
+Makefile accordingly.
 
 OK, it's installed.  Now what?
 ------------------------------
 
-Now you want to read the online Designer's Manual.  Or, alternatively, you
-could start with one of the tutorials in the tutor directory.  After that,
-you're all set to write an IF game!  Yay!
+There are three canonical works documenting the Inform6 language.  These 
+are the Inform Designers Manual (4th ed), the Inform Beginner's Guide, 
+and the IF Theory Reader.  These are at 
+http://inform-fiction.org/manual/index.html.  At least the the Inform 
+Designer's Manual is currently available on Amazon as a hardcopy 
+hardcover book.  Once you get a feel for the language, you can go 
+through the demos/ and docs/ directories and follow along with the 
+books. After that, you're all set to write an IF game!  Yay!
 
 Troubleshooting
 ---------------
@@ -80,7 +84,8 @@ The Inform maintainers
 
 An active community of Inform maintainers exists to fix bugs, implement new
 features and issue new versions of the program.  If you'd like to know
-more, or you think you've found a bug, visit them at http://inform7.com
+more, or you think you've found a bug, visit them at 
+http://inform7.com/contribute/report/
 
 About this package
 ------------------
@@ -100,10 +105,10 @@ Many people contributed to the contents of this package.  See the file
 AUTHORS for more details.
 
 This package is hosted at Github:
+
 https://github.com/DavidGriffith/inform6unix
 
 Feel free to hack on it and send me improvements!
-
 
 Finally...
 ----------

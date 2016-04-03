@@ -8,6 +8,7 @@ MAN_PREFIX = $(PREFIX)
 VERSION = 6.33.1
 NAME = inform
 BINNAME = $(NAME)
+BINDIR = $(PREFIX)/bin
 DISTNAME = $(BINNAME)-$(VERSION)
 distdir = $(DISTNAME)
 LIBDIR = $(PREFIX)/share/$(BINNAME)/lib
@@ -59,7 +60,8 @@ tutor:	lib $(BINNAME) $(TUTOR_Z5)
 
 install: $(BINNAME) lib
 	strip $(BINNAME)
-	install -c -m 755 $(BINNAME) $(PREFIX)/bin
+	install -d -m 755 $(BINDIR)
+	install -c -m 755 $(BINNAME) $(BINDIR)
 	install -d -m 755 $(LIBDIR)
 	install -c -m 644 $(wildcard lib/*) $(LIBDIR)
 	install -d -m 755 $(INCLUDEDIR)

@@ -58,8 +58,10 @@ demos:	lib $(BINNAME) $(DEMO_Z5)
 
 tutor:	lib $(BINNAME) $(TUTOR_Z5)
 
-install: $(BINNAME) lib
+strip: $(BINNAME)
 	strip $(BINNAME)
+
+install: $(BINNAME) lib
 	install -d -m 755 $(BINDIR)
 	install -c -m 755 $(BINNAME) $(BINDIR)
 	install -d -m 755 $(LIBDIR)
@@ -72,6 +74,8 @@ install: $(BINNAME) lib
 	install -c -m 644 $(wildcard demos/*) $(DEMODIR)
 	install -d -m 755 $(TUTORDIR)
 	install -c -m 644 $(wildcard demos/*) $(TUTORDIR)
+
+install-strip: strip install
 
 
 uninstall:

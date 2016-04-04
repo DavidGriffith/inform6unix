@@ -73,7 +73,7 @@ install: $(BINNAME) lib
 	install -d -m 755 $(DEMODIR)
 	install -c -m 644 $(wildcard demos/*) $(DEMODIR)
 	install -d -m 755 $(TUTORDIR)
-	install -c -m 644 $(wildcard demos/*) $(TUTORDIR)
+	install -c -m 644 $(wildcard tutor/*) $(TUTORDIR)
 
 install-strip: strip install
 

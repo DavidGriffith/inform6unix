@@ -1,9 +1,12 @@
-Version 6.33.1-b3 (25 November 2015)
-====================================
+Version 6.33-6.12.1 (6 June 2016)
+=================================
 
 * Inform version is now 6.33, with Inform7-related patches and new features.
 
-* The Inform Library is 6/12 with lots of bugfixes and enhancements.
+* The Inform Library is 6.12.1 with lots of bugfixes and enhancements.
+
+* Package version scheme changed to indicate both compiler and library 
+  versions included.
 
 * Include files trimmed to those known to be freely redistributable and
   checked to make sure they work.

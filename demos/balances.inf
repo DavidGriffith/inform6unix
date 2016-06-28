@@ -414,7 +414,7 @@ Global the_spell_was = gnusto_spell;
   rfalse;
 ];
 
-[ ParserError x i flag vb;
+[ ParserError i flag vb;
   if (etype==VERB_PE or ASKSCOPE_PE)
   {   if (etype==ASKSCOPE_PE)
       {   if (verb_word=='cast') vb=1;
@@ -423,9 +423,8 @@ Global the_spell_was = gnusto_spell;
           if (vb==0) { etype=CANTSEE_PE; rfalse; }
       }
       wn=verb_wordnum; if (vb~=0) wn++;
-      x=NextWordStopped();
       for (i=player+1:i<=top_object:i++)
-          if (i ofclass Spell && Refers(i,x)==1
+          if (i ofclass Spell && Refers(i,wn)==1
               && i has known_about) flag=1;
       if (flag==1)
       {   if (vb==0 or 1)

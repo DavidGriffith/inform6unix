@@ -378,6 +378,17 @@ Class Scroll
   ! ParserError routine handles that case instead
 ];
 
+[ LearnedSpell i;
+  if (scope_stage==1) rfalse;
+  if (scope_stage==2)
+  {   objectloop (i in memory)
+          if (i has is_spell) PlaceInScope(i);
+      rfalse;
+  }
+  ! No need for scope_stage 3 (the error stage), because our
+  ! ParserError routine handles that case instead
+];
+
 [ SpellsSub; memory.describe_contents(); ];
 
 [ LearnSub; if (location==thedark)
@@ -1903,9 +1914,9 @@ Verb "c,cast"
                 *                                -> CastOne
                 * noun                           -> CastOne;
 Verb "cast"
-                * is_spell                       -> Cast
-                * is_spell "at" noun             -> Cast
-                * is_spell "on" noun             -> Cast;
+                * scope=LearnedSpell             -> Cast
+                * scope=LearnedSpell "at" noun   -> Cast
+                * scope=LearnedSpell "on" noun   -> Cast;
 Verb "diagnose" "health"
                 *                                -> Diagnose;
 

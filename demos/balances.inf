@@ -378,6 +378,17 @@ Class Scroll
   ! ParserError routine handles that case instead
 ];
 
+[ LearnedSpell i;
+  if (scope_stage==1) rfalse;
+  if (scope_stage==2)
+  {   objectloop (i in memory)
+          if (i has is_spell) PlaceInScope(i);
+      rfalse;
+  }
+  ! No need for scope_stage 3 (the error stage), because our
+  ! ParserError routine handles that case instead
+];
+
 [ SpellsSub; memory.describe_contents(); ];
 
 [ LearnSub; if (location==thedark)
@@ -414,7 +425,7 @@ Global the_spell_was = gnusto_spell;
   rfalse;
 ];
 
-[ ParserError x i flag vb;
+[ ParserError i flag vb;
   if (etype==VERB_PE or ASKSCOPE_PE)
   {   if (etype==ASKSCOPE_PE)
       {   if (verb_word=='cast') vb=1;
@@ -423,9 +434,8 @@ Global the_spell_was = gnusto_spell;
           if (vb==0) { etype=CANTSEE_PE; rfalse; }
       }
       wn=verb_wordnum; if (vb~=0) wn++;
-      x=NextWordStopped();
       for (i=player+1:i<=top_object:i++)
-          if (i ofclass Spell && Refers(i,x)==1
+          if (i ofclass Spell && Refers(i,wn)==1
               && i has known_about) flag=1;
       if (flag==1)
       {   if (vb==0 or 1)
@@ -1904,9 +1914,9 @@ Verb "c,cast"
                 *                                -> CastOne
                 * noun                           -> CastOne;
 Verb "cast"
-                * is_spell                       -> Cast
-                * is_spell "at" noun             -> Cast
-                * is_spell "on" noun             -> Cast;
+                * scope=LearnedSpell             -> Cast
+                * scope=LearnedSpell "at" noun   -> Cast
+                * scope=LearnedSpell "on" noun   -> Cast;
 Verb "diagnose" "health"
                 *                                -> Diagnose;
 

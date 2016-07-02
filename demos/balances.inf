@@ -1,12 +1,12 @@
 ! ----------------------------------------------------------------------------
 !   Balances 160701                 One of the standard Inform 6 example games
 !
-!                                                             created: 25.9.94
-!                                                             updated: 6.10.94
-!                                                         modernised: 11.12.95
-!                                               translated to Inform 6: 8.5.96
-!                                                   minor bugs fixed: 16.12.96
-!                                 modernised again by Vince LaViano :   1.7.16
+!                                                          created: 25.09.1994
+!                                                          updated: 06.10.1994
+!                                                       modernised: 11.12.1995
+!                                           translated to Inform 6: 08.05.1996
+!                                                 minor bugs fixed: 16.12.1996
+!                                modernised again by Vince Laviano: 01.07.2016
 !
 !   This short story was written to demonstrate large-scale programming of
 !   the parser, and features multiple objects, complicated plurals, variable

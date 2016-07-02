@@ -1,27 +1,28 @@
 ! ----------------------------------------------------------------------------
-!   Balances 961216                 One of the standard Inform 6 example games
+!   Balances 160701                 One of the standard Inform 6 example games
 !
 !                                                             created: 25.9.94
 !                                                             updated: 6.10.94
 !                                                         modernised: 11.12.95
 !                                               translated to Inform 6: 8.5.96
 !                                                   minor bugs fixed: 16.12.96
+!                                 modernised again by Vince LaViano :  26.6.28
 !
 !   This short story was written to demonstrate large-scale programming of
 !   the parser, and features multiple objects, complicated plurals, variable
 !   verbs, objects named by the player and questions.  The spell-casting
 !   system is written in a "safe" way so that it could easily be transplanted.
 !
-!   Needs Inform 6, library 6/1 or later to compile.
+!   Needs Inform 6, library 6/5 or later to compile.
 ! ----------------------------------------------------------------------------
 
-Release 5;
-Serial "961216";
+Release 6;
+Serial "160701";
 Switches d;
 
 Constant Story "BALANCES";
 Constant Headline "^An Interactive Short Story
-                   ^Copyright (c) 1994, 1995, 1996 by Graham Nelson.^";
+                   ^Copyright (c) 1994, 1995, 1996, 2016 by Graham Nelson.^";
 
 Constant OBJECT_SCORE 5;
 Constant MAX_SCORE 51;

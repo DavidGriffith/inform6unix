@@ -17,7 +17,7 @@ INCLUDEDIR = $(PREFIX)/share/$(BINNAME)/include
 MANPAGE = $(NAME).1
 MANDIR = $(MAN_PREFIX)/man/man1
 
-DEFINES=  -DInclude_Directory=\"$(INCLUDEDIR),$(LIBDIR)\" -DTemporary_Directory=\"/tmp\"
+DEFINES=  -DInclude_Directory=\",$(INCLUDEDIR),$(LIBDIR)\" -DTemporary_Directory=\"/tmp\"
 
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,${SOURCES})

@@ -75,12 +75,15 @@ install: $(BINNAME) lib
 	install -c -m 644 $(wildcard demos/*) $(DEMODIR)
 	install -d -m 755 $(TUTORDIR)
 	install -c -m 644 $(wildcard tutor/*) $(TUTORDIR)
+	install -c -m 755 contrib/pblorb.pl $(BINDIR)
+	install -c -m 755 contrib/scanblorb.pl $(BINDIR)
 
 install-strip: strip install
 
-
 uninstall:
 	rm -f $(PREFIX)/bin/$(BINNAME)
+	rm -f $(PREFIX)/bin/pblorb.pl
+	rm -f $(PREFIX)/bin/scanblorb.pl
 	rm -rf $(LIBDIR)
 	rm -rf $(INCLUDEDIR)
 	rm -rf $(DEMODIR)

@@ -1,4 +1,5 @@
 CC = gcc
+GIT = git
 
 #OPTS = -g -Wall -Wextra
 
@@ -67,6 +68,18 @@ tutor:	lib $(BINNAME) $(TUTOR_Z5)
 strip: $(BINNAME)
 	strip $(BINNAME)
 
+submodule: submodules
+submodules:
+ifneq ($(and $(wildcard .git),$(shell which git)),)
+	rm -rf $(SRC) $(LIBSRC)
+	@$(GIT) submodule init
+	@$(GIT) submodule update
+	@$(GIT) submodule update
+else
+	@echo "Not in a git repository or git command missing."
+	@echo "Just try \"make\" now."
+endif
+
 install: $(BINNAME) lib
 	install -d -m 755 $(BINDIR)
 	install -c -m 755 $(BINNAME) $(BINDIR)
@@ -120,6 +133,13 @@ clean:
 	for file in $(LIB_LINKS); do \
 		rm -f $$file; \
 	done
+
+gitclean:
+ifneq ($(and $(wildcard .git),$(shell which git)),)
+	$(GIT) clean -fdx
+else
+	@echo "Not in a git repository or git command missing."
+endif
 
 distclean: clean
 	find . -name *core -exec rm -f {} \;

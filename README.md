@@ -29,7 +29,12 @@ The following subdirectories are included in the package:
 How do I install it?
 --------------------
 
-All you really need to do is this:
+If you're working from the Github repository 
+https://github.com/DavidGriffith/inform6unix, do this first:
+
+    make submodules
+
+Then, here's how to build Inform6:
 
     make
     make install
@@ -114,4 +119,6 @@ Finally...
 ----------
 
 If you have any comments or suggestions (or anything else, for that matter)
-feel free to drop me a line.  I am David Griffith <dave@661.org>.
+feel free to drop me a line.  I am:
+
+David Griffith <dave@661.org>.

@@ -29,8 +29,7 @@ The following subdirectories are included in the package:
 How do I install it?
 --------------------
 
-If you're working from the Github repository 
-https://github.com/DavidGriffith/inform6unix, do this first:
+If you're working from a git repository, do this first:
 
     make submodules
 

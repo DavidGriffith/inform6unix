@@ -19,17 +19,22 @@ MANDIR = $(MAN_PREFIX)/man/man1
 
 DEFINES= -DUNIX -DInclude_Directory=\",$(INCLUDEDIR),$(LIBDIR)\" -DTemporary_Directory=\"/tmp\"
 
-SOURCES = $(wildcard src/*.c)
+SRC = src
+LIBSRC = lib
+DEMO = demos
+TUTOR = tutor
+
+SOURCES = $(wildcard ${SRC}/*.c)
 OBJECTS = $(patsubst %.c,%.o,${SOURCES})
 
 LIBRARY = lib
 LIB_LINKS = English.h Grammar.h Parser.h Verblib.h VerbLib.h
 
-DEMO_SRC = $(wildcard demos/*.inf)
-DEMO_Z5  = $(patsubst %.inf,%.z5,${DEMO_SRC})
+DEMO_SRC = $(wildcard ${DEMO}/*.inf)
+DEMO_Z5  = $(patsubst %.inf,%.z5,${DEMO})
 DEMODIR = $(PREFIX)/share/$(BINNAME)/demos
 
-TUTOR_SRC = $(wildcard tutor/*.inf)
+TUTOR_SRC = $(wildcard ${TUTOR}/*.inf)
 TUTOR_Z5  = $(patsubst %.inf,%.z5,${TUTOR_SRC})
 TUTORDIR = $(PREFIX)/share/$(BINNAME)/tutor
 
@@ -48,7 +53,7 @@ $(BINNAME): $(OBJECTS)
 	$(PWD)/$(BINNAME) +lib $< $@
 
 lib:
-	@ cd $(LIBRARY);					\
+	@ cd $(LIBSRC);					\
 	for file in $(LIB_LINKS); do				\
 		realfile=`echo $$file | tr '[A-Z]' '[a-z]'`;	\
 		echo $$realfile $$file;				\
@@ -66,15 +71,15 @@ install: $(BINNAME) lib
 	install -d -m 755 $(BINDIR)
 	install -c -m 755 $(BINNAME) $(BINDIR)
 	install -d -m 755 $(LIBDIR)
-	install -c -m 644 $(wildcard lib/*) $(LIBDIR)
+	install -c -m 644 $(wildcard ${LIBSRC}/*) $(LIBDIR)
 	install -d -m 755 $(INCLUDEDIR)
 	install -c -m 644 $(wildcard include/*) $(INCLUDEDIR)
 	install -d -m 755 $(MANDIR)
 	install -c -m 644 $(MANPAGE) $(MANDIR)
 	install -d -m 755 $(DEMODIR)
-	install -c -m 644 $(wildcard demos/*) $(DEMODIR)
+	install -c -m 644 $(wildcard ${DEMO}/*) $(DEMODIR)
 	install -d -m 755 $(TUTORDIR)
-	install -c -m 644 $(wildcard tutor/*) $(TUTORDIR)
+	install -c -m 644 $(wildcard ${TUTOR}/*) $(TUTORDIR)
 	install -c -m 755 contrib/pblorb.pl $(BINDIR)
 	install -c -m 755 contrib/scanblorb.pl $(BINDIR)
 
@@ -97,8 +102,8 @@ dist: distclean
 		fi; \
 	done
 	find $(distdir) -type l -exec rm -f {} \;
-	rm -rf $(distdir)/src/.git* $(distdir)/src/.deps
-	rm -rf $(distdir)/lib/.git* $(distdir)/lib/.deps
+	rm -rf $(distdir)/${SRC}/.git* $(distdir)/${SRC}/.deps
+	rm -rf $(distdir)/${LIBSRC}/.git* $(distdir)/${LIBSRC}/.deps
 	tar chof $(distdir).tar $(distdir)
 	gzip -f --best $(distdir).tar
 	rm -rf $(distdir)
@@ -108,10 +113,10 @@ dist: distclean
 
 clean:
 	rm -f $(BINNAME)
-	rm -f src/*.o
-	rm -f demos/*z5
-	rm -f tutor/*z5
-	cd $(LIBRARY); \
+	rm -f ${SRC}/*.o
+	rm -f ${DEMO}/*z5
+	rm -f ${TUTOR}/*z5
+	cd $(LIBSRC); \
 	for file in $(LIB_LINKS); do \
 		rm -f $$file; \
 	done

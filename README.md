@@ -37,7 +37,7 @@ https://github.com/DavidGriffith/inform6unix, do this first:
 Then, here's how to build Inform6:
 
     make
-    make install
+    sudo make install
 
 This will install the following (assuming default installation):
 

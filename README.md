@@ -57,9 +57,9 @@ are the Inform Designers Manual (4th ed), the Inform Beginner's Guide,
 and the IF Theory Reader.  These are at 
 http://inform-fiction.org/manual/index.html.  At least the the Inform 
 Designer's Manual is currently available on Amazon as a hardcopy 
-hardcover book.  Once you get a feel for the language, you can go 
-through the demos/ and docs/ directories and follow along with the 
-books. After that, you're all set to write an IF game!  Yay!
+hardcover book.  They're very nice to have on hand when going through 
+the demos/ and tutor/ directories and follow along with the books. After 
+that, you're all set to write an IF game!  Yay!
 
 Troubleshooting
 ---------------

@@ -1,3 +1,5 @@
+**This project has moved to https://gitlab.com/DavidGriffith/inform6unix**
+
 **Welcome to Inform!**
 =======================
 
